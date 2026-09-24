@@ -26,23 +26,30 @@ COLUMNS = ["date", "market", "code", "name", "open", "high", "low", "close",
 TWSE_URL = ("https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX"
             "?date={d:%Y%m%d}&type=ALLBUT0999&response=json")
 TPEX_URL = ("https://www.tpex.org.tw/www/zh-tw/afterTrading/dailyQuotes"
-            "?date={d:%Y}/{d:%m}/{d:%d}&response=json")
+            "?date={d:%Y}/{d:%m}/{d:%d}&type=EW&response=json")  # EW = 不含權證
 
 # TWSE 限制約 5 秒 3 次請求，超過會被暫時封鎖
 REQUEST_INTERVAL = 4
 
 
-def http_get_json(url, retries=3):
+def http_get_json(url, retries=5):
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
     for attempt in range(retries):
         try:
-            with urllib.request.urlopen(req, timeout=30) as resp:
+            with urllib.request.urlopen(req, timeout=60) as resp:
                 return json.loads(resp.read().decode("utf-8"))
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:  # noqa: BLE001  (含 IncompleteRead：伺服器中途斷線)
             if attempt == retries - 1:
                 raise
-            print(f"  retry {attempt + 1}: {e}", file=sys.stderr)
-            time.sleep(5 * (attempt + 1))
+            wait = 10 * 2 ** attempt
+            print(f"  retry {attempt + 1}/{retries - 1} in {wait}s: {e!r}", file=sys.stderr)
+            time.sleep(wait)
+
+
+def is_warrant(code):
+    """權證、牛熊證：6 碼且以 7（上櫃）或 03~08（上市）開頭。"""
+    return len(code) == 6 and (code[0] == "7" or code[:2] in
+                               ("03", "04", "05", "06", "07", "08"))
 
 
 def to_number(s):
@@ -83,6 +90,8 @@ def parse_twse(payload, d):
     }.items()}
     rows = []
     for r in table["data"]:
+        if is_warrant(r[ix["code"]].strip()):
+            continue
         diff = to_number(r[ix["diff"]])
         if diff and "-" in r[ix["sign"]] and float(diff) != 0:
             diff = "-" + diff
@@ -115,6 +124,8 @@ def parse_tpex(payload, d):
     }.items()}
     rows = []
     for r in table["data"]:
+        if is_warrant(r[ix["code"]].strip()):
+            continue
         rows.append({
             "date": d.isoformat(), "market": "TPEx",
             "code": r[ix["code"]].strip(), "name": r[ix["name"]].strip(),
@@ -144,6 +155,12 @@ def fetch_day(d, force=False):
     twse = parse_twse(http_get_json(TWSE_URL.format(d=d)), d)
     time.sleep(REQUEST_INTERVAL)
     tpex = parse_tpex(http_get_json(TPEX_URL.format(d=d)), d)
+    if twse and not tpex:
+        # 交易日但上櫃沒資料：可能 type 參數不被接受，改抓全部再自行過濾
+        time.sleep(REQUEST_INTERVAL)
+        tpex = parse_tpex(http_get_json(TPEX_URL.format(d=d).replace("&type=EW", "")), d)
+    if twse and not tpex:
+        raise RuntimeError("上市有資料但上櫃沒有，稍後重試")
 
     if not twse and not tpex:
         print(f"{d}: 無資料（非交易日或尚未公布）")
@@ -169,6 +186,8 @@ def main():
     ap.add_argument("--start", type=parse_date, help="回補起日")
     ap.add_argument("--end", type=parse_date, help="回補迄日（預設今天）")
     ap.add_argument("--force", action="store_true", help="覆寫已存在的檔案")
+    ap.add_argument("--max-minutes", type=float, default=0,
+                    help="回補時最多執行幾分鐘就停（0 = 不限），沒抓完的下次重跑會接著抓")
     args = ap.parse_args()
 
     today = datetime.now(TPE).date()
@@ -181,9 +200,24 @@ def main():
     else:
         days = [args.date or today]
 
+    deadline = time.monotonic() + args.max_minutes * 60 if args.max_minutes else None
+    failed = []
     for i, d in enumerate(days):
-        if fetch_day(d, args.force) and i < len(days) - 1:
+        if deadline and time.monotonic() > deadline:
+            print(f"已達 {args.max_minutes:g} 分鐘上限，停在 {d}；重跑同樣指令會從這裡接著抓")
+            break
+        try:
+            fetched = fetch_day(d, args.force)
+        except Exception as e:  # noqa: BLE001  單日失敗不中斷整個回補
+            print(f"{d}: 失敗 {e!r}", file=sys.stderr)
+            failed.append(d)
+            fetched = True
+        if fetched and i < len(days) - 1:
             time.sleep(REQUEST_INTERVAL)
+
+    if failed:
+        print(f"共 {len(failed)} 天失敗: {', '.join(map(str, failed))}", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
