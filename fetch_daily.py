@@ -7,7 +7,8 @@
     python fetch_daily.py --start 2026-09-01 --end 2026-09-23   # 回補區間
 
 輸出: data/<YYYY>/<YYYYMMDD>.csv，欄位統一如 COLUMNS。
-非交易日（假日、颱風假）會自動略過。
+已抓過的日期（已有 CSV）和已確認的非交易日（記在 data/no_trading_days.txt）
+都會直接跳過、不再連線；加 --force 可強制重抓。
 """
 import argparse
 import csv
@@ -143,14 +144,36 @@ def output_path(d):
     return DATA_DIR / f"{d:%Y}" / f"{d:%Y%m%d}.csv"
 
 
-def fetch_day(d, force=False):
+def holidays_path():
+    return DATA_DIR / "no_trading_days.txt"
+
+
+def load_holidays():
+    try:
+        return {parse_date(line) for line in holidays_path().read_text().split() if line}
+    except FileNotFoundError:
+        return set()
+
+
+def save_holidays(days):
+    holidays_path().parent.mkdir(parents=True, exist_ok=True)
+    holidays_path().write_text("".join(f"{d}\n" for d in sorted(days)))
+
+
+# fetch_day 回傳值
+SKIPPED, FETCHED, NO_DATA = "skipped", "fetched", "no_data"
+
+
+def should_skip(d, force=False, holidays=frozenset()):
+    """已抓過、週末、已知非交易日 -> 不需連線。"""
+    return not force and (output_path(d).exists() or d.weekday() >= 5 or d in holidays)
+
+
+def fetch_day(d, force=False, holidays=frozenset()):
+    """抓單日資料。SKIPPED 表示沒有連線。"""
+    if should_skip(d, force, holidays):
+        return SKIPPED
     out = output_path(d)
-    if out.exists() and not force:
-        print(f"{d}: 已存在，略過")
-        return False
-    if d.weekday() >= 5:
-        print(f"{d}: 週末，略過")
-        return False
 
     twse = parse_twse(http_get_json(TWSE_URL.format(d=d)), d)
     time.sleep(REQUEST_INTERVAL)
@@ -164,7 +187,7 @@ def fetch_day(d, force=False):
 
     if not twse and not tpex:
         print(f"{d}: 無資料（非交易日或尚未公布）")
-        return False
+        return NO_DATA
 
     out.parent.mkdir(parents=True, exist_ok=True)
     with out.open("w", newline="", encoding="utf-8") as fp:
@@ -172,7 +195,7 @@ def fetch_day(d, force=False):
         w.writeheader()
         w.writerows(twse + tpex)
     print(f"{d}: 上市 {len(twse)} 筆、上櫃 {len(tpex)} 筆 -> {out}")
-    return True
+    return FETCHED
 
 
 def parse_date(s):
@@ -200,21 +223,32 @@ def main():
     else:
         days = [args.date or today]
 
+    holidays = load_holidays()
     deadline = time.monotonic() + args.max_minutes * 60 if args.max_minutes else None
-    failed = []
-    for i, d in enumerate(days):
+    failed, counts = [], {SKIPPED: 0, FETCHED: 0, NO_DATA: 0}
+    need_sleep = False
+    for d in days:
         if deadline and time.monotonic() > deadline:
             print(f"已達 {args.max_minutes:g} 分鐘上限，停在 {d}；重跑同樣指令會從這裡接著抓")
             break
+        if need_sleep and not should_skip(d, args.force, holidays):
+            time.sleep(REQUEST_INTERVAL)  # 只在兩次連線之間等待
         try:
-            fetched = fetch_day(d, args.force)
+            result = fetch_day(d, args.force, holidays)
         except Exception as e:  # noqa: BLE001  單日失敗不中斷整個回補
             print(f"{d}: 失敗 {e!r}", file=sys.stderr)
             failed.append(d)
-            fetched = True
-        if fetched and i < len(days) - 1:
-            time.sleep(REQUEST_INTERVAL)
+            need_sleep = True
+            continue
+        counts[result] += 1
+        need_sleep = result != SKIPPED
+        # 今天可能只是還沒公布，不記成非交易日
+        if result == NO_DATA and d < today and d not in holidays:
+            holidays.add(d)
+            save_holidays(holidays)
 
+    print(f"完成：新抓 {counts[FETCHED]} 天、跳過 {counts[SKIPPED]} 天（已抓過/週末/非交易日）、"
+          f"新發現非交易日 {counts[NO_DATA]} 天、失敗 {len(failed)} 天")
     if failed:
         print(f"共 {len(failed)} 天失敗: {', '.join(map(str, failed))}", file=sys.stderr)
         sys.exit(1)

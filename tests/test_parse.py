@@ -68,3 +68,43 @@ class ParseTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SkipTest(unittest.TestCase):
+    def setUp(self):
+        import tempfile
+        self.orig = (fd.DATA_DIR, fd.http_get_json, fd.time.sleep, fd.REQUEST_INTERVAL)
+        fd.DATA_DIR = Path(tempfile.mkdtemp())
+        fd.time.sleep = lambda s: None
+        self.urls = []
+
+        def fake(url, retries=5):
+            self.urls.append(url)
+            if "20220131" in url or "2022/01/31" in url:  # 春節
+                return {"stat": "很抱歉，沒有符合條件的資料!"}
+            return TWSE if "twse" in url else TPEX
+        fd.http_get_json = fake
+
+    def tearDown(self):
+        fd.DATA_DIR, fd.http_get_json, fd.time.sleep, fd.REQUEST_INTERVAL = self.orig
+
+    def run_main(self, *argv):
+        sys.argv = ["fetch_daily.py", *argv]
+        fd.main()
+
+    def test_second_run_makes_no_requests(self):
+        # 2022-01-28 (五) 交易日、01-29/30 週末、01-31 (一) 春節
+        self.run_main("--start", "2022-01-28", "--end", "2022-01-31")
+        self.assertTrue(fd.output_path(date(2022, 1, 28)).exists())
+        self.assertEqual(fd.load_holidays(), {date(2022, 1, 31)})
+        n = len(self.urls)
+        self.assertGreater(n, 0)
+
+        self.run_main("--start", "2022-01-28", "--end", "2022-01-31")
+        self.assertEqual(len(self.urls), n)  # 全部跳過，沒有再連線
+
+    def test_force_refetches(self):
+        self.run_main("--date", "2022-01-28")
+        n = len(self.urls)
+        self.run_main("--date", "2022-01-28", "--force")
+        self.assertGreater(len(self.urls), n)
