@@ -7,12 +7,26 @@
 - 已抓過的日期、週末、已確認的非交易日（記在 `data/no_trading_days.txt`）會直接跳過不連線；`--force` 可強制重抓
 - 輸出：`data/<YYYY>/<YYYYMMDD>.csv`，欄位 `date, market, code, name, open, high, low, close, change, volume, value, transactions`
 
+## 同步到 Firebase（Firestore）
+
+每次抓到新資料後，workflow 會用 `upload_firestore.py` 把這次新增的 CSV 寫進 Firestore：
+
+- `stock_prices/{code}/daily/{YYYY-MM-DD}`：每檔每日一筆
+- `daily_snapshots/{YYYY-MM-DD}`：當日全市場一份
+- `jobs/firestore_upload`：最後一次上傳狀態
+
+啟用方式：Firebase Console → 專案設定 → 服務帳戶 → 產生私密金鑰，把整份 JSON 貼到 GitHub repo 的
+Settings → Secrets and variables → Actions → `FIREBASE_SERVICE_ACCOUNT`。沒設定就自動略過。
+
+一天約 2,000 次寫入，Firestore 免費額度每天 20,000 次，所以一次最多上傳最新 5 天（`--max-files`）。
+
 ## 本機執行
 
 ```bash
 python fetch_daily.py                                   # 今天
 python fetch_daily.py --date 2026-09-23                 # 指定日期
 python fetch_daily.py --start 2026-09-01 --end 2026-09-23   # 回補
+python upload_firestore.py --latest 5                   # 把最新 5 天寫進 Firestore（需憑證）
 python -m unittest discover tests                       # 測試
 ```
 

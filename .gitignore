@@ -1,2 +1,6 @@
 __pycache__/
 *.pyc
+
+# Firebase 金鑰不要 commit
+*serviceAccount*.json
+*-firebase-adminsdk-*.json
