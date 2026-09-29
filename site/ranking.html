@@ -81,7 +81,55 @@
   .date-nav .date-label{
     padding:7px 14px; color:var(--text); font-size:14px;
     border-left:1px solid var(--line); border-right:1px solid var(--line);
+    display:flex; align-items:center; gap:8px;
   }
+  .date-nav .date-label::after{
+    content:""; width:6px; height:6px; margin-top:-3px;
+    border-right:1.5px solid var(--text-muted); border-bottom:1.5px solid var(--text-muted);
+    transform:rotate(45deg); transition:transform .15s ease;
+  }
+  .date-nav .date-label[aria-expanded="true"]::after{transform:rotate(-135deg); margin-top:3px;}
+
+  /* ---------- 行事曆 ---------- */
+  .date-picker{position:relative;}
+  .cal{
+    position:absolute; top:calc(100% + 8px); left:0; z-index:30;
+    width:min(300px, calc(100vw - 32px)); padding:14px 14px 12px;
+    background:var(--panel); border:1px solid var(--line-strong); border-radius:var(--radius-m);
+    box-shadow:0 16px 40px rgba(0,0,0,0.45);
+  }
+  .cal-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;}
+  .cal-title{font-family:'Noto Serif TC',serif; font-size:15px; font-weight:700;}
+  .cal-head button{
+    background:none; border:none; color:var(--text-muted); cursor:pointer;
+    font-size:16px; padding:4px 10px; border-radius:var(--radius-s); font-family:inherit;
+  }
+  .cal-head button:hover:not(:disabled){color:var(--brass); background:var(--panel-2);}
+  .cal-head button:disabled{color:var(--text-faint); opacity:.4; cursor:default;}
+  .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:2px;}
+  .cal-wd{font-size:11px; color:var(--text-faint); text-align:center; padding:4px 0 6px;}
+  .cal-day{
+    height:36px; border:none; background:none; border-radius:var(--radius-s);
+    color:var(--text); cursor:pointer; font-size:13px; position:relative;
+  }
+  .cal-day:hover:not(:disabled){background:var(--panel-2); color:var(--brass);}
+  .cal-day:disabled{color:var(--text-faint); opacity:.45; cursor:default;}
+  .cal-day.latest::after{
+    content:""; position:absolute; left:50%; bottom:5px; width:4px; height:4px; margin-left:-2px;
+    border-radius:50%; background:var(--brass);
+  }
+  .cal-day.sel{background:var(--brass); color:var(--ink); font-weight:600;}
+  .cal-day.sel::after{background:var(--ink);}
+  .cal-foot{
+    display:flex; justify-content:space-between; align-items:center; gap:10px;
+    margin-top:10px; padding-top:10px; border-top:1px solid var(--line);
+    font-size:11.5px; color:var(--text-faint);
+  }
+  .cal-foot button{
+    background:none; border:1px solid var(--line-strong); color:var(--text-muted);
+    border-radius:var(--radius-s); padding:4px 10px; font-size:12px; cursor:pointer; font-family:inherit;
+  }
+  .cal-foot button:hover{color:var(--brass); border-color:var(--brass);}
   .source-tag{font-size:12px; color:var(--text-faint);}
 
   /* ---------- 市場摘要（沿用 quant-grid 的 1px 格線） ---------- */
@@ -203,10 +251,24 @@
       </div>
 
       <div class="date-bar">
-        <div class="date-nav">
-          <button id="prevDay" type="button" aria-label="前一交易日">‹</button>
-          <span class="date-label mono" id="dateLabel">—</span>
-          <button id="nextDay" type="button" aria-label="下一交易日">›</button>
+        <div class="date-picker" id="datePicker">
+          <div class="date-nav">
+            <button id="prevDay" type="button" aria-label="前一交易日">‹</button>
+            <button class="date-label mono" id="dateLabel" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="cal" title="選擇日期">—</button>
+            <button id="nextDay" type="button" aria-label="下一交易日">›</button>
+          </div>
+          <div class="cal" id="cal" role="dialog" aria-label="選擇交易日" hidden>
+            <div class="cal-head">
+              <button type="button" id="calPrev" aria-label="上個月">‹</button>
+              <span class="cal-title mono" id="calTitle"></span>
+              <button type="button" id="calNext" aria-label="下個月">›</button>
+            </div>
+            <div class="cal-grid" id="calGrid"></div>
+            <div class="cal-foot">
+              <span>可點選的是有資料的交易日</span>
+              <button type="button" id="calLatest">最新一天</button>
+            </div>
+          </div>
         </div>
         <span class="source-tag" id="sourceTag">載入中…</span>
       </div>
@@ -399,6 +461,65 @@ $("search").addEventListener("input", e => { state.q = e.target.value; state.sho
 $("moreBtn").addEventListener("click", () => { state.shown += PAGE_SIZE; renderTable(); });
 $("prevDay").addEventListener("click", () => showDay(state.idx - 1));
 $("nextDay").addEventListener("click", () => showDay(state.idx + 1));
+
+/* ---------- 行事曆 ---------- */
+const cal = { y: 0, m: 0 }; // m: 0-11
+const ym = s => ({ y: +s.slice(0, 4), m: +s.slice(5, 7) - 1 });
+const pad = n => String(n).padStart(2, "0");
+const monthKey = (y, m) => y * 12 + m;
+
+function renderCal() {
+  const daySet = new Set(state.days);
+  const first = ym(state.days[0]), last = ym(state.days[state.days.length - 1]);
+  const { y, m } = cal;
+  $("calTitle").textContent = `${y} 年 ${m + 1} 月`;
+  $("calPrev").disabled = monthKey(y, m) <= monthKey(first.y, first.m);
+  $("calNext").disabled = monthKey(y, m) >= monthKey(last.y, last.m);
+  const startWd = new Date(Date.UTC(y, m, 1)).getUTCDay();
+  const nDays = new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
+  const latest = state.days[state.days.length - 1];
+  let html = "日一二三四五六".split("").map(w => `<div class="cal-wd">${w}</div>`).join("");
+  html += "<div></div>".repeat(startWd);
+  for (let d = 1; d <= nDays; d++) {
+    const iso = `${y}-${pad(m + 1)}-${pad(d)}`;
+    const has = daySet.has(iso);
+    const c = ["cal-day", "mono", iso === state.date ? "sel" : "", iso === latest ? "latest" : ""].join(" ");
+    html += `<button type="button" class="${c}" data-date="${iso}" ${has ? "" : "disabled"}
+      ${iso === state.date ? 'aria-current="date"' : ""} aria-label="${m + 1}月${d}日${has ? "" : "（無資料）"}">${d}</button>`;
+  }
+  $("calGrid").innerHTML = html;
+}
+
+function openCal() {
+  Object.assign(cal, ym(state.date));
+  renderCal();
+  $("cal").hidden = false;
+  $("dateLabel").setAttribute("aria-expanded", "true");
+  ($("calGrid").querySelector(".sel") || $("calGrid").querySelector(".cal-day:not(:disabled)"))?.focus();
+}
+function closeCal(refocus = false) {
+  if ($("cal").hidden) return;
+  $("cal").hidden = true;
+  $("dateLabel").setAttribute("aria-expanded", "false");
+  if (refocus) $("dateLabel").focus();
+}
+function shiftMonth(delta) {
+  const k = monthKey(cal.y, cal.m) + delta;
+  cal.y = Math.floor(k / 12); cal.m = k % 12;
+  renderCal();
+}
+
+$("dateLabel").addEventListener("click", () => $("cal").hidden ? openCal() : closeCal());
+$("calPrev").addEventListener("click", () => shiftMonth(-1));
+$("calNext").addEventListener("click", () => shiftMonth(1));
+$("calGrid").addEventListener("click", e => {
+  const b = e.target.closest(".cal-day"); if (!b || b.disabled) return;
+  closeCal(true);
+  showDay(state.days.indexOf(b.dataset.date));
+});
+$("calLatest").addEventListener("click", () => { closeCal(true); showDay(state.days.length - 1); });
+document.addEventListener("click", e => { if (!$("datePicker").contains(e.target)) closeCal(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeCal(true); });
 
 try {
   state.days = await getJSON("data/days.json");
