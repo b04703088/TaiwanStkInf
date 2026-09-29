@@ -15,6 +15,9 @@ on:
       start:
         description: "回補起日 YYYY-MM-DD（選填）"
         required: false
+      sync_days:
+        description: "另外把 data/ 最新 N 天同步到 Firestore（選填，最多 5）"
+        required: false
 
 permissions:
   contents: write
@@ -69,10 +72,15 @@ jobs:
         if: always()
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          SYNC_DAYS: ${{ inputs.sync_days }}
         run: |
           if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then
             echo "未設定 FIREBASE_SERVICE_ACCOUNT secret，略過 Firestore 上傳"
             exit 0
+          fi
+          touch "$RUNNER_TEMP/new_csv.txt"
+          if [ -n "$SYNC_DAYS" ]; then
+            ls data/*/*.csv | sort | tail -n "$SYNC_DAYS" >> "$RUNNER_TEMP/new_csv.txt"
           fi
           if [ ! -s "$RUNNER_TEMP/new_csv.txt" ]; then
             echo "這次沒有新資料"

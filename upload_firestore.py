@@ -129,12 +129,20 @@ def main(argv=None):
         return 0
 
     total, done = 0, []
-    for f in files:
-        rows = read_rows(f)
-        n = upload_day(db, rows, ts)
-        total += n
-        done.append({"file": f.name, "rows": len(rows)})
-        print(f"{f.name}: {len(rows)} 檔")
+    try:
+        for f in files:
+            rows = read_rows(f)
+            n = upload_day(db, rows, ts)
+            total += n
+            done.append({"file": f.name, "rows": len(rows)})
+            print(f"{f.name}: {len(rows)} 檔")
+    except Exception as e:  # noqa: BLE001
+        if "does not exist" in str(e) and "database" in str(e):
+            print("錯誤：這個 Firebase 專案還沒建立 Firestore 資料庫。\n"
+                  "請到 Firebase Console → Firestore Database → 建立資料庫，"
+                  "資料庫 ID 保持 (default)，位置選 asia-east1（台灣）。", file=sys.stderr)
+            return 1
+        raise
     db.collection("jobs").document("firestore_upload").set(
         {"files": done, "writes": total, "updated_at": ts})
     print(f"完成，共 {total} 次寫入")
