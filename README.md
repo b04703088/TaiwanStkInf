@@ -7,6 +7,21 @@
 - 已抓過的日期、週末、已確認的非交易日（記在 `data/no_trading_days.txt`）會直接跳過不連線；`--force` 可強制重抓
 - 輸出：`data/<YYYY>/<YYYYMMDD>.csv`，欄位 `date, market, code, name, open, high, low, close, change, volume, value, transactions`
 
+## ETF 每日持股明細
+
+`fetch_etf.py` 每天抓各投信公告的 ETF 持股（成分股、總股數、權重），workflow `.github/workflows/etf.yml` 自動執行並 commit。
+
+- 輸出：`data/etf/<ETF>/<YYYYMMDD>.csv`，欄位 `date, etf, code, name, shares, weight`
+  - 檔名日期是投信公告的**持股基準日**；股票名稱統一用交易所簡稱，方便跨 ETF 比對
+- `data/etf/summary.csv`：每檔每日的基金規模、流通單位數、淨值、持股檔數（單位數變化 = 申購贖回）
+- 目前追蹤：0050、0056、00713、00940（元大）、006208（富邦）、00878（國泰）、00919（群益）、00929（復華）
+- 新增 ETF：同一家投信只要在 `ETF_LIST` 加一行；新投信要多寫一個 adapter
+
+```bash
+python fetch_etf.py              # 全部
+python fetch_etf.py 0050 00878   # 指定
+```
+
 ## 網站（GitHub Pages）
 
 網址：https://b04703088.github.io/TaiwanStkInf/ （成交排行：`ranking.html`）
