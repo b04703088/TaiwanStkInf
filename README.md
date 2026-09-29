@@ -9,17 +9,25 @@
 
 ## ETF 每日持股明細
 
-`fetch_etf.py` 每天抓各投信公告的 ETF 持股（成分股、總股數、權重），workflow `.github/workflows/etf.yml` 自動執行並 commit。
+每天抓各投信公告的 ETF 持股（成分股、總股數、權重），workflow `.github/workflows/etf.yml` 每個工作日跑三次並 commit。
 
+- **追蹤 50 檔**（清單在 `fetch_etf.py` 的 `ETF_LIST`，也輸出成 `data/etf/etf_list.csv`）
+  - 被動式 19 檔：0050、0056、00713、00850、00940、006208、00692、00892、00900、00878、00881、00919、00927、00946、00929、00891、00915、00935、00939
+  - 主動式 31 檔：00400A–00411A、00980A–00999A（00996A 兆豐網站擋 GitHub 主機，暫不追蹤）
+  - 15 家投信：元大、富邦、國泰、群益、復華、統一、中信、野村、安聯、凱基、台新、永豐、第一金、聯博、摩根
 - 輸出：`data/etf/<ETF>/<YYYYMMDD>.csv`，欄位 `date, etf, code, name, shares, weight`
-  - 檔名日期是投信公告的**持股基準日**；股票名稱統一用交易所簡稱，方便跨 ETF 比對
+  - 檔名日期一律是**持股基準日**（投信的 PCF 公告日是隔一個交易日，已換算對齊）
+  - 台股名稱統一用交易所簡稱；海外持股代號為 `NVDA US` 格式，跨 ETF 可直接比對
 - `data/etf/summary.csv`：每檔每日的基金規模、流通單位數、淨值、持股檔數（單位數變化 = 申購贖回）
-- 目前追蹤：0050、0056、00713、00940（元大）、006208（富邦）、00878（國泰）、00919（群益）、00929（復華）
-- 新增 ETF：同一家投信只要在 `ETF_LIST` 加一行；新投信要多寫一個 adapter
+- `data/etf/source_ids.json`：各投信內部基金代碼快取（投信清單端點失敗時備援）
+
+程式結構：`etf_common.py`（HTTP、日期/代號解析）、`etf_adapters.py`（每家投信一個 adapter）、`fetch_etf.py`（清單、檢查、輸出）。
+新增 ETF：同一家投信只要在 `ETF_LIST` 加一行；新投信要在 `etf_adapters.py` 多寫一個 adapter。
 
 ```bash
-python fetch_etf.py              # 全部
-python fetch_etf.py 0050 00878   # 指定
+python fetch_etf.py                  # 全部
+python fetch_etf.py 0050 00981A      # 指定
+python fetch_etf.py --issuer ctbc    # 某家投信
 ```
 
 ## 網站（GitHub Pages）
