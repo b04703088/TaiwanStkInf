@@ -7,6 +7,14 @@
 - 已抓過的日期、週末、已確認的非交易日（記在 `data/no_trading_days.txt`）會直接跳過不連線；`--force` 可強制重抓
 - 輸出：`data/<YYYY>/<YYYYMMDD>.csv`，欄位 `date, market, code, name, open, high, low, close, change, volume, value, transactions`
 
+## 網站（GitHub Pages）
+
+網址：https://b04703088.github.io/TaiwanStkInf/ （成交排行：`ranking.html`）
+
+- `site/`：網頁原始檔（首頁 `index.html`、成交金額排行 `ranking.html`）
+- `scripts/build_site.py`：把最近 120 個交易日的 CSV 轉成 `data/daily/<日期>.json` 給網頁讀
+- `.github/workflows/pages.yml`：每日抓完資料、或改了 `site/` 後自動重建部署
+
 ## 同步到 Firebase（Firestore）
 
 每次抓到新資料後，workflow 會用 `upload_firestore.py` 把這次新增的 CSV 寫進 Firestore：

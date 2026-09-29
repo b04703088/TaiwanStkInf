@@ -4,3 +4,4 @@ __pycache__/
 # Firebase 金鑰不要 commit
 *serviceAccount*.json
 *-firebase-adminsdk-*.json
+_site/

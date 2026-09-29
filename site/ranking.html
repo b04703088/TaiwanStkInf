@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>成交金額排行｜潮汐</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  /* ===== 與首頁 tide-chip-dashboard.html 相同的設計變數 ===== */
+  :root{
+    --ink:#0E1620;
+    --panel:#141F2B;
+    --panel-2:#182531;
+    --line:rgba(232,237,242,0.09);
+    --line-strong:rgba(232,237,242,0.16);
+    --text:#E8EDF2;
+    --text-muted:#8B99A6;
+    --text-faint:#5C6B79;
+    --brass:#C6A15B;
+    --brass-dim:#8A7240;
+    --rise:#E1594F;
+    --fall:#3FAE72;
+    --radius-s:3px;
+    --radius-m:6px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--ink); color:var(--text);
+    font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;
+    line-height:1.6; -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:'Noto Serif TC',serif; margin:0; font-weight:700; letter-spacing:0.01em;}
+  .mono{font-family:'IBM Plex Mono','SFMono-Regular',monospace; font-variant-numeric:tabular-nums;}
+  a{color:inherit;}
+  a:focus-visible, button:focus-visible{outline:2px solid var(--brass); outline-offset:3px;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
+  .up{color:var(--rise);}
+  .down{color:var(--fall);}
+  .flat{color:var(--text-muted);}
+
+  /* ---------- nav（同首頁） ---------- */
+  header.site{
+    position:sticky; top:0; z-index:40;
+    background:rgba(14,22,32,0.88); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-row{display:flex; align-items:center; justify-content:space-between; padding:16px 28px;}
+  .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
+  .brand-mark{font-family:'Noto Serif TC',serif; font-size:22px; font-weight:700; color:var(--text);}
+  .brand-sub{font-size:12px; color:var(--text-faint);}
+  nav.links{display:flex; gap:30px; font-size:14px;}
+  nav.links a{text-decoration:none; color:var(--text-muted); transition:color .15s ease;}
+  nav.links a:hover{color:var(--brass);}
+  nav.links a[aria-current="page"]{color:var(--brass);}
+  .nav-cta{
+    font-size:13px; color:var(--ink); background:var(--brass);
+    padding:8px 16px; border-radius:var(--radius-s); text-decoration:none; font-weight:500;
+  }
+
+  /* ---------- page head（沿用 feature-head） ---------- */
+  .page-head{padding:64px 0 36px;}
+  .feature-head{display:grid; grid-template-columns:0.9fr 1.1fr; gap:56px;}
+  .eyebrow{font-size:13px; color:var(--brass); margin-bottom:10px;}
+  .feature-head h1{font-size:34px; line-height:1.35;}
+  .feature-head .desc{color:var(--text-muted); font-size:14.5px; align-self:end; margin:0;}
+
+  /* 日期切換 */
+  .date-bar{
+    margin-top:32px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+    font-size:13px; color:var(--text-muted);
+  }
+  .date-nav{display:flex; align-items:center; border:1px solid var(--line-strong); border-radius:var(--radius-s);}
+  .date-nav button{
+    background:none; border:none; color:var(--text-muted); cursor:pointer;
+    padding:7px 12px; font-size:14px; font-family:inherit;
+  }
+  .date-nav button:hover:not(:disabled){color:var(--brass);}
+  .date-nav button:disabled{color:var(--text-faint); cursor:default;}
+  .date-nav .date-label{
+    padding:7px 14px; color:var(--text); font-size:14px;
+    border-left:1px solid var(--line); border-right:1px solid var(--line);
+  }
+  .source-tag{font-size:12px; color:var(--text-faint);}
+
+  /* ---------- 市場摘要（沿用 quant-grid 的 1px 格線） ---------- */
+  .stats{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:1px;
+    background:var(--line); border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden;
+  }
+  .stat{background:var(--panel); padding:20px 22px;}
+  .stat span{display:block; font-size:12px; color:var(--text-faint); margin-bottom:6px;}
+  .stat b{font-size:22px; font-weight:600;}
+  .stat small{font-size:12.5px; color:var(--text-muted); margin-left:6px;}
+  .stat em{font-style:normal;}
+  .stat em + small{margin:0 6px;}
+  .breadth{display:flex; height:5px; border-radius:3px; overflow:hidden; margin-top:10px; background:var(--panel-2);}
+  .breadth i{display:block; height:100%;}
+
+  /* ---------- 篩選列 ---------- */
+  .toolbar{
+    display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;
+    margin:44px 0 18px;
+  }
+  .seg-group{display:flex; gap:18px; flex-wrap:wrap;}
+  .seg{display:flex; border:1px solid var(--line-strong); border-radius:var(--radius-s); overflow:hidden;}
+  .seg button{
+    background:none; border:none; color:var(--text-muted); cursor:pointer; font-family:inherit;
+    font-size:13px; padding:7px 14px; border-right:1px solid var(--line);
+  }
+  .seg button:last-child{border-right:none;}
+  .seg button:hover{color:var(--text);}
+  .seg button[aria-pressed="true"]{background:var(--brass); color:var(--ink); font-weight:500;}
+  .search{
+    background:var(--panel); border:1px solid var(--line-strong); border-radius:var(--radius-s);
+    color:var(--text); font-family:inherit; font-size:13px; padding:8px 12px; width:200px;
+  }
+  .search::placeholder{color:var(--text-faint);}
+  .search:focus{outline:none; border-color:var(--brass);}
+
+  /* ---------- 排行表（沿用 table.chips） ---------- */
+  .table-wrap{overflow-x:auto;}
+  table.rank{width:100%; border-collapse:collapse; font-size:14px;}
+  table.rank th{
+    text-align:right; font-weight:500; color:var(--text-faint); font-size:12px;
+    padding:0 14px 12px; border-bottom:1px solid var(--line-strong); white-space:nowrap;
+  }
+  table.rank th.l, table.rank td.l{text-align:left;}
+  table.rank td{padding:14px; border-bottom:1px solid var(--line); text-align:right; white-space:nowrap;}
+  table.rank tbody tr{transition:background .15s ease;}
+  table.rank tbody tr:hover{background:var(--panel-2);}
+  .rank-no{color:var(--text-faint); width:44px;}
+  tr.top3 .rank-no{color:var(--brass); font-weight:600;}
+  .stock-name{color:var(--text);}
+  .stock-code{color:var(--text-faint); font-size:12px; margin-left:6px;}
+  .mkt{
+    font-size:10.5px; color:var(--text-faint); border:1px solid var(--line-strong);
+    border-radius:2px; padding:0 4px; margin-left:8px; vertical-align:1px;
+  }
+  .value-cell{display:flex; align-items:center; justify-content:flex-end; gap:12px;}
+  .bar-track{width:120px; height:5px; background:var(--panel-2); border-radius:3px; overflow:hidden;}
+  .bar-fill{height:100%; background:linear-gradient(90deg,var(--brass-dim),var(--brass));}
+  .share{color:var(--text-muted); font-size:12.5px;}
+  [hidden]{display:none !important;}
+  .empty{padding:48px 0; text-align:center; color:var(--text-faint); font-size:14px;}
+  .more{display:flex; justify-content:center; margin-top:28px;}
+  .btn-ghost{
+    background:transparent; color:var(--text); border:1px solid var(--line-strong);
+    padding:10px 22px; border-radius:var(--radius-s); font-size:14px; cursor:pointer; font-family:inherit;
+  }
+  .btn-ghost:hover{border-color:var(--brass); color:var(--brass);}
+
+  footer.site{padding:64px 0 56px; margin-top:72px; border-top:1px solid var(--line);}
+  .foot-note{font-size:12.5px; color:var(--text-faint); max-width:40em; line-height:1.7; margin:0;}
+
+  @media (max-width: 860px){
+    .nav-row{padding:14px 20px;}
+    nav.links{display:none;}
+    .page-head{padding:44px 0 28px;}
+    .feature-head{grid-template-columns:1fr; gap:14px;}
+    .feature-head h1{font-size:28px;}
+    .stats{grid-template-columns:repeat(2,1fr);}
+    .wrap{padding:0 16px;}
+    table.rank{font-size:12.5px;}
+    table.rank td, table.rank th{padding-left:8px; padding-right:8px;}
+    .col-vol, .col-share, .bar-track, .mkt{display:none;}
+    .stock-code{display:block; margin-left:0; line-height:1.3;}
+    .stat .hint{display:none;}
+    .search{width:100%;}
+    .toolbar{flex-direction:column; align-items:stretch;}
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="nav-row">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">潮汐</span>
+      <span class="brand-sub">籌碼觀測站</span>
+    </a>
+    <nav class="links">
+      <a href="ranking.html" aria-current="page">成交排行</a>
+      <a href="index.html#chips">分點籌碼</a>
+      <a href="index.html#etf">ETF持股</a>
+      <a href="index.html#cb">CB詢圈</a>
+      <a href="index.html#quant">量化策略</a>
+    </nav>
+    <a href="index.html#cta" class="nav-cta">開始追蹤</a>
+  </div>
+</header>
+
+<main>
+  <section class="page-head">
+    <div class="wrap">
+      <div class="feature-head">
+        <div>
+          <div class="eyebrow">成交金額排行</div>
+          <h1>今天的錢，流向哪裡</h1>
+        </div>
+        <p class="desc">依當日成交金額排序上市、上櫃個股與 ETF。成交金額集中在哪幾檔，往往比漲跌幅更早說明市場的注意力在哪裡。</p>
+      </div>
+
+      <div class="date-bar">
+        <div class="date-nav">
+          <button id="prevDay" type="button" aria-label="前一交易日">‹</button>
+          <span class="date-label mono" id="dateLabel">—</span>
+          <button id="nextDay" type="button" aria-label="下一交易日">›</button>
+        </div>
+        <span class="source-tag" id="sourceTag">載入中…</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="stats" id="stats"></div>
+
+      <div class="toolbar">
+        <div class="seg-group">
+          <div class="seg" data-filter="market" role="group" aria-label="市場">
+            <button type="button" data-v="all" aria-pressed="true">全部</button>
+            <button type="button" data-v="TWSE" aria-pressed="false">上市</button>
+            <button type="button" data-v="TPEx" aria-pressed="false">上櫃</button>
+          </div>
+          <div class="seg" data-filter="kind" role="group" aria-label="類型">
+            <button type="button" data-v="all" aria-pressed="true">全部</button>
+            <button type="button" data-v="stock" aria-pressed="false">個股</button>
+            <button type="button" data-v="etf" aria-pressed="false">ETF</button>
+          </div>
+        </div>
+        <input class="search" id="search" type="search" placeholder="搜尋代號或名稱" aria-label="搜尋代號或名稱">
+      </div>
+
+      <div class="table-wrap">
+        <table class="rank">
+          <thead>
+            <tr>
+              <th class="l">#</th>
+              <th class="l">股票</th>
+              <th>收盤</th>
+              <th>漲跌幅</th>
+              <th>成交金額（億）</th>
+              <th class="col-share">佔市場</th>
+              <th class="col-vol">成交量（張）</th>
+            </tr>
+          </thead>
+          <tbody id="rows"><tr><td colspan="7" class="empty">載入中…</td></tr></tbody>
+        </table>
+      </div>
+      <div class="more" id="moreWrap"><button class="btn-ghost" id="moreBtn" type="button">顯示更多</button></div>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <p class="foot-note">資料來源：臺灣證券交易所、證券櫃檯買賣中心每日收盤行情，每個交易日收盤後自動更新。成交金額不含權證、牛熊證。本頁資訊僅供參考，不構成任何投資建議。</p>
+  </div>
+</footer>
+
+<script type="module">
+/* 資料：GitHub Actions 每個交易日收盤後重建網站，
+ * data/days.json 是可用日期（由舊到新），data/daily/<日期>.json 是當日全市場資料。 */
+const PAGE_SIZE = 50;
+const state = { market: "all", kind: "all", q: "", shown: PAGE_SIZE, rows: [], meta: null, date: null, days: [], idx: -1 };
+
+const $ = id => document.getElementById(id);
+
+async function getJSON(url) {
+  const r = await fetch(url, { cache: "no-cache" });
+  if (!r.ok) throw new Error(`${url}: HTTP ${r.status}`);
+  return r.json();
+}
+
+function toObjects({ columns, rows }) {
+  return rows.map(r => Object.fromEntries(columns.map((c, i) => [c, r[i]])))
+    .filter(r => r.value > 0)
+    .map(r => {
+      const prev = r.close - (r.change ?? 0);
+      return { ...r, pct: prev > 0 && r.change != null ? (r.change / prev) * 100 : null };
+    })
+    .sort((a, b) => b.value - a.value);
+}
+
+function computeMeta(rows) {
+  const total = { TWSE: 0, TPEx: 0 };
+  let up = 0, down = 0;
+  for (const r of rows) {
+    total[r.market] = (total[r.market] || 0) + r.value;
+    if (r.change > 0) up++; else if (r.change < 0) down++;
+  }
+  return { total, up, down, count: rows.length };
+}
+
+async function showDay(idx) {
+  if (idx < 0 || idx >= state.days.length) return;
+  const date = state.days[idx];
+  document.body.style.cursor = "progress";
+  try {
+    const snap = await getJSON(`data/daily/${date}.json`);
+    state.idx = idx;
+    state.date = snap.date;
+    state.rows = toObjects(snap);
+    state.meta = computeMeta(state.rows);
+    state.shown = PAGE_SIZE;
+    const url = new URL(location.href);
+    if (idx === state.days.length - 1) url.searchParams.delete("date"); else url.searchParams.set("date", date);
+    history.replaceState(null, "", url);
+    render();
+  } catch (e) {
+    console.error(e);
+    showError("讀取資料失敗，請重新整理頁面。");
+  } finally {
+    document.body.style.cursor = "";
+  }
+}
+
+/* ---------- 顯示 ---------- */
+const fmtYi = v => (v / 1e8).toLocaleString("zh-TW", { maximumFractionDigits: v >= 1e10 ? 0 : 1 });
+const fmtLots = v => Math.round(v / 1000).toLocaleString("zh-TW");
+const fmtPrice = v => v == null ? "—" : v.toLocaleString("zh-TW", { minimumFractionDigits: v < 1000 ? 2 : 0, maximumFractionDigits: 2 });
+const cls = v => v > 0 ? "up" : v < 0 ? "down" : "flat";
+const isEtf = code => code.startsWith("00");
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+function renderStats() {
+  const m = state.meta;
+  const total = m.total.TWSE + m.total.TPEx;
+  const top10 = state.rows.slice(0, 10).reduce((s, r) => s + r.value, 0);
+  const flat = Math.max(0, m.count - m.up - m.down);
+  const pUp = (m.up / m.count) * 100, pDown = (m.down / m.count) * 100;
+  $("stats").innerHTML = `
+    <div class="stat"><span>全市場成交金額</span><b class="mono">${fmtYi(total)}</b><small>億</small></div>
+    <div class="stat"><span>上市 / 上櫃</span><b class="mono">${fmtYi(m.total.TWSE)}</b><small>/ ${fmtYi(m.total.TPEx)} 億</small></div>
+    <div class="stat"><span>前 10 名佔比</span><b class="mono">${(top10 / total * 100).toFixed(1)}%</b><small class="hint">資金集中度</small></div>
+    <div class="stat"><span>上漲 / 下跌家數</span>
+      <b class="mono"><em class="up">${m.up}</em><small>/</small><em class="down">${m.down}</em></b>
+      <div class="breadth" title="上漲 ${m.up}、平盤 ${flat}、下跌 ${m.down}">
+        <i style="width:${pUp}%;background:var(--rise)"></i>
+        <i style="flex:1;background:var(--text-faint);opacity:.4"></i>
+        <i style="width:${pDown}%;background:var(--fall)"></i>
+      </div>
+    </div>`;
+}
+
+function filtered() {
+  const q = state.q.trim().toLowerCase();
+  return state.rows.filter(r =>
+    (state.market === "all" || r.market === state.market) &&
+    (state.kind === "all" || (state.kind === "etf") === isEtf(r.code)) &&
+    (!q || r.code.toLowerCase().includes(q) || r.name.toLowerCase().includes(q)));
+}
+
+function renderTable() {
+  const total = state.meta.total.TWSE + state.meta.total.TPEx;
+  const list = filtered();
+  const maxV = list[0]?.value || 1;
+  const page = list.slice(0, state.shown);
+  $("rows").innerHTML = page.length ? page.map((r, i) => `
+    <tr class="${i < 3 ? "top3" : ""}">
+      <td class="l rank-no mono">${i + 1}</td>
+      <td class="l"><span class="stock-name">${esc(r.name)}</span><span class="stock-code mono">${esc(r.code)}</span><span class="mkt">${r.market === "TWSE" ? "市" : "櫃"}</span></td>
+      <td class="mono">${fmtPrice(r.close)}</td>
+      <td class="mono ${cls(r.change)}">${r.pct == null ? "—" : (r.pct > 0 ? "+" : "") + r.pct.toFixed(2) + "%"}</td>
+      <td><div class="value-cell"><span class="mono">${fmtYi(r.value)}</span><div class="bar-track"><div class="bar-fill" style="width:${(r.value / maxV * 100).toFixed(1)}%"></div></div></div></td>
+      <td class="col-share mono share">${(r.value / total * 100).toFixed(2)}%</td>
+      <td class="col-vol mono flat">${fmtLots(r.volume)}</td>
+    </tr>`).join("")
+    : `<tr><td colspan="7" class="empty">沒有符合條件的股票</td></tr>`;
+  $("moreWrap").hidden = list.length <= state.shown;
+}
+
+function render() {
+  const d = new Date(state.date + "T00:00:00+08:00");
+  const wk = "日一二三四五六"[d.getDay()];
+  $("dateLabel").textContent = `${state.date.replaceAll("-", "/")}（${wk}）`;
+  $("prevDay").disabled = state.idx <= 0;
+  $("nextDay").disabled = state.idx >= state.days.length - 1;
+  $("sourceTag").textContent = state.idx === state.days.length - 1 ? "最新交易日 · 每日收盤後自動更新" : "歷史資料";
+  renderStats();
+  renderTable();
+}
+
+function showError(msg) { $("rows").innerHTML = `<tr><td colspan="7" class="empty">${esc(msg)}</td></tr>`; }
+
+/* ---------- 互動 ---------- */
+document.querySelectorAll(".seg").forEach(seg => {
+  seg.addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    seg.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+    state[seg.dataset.filter] = b.dataset.v;
+    state.shown = PAGE_SIZE;
+    renderTable();
+  });
+});
+$("search").addEventListener("input", e => { state.q = e.target.value; state.shown = PAGE_SIZE; renderTable(); });
+$("moreBtn").addEventListener("click", () => { state.shown += PAGE_SIZE; renderTable(); });
+$("prevDay").addEventListener("click", () => showDay(state.idx - 1));
+$("nextDay").addEventListener("click", () => showDay(state.idx + 1));
+
+try {
+  state.days = await getJSON("data/days.json");
+  const want = new URLSearchParams(location.search).get("date");
+  const i = want ? state.days.indexOf(want) : -1;
+  await showDay(i >= 0 ? i : state.days.length - 1);
+} catch (e) {
+  console.error(e);
+  showError("讀取資料失敗，請重新整理頁面。");
+}
+</script>
+</body>
+</html>

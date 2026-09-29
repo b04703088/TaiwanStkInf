@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>潮汐｜籌碼觀測站</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0E1620;
+    --panel:#141F2B;
+    --panel-2:#182531;
+    --line:rgba(232,237,242,0.09);
+    --line-strong:rgba(232,237,242,0.16);
+    --text:#E8EDF2;
+    --text-muted:#8B99A6;
+    --text-faint:#5C6B79;
+    --brass:#C6A15B;
+    --brass-dim:#8A7240;
+    --rise:#E1594F;
+    --fall:#3FAE72;
+    --radius-s:3px;
+    --radius-m:6px;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--ink);
+    color:var(--text);
+    font-family:'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{
+    font-family:'Noto Serif TC', serif;
+    margin:0;
+    font-weight:700;
+    letter-spacing:0.01em;
+  }
+  .mono{
+    font-family:'IBM Plex Mono','SFMono-Regular',monospace;
+    font-variant-numeric:tabular-nums;
+  }
+  a{color:inherit;}
+  a:focus-visible, button:focus-visible{
+    outline:2px solid var(--brass);
+    outline-offset:3px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; animation-iteration-count:1 !important;}
+  }
+
+  .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
+
+  /* ---------- nav ---------- */
+  header.site{
+    position:sticky; top:0; z-index:40;
+    background:rgba(14,22,32,0.88);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-row{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 28px;
+  }
+  .brand{display:flex; align-items:baseline; gap:10px;}
+  .brand-mark{font-family:'Noto Serif TC',serif; font-size:22px; font-weight:700; color:var(--text);}
+  .brand-sub{font-size:12px; color:var(--text-faint);}
+  nav.links{display:flex; gap:30px; font-size:14px;}
+  nav.links a{text-decoration:none; color:var(--text-muted); transition:color .15s ease;}
+  nav.links a:hover{color:var(--brass);}
+  .nav-cta{
+    font-size:13px; color:var(--ink); background:var(--brass);
+    padding:8px 16px; border-radius:var(--radius-s); text-decoration:none;
+    font-weight:500;
+  }
+  .nav-toggle{display:none;}
+
+  /* ---------- hero ---------- */
+  .hero{padding:76px 0 0;}
+  .hero-grid{
+    display:grid; grid-template-columns:1.15fr 0.85fr; gap:56px; align-items:start;
+  }
+  .hero h1{font-size:44px; line-height:1.32; max-width:12.5em;}
+  .hero p.lede{
+    margin-top:22px; font-size:16px; color:var(--text-muted); max-width:36em;
+  }
+  .hero-actions{margin-top:32px; display:flex; gap:14px; align-items:center;}
+  .btn-primary{
+    background:var(--brass); color:var(--ink); border:none; padding:12px 22px;
+    border-radius:var(--radius-s); font-size:14px; font-weight:700; cursor:pointer;
+    font-family:inherit;
+  }
+  .btn-ghost{
+    background:transparent; color:var(--text); border:1px solid var(--line-strong);
+    padding:12px 22px; border-radius:var(--radius-s); font-size:14px; cursor:pointer;
+    font-family:inherit;
+  }
+  .hero-panel{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-m);
+    padding:20px;
+  }
+  .hero-panel-label{font-size:12px; color:var(--text-faint); margin-bottom:14px;}
+  .snap-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:9px 0; border-bottom:1px solid var(--line); font-size:13.5px;
+  }
+  .snap-row:last-child{border-bottom:none;}
+  .snap-name{color:var(--text-muted);}
+  .snap-code{color:var(--text-faint); font-size:12px; margin-left:6px;}
+  .up{color:var(--rise);}
+  .down{color:var(--fall);}
+
+  /* ticker */
+  .ticker{
+    margin-top:56px; border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+    overflow:hidden; white-space:nowrap; background:var(--panel);
+  }
+  .ticker-track{
+    display:inline-flex; animation:scroll 38s linear infinite;
+    padding:13px 0;
+  }
+  .ticker-track span{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:0 26px; font-size:13px; color:var(--text-muted);
+    border-right:1px solid var(--line);
+  }
+  .ticker-track span b{color:var(--text); font-weight:500;}
+  @keyframes scroll{
+    from{transform:translateX(0);}
+    to{transform:translateX(-50%);}
+  }
+
+  /* ---------- section shell ---------- */
+  section.feature{padding:96px 0;}
+  section.feature.alt{background:var(--panel);}
+  .feature-head{
+    display:grid; grid-template-columns:0.9fr 1.1fr; gap:56px; margin-bottom:44px;
+  }
+  .feature-head .eyebrow{
+    font-size:13px; color:var(--brass); margin-bottom:10px;
+  }
+  .feature-head h2{font-size:30px; line-height:1.4; max-width:11em;}
+  .feature-head .desc{color:var(--text-muted); font-size:14.5px; align-self:end;}
+
+  /* table (分點籌碼) */
+  table.chips{width:100%; border-collapse:collapse; font-size:14px;}
+  table.chips th{
+    text-align:left; font-weight:500; color:var(--text-faint); font-size:12px;
+    padding:0 14px 12px; border-bottom:1px solid var(--line-strong);
+  }
+  table.chips td{padding:15px 14px; border-bottom:1px solid var(--line);}
+  table.chips tbody tr{transition:background .15s ease;}
+  table.chips tbody tr:hover{background:var(--panel-2);}
+  .stock-name{color:var(--text);}
+  .stock-code{color:var(--text-faint); font-size:12px; margin-left:6px;}
+  .streak{color:var(--text-muted);}
+
+  /* etf list */
+  .etf-list{display:flex; flex-direction:column; gap:0;}
+  .etf-row{
+    display:grid; grid-template-columns:1.4fr 2fr 0.6fr; gap:18px; align-items:center;
+    padding:16px 0; border-bottom:1px solid var(--line);
+  }
+  .etf-row:first-child{border-top:1px solid var(--line);}
+  .etf-fund{font-size:13.5px;}
+  .etf-fund .code{color:var(--text-faint); font-size:12px;}
+  .etf-holding{font-size:13px; color:var(--text-muted);}
+  .bar-track{height:5px; background:var(--panel-2); border-radius:3px; margin-top:7px; overflow:hidden;}
+  .bar-fill{height:100%; background:var(--brass);}
+  .etf-delta{text-align:right; font-size:13.5px;}
+
+  /* cb table */
+  table.cb{width:100%; border-collapse:collapse; font-size:14px;}
+  table.cb th{
+    text-align:left; font-weight:500; color:var(--text-faint); font-size:12px;
+    padding:0 14px 12px; border-bottom:1px solid var(--line-strong);
+  }
+  table.cb td{padding:16px 14px; border-bottom:1px solid var(--line); vertical-align:middle;}
+  .progress-cell{display:flex; align-items:center; gap:10px;}
+  .progress-track{flex:1; height:6px; background:var(--panel-2); border-radius:4px; overflow:hidden;}
+  .progress-fill{height:100%; background:linear-gradient(90deg, var(--brass-dim), var(--brass));}
+  .progress-pct{font-size:12px; color:var(--text-muted); width:34px; text-align:right;}
+
+  /* quant cards */
+  .quant-grid{display:grid; grid-template-columns:repeat(2, 1fr); gap:1px; background:var(--line);}
+  .quant-card{background:var(--ink); padding:26px 24px;}
+  section.feature.alt .quant-card{background:var(--panel);}
+  .quant-card h3{font-size:17px; margin-bottom:8px;}
+  .quant-card p{font-size:13.5px; color:var(--text-muted); margin:0 0 16px; max-width:30em;}
+  .quant-stats{display:flex; gap:22px; margin-top:14px; font-size:12.5px;}
+  .quant-stats div span{display:block; color:var(--text-faint); margin-bottom:3px; font-size:11.5px;}
+  .quant-stats div b{font-size:14px;}
+  .spark{display:block; margin-top:4px;}
+
+  /* cta band */
+  .cta-band{
+    padding:80px 0; text-align:center; border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+  }
+  .cta-band h2{font-size:26px; max-width:14em; margin:0 auto;}
+  .cta-band p{color:var(--text-muted); margin:16px auto 28px; max-width:32em; font-size:14.5px;}
+
+  footer.site{padding:44px 0 56px;}
+  .foot-row{
+    display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:20px;
+  }
+  .foot-note{font-size:12.5px; color:var(--text-faint); max-width:34em; line-height:1.7;}
+  .foot-links{display:flex; gap:22px; font-size:13px;}
+  .foot-links a{text-decoration:none; color:var(--text-muted);}
+  .foot-links a:hover{color:var(--brass);}
+
+  @media (max-width: 860px){
+    .nav-row{padding:14px 20px;}
+    nav.links{display:none;}
+    .hero{padding:52px 0 0;}
+    .hero-grid{grid-template-columns:1fr; gap:34px;}
+    .hero h1{font-size:32px;}
+    section.feature{padding:64px 0;}
+    .feature-head{grid-template-columns:1fr; gap:14px;}
+    .feature-head .desc{align-self:auto;}
+    .quant-grid{grid-template-columns:1fr;}
+    .etf-row{grid-template-columns:1fr; row-gap:8px;}
+    .etf-delta{text-align:left;}
+    table.chips, table.cb{font-size:12.5px;}
+    .wrap{padding:0 18px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="nav-row">
+    <div class="brand">
+      <span class="brand-mark">潮汐</span>
+      <span class="brand-sub">籌碼觀測站</span>
+    </div>
+    <nav class="links">
+      <a href="ranking.html">成交排行</a>
+      <a href="#chips">分點籌碼</a>
+      <a href="#etf">ETF持股</a>
+      <a href="#cb">CB詢圈</a>
+      <a href="#quant">量化策略</a>
+    </nav>
+    <a href="#cta" class="nav-cta">開始追蹤</a>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-grid">
+        <div>
+          <h1>看懂籌碼，<br>走在資金前面</h1>
+          <p class="lede">彙整分點買賣超、ETF成分股增減與可轉債詢圈進度，把台股裡看不見的資金流向，變成看得懂、可回測的訊號。</p>
+          <div class="hero-actions">
+            <button class="btn-primary">開始追蹤</button>
+            <button class="btn-ghost">看策略示範</button>
+          </div>
+        </div>
+        <div class="hero-panel">
+          <div class="hero-panel-label">今日籌碼快照 · 示意資料</div>
+          <div class="snap-row">
+            <span class="snap-name">台積電<span class="snap-code">2330</span></span>
+            <span class="mono up">買超 8,120張</span>
+          </div>
+          <div class="snap-row">
+            <span class="snap-name">鴻海<span class="snap-code">2317</span></span>
+            <span class="mono down">賣超 3,450張</span>
+          </div>
+          <div class="snap-row">
+            <span class="snap-name">元大台灣50<span class="snap-code">0050</span></span>
+            <span class="mono up">持股 +0.32%</span>
+          </div>
+          <div class="snap-row">
+            <span class="snap-name">國泰永續高股息<span class="snap-code">00878</span></span>
+            <span class="mono down">持股 -0.15%</span>
+          </div>
+          <div class="snap-row">
+            <span class="snap-name">長榮海運CB2詢圈</span>
+            <span class="mono up">進度 90%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ticker" aria-hidden="true">
+      <div class="ticker-track">
+        <span><b>2330 台積電</b> 買超 8,120張</span>
+        <span><b>2317 鴻海</b> 賣超 3,450張</span>
+        <span><b>2454 聯發科</b> 賣超 6,210張</span>
+        <span><b>5871 中租-KY</b> 買超 3,820張</span>
+        <span><b>0050 元大台灣50</b> 持股 +0.32%</span>
+        <span><b>00878 國泰永續高股息</b> 持股 -0.15%</span>
+        <span><b>中鋼CB1詢圈</b> 溢價 +8.5%</span>
+        <span><b>長榮海運CB2詢圈</b> 進度 90%</span>
+        <span><b>2330 台積電</b> 買超 8,120張</span>
+        <span><b>2317 鴻海</b> 賣超 3,450張</span>
+        <span><b>2454 聯發科</b> 賣超 6,210張</span>
+        <span><b>5871 中租-KY</b> 買超 3,820張</span>
+        <span><b>0050 元大台灣50</b> 持股 +0.32%</span>
+        <span><b>00878 國泰永續高股息</b> 持股 -0.15%</span>
+        <span><b>中鋼CB1詢圈</b> 溢價 +8.5%</span>
+        <span><b>長榮海運CB2詢圈</b> 進度 90%</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="feature" id="chips">
+    <div class="wrap">
+      <div class="feature-head">
+        <div>
+          <div class="eyebrow">分點籌碼</div>
+          <h2>誰在買、誰在賣，一眼看清</h2>
+        </div>
+        <p class="desc">依券商分點追蹤每日買賣超張數與連續買超天數，找出法人與大戶正在布局的股票。</p>
+      </div>
+
+      <table class="chips">
+        <thead>
+          <tr>
+            <th>分點</th>
+            <th>股票</th>
+            <th>買賣超（張）</th>
+            <th>連續天數</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>摩根大通</td>
+            <td><span class="stock-name">台積電</span><span class="stock-code">2330</span></td>
+            <td class="mono up">+12,450</td>
+            <td class="streak">5天</td>
+          </tr>
+          <tr>
+            <td>永豐金太原</td>
+            <td><span class="stock-name">中租-KY</span><span class="stock-code">5871</span></td>
+            <td class="mono up">+3,820</td>
+            <td class="streak">3天</td>
+          </tr>
+          <tr>
+            <td>富邦板橋</td>
+            <td><span class="stock-name">聯發科</span><span class="stock-code">2454</span></td>
+            <td class="mono down">-6,210</td>
+            <td class="streak">—</td>
+          </tr>
+          <tr>
+            <td>凱基大安</td>
+            <td><span class="stock-name">鴻海</span><span class="stock-code">2317</span></td>
+            <td class="mono up">+2,150</td>
+            <td class="streak">2天</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="feature alt" id="etf">
+    <div class="wrap">
+      <div class="feature-head">
+        <div>
+          <div class="eyebrow">ETF持股變化</div>
+          <h2>ETF怎麼換股，資金就怎麼流</h2>
+        </div>
+        <p class="desc">追蹤 0050、00878 等熱門ETF成分股權重的週對週變化，提前看見被動資金的移動方向。</p>
+      </div>
+
+      <div class="etf-list">
+        <div class="etf-row">
+          <div class="etf-fund">元大台灣50 <span class="code">0050</span></div>
+          <div class="etf-holding">
+            台積電權重 47.2%
+            <div class="bar-track"><div class="bar-fill" style="width:47%"></div></div>
+          </div>
+          <div class="etf-delta mono up">+0.4%</div>
+        </div>
+        <div class="etf-row">
+          <div class="etf-fund">國泰永續高股息 <span class="code">00878</span></div>
+          <div class="etf-holding">
+            兆豐金權重 4.1%
+            <div class="bar-track"><div class="bar-fill" style="width:20%"></div></div>
+          </div>
+          <div class="etf-delta mono down">-0.2%</div>
+        </div>
+        <div class="etf-row">
+          <div class="etf-fund">富邦公司治理 <span class="code">00692</span></div>
+          <div class="etf-holding">
+            聯發科權重 6.8%
+            <div class="bar-track"><div class="bar-fill" style="width:32%"></div></div>
+          </div>
+          <div class="etf-delta mono up">+0.6%</div>
+        </div>
+        <div class="etf-row">
+          <div class="etf-fund">元大高股息 <span class="code">0056</span></div>
+          <div class="etf-holding">
+            聯電權重 3.5%
+            <div class="bar-track"><div class="bar-fill" style="width:17%"></div></div>
+          </div>
+          <div class="etf-delta mono down">-0.3%</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="feature" id="cb">
+    <div class="wrap">
+      <div class="feature-head">
+        <div>
+          <div class="eyebrow">CB詢圈</div>
+          <h2>詢圈進度，是市場情緒的溫度計</h2>
+        </div>
+        <p class="desc">整理進行中可轉債的詢圈期間、轉換溢價與投標進度，讓你在條件定案前就掌握市場承接意願。</p>
+      </div>
+
+      <table class="cb">
+        <thead>
+          <tr>
+            <th>標的</th>
+            <th>詢圈期間</th>
+            <th>轉換溢價</th>
+            <th>詢圈進度</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>中鋼公司債CB1</td>
+            <td class="mono">9/10–9/17</td>
+            <td class="mono up">+8.5%</td>
+            <td>
+              <div class="progress-cell">
+                <div class="progress-track"><div class="progress-fill" style="width:72%"></div></div>
+                <div class="progress-pct mono">72%</div>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>台達電CB3</td>
+            <td class="mono">9/12–9/19</td>
+            <td class="mono up">+5.2%</td>
+            <td>
+              <div class="progress-cell">
+                <div class="progress-track"><div class="progress-fill" style="width:45%"></div></div>
+                <div class="progress-pct mono">45%</div>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>長榮海運CB2</td>
+            <td class="mono">9/08–9/15</td>
+            <td class="mono up">+11.0%</td>
+            <td>
+              <div class="progress-cell">
+                <div class="progress-track"><div class="progress-fill" style="width:90%"></div></div>
+                <div class="progress-pct mono">90%</div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="feature alt" id="quant">
+    <div class="wrap">
+      <div class="feature-head">
+        <div>
+          <div class="eyebrow">量化策略</div>
+          <h2>策略不是聖杯，是可以檢驗的假設</h2>
+        </div>
+        <p class="desc">每個策略都附上歷史回測績效與最大回撤，讓你在下單前先看清楚它在過去是怎麼運作的。</p>
+      </div>
+    </div>
+
+    <div class="quant-grid">
+      <div class="quant-card">
+        <h3>分點動能策略</h3>
+        <p>追蹤法人分點連續買超訊號，於動能確立後進場，動能轉弱即出場。</p>
+        <svg class="spark" width="160" height="40" viewBox="0 0 160 40">
+          <polyline points="0,32 20,30 40,26 60,27 80,18 100,20 120,10 140,12 160,4"
+            fill="none" stroke="#C6A15B" stroke-width="2"/>
+        </svg>
+        <div class="quant-stats">
+          <div><span>年化報酬</span><b class="mono up">18.4%</b></div>
+          <div><span>最大回撤</span><b class="mono down">-12.1%</b></div>
+          <div><span>勝率</span><b class="mono">58%</b></div>
+        </div>
+      </div>
+
+      <div class="quant-card">
+        <h3>ETF資金流策略</h3>
+        <p>依成分股權重的季度調整方向，提前布局將被動資金納入的個股。</p>
+        <svg class="spark" width="160" height="40" viewBox="0 0 160 40">
+          <polyline points="0,30 20,28 40,29 60,22 80,23 100,15 120,16 140,9 160,10"
+            fill="none" stroke="#C6A15B" stroke-width="2"/>
+        </svg>
+        <div class="quant-stats">
+          <div><span>年化報酬</span><b class="mono up">11.2%</b></div>
+          <div><span>最大回撤</span><b class="mono down">-8.3%</b></div>
+          <div><span>勝率</span><b class="mono">61%</b></div>
+        </div>
+      </div>
+
+      <div class="quant-card">
+        <h3>CB套利策略</h3>
+        <p>利用詢圈期間市場對轉換溢價的定價落差，等待收斂後獲利了結。</p>
+        <svg class="spark" width="160" height="40" viewBox="0 0 160 40">
+          <polyline points="0,26 20,25 40,24 60,20 80,19 100,15 120,14 140,10 160,8"
+            fill="none" stroke="#C6A15B" stroke-width="2"/>
+        </svg>
+        <div class="quant-stats">
+          <div><span>年化報酬</span><b class="mono up">9.6%</b></div>
+          <div><span>最大回撤</span><b class="mono down">-4.5%</b></div>
+          <div><span>勝率</span><b class="mono">66%</b></div>
+        </div>
+      </div>
+
+      <div class="quant-card">
+        <h3>多因子選股</h3>
+        <p>結合籌碼集中度、基本面成長性與價格動能三項因子，每月重新排序。</p>
+        <svg class="spark" width="160" height="40" viewBox="0 0 160 40">
+          <polyline points="0,33 20,29 40,31 60,24 80,26 100,17 120,19 140,11 160,13"
+            fill="none" stroke="#C6A15B" stroke-width="2"/>
+        </svg>
+        <div class="quant-stats">
+          <div><span>年化報酬</span><b class="mono up">15.7%</b></div>
+          <div><span>最大回撤</span><b class="mono down">-10.8%</b></div>
+          <div><span>勝率</span><b class="mono">55%</b></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-band" id="cta">
+    <div class="wrap">
+      <h2>資料每天更新，策略持續迭代</h2>
+      <p>建立你的追蹤清單，把分點籌碼、ETF變化與CB詢圈整合成一個每天早上看得完的畫面。</p>
+      <button class="btn-primary">免費建立追蹤清單</button>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <div class="foot-row">
+      <p class="foot-note">本網站畫面所示資料為介面設計之示意內容，非即時市場資訊，亦不構成任何投資建議。實際功能上線前，所有數據將串接合法資料來源並標示更新時間。</p>
+      <div class="foot-links">
+        <a href="#chips">分點籌碼</a>
+        <a href="#etf">ETF持股</a>
+        <a href="#cb">CB詢圈</a>
+        <a href="#quant">量化策略</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
