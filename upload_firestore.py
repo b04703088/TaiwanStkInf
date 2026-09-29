@@ -2,7 +2,7 @@
 
 Firestore 結構：
   stock_prices/{code}/daily/{YYYY-MM-DD}   每檔每日一筆
-  daily_snapshots/{YYYY-MM-DD}             當日全市場一份（列表頁一次讀完）
+  daily_snapshots/{YYYY-MM-DD}             當日全市場一份（列表頁一次讀完；data 欄位是 JSON 字串）
   jobs/firestore_upload                    最後一次上傳狀態
 
 用日期當 doc id，重複上傳只會覆蓋同一筆。
@@ -27,7 +27,7 @@ from pathlib import Path
 
 DATA_DIR = Path(__file__).resolve().parent / "data"
 NUM_FIELDS = ("open", "high", "low", "close", "change", "volume", "value", "transactions")
-SNAPSHOT_FIELDS = ("name", "market", "open", "high", "low", "close", "change", "volume", "value")
+SNAPSHOT_FIELDS = ("code", "name", "market", "open", "high", "low", "close", "change", "volume", "value")
 BATCH_SIZE = 400  # Firestore 單一 batch 上限 500
 
 
@@ -56,7 +56,17 @@ def read_rows(path):
 
 
 def build_snapshot(rows):
-    return {r["code"]: {k: r[k] for k in SNAPSHOT_FIELDS} for r in rows}
+    """全市場快照壓成一個 JSON 字串。
+
+    不能存成巢狀 map：Firestore 會替每個欄位建索引，2,000 多檔 × 多個欄位
+    會超過單一文件 40,000 個索引項的上限（INDEX_ENTRIES_COUNT_LIMIT_EXCEEDED）。
+    字串欄位只算一個索引項。前端讀取：
+        const {columns, rows} = JSON.parse(doc.data().data)
+    rows 每一列的值依 columns 順序排列。
+    """
+    return json.dumps({"columns": list(SNAPSHOT_FIELDS),
+                       "rows": [[r[k] for k in SNAPSHOT_FIELDS] for r in rows]},
+                      ensure_ascii=False, separators=(",", ":"))
 
 
 def upload_day(db, rows, server_ts=None):
@@ -75,9 +85,8 @@ def upload_day(db, rows, server_ts=None):
             batch.commit()
             batch = db.batch()
     batch.commit()
-    snap = build_snapshot(rows)
     db.collection("daily_snapshots").document(d).set(
-        {"date": d, "count": len(snap), "prices": snap, "updated_at": server_ts})
+        {"date": d, "count": len(rows), "data": build_snapshot(rows), "updated_at": server_ts})
     return ops + 1
 
 

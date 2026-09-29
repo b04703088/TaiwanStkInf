@@ -12,7 +12,7 @@
 每次抓到新資料後，workflow 會用 `upload_firestore.py` 把這次新增的 CSV 寫進 Firestore：
 
 - `stock_prices/{code}/daily/{YYYY-MM-DD}`：每檔每日一筆
-- `daily_snapshots/{YYYY-MM-DD}`：當日全市場一份
+- `daily_snapshots/{YYYY-MM-DD}`：當日全市場一份，`data` 欄位是 JSON 字串（`{columns, rows}`），前端用 `JSON.parse` 讀
 - `jobs/firestore_upload`：最後一次上傳狀態
 
 啟用方式：Firebase Console → 專案設定 → 服務帳戶 → 產生私密金鑰，把整份 JSON 貼到 GitHub repo 的

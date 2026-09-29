@@ -1,3 +1,4 @@
+import json
 import sys
 import tempfile
 import unittest
@@ -78,7 +79,11 @@ class UploadTest(unittest.TestCase):
         self.assertEqual(db.store["stock_prices/2330/daily/2026-09-24"]["close"], 1005.0)
         snap = db.store["daily_snapshots/2026-09-24"]
         self.assertEqual(snap["count"], 2)
-        self.assertEqual(snap["prices"]["6488"]["close"], 400.5)
+        self.assertIsInstance(snap["data"], str)  # 單一字串欄位，避免索引項爆量
+        data = json.loads(snap["data"])
+        by_code = {r[0]: dict(zip(data["columns"], r)) for r in data["rows"]}
+        self.assertEqual(by_code["6488"]["close"], 400.5)
+        self.assertEqual(by_code["2330"]["name"], "台積電")
 
     def test_max_files_keeps_latest(self):
         paths = []
