@@ -2,8 +2,11 @@ name: Fetch daily stock prices
 
 on:
   schedule:
-    # 週一至週五 台北時間 15:30（UTC 07:30），收盤資料已公布
-    - cron: "30 7 * * 1-5"
+    # 週一至週五 台北時間 15:17、18:47（UTC 07:17、10:47）
+    # 避開整點/半點（GitHub 排程在那些時間最塞、最容易延遲或被略過）；
+    # 跑兩次是保險，第二次若資料已存在會直接跳過
+    - cron: "17 7 * * 1-5"
+    - cron: "47 10 * * 1-5"
   workflow_dispatch:
     inputs:
       date:
@@ -39,6 +42,11 @@ jobs:
           args=()
           [ -n "$IN_DATE" ] && args+=(--date "$IN_DATE")
           [ -n "$IN_START" ] && args+=(--start "$IN_START")
+          # 排程（沒給日期）時抓最近 7 天：GitHub 排程常延遲好幾小時，
+          # 若拖過台北午夜，只抓「今天」會漏掉前一天；已抓過/週末/假日會直接跳過，不多花時間
+          if [ ${#args[@]} -eq 0 ]; then
+            args+=(--start "$(TZ=Asia/Taipei date -d '7 days ago' +%F)")
+          fi
           # 回補最多跑 320 分鐘，留時間 commit；沒抓完再按一次 Run workflow 會接著抓
           python fetch_daily.py --max-minutes 320 "${args[@]}"
 
