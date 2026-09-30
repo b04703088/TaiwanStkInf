@@ -1,15 +1,16 @@
 name: Deploy site
 
 on:
-  # 每日抓完資料後自動重建網站
+  # 每日抓完股價或 ETF 持股後自動重建網站
   workflow_run:
-    workflows: ["Fetch daily stock prices"]
+    workflows: ["Fetch daily stock prices", "Fetch ETF holdings"]
     types: [completed]
   # 改了網頁也重建
   push:
     paths:
       - "site/**"
       - "scripts/build_site.py"
+      - "scripts/etf_site.py"
       - ".github/workflows/pages.yml"
   workflow_dispatch: {}
 

@@ -4,6 +4,7 @@
   index.html, ranking.html ...        從 site/ 複製
   data/days.json                     可用日期（由舊到新）
   data/daily/YYYY-MM-DD.json         當日全市場 {date, columns, rows}
+  data/etf/latest.json               各 ETF 最新持股與前一份的差異（見 scripts/etf_site.py）
 
 用法：python scripts/build_site.py [--days 120] [--out _site]
 """
@@ -16,6 +17,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from upload_firestore import SNAPSHOT_FIELDS, read_rows  # noqa: E402
+
+sys.path.insert(0, str(ROOT / "scripts"))
+import etf_site  # noqa: E402
 
 
 def build(out: Path, days: int) -> list[str]:
@@ -39,6 +43,8 @@ def build(out: Path, days: int) -> list[str]:
             json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
         dates.append(d)
     (out / "data" / "days.json").write_text(json.dumps(dates), encoding="utf-8")
+    if (ROOT / "data" / "etf" / "etf_list.csv").exists():
+        etf_site.write_latest(ROOT / "data", out / "data" / "etf" / "latest.json")
     return dates
 
 

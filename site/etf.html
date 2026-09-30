@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ETF持股｜潮汐</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  /* ===== 與首頁 tide-chip-dashboard.html 相同的設計變數 ===== */
+  :root{
+    --ink:#0E1620;
+    --panel:#141F2B;
+    --panel-2:#182531;
+    --line:rgba(232,237,242,0.09);
+    --line-strong:rgba(232,237,242,0.16);
+    --text:#E8EDF2;
+    --text-muted:#8B99A6;
+    --text-faint:#5C6B79;
+    --brass:#C6A15B;
+    --brass-dim:#8A7240;
+    --rise:#E1594F;
+    --fall:#3FAE72;
+    --radius-s:3px;
+    --radius-m:6px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--ink); color:var(--text);
+    font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;
+    line-height:1.6; -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:'Noto Serif TC',serif; margin:0; font-weight:700; letter-spacing:0.01em;}
+  .mono{font-family:'IBM Plex Mono','SFMono-Regular',monospace; font-variant-numeric:tabular-nums;}
+  a{color:inherit;}
+  a:focus-visible, button:focus-visible{outline:2px solid var(--brass); outline-offset:3px;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
+  .up{color:var(--rise);}
+  .down{color:var(--fall);}
+  .flat{color:var(--text-muted);}
+
+  /* ---------- nav（同首頁） ---------- */
+  header.site{
+    position:sticky; top:0; z-index:40;
+    background:rgba(14,22,32,0.88); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-row{display:flex; align-items:center; justify-content:space-between; padding:16px 28px;}
+  .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
+  .brand-mark{font-family:'Noto Serif TC',serif; font-size:22px; font-weight:700; color:var(--text);}
+  .brand-sub{font-size:12px; color:var(--text-faint);}
+  nav.links{display:flex; gap:30px; font-size:14px;}
+  nav.links a{text-decoration:none; color:var(--text-muted); transition:color .15s ease;}
+  nav.links a:hover{color:var(--brass);}
+  nav.links a[aria-current="page"]{color:var(--brass);}
+  .nav-cta{
+    font-size:13px; color:var(--ink); background:var(--brass);
+    padding:8px 16px; border-radius:var(--radius-s); text-decoration:none; font-weight:500;
+  }
+
+  /* ---------- page head（沿用 feature-head） ---------- */
+  .page-head{padding:64px 0 36px;}
+  .feature-head{display:grid; grid-template-columns:0.9fr 1.1fr; gap:56px;}
+  .eyebrow{font-size:13px; color:var(--brass); margin-bottom:10px;}
+  .feature-head h1{font-size:34px; line-height:1.35;}
+  .feature-head .desc{color:var(--text-muted); font-size:14.5px; align-self:end; margin:0;}
+
+  /* 日期切換 */
+  .date-bar{
+    margin-top:32px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+    font-size:13px; color:var(--text-muted);
+  }
+  .date-nav{display:flex; align-items:center; border:1px solid var(--line-strong); border-radius:var(--radius-s);}
+  .date-nav button{
+    background:none; border:none; color:var(--text-muted); cursor:pointer;
+    padding:7px 12px; font-size:14px; font-family:inherit;
+  }
+  .date-nav button:hover:not(:disabled){color:var(--brass);}
+  .date-nav button:disabled{color:var(--text-faint); cursor:default;}
+  .date-nav .date-label{
+    padding:7px 14px; color:var(--text); font-size:14px;
+    border-left:1px solid var(--line); border-right:1px solid var(--line);
+    display:flex; align-items:center; gap:8px;
+  }
+  .date-nav .date-label::after{
+    content:""; width:6px; height:6px; margin-top:-3px;
+    border-right:1.5px solid var(--text-muted); border-bottom:1.5px solid var(--text-muted);
+    transform:rotate(45deg); transition:transform .15s ease;
+  }
+  .date-nav .date-label[aria-expanded="true"]::after{transform:rotate(-135deg); margin-top:3px;}
+
+  /* ---------- 行事曆 ---------- */
+  .date-picker{position:relative;}
+  .cal{
+    position:absolute; top:calc(100% + 8px); left:0; z-index:30;
+    width:min(300px, calc(100vw - 32px)); padding:14px 14px 12px;
+    background:var(--panel); border:1px solid var(--line-strong); border-radius:var(--radius-m);
+    box-shadow:0 16px 40px rgba(0,0,0,0.45);
+  }
+  .cal-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;}
+  .cal-title{font-family:'Noto Serif TC',serif; font-size:15px; font-weight:700;}
+  .cal-head button{
+    background:none; border:none; color:var(--text-muted); cursor:pointer;
+    font-size:16px; padding:4px 10px; border-radius:var(--radius-s); font-family:inherit;
+  }
+  .cal-head button:hover:not(:disabled){color:var(--brass); background:var(--panel-2);}
+  .cal-head button:disabled{color:var(--text-faint); opacity:.4; cursor:default;}
+  .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:2px;}
+  .cal-wd{font-size:11px; color:var(--text-faint); text-align:center; padding:4px 0 6px;}
+  .cal-day{
+    height:36px; border:none; background:none; border-radius:var(--radius-s);
+    color:var(--text); cursor:pointer; font-size:13px; position:relative;
+  }
+  .cal-day:hover:not(:disabled){background:var(--panel-2); color:var(--brass);}
+  .cal-day:disabled{color:var(--text-faint); opacity:.45; cursor:default;}
+  .cal-day.latest::after{
+    content:""; position:absolute; left:50%; bottom:5px; width:4px; height:4px; margin-left:-2px;
+    border-radius:50%; background:var(--brass);
+  }
+  .cal-day.sel{background:var(--brass); color:var(--ink); font-weight:600;}
+  .cal-day.sel::after{background:var(--ink);}
+  .cal-foot{
+    display:flex; justify-content:space-between; align-items:center; gap:10px;
+    margin-top:10px; padding-top:10px; border-top:1px solid var(--line);
+    font-size:11.5px; color:var(--text-faint);
+  }
+  .cal-foot button{
+    background:none; border:1px solid var(--line-strong); color:var(--text-muted);
+    border-radius:var(--radius-s); padding:4px 10px; font-size:12px; cursor:pointer; font-family:inherit;
+  }
+  .cal-foot button:hover{color:var(--brass); border-color:var(--brass);}
+  .source-tag{font-size:12px; color:var(--text-faint);}
+
+  /* ---------- 市場摘要（沿用 quant-grid 的 1px 格線） ---------- */
+  .stats{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:1px;
+    background:var(--line); border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden;
+  }
+  .stat{background:var(--panel); padding:20px 22px;}
+  .stat span{display:block; font-size:12px; color:var(--text-faint); margin-bottom:6px;}
+  .stat b{font-size:22px; font-weight:600;}
+  .stat small{font-size:12.5px; color:var(--text-muted); margin-left:6px;}
+  .stat em{font-style:normal;}
+  .stat em + small{margin:0 6px;}
+  .breadth{display:flex; height:5px; border-radius:3px; overflow:hidden; margin-top:10px; background:var(--panel-2);}
+  .breadth i{display:block; height:100%;}
+
+  /* ---------- 篩選列 ---------- */
+  .toolbar{
+    display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;
+    margin:44px 0 18px;
+  }
+  .seg-group{display:flex; gap:18px; flex-wrap:wrap;}
+  .seg{display:flex; border:1px solid var(--line-strong); border-radius:var(--radius-s); overflow:hidden;}
+  .seg button{
+    background:none; border:none; color:var(--text-muted); cursor:pointer; font-family:inherit;
+    font-size:13px; padding:7px 14px; border-right:1px solid var(--line);
+  }
+  .seg button:last-child{border-right:none;}
+  .seg button:hover{color:var(--text);}
+  .seg button[aria-pressed="true"]{background:var(--brass); color:var(--ink); font-weight:500;}
+  .search{
+    background:var(--panel); border:1px solid var(--line-strong); border-radius:var(--radius-s);
+    color:var(--text); font-family:inherit; font-size:13px; padding:8px 12px; width:200px;
+  }
+  .search::placeholder{color:var(--text-faint);}
+  .search:focus{outline:none; border-color:var(--brass);}
+
+  /* ---------- 排行表（沿用 table.chips） ---------- */
+  .table-wrap{overflow-x:auto;}
+  table.rank{width:100%; border-collapse:collapse; font-size:14px;}
+  table.rank th{
+    text-align:right; font-weight:500; color:var(--text-faint); font-size:12px;
+    padding:0 14px 12px; border-bottom:1px solid var(--line-strong); white-space:nowrap;
+  }
+  table.rank th.l, table.rank td.l{text-align:left;}
+  table.rank td{padding:14px; border-bottom:1px solid var(--line); text-align:right; white-space:nowrap;}
+  table.rank tbody tr{transition:background .15s ease;}
+  table.rank tbody tr:hover{background:var(--panel-2);}
+  .rank-no{color:var(--text-faint); width:44px;}
+  tr.top3 .rank-no{color:var(--brass); font-weight:600;}
+  .stock-name{color:var(--text);}
+  .stock-code{color:var(--text-faint); font-size:12px; margin-left:6px;}
+  .mkt{
+    font-size:10.5px; color:var(--text-faint); border:1px solid var(--line-strong);
+    border-radius:2px; padding:0 4px; margin-left:8px; vertical-align:1px;
+  }
+  .value-cell{display:flex; align-items:center; justify-content:flex-end; gap:12px;}
+  .bar-track{width:120px; height:5px; background:var(--panel-2); border-radius:3px; overflow:hidden;}
+  .bar-fill{height:100%; background:linear-gradient(90deg,var(--brass-dim),var(--brass));}
+  .share{color:var(--text-muted); font-size:12.5px;}
+  [hidden]{display:none !important;}
+  .empty{padding:48px 0; text-align:center; color:var(--text-faint); font-size:14px;}
+  .more{display:flex; justify-content:center; margin-top:28px;}
+  .btn-ghost{
+    background:transparent; color:var(--text); border:1px solid var(--line-strong);
+    padding:10px 22px; border-radius:var(--radius-s); font-size:14px; cursor:pointer; font-family:inherit;
+  }
+  .btn-ghost:hover{border-color:var(--brass); color:var(--brass);}
+
+  footer.site{padding:64px 0 56px; margin-top:72px; border-top:1px solid var(--line);}
+  .foot-note{font-size:12.5px; color:var(--text-faint); max-width:40em; line-height:1.7; margin:0;}
+
+  @media (max-width: 860px){
+    .nav-row{padding:14px 20px;}
+    nav.links{display:none;}
+    .page-head{padding:44px 0 28px;}
+    .feature-head{grid-template-columns:1fr; gap:14px;}
+    .feature-head h1{font-size:28px;}
+    .stats{grid-template-columns:repeat(2,1fr);}
+    .wrap{padding:0 16px;}
+    table.rank{font-size:12.5px;}
+    table.rank td, table.rank th{padding-left:8px; padding-right:8px;}
+    .col-vol, .col-share, .bar-track, .mkt{display:none;}
+    .stock-code{display:block; margin-left:0; line-height:1.3;}
+    .stat .hint{display:none;}
+    .search{width:100%;}
+    .toolbar{flex-direction:column; align-items:stretch;}
+  }
+
+  /* ---------- 子頁分頁 ---------- */
+  .tabs{display:flex; gap:28px; border-bottom:1px solid var(--line-strong); margin-top:36px;}
+  .tabs a{
+    text-decoration:none; color:var(--text-muted); font-size:15px; padding:10px 0 12px;
+    border-bottom:2px solid transparent; margin-bottom:-1px;
+  }
+  .tabs a:hover{color:var(--text);}
+  .tabs a[aria-selected="true"]{color:var(--text); border-bottom-color:var(--brass); font-weight:500;}
+  .page-head{padding-bottom:0;}
+  .panel{padding-top:28px;}
+  .panel-note{font-size:13px; color:var(--text-faint); margin:0 0 20px; max-width:62em; line-height:1.7;}
+
+  /* ---------- 個股查詢 ---------- */
+  .lookup{display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:24px;}
+  .lookup .search{width:280px; font-size:14px; padding:10px 14px;}
+  .lookup-hint{font-size:12.5px; color:var(--text-faint);}
+  .stock-head{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin:4px 0 18px;}
+  .stock-head h2{font-size:24px;}
+  .stock-head .code{font-size:14px; color:var(--text-faint);}
+  .stock-head .px{font-size:13px; color:var(--text-muted);}
+  .pop{margin-top:48px;}
+  .pop h3{font-size:16px; margin-bottom:6px;}
+  .pop p{font-size:12.5px; color:var(--text-faint); margin:0 0 14px;}
+  .chips{display:flex; flex-wrap:wrap; gap:8px;}
+  .chip{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-s);
+    color:var(--text); font-family:inherit; font-size:13px; padding:6px 10px; cursor:pointer;
+    display:inline-flex; gap:8px; align-items:baseline;
+  }
+  .chip:hover{border-color:var(--brass);}
+  .chip .n{color:var(--brass); font-size:12px;}
+  .chip .c{color:var(--text-faint); font-size:11.5px;}
+
+  /* ---------- 標籤 ---------- */
+  .kind{font-size:10.5px; border-radius:2px; padding:0 5px; margin-left:8px; vertical-align:1px; border:1px solid var(--line-strong); color:var(--text-faint);}
+  .kind.active{color:var(--brass); border-color:var(--brass-dim);}
+  .pill{display:inline-block; font-size:11.5px; padding:1px 8px; border-radius:10px; line-height:1.6; white-space:nowrap;}
+  .pill.new{background:rgba(225,89,79,.16); color:var(--rise);}
+  .pill.add{background:rgba(225,89,79,.09); color:var(--rise);}
+  .pill.removed{background:rgba(63,174,114,.16); color:var(--fall);}
+  .pill.cut{background:rgba(63,174,114,.09); color:var(--fall);}
+  .pill.flow, .pill.same{background:var(--panel-2); color:var(--text-faint);}
+  .etf-tags{display:flex; flex-wrap:wrap; gap:4px; justify-content:flex-start;}
+  .etf-tag{font-size:11.5px; padding:1px 6px; border-radius:2px; background:var(--panel-2); color:var(--text-muted);}
+  .etf-tag.up{color:var(--rise);} .etf-tag.down{color:var(--fall);}
+  tr.clickable{cursor:pointer;}
+
+  /* ---------- 依 ETF 分組 ---------- */
+  .etf-block{margin-bottom:36px;}
+  .etf-block-head{display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap;
+    padding-bottom:10px; border-bottom:1px solid var(--line-strong); margin-bottom:4px;}
+  .etf-block-head h3{font-size:17px;}
+  .etf-block-head .meta{font-size:12.5px; color:var(--text-faint);}
+  .pending{margin-top:40px; font-size:12.5px; color:var(--text-faint); line-height:1.8;}
+  @media (max-width: 860px){
+    .tabs{gap:20px;}
+    .lookup .search{width:100%;}
+    .col-hide{display:none;}
+    .etf-tags{max-width:140px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="nav-row">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">潮汐</span>
+      <span class="brand-sub">籌碼觀測站</span>
+    </a>
+    <nav class="links">
+      <a href="ranking.html">成交排行</a>
+      <a href="etf.html" aria-current="page">ETF持股</a>
+      <a href="index.html#chips">分點籌碼</a>
+      <a href="index.html#cb">CB詢圈</a>
+      <a href="index.html#quant">量化策略</a>
+    </nav>
+    <a href="index.html#cta" class="nav-cta">開始追蹤</a>
+  </div>
+</header>
+
+<main>
+  <section class="page-head">
+    <div class="wrap">
+      <div class="feature-head">
+        <div>
+          <div class="eyebrow">ETF持股</div>
+          <h1>ETF 怎麼換股，資金就怎麼流</h1>
+        </div>
+        <p class="desc">追蹤 <span id="etfCount">50</span> 檔台股 ETF（含主動式）每天公告的完整持股。查一檔股票被哪些 ETF 持有，或看經理人前一交易日到最新一交易日加碼、減碼、新增與剔除了哪些股票。</p>
+      </div>
+      <div class="tabs" role="tablist">
+        <a href="#holders" id="tab-holders" role="tab" aria-selected="true" aria-controls="panel-holders">個股持有查詢</a>
+        <a href="#changes" id="tab-changes" role="tab" aria-selected="false" aria-controls="panel-changes">每日持股變化</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 子頁一：個股持有查詢 ============ -->
+  <section class="panel" id="panel-holders" role="tabpanel" aria-labelledby="tab-holders">
+    <div class="wrap">
+      <div class="lookup">
+        <input class="search" id="stockInput" list="stockList" type="search" autocomplete="off"
+               placeholder="輸入股票代號或名稱，例如 2330" aria-label="股票代號或名稱">
+        <datalist id="stockList"></datalist>
+        <span class="lookup-hint" id="lookupHint"></span>
+      </div>
+
+      <div id="holderResult">
+        <div class="stock-head">
+          <h2 id="stockName">—</h2><span class="code mono" id="stockCode"></span><span class="px mono" id="stockPx"></span>
+        </div>
+        <div class="stats" id="holderStats"></div>
+        <div class="table-wrap" style="margin-top:28px">
+          <table class="rank">
+            <thead>
+              <tr>
+                <th class="l">ETF</th>
+                <th class="col-hide">資料日</th>
+                <th>持股</th>
+                <th>權重</th>
+                <th class="col-hide">市值（億）</th>
+                <th class="l">較前一份</th>
+              </tr>
+            </thead>
+            <tbody id="holderRows"><tr><td colspan="6" class="empty">載入中…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="pop">
+        <h3>被最多 ETF 持有的個股</h3>
+        <p>依持有的 ETF 檔數排序，點選即可查詢。</p>
+        <div class="chips" id="popular"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 子頁二：每日持股變化 ============ -->
+  <section class="panel" id="panel-changes" role="tabpanel" aria-labelledby="tab-changes" hidden>
+    <div class="wrap">
+      <p class="panel-note">每檔 ETF 與自己的前一份持股比較（各投信公告進度不同，資料日可能不一樣）。
+        被動式 ETF 每天都有申購贖回，成分股會同比例增減，這部分已扣除；下表只列經理人或指數調整造成的變化。
+        金額以該 ETF 資料日的收盤價估算。</p>
+      <div class="stats" id="changeStats"></div>
+
+      <div class="toolbar">
+        <div class="seg-group">
+          <div class="seg" data-filter="kind" role="group" aria-label="ETF 類型">
+            <button type="button" data-v="all" aria-pressed="true">全部</button>
+            <button type="button" data-v="active" aria-pressed="false">主動式</button>
+            <button type="button" data-v="passive" aria-pressed="false">被動式</button>
+          </div>
+          <div class="seg" data-filter="view" role="group" aria-label="檢視方式">
+            <button type="button" data-v="stock" aria-pressed="true">依個股</button>
+            <button type="button" data-v="etf" aria-pressed="false">依 ETF</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="byStock">
+        <div class="table-wrap">
+          <table class="rank">
+            <thead>
+              <tr>
+                <th class="l">股票</th>
+                <th>淨調整</th>
+                <th>估計金額（億）</th>
+                <th class="l">加碼 / 新增</th>
+                <th class="l">減碼 / 剔除</th>
+              </tr>
+            </thead>
+            <tbody id="stockChangeRows"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="byEtf" hidden></div>
+      <p class="pending" id="pending"></p>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <p class="foot-note">資料來源：各投信公告之 ETF 每日持股（PCF／投資組合），每個交易日自動更新；股價為臺灣證券交易所、證券櫃檯買賣中心收盤行情。海外持股以股數表示、不估算金額。本頁資訊僅供參考，不構成任何投資建議。</p>
+  </div>
+</footer>
+
+<script type="module">
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const isTw = code => /^\d{4,6}[A-Z]?$/.test(code);
+const unit = code => isTw(code) ? "張" : "股";
+const lots = (sh, code) => sh == null ? "—" : (isTw(code) ? sh / 1000 : sh);
+const fmtN = (v, d = 0) => v == null ? "—" : v.toLocaleString("zh-TW", { maximumFractionDigits: d, minimumFractionDigits: d });
+const fmtLots = (sh, code) => { if (sh == null) return "—"; const v = lots(sh, code); return fmtN(v, Math.abs(v) < 10 && v % 1 ? 1 : 0); };
+const fmtSigned = (sh, code) => sh == null ? "—" : (sh > 0 ? "+" : "") + fmtLots(sh, code);
+const fmtYi = v => v == null ? "—" : fmtN(v / 1e8, Math.abs(v) >= 1e9 ? 1 : 2);
+const fmtDate = d => d ? d.slice(5).replace("-", "/") : "—";
+const CLS = { new: "新增", add: "加碼", cut: "減碼", removed: "剔除", flow: "申購贖回", same: "不變" };
+const cls = v => v > 0 ? "up" : v < 0 ? "down" : "flat";
+
+const state = { etfs: [], rows: [], byStock: new Map(), stock: null, kind: "all", view: "stock" };
+
+/* ---------- 資料 ---------- */
+async function load() {
+  const r = await fetch("data/etf/latest.json", { cache: "no-cache" });
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  const d = await r.json();
+  state.etfs = d.etfs;
+  state.rows = d.rows.map(x => Object.fromEntries(d.cols.map((c, i) => [c, x[i]])))
+    .map(x => ({ ...x, etf: d.etfs[x.e] }));
+  for (const x of state.rows) {
+    if (!state.byStock.has(x.code)) state.byStock.set(x.code, []);
+    state.byStock.get(x.code).push(x);
+  }
+  $("etfCount").textContent = d.etfs.length;
+}
+
+/* ---------- 子頁切換 ---------- */
+function showTab(name) {
+  for (const t of ["holders", "changes"]) {
+    $("tab-" + t).setAttribute("aria-selected", t === name);
+    $("panel-" + t).hidden = t !== name;
+  }
+}
+function route() {
+  const h = location.hash.replace("#", "");
+  showTab(h === "changes" ? "changes" : "holders");
+}
+
+/* ---------- 子頁一：個股持有查詢 ---------- */
+function held(code) {
+  return (state.byStock.get(code) || []).filter(x => x.sh > 0);
+}
+
+function renderPopular() {
+  const list = [...state.byStock.entries()]
+    .map(([code, xs]) => ({ code, name: xs[0].name, n: xs.filter(x => x.sh > 0).length }))
+    .filter(x => x.n > 0)
+    .sort((a, b) => b.n - a.n || a.code.localeCompare(b.code));
+  $("popular").innerHTML = list.slice(0, 40).map(x =>
+    `<button type="button" class="chip" data-code="${esc(x.code)}"><span>${esc(x.name)}</span><span class="c mono">${esc(x.code)}</span><span class="n mono">${x.n} 檔</span></button>`).join("");
+  $("stockList").innerHTML = list.map(x => `<option value="${esc(x.code)} ${esc(x.name)}"></option>`).join("");
+  return list;
+}
+
+function findStock(q) {
+  q = q.trim();
+  if (!q) return null;
+  const code = q.split(/\s+/)[0].toUpperCase();
+  if (state.byStock.has(code)) return code;
+  if (state.byStock.has(q.toUpperCase())) return q.toUpperCase();  // 海外 'NVDA US'
+  for (const [c, xs] of state.byStock) if (xs[0].name === q) return c;
+  for (const [c, xs] of state.byStock) if (xs[0].name.includes(q)) return c;
+  return null;
+}
+
+function renderHolder(code) {
+  state.stock = code;
+  const xs = held(code).sort((a, b) => (b.sh * (b.px || 0)) - (a.sh * (a.px || 0)) || b.w - a.w);
+  const any = state.byStock.get(code) || [];
+  const name = any[0]?.name || code;
+  $("stockName").textContent = name;
+  $("stockCode").textContent = code;
+  const px = xs.find(x => x.px)?.px;
+  $("stockPx").textContent = px ? `收盤 ${fmtN(px, px < 1000 ? 2 : 0)}` : "";
+  const totalSh = xs.reduce((s, x) => s + x.sh, 0);
+  const totalV = xs.every(x => x.px) ? xs.reduce((s, x) => s + x.sh * x.px, 0) : null;
+  const adj = any.reduce((s, x) => s + (x.adj || 0), 0);
+  const compared = any.filter(x => x.cls != null).length;
+  $("holderStats").innerHTML = `
+    <div class="stat"><span>持有 ETF</span><b class="mono">${xs.length}</b><small>檔</small></div>
+    <div class="stat"><span>合計持股</span><b class="mono">${fmtLots(totalSh, code)}</b><small>${unit(code)}</small></div>
+    <div class="stat"><span>合計市值</span><b class="mono">${fmtYi(totalV)}</b><small>${totalV == null ? "" : "億"}</small></div>
+    <div class="stat"><span>較前一份（主動調整）</span><b class="mono ${cls(adj)}">${compared ? fmtSigned(adj, code) : "—"}</b><small>${compared ? unit(code) : "尚無前一份"}</small></div>`;
+  const removed = any.filter(x => x.cls === "removed");
+  const rows = [...xs, ...removed];
+  $("holderRows").innerHTML = rows.length ? rows.map(x => `
+    <tr>
+      <td class="l"><span class="stock-name">${esc(x.etf.name)}</span><span class="stock-code mono">${esc(x.etf.code)}</span><span class="kind ${x.etf.kind}">${x.etf.kind === "active" ? "主動" : "被動"}</span></td>
+      <td class="mono col-hide flat">${fmtDate(x.etf.date)}</td>
+      <td class="mono">${x.sh > 0 ? fmtLots(x.sh, code) + ` <span class="flat" style="font-size:11px">${unit(code)}</span>` : "—"}</td>
+      <td class="mono">${x.sh > 0 ? fmtN(x.w, 2) + "%" : "—"}</td>
+      <td class="mono col-hide">${x.sh > 0 && x.px ? fmtYi(x.sh * x.px) : "—"}</td>
+      <td class="l">${x.cls == null ? '<span class="flat" style="font-size:12px">尚無前一份</span>'
+        : `<span class="pill ${x.cls}">${CLS[x.cls]}</span>${x.adj ? ` <span class="mono ${cls(x.adj)}" style="font-size:13px">${fmtSigned(x.adj, code)}</span>` : ""}`}</td>
+    </tr>`).join("")
+    : `<tr><td colspan="6" class="empty">目前沒有追蹤中的 ETF 持有這檔股票</td></tr>`;
+  $("lookupHint").textContent = "";
+  const url = new URL(location.href);
+  url.searchParams.set("stock", code);
+  history.replaceState(null, "", url);
+}
+
+function lookup(q) {
+  const code = findStock(q);
+  if (code) { $("stockInput").value = ""; renderHolder(code); }
+  else $("lookupHint").textContent = `找不到「${q}」，請輸入代號（如 2330）或名稱`;
+}
+
+/* ---------- 子頁二：每日持股變化 ---------- */
+const CHANGED = new Set(["new", "add", "cut", "removed"]);
+const kindOk = x => state.kind === "all" || x.etf.kind === state.kind;
+
+function renderChanges() {
+  const ch = state.rows.filter(x => CHANGED.has(x.cls) && kindOk(x));
+  const etfsShown = state.etfs.filter(e => state.kind === "all" || e.kind === state.kind);
+  const compared = etfsShown.filter(e => e.prev);
+  const etfWithCh = new Set(ch.map(x => x.etf.code));
+  const amt = ch.filter(x => isTw(x.code) && x.px).reduce((s, x) => s + x.adj * x.px, 0);
+  $("changeStats").innerHTML = `
+    <div class="stat"><span>有調整的 ETF</span><b class="mono">${etfWithCh.size}</b><small>/ ${compared.length} 檔可比較</small></div>
+    <div class="stat"><span>新增成分股</span><b class="mono up">${ch.filter(x => x.cls === "new").length}</b><small>次</small></div>
+    <div class="stat"><span>剔除成分股</span><b class="mono down">${ch.filter(x => x.cls === "removed").length}</b><small>次</small></div>
+    <div class="stat"><span>台股淨調整金額</span><b class="mono ${cls(amt)}">${(amt > 0 ? "+" : "") + fmtYi(amt)}</b><small>億</small></div>`;
+
+  // 依個股
+  const agg = new Map();
+  for (const x of ch) {
+    const a = agg.get(x.code) || { code: x.code, name: x.name, adj: 0, amt: 0, hasPx: true, buy: [], sell: [] };
+    a.adj += x.adj;
+    if (x.px) a.amt += x.adj * x.px; else a.hasPx = false;
+    (x.adj > 0 ? a.buy : a.sell).push(x);
+    agg.set(x.code, a);
+  }
+  const list = [...agg.values()].sort((a, b) => Math.abs(b.hasPx ? b.amt : 0) - Math.abs(a.hasPx ? a.amt : 0) || Math.abs(b.adj) - Math.abs(a.adj));
+  const tag = x => `<span class="etf-tag ${x.adj > 0 ? "up" : "down"}" title="${esc(x.etf.name)} ${CLS[x.cls]} ${fmtSigned(x.adj, x.code)} ${unit(x.code)}">${esc(x.etf.code)}${x.cls === "new" ? " 新" : x.cls === "removed" ? " 剔" : ""}</span>`;
+  $("stockChangeRows").innerHTML = list.length ? list.map(a => `
+    <tr class="clickable" data-code="${esc(a.code)}" title="查看 ${esc(a.name)} 被哪些 ETF 持有">
+      <td class="l"><span class="stock-name">${esc(a.name)}</span><span class="stock-code mono">${esc(a.code)}</span></td>
+      <td class="mono ${cls(a.adj)}">${fmtSigned(a.adj, a.code)} <span class="flat" style="font-size:11px">${unit(a.code)}</span></td>
+      <td class="mono ${cls(a.amt)}">${a.hasPx ? (a.amt > 0 ? "+" : "") + fmtYi(a.amt) : "—"}</td>
+      <td class="l"><div class="etf-tags">${a.buy.map(tag).join("") || '<span class="flat">—</span>'}</div></td>
+      <td class="l"><div class="etf-tags">${a.sell.map(tag).join("") || '<span class="flat">—</span>'}</div></td>
+    </tr>`).join("")
+    : `<tr><td colspan="5" class="empty">${compared.length ? "這段期間沒有主動調整" : "尚無可比較的前一份持股"}</td></tr>`;
+
+  // 依 ETF
+  const groups = new Map();
+  for (const x of ch) { if (!groups.has(x.etf.code)) groups.set(x.etf.code, []); groups.get(x.etf.code).push(x); }
+  const blocks = [...groups.values()].sort((a, b) => b.length - a.length);
+  $("byEtf").innerHTML = blocks.length ? blocks.map(xs => {
+    const e = xs[0].etf;
+    const flow = e.units && e.prev_units ? (e.units / e.prev_units - 1) * 100 : null;
+    xs.sort((a, b) => ["new", "add", "cut", "removed"].indexOf(a.cls) - ["new", "add", "cut", "removed"].indexOf(b.cls) || Math.abs(b.adj * (b.px || 1)) - Math.abs(a.adj * (a.px || 1)));
+    return `<div class="etf-block">
+      <div class="etf-block-head">
+        <h3>${esc(e.name)} <span class="stock-code mono">${esc(e.code)}</span><span class="kind ${e.kind}">${e.kind === "active" ? "主動" : "被動"}</span></h3>
+        <span class="meta mono">${fmtDate(e.prev)} → ${fmtDate(e.date)} · ${esc(e.issuer)}${flow != null ? ` · 受益單位 ${flow >= 0 ? "+" : ""}${flow.toFixed(2)}%` : ""}</span>
+      </div>
+      <div class="table-wrap"><table class="rank">
+        <thead><tr><th class="l">股票</th><th class="l">變化</th><th class="col-hide">前一份</th><th class="col-hide">最新</th><th>主動調整</th><th>估計金額（億）</th><th class="col-hide">權重</th></tr></thead>
+        <tbody>${xs.map(x => `
+          <tr class="clickable" data-code="${esc(x.code)}">
+            <td class="l"><span class="stock-name">${esc(x.name)}</span><span class="stock-code mono">${esc(x.code)}</span></td>
+            <td class="l"><span class="pill ${x.cls}">${CLS[x.cls]}</span></td>
+            <td class="mono col-hide flat">${fmtLots(x.psh, x.code)}</td>
+            <td class="mono col-hide">${fmtLots(x.sh, x.code)}</td>
+            <td class="mono ${cls(x.adj)}">${fmtSigned(x.adj, x.code)} <span class="flat" style="font-size:11px">${unit(x.code)}</span></td>
+            <td class="mono ${cls(x.adj)}">${x.px ? (x.adj > 0 ? "+" : "") + fmtYi(x.adj * x.px) : "—"}</td>
+            <td class="mono col-hide flat">${fmtN(x.pw, 2)}% → ${fmtN(x.w, 2)}%</td>
+          </tr>`).join("")}</tbody>
+      </table></div></div>`;
+  }).join("") : `<p class="empty">${compared.length ? "這段期間沒有主動調整" : "尚無可比較的前一份持股"}</p>`;
+
+  const waiting = etfsShown.filter(e => !e.prev);
+  $("pending").textContent = waiting.length
+    ? `以下 ${waiting.length} 檔目前只有一份持股，下一次更新後才能比較：${waiting.map(e => e.code).join("、")}`
+    : "";
+}
+
+/* ---------- 互動 ---------- */
+document.addEventListener("click", e => {
+  const chip = e.target.closest(".chip[data-code], tr.clickable[data-code]");
+  if (!chip) return;
+  renderHolder(chip.dataset.code);
+  location.hash = "holders";
+  window.scrollTo({ top: $("panel-holders").offsetTop - 80, behavior: "smooth" });
+});
+$("stockInput").addEventListener("change", e => lookup(e.target.value));
+$("stockInput").addEventListener("keydown", e => { if (e.key === "Enter") lookup(e.target.value); });
+document.querySelectorAll(".seg").forEach(seg => seg.addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  seg.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  state[seg.dataset.filter] = b.dataset.v;
+  $("byStock").hidden = state.view !== "stock";
+  $("byEtf").hidden = state.view !== "etf";
+  renderChanges();
+}));
+window.addEventListener("hashchange", route);
+
+try {
+  await load();
+  const popular = renderPopular();
+  const want = new URLSearchParams(location.search).get("stock");
+  renderHolder(want && state.byStock.has(want.toUpperCase()) ? want.toUpperCase() : (popular[0]?.code || "2330"));
+  renderChanges();
+  route();
+} catch (e) {
+  console.error(e);
+  $("holderRows").innerHTML = `<tr><td colspan="6" class="empty">讀取資料失敗，請重新整理頁面。</td></tr>`;
+}
+</script>
+</body>
+</html>

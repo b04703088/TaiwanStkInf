@@ -34,9 +34,10 @@ python fetch_etf.py --issuer ctbc    # 某家投信
 
 網址：https://b04703088.github.io/TaiwanStkInf/ （成交排行：`ranking.html`）
 
-- `site/`：網頁原始檔（首頁 `index.html`、成交金額排行 `ranking.html`）
+- `site/`：網頁原始檔（首頁 `index.html`、成交金額排行 `ranking.html`、ETF持股 `etf.html`：個股持有查詢／每日持股變化）
+- `scripts/etf_site.py`：整理 ETF 最新持股與前一份的差異（扣除申購贖回造成的同比例增減）→ `data/etf/latest.json`
 - `scripts/build_site.py`：把最近 120 個交易日的 CSV 轉成 `data/daily/<日期>.json` 給網頁讀
-- `.github/workflows/pages.yml`：每日抓完資料、或改了 `site/` 後自動重建部署
+- `.github/workflows/pages.yml`：每日抓完股價或 ETF 持股、或改了 `site/` 後自動重建部署
 
 ## 同步到 Firebase（Firestore）
 
