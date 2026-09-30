@@ -50,7 +50,7 @@
   .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
   .brand-mark{font-family:'Noto Serif TC',serif; font-size:22px; font-weight:700; color:var(--text);}
   .brand-sub{font-size:12px; color:var(--text-faint);}
-  nav.links{display:flex; gap:30px; font-size:14px;}
+  nav.links{display:flex; gap:26px; font-size:14px;}
   nav.links a{text-decoration:none; color:var(--text-muted); transition:color .15s ease;}
   nav.links a:hover{color:var(--brass);}
   nav.links a[aria-current="page"]{color:var(--brass);}
@@ -204,7 +204,9 @@
 
   @media (max-width: 860px){
     .nav-row{padding:14px 20px;}
-    nav.links{display:none;}
+    .nav-row{flex-wrap:wrap; row-gap:10px;}
+    nav.links{display:flex; order:3; width:100%; gap:20px; overflow-x:auto; white-space:nowrap; font-size:13.5px; padding-bottom:2px; scrollbar-width:none;}
+    nav.links::-webkit-scrollbar{display:none;}
     .page-head{padding:44px 0 28px;}
     .feature-head{grid-template-columns:1fr; gap:14px;}
     .feature-head h1{font-size:28px;}
@@ -308,11 +310,13 @@
       <span class="brand-sub">籌碼觀測站</span>
     </a>
     <nav class="links">
+      <a href="index.html">首頁</a>
       <a href="ranking.html">成交排行</a>
-      <a href="etf.html" aria-current="page">ETF持股</a>
       <a href="index.html#chips">分點籌碼</a>
+      <a href="etf.html" aria-current="page">ETF持股</a>
       <a href="index.html#cb">CB詢圈</a>
       <a href="index.html#quant">量化策略</a>
+      <a href="health.html">資料健檢</a>
     </nav>
     <a href="index.html#cta" class="nav-cta">開始追蹤</a>
   </div>
@@ -862,5 +866,6 @@ try {
   $("holderRows").innerHTML = `<tr><td colspan="6" class="empty">讀取資料失敗，請重新整理頁面。</td></tr>`;
 }
 </script>
+<script>(function(){var a=document.querySelector('nav.links a[aria-current="page"]');if(a&&a.parentNode.scrollWidth>a.parentNode.clientWidth){a.parentNode.scrollLeft=a.offsetLeft-a.parentNode.offsetLeft-16;}})();</script>
 </body>
 </html>
