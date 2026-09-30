@@ -11,10 +11,12 @@
 
 每天抓各投信公告的 ETF 持股（成分股、總股數、權重），workflow `.github/workflows/etf.yml` 每個工作日跑三次並 commit。
 
-- **追蹤 50 檔**（清單在 `fetch_etf.py` 的 `ETF_LIST`，也輸出成 `data/etf/etf_list.csv`）
+- **追蹤 90 檔**：國內股票型 ETF（主動式＋被動式）全數納入，另含幾檔主動式海外股票 ETF（清單在 `fetch_etf.py` 的 `ETF_LIST`，也輸出成 `data/etf/etf_list.csv`）
   - 被動式 19 檔：0050、0056、00713、00850、00940、006208、00692、00892、00900、00878、00881、00919、00927、00946、00929、00891、00915、00935、00939
   - 主動式 31 檔：00400A–00411A、00980A–00999A（00996A 兆豐網站擋 GitHub 主機，暫不追蹤）
-  - 15 家投信：元大、富邦、國泰、群益、復華、統一、中信、野村、安聯、凱基、台新、永豐、第一金、聯博、摩根
+  - 20 家投信：元大、富邦、國泰、群益、復華、統一、中信、野村、安聯、凱基、台新、永豐、第一金、聯博、摩根、富蘭克林華美、大華銀、玉山、聯邦、華南永昌
+  - 兆豐投信（00690、00913、00932、00921、00943、00996A）官網擋 GitHub 主機（403），暫無法追蹤
+  - 大華銀官網憑證鏈不完整，只對該網域略過憑證驗證（僅讀取公開持股資料）
 - 輸出：`data/etf/<ETF>/<YYYYMMDD>.csv`，欄位 `date, etf, code, name, shares, weight`
   - 檔名日期一律是**持股基準日**（投信的 PCF 公告日是隔一個交易日，已換算對齊）
   - 台股名稱統一用交易所簡稱；海外持股代號為 `NVDA US` 格式，跨 ETF 可直接比對
@@ -42,7 +44,7 @@ python fetch_etf.py --issuer ctbc    # 某家投信
 網址：https://b04703088.github.io/TaiwanStkInf/ （成交排行：`ranking.html`）
 
 - `site/`：網頁原始檔（首頁 `index.html`、成交金額排行 `ranking.html`、ETF持股 `etf.html`：個股持有查詢／每日持股變化／AUM 排行）
-- `scripts/etf_site.py`：整理 ETF 最新持股與前一份的差異（扣除申購贖回造成的同比例增減）→ `data/etf/latest.json`
+- `scripts/etf_site.py`：整理 ETF 最新持股與前一份的原始股數差異（含申購贖回）→ `data/etf/latest.json`
 - `scripts/build_site.py`：把最近 120 個交易日的 CSV 轉成 `data/daily/<日期>.json` 給網頁讀
 - `.github/workflows/pages.yml`：每日抓完股價或 ETF 持股、或改了 `site/` 後自動重建部署
 

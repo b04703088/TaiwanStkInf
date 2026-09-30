@@ -112,6 +112,22 @@ class NewSourcesTest(unittest.TestCase):
     def tearDown(self):
         C.http = self._http
 
+    def test_hnitc_weight_fraction_and_navdate(self):
+        orig = A._hn_call
+        def fake(path, body=None, method_get=False):
+            if "AssetSet" in path:
+                return {"Data": {"FundSize": 1.2e9, "Punit": 31.9, "OsUnit": 39011000.0,
+                                 "StockList": [{"StockNo": "2330", "StockName": "台積電", "Share": 1000.0, "Weight": 0.399763}]}}
+            return {"Data": {"NavDate": "2026-09-29T00:00:00+08:00"}}
+        A._hn_call = fake
+        try:
+            d, rows, meta = A.hnitc("009808")
+        finally:
+            A._hn_call = orig
+        self.assertEqual(d, "2026-09-29")
+        self.assertEqual((rows[0]["code"], rows[0]["shares"], rows[0]["weight"]), ("2330", 1000, 39.9763))
+        self.assertEqual(meta["units"], 39011000)
+
     def test_isin(self):
         self.assertEqual(C.isin_for("00404A"), "TW00000404A5")
         self.assertEqual(C.isin_for("00980D"), "TW00000980D8")

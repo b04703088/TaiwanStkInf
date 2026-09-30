@@ -1,6 +1,7 @@
 """ETF 持股抓取共用工具：HTTP（含 cookie）、數字/日期解析、代號正規化。"""
 import http.cookiejar
 import io
+import ssl
 import json
 import re
 import time
@@ -14,7 +15,12 @@ UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/126.0 Safari/537.36")
 
 # 同一次執行共用 cookie（統一、安聯、兆豐需要 session）
-_opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
+_cookies = http.cookiejar.CookieJar()
+_opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(_cookies))
+# 憑證鏈不完整的投信網站（伺服器沒送中繼憑證，瀏覽器會自動補、Python 不會）才用；只讀公開資料。
+_insecure_opener = urllib.request.build_opener(
+    urllib.request.HTTPCookieProcessor(_cookies),
+    urllib.request.HTTPSHandler(context=ssl._create_unverified_context()))
 
 
 class AdapterError(Exception):
@@ -22,7 +28,7 @@ class AdapterError(Exception):
 
 
 def http(url, params=None, body=None, form=None, as_json=True, raw=False,
-         headers=None, retries=3, max_bytes=None):
+         headers=None, retries=3, max_bytes=None, insecure=False):
     """GET / POST。body=JSON、form=表單；raw=True 回 bytes；max_bytes 只讀前 N bytes。
     JSON 回應若本身是字串（中信、第一金的雙層編碼）會自動再 parse 一次。"""
     if params:
@@ -39,7 +45,7 @@ def http(url, params=None, body=None, form=None, as_json=True, raw=False,
     req = urllib.request.Request(url, data=data, headers=h)
     for attempt in range(retries):
         try:
-            with _opener.open(req, timeout=30) as resp:
+            with (_insecure_opener if insecure else _opener).open(req, timeout=30) as resp:
                 content = resp.read(max_bytes) if max_bytes else resp.read()
             if raw:
                 return content

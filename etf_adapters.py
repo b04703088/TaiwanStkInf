@@ -488,13 +488,14 @@ def mega(code, name=""):
 # WebMethod Get_hd {pStrFundID, pStrDate:""} 回最新一份（雙層 JSON），sdate 就是基準日。
 # 沒有基金清單端點：掃 FundDetail.aspx?ID=n 的「股票代號」反查，結果快取在 SOURCE_IDS。
 FSITC = "https://www.fsitc.com.tw/"
+FSITC_IDS = {"00728": "D90"}  # 內部 ID 不一定是數字（掃描找不到的先寫死）
 
 
-def _fsitc_find_id(code, budget_s=150):
+def _fsitc_find_id(code, budget_s=400):
     """掃 FundDetail.aspx?ID=n 找「股票代號</td><td…>代號」。已知 00408A = 183，其他 ETF 多在附近。"""
     import time
     t0 = time.time()
-    near = sorted(range(120, 260), key=lambda i: abs(i - 183))
+    near = sorted(range(1, 320), key=lambda i: abs(i - 183))
     for i in near:
         if time.time() - t0 > budget_s:
             break
@@ -514,7 +515,7 @@ def _fsitc_find_id(code, budget_s=150):
 
 @adapter("firstsec")
 def firstsec(code, name=""):
-    fid = SOURCE_IDS.get("firstsec", {}).get(code) or _fsitc_find_id(code)
+    fid = SOURCE_IDS.get("firstsec", {}).get(code) or FSITC_IDS.get(code) or _fsitc_find_id(code)
     if not fid:
         raise AdapterError(f"firstsec {code}: 找不到基金 ID")
     d = C.http(FSITC + "WebAPI.aspx/Get_hd", body={"pStrFundID": fid, "pStrDate": ""})
@@ -593,3 +594,147 @@ def jpmorgan(code, name=""):
         if rows:
             return (m.group(1) if m else d.isoformat()), rows, _meta()
     raise AdapterError(f"jpmorgan {code}: 最近 15 個工作天都沒有 Excel（ISIN {isin}）")
+
+
+# ---------------- 富蘭克林華美 ----------------
+# /official/api/etf：ETF 清單（StockCode ↔ FundID）；
+# /official/api/etf/shares/{FundID}?date=YYYYMMDD（空白 = 最新）：Secs[] 實際持股、AssetDate（UTC，需轉台北日期）。
+FTFT = "https://www.ftft.com.tw/official/api/"
+
+
+def _utc_to_tpe_date(s):
+    d = datetime.strptime(str(s)[:19], "%Y-%m-%dT%H:%M:%S") + timedelta(hours=8)
+    return d.strftime("%Y-%m-%d")
+
+
+@adapter("franklin")
+def franklin(code, name=""):
+    fid = _lookup_id("franklin", code, lambda: {
+        str(x.get("StockCode")).strip(): str(x.get("FundID")) for x in (C.http(FTFT + "etf") or []) if x.get("StockCode")})
+    d = C.http(FTFT + f"etf/shares/{fid}", {"date": ""})
+    if not d or not d.get("AssetDate"):
+        raise AdapterError(f"franklin {code}: 沒有持股資料")
+    secs = [x for x in (d.get("Secs") or []) if x.get("SecuritiesType", "S") == "S"]
+    rows = _rows(secs, "SecuritiesCode", "SecuritiesName", "Shares", "WeightingPercentage")
+    return _utc_to_tpe_date(d["AssetDate"]), rows, _meta(d.get("FundNetAssetValue"), d.get("TotalUnitsOutstanding"),
+                                                         d.get("NetAssetValuePerUnit"))
+
+
+# ---------------- 大華銀 ----------------
+# /api/WebSite/pcf?fundID=<數字代碼>&pcfDate=YYYY/MM/DD：result[] 中 kind=stock 為實際持股（qty 股數、weight 權重），
+# datadate 為持股基準日。網站憑證鏈不完整（缺中繼憑證），用 insecure 連線讀公開資料。
+UOB = "https://www.uobam.com.tw/api/WebSite/pcf"
+UOB_IDS = {"00918": "88329556"}  # 官網 ETF 頁連結中的 fundID
+
+
+@adapter("uob")
+def uob(code, name=""):
+    fid = SOURCE_IDS.get("uob", {}).get(code) or UOB_IDS.get(code)
+    if not fid:
+        raise AdapterError(f"uob {code}: 沒有基金代碼")
+    for d in C.recent_days(8, datetime.now(C.TPE).date()):
+        try:
+            r = C.http(UOB, {"fundID": fid, "pcfDate": d.strftime("%Y/%m/%d")}, insecure=True, retries=2)
+        except AdapterError:
+            continue
+        stocks = [x for x in (r.get("result") or []) if x.get("kind") == "stock"]
+        if r.get("etf002") == code and stocks:
+            rows = _rows(stocks, "code", "cName", "qty", "weight")
+            return iso(r["datadate"]), rows, _meta(r.get("totalAV"), r.get("totalIssues"), r.get("nav"))
+    raise AdapterError(f"uob {code}: 最近 8 個工作天都沒有資料")
+
+
+# ---------------- 玉山 ----------------
+# 與野村／安聯同一套系統，但 API 在 /ETFAPI/ 之下、FundNo 是內部編號（009803 = "50"），
+# GetETFFundSelectList 取清單後用名稱對應。GetFundTradeInfo 的 Date 要是 PCF 公告日，CNavDt 才是持股基準日。
+ESUN = "https://www.esunam.com/ETFAPI/"
+
+
+def _esun_map():
+    out = []
+    for t in C.find_key(C.http(ESUN + "GetETFFundTypes", body={}), "Entries") or []:
+        for f in C.find_key(C.http(ESUN + "GetETFFundSelectList", body={"TypeID": t.get("Id")}), "Entries") or []:
+            if f.get("FundNo"):
+                out.append((str(f["FundNo"]), re.sub(r"\s+", "", f.get("FundShortName") or "")))
+    return out
+
+
+@adapter("esun")
+def esun(code, name=""):
+    fno = SOURCE_IDS.get("esun", {}).get(code) or _match_name(_esun_map(), name, code)
+    if not fno:
+        raise AdapterError(f"esun {code}: 基金清單找不到「{name}」")
+    SOURCE_IDS.setdefault("esun", {})[code] = fno
+    for d in C.recent_days(10, datetime.now(C.TPE).date() + timedelta(days=1)):
+        r = C.http(ESUN + "GetFundTradeInfo", body={"Type": 1, "Keyword": "", "FundNo": fno, "Date": d.isoformat()})
+        e = C.find_key(r, "Entries")
+        if not isinstance(e, dict):
+            continue
+        stock = next((t for t in (e.get("DynamicTableData") or []) if str(t.get("TableTitle", "")).startswith("股票")), None)
+        if not stock or not stock.get("Rows"):
+            continue
+        rows = []
+        for row in stock["Rows"]:
+            if len(row) >= 4:
+                h = holding(row[0], row[1], num(row[2]), num(row[3]))
+                if is_security(h["code"]):
+                    rows.append(h)
+        return iso(e.get("CNavDt")), rows, _meta(e.get("CAnceTotalAv"), e.get("CAnceTotalIssues"), e.get("CAnceNav"))
+    raise AdapterError(f"esun {code}: 最近 10 個工作天都沒有資料")
+
+
+# ---------------- 聯邦 ----------------
+# /CustCenter/BuyBackList：server-rendered，預設顯示聯邦台灣精彩50（009804）；
+# 「基金資產 資料日期」為持股基準日，「股票投資比例」表為實際持股（股票代號／名稱／股數／權重）。
+UNION = "https://www.usitc.com.tw/CustCenter/BuyBackList"
+
+
+@adapter("union")
+def union(code, name=""):
+    page = html.unescape(C.http(UNION, as_json=False))
+    if f"( {code} )" not in page and f"({code})" not in page:
+        raise AdapterError(f"union {code}: 頁面預設基金不是 {code}")
+    m = re.search(r"基金資產\s*(?:<[^>]+>\s*)*資料日期[：:]\s*(\d{4}-\d{1,2}-\d{1,2})", page) or \
+        re.search(r"資料日期[：:]\s*(?:<[^>]+>\s*)*(\d{4}-\d{1,2}-\d{1,2})", page)
+    i = page.find("股票投資比例")
+    if not m or i < 0:
+        raise AdapterError(f"union {code}: 找不到資料日期或持股表")
+    return iso(m.group(1)), _html_rows(page[i:]), _meta()
+
+
+# ---------------- 華南永昌 ----------------
+# 新網域 hnfunds.com.tw，API 基底 /WEB_API/HN_OW_PROD。需先 POST /Auth/SysLogin（Client_Id: WFPAPIPublicClient）
+# 取得匿名 system token，其後以 Bearer 呼叫。持股 GET /ETF/FundDtl/AssetSet/{ETF 代號}。
+HN = "https://www.hnfunds.com.tw/WEB_API/HN_OW_PROD"
+_hn = {}
+
+
+def _hn_call(path, body=None, method_get=False):
+    if "token" not in _hn:
+        t = C.http(HN + "/Auth/SysLogin", body={}, headers={
+            "Client_Id": "WFPAPIPublicClient", "Accept-Language": "zh-TW",
+            "X-Origin-Time": datetime.now(C.TPE).strftime("%Y-%m-%dT%H:%M:%S+08:00")})
+        _hn["token"] = C.find_key(t, "access_token")
+        if not _hn["token"]:
+            raise AdapterError("hnitc: 取得 token 失敗")
+    h = {"Authorization": f"Bearer {_hn['token']}", "Client_Id": "WFPAPIPublicClient", "Accept-Language": "zh-TW",
+         "X-Origin-Time": datetime.now(C.TPE).strftime("%Y-%m-%dT%H:%M:%S+08:00")}
+    return C.http(HN + path, body=None if method_get else (body or {}), headers=h)
+
+
+@adapter("hnitc")
+def hnitc(code, name=""):
+    """AssetSet 直接吃 ETF 代號：Data.StockList[{StockNo, StockName, Share, Weight(小數)}]；
+    AssetSet 沒有日期，基準日取 FundDtl/{代號} 的 NavDate。"""
+    d = C.find_key(_hn_call(f"/ETF/FundDtl/AssetSet/{code}", method_get=True), "Data") or {}
+    stocks = d.get("StockList") or []
+    info = C.find_key(_hn_call(f"/ETF/FundDtl/{code}", method_get=True), "Data") or {}
+    date = info.get("NavDate") or d.get("NavDate")
+    if not stocks or not date:
+        raise AdapterError(f"hnitc {code}: 沒有持股或日期")
+    for x in stocks:
+        w = num(x.get("Weight"))
+        x["_w"] = None if w is None else round(w * 100, 4)
+    rows = _rows(stocks, "StockNo", "StockName", "Share", "_w")
+    units, nav = num(d.get("OsUnit")), num(d.get("Punit"))
+    return iso(str(date)[:10]), rows, _meta(d.get("FundSize"), units, nav)
