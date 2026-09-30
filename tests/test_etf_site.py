@@ -9,13 +9,23 @@ import etf_site as E  # noqa: E402
 
 
 class ClassifyTest(unittest.TestCase):
+    H = staticmethod(lambda sh: {"name": "x", "sh": sh, "w": 1.0})
+
     def test_raw_changes(self):
-        self.assertEqual(E.classify(None, 5000), ("new", 5000))
-        self.assertEqual(E.classify(5000, None), ("removed", -5000))
-        self.assertEqual(E.classify(5000, 5000), ("same", 0))
+        H = self.H
+        self.assertEqual(E.classify(None, H(5000)), ("new", 5000))
+        self.assertEqual(E.classify(H(5000), None), ("removed", -5000))
+        self.assertEqual(E.classify(H(5000), H(5000)), ("same", 0))
         # 不過濾申購贖回：同比例增加也算增加
-        self.assertEqual(E.classify(1_000_000, 1_010_000), ("add", 10_000))
-        self.assertEqual(E.classify(608_720_000, 606_820_000), ("cut", -1_900_000))
+        self.assertEqual(E.classify(H(1_000_000), H(1_010_000)), ("add", 10_000))
+        self.assertEqual(E.classify(H(608_720_000), H(606_820_000)), ("cut", -1_900_000))
+
+    def test_weight_only_issuer(self):
+        # 國泰只公布權重：續抱無法判斷增減，只有新增／剔除算變化
+        H = self.H
+        self.assertEqual(E.classify(H(None), H(None)), ("nw", None))
+        self.assertEqual(E.classify(None, H(None)), ("new", None))
+        self.assertEqual(E.classify(H(None), None), ("removed", None))
 
 
 class BuildTest(unittest.TestCase):

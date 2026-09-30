@@ -70,7 +70,7 @@ def _html_rows(segment, ncols=4):
 
 # ---------------- 元大 ----------------
 # etfapi.yuantaetfs.com 的 bridge（參數取自官網 __NUXT__.globalSetting）。
-# FundWeights.StockWeights 是官方總持股股數與權重；沒有時用每基數股數 × 流通單位 / 基數還原。
+# FundWeights.StockWeights 是官方總持股股數與權重。
 YUANTA_BRIDGE = "https://etfapi.yuantaetfs.com/ectranslation/api/bridge"
 
 
@@ -89,12 +89,8 @@ def yuanta(code, name=""):
     if not pcf.get("trandate"):
         raise AdapterError(f"yuanta {code}: 回應沒有 PCF（keys={list(d.keys())[:8]}）")
     rows = _rows((d.get("FundWeights") or {}).get("StockWeights"), "code", "name", "qty", "weights")
-    if not rows:
-        units, base = num(pcf.get("osunit")), num(pcf.get("baseunit"))
-        mult = units / base if units and base else None
-        comp = (d.get("InKind") or {}).get("FundComposition") or []
-        rows = [holding(x["stkcd"], x.get("name"), num(x.get("qty")) * mult if mult and num(x.get("qty")) is not None else None, None)
-                for x in comp if is_security(code_of(x.get("stkcd")))]
+    if not rows:  # 只有每基數股數時不推算總股數，當作沒有資料
+        raise AdapterError(f"yuanta {code}: 沒有 StockWeights 持股資料")
     return iso(pcf["trandate"]), rows, _meta(pcf.get("totalav"), pcf.get("osunit"), pcf.get("nav"))
 
 
@@ -125,8 +121,9 @@ def fubon(code, name=""):
 
 
 # ---------------- 國泰 ----------------
-# 內部 FundCode 是兩碼（00878 = CN）；參數名大寫、SearchDate 必填。
-# 公告每基數股數 → 總股數 = basketShares × totUnit / basketUnit。
+# 內部 FundCode 是兩碼（00878 = CN）。持股用官方「持股權重」（ETF/GetIndexStockWeights：代號、名稱、權重、資料日），
+# 國泰不公布實際持有股數，因此股數留空、不做推算（PCF 的每基數股數 × 單位數會把申購贖回誤當成買賣）。
+# 規模、單位數、淨值取自 PCF 表頭（BuySale/GetBuySale）。
 CATHAY = "https://cwapi.cathaysite.com.tw/api/"
 _cathay_map = None
 
@@ -140,8 +137,6 @@ def _cathay(path, params):
 
 @adapter("cathay")
 def cathay(code, name=""):
-    global _cathay_map
-
     def load():
         global _cathay_map
         if _cathay_map is None:
@@ -150,23 +145,20 @@ def cathay(code, name=""):
             _cathay_map = {r.get("stockCode"): r.get("fundCode") for r in rows if r.get("stockCode")}
         return _cathay_map
     fc = _lookup_id("cathay", code, load)
-    bs = _cathay("BuySale/GetBuySale", {"FundCode": fc, "IsTest": "false", "status": 1})
-    stocks = _cathay("BuySale/GetStocksList", {"FundCode": fc, "SearchDate": bs["date"],
-                                               "IsTest": "false", "status": 1}) or []
-    try:
-        w = _cathay("ETF/GetIndexStockWeights", {"fundCode": fc, "status": 1}) or {}
-        wmap = {code_of(r["stockCode"]): num(r.get("weights")) for r in (w.get("stockWeights") or [])}
-    except AdapterError:
-        wmap = {}
-    tot, basket = num(bs.get("totUnit")), num(bs.get("basketUnit"))
-    mult = tot / basket if tot and basket else None
+    w = _cathay("ETF/GetIndexStockWeights", {"fundCode": fc, "status": 1}) or {}
+    if not w.get("date") or not w.get("stockWeights"):
+        raise AdapterError(f"cathay {code}: 沒有持股權重資料")
     rows = []
-    for r in stocks:
-        c = code_of(r.get("prod"))
-        if is_security(c):
-            bsh = num(r.get("basketShares"))
-            rows.append(holding(c, r.get("prodName"), bsh * mult if mult and bsh is not None else None, wmap.get(c)))
-    return iso(bs.get("preDateC") or bs["date"]), rows, _meta(bs.get("aum"), tot, bs.get("nav"))
+    for r in w["stockWeights"]:
+        h = holding(r.get("stockCode"), r.get("stockName"), None, num(r.get("weights")))
+        if is_security(h["code"]):
+            rows.append(h)
+    try:
+        bs = _cathay("BuySale/GetBuySale", {"FundCode": fc, "IsTest": "false", "status": 1}) or {}
+        meta = _meta(bs.get("aum"), bs.get("totUnit"), bs.get("nav"))
+    except AdapterError:
+        meta = _meta()
+    return iso(w["date"]), rows, meta
 
 
 # ---------------- 群益 ----------------

@@ -46,15 +46,6 @@ class AdapterTest(unittest.TestCase):
         self.assertEqual(rows, [{"code": "2330", "name": "台積電", "shares": 560435745, "weight": 56.0}])
         self.assertEqual(meta["nav"], 112.33)
 
-    def test_yuanta_falls_back_to_basket(self):
-        C.http = fake_http([("bridge", {
-            "PCF": {"trandate": "20260924", "osunit": 1000000, "baseunit": 500000},
-            "InKind": {"FundComposition": [{"stkcd": "2330", "name": "台積電", "qty": 100}]},
-            "FundWeights": {"StockWeights": []}})])
-        _, rows, _ = A.yuanta("0050")
-        self.assertEqual(rows[0]["shares"], 200)  # 100 股/基數 × 2 基數
-        self.assertIsNone(rows[0]["weight"])
-
     def test_fubon_skips_futures_row(self):
         page = """<p>基金淨資產(新台幣)</p>
                             <p>478,793,858,229</p>
@@ -68,21 +59,26 @@ class AdapterTest(unittest.TestCase):
         self.assertEqual(rows[0]["shares"], 108279064)
         self.assertEqual(meta["aum"], 478793858229)
 
-    def test_cathay_basket_to_total_shares(self):
+    def test_cathay_uses_official_weights_without_shares(self):
         C.http = fake_http([
             ("GetETFList", {"success": True, "result": [{"stockCode": "00878", "fundCode": "CN"}]}),
-            ("GetBuySale", {"success": True, "result": {"date": "2026/09/29", "preDateC": "2026/09/24",
-                                                         "totUnit": "18,796,790,000", "basketUnit": "500,000",
-                                                         "aum": "655,644,874,925", "nav": "34.88"}}),
-            ("GetStocksList", lambda p, b: {"success": True, "result": [
-                {"prod": "2891", "prodName": "中信金", "basketShares": "24,773"}]} if p.get("SearchDate") == "2026/09/29"
-                else {"success": True, "result": []}),
-            ("GetIndexStockWeights", {"success": True, "result": {"stockWeights": [{"stockCode": "2891", "weights": "9.64"}]}}),
+            ("GetIndexStockWeights", {"success": True, "result": {"date": "2026/09/29", "stockWeights": [
+                {"stockCode": "2891", "stockName": "中信金", "weights": "9.71"},
+                {"stockCode": "2382", "stockName": "廣達", "weights": "9.24"}]}}),
+            ("GetBuySale", {"success": True, "result": {"totUnit": "18,799,290,000", "aum": "652,900,000,000", "nav": "34.73"}}),
         ])
-        d, rows, _ = A.cathay("00878")
-        self.assertEqual(d, "2026-09-24")  # 用持股基準日，不是公告日
-        self.assertEqual(rows[0]["shares"], round(24773 * 37593.58))
-        self.assertEqual(rows[0]["weight"], 9.64)
+        d, rows, meta = A.cathay("00878")
+        self.assertEqual(d, "2026-09-29")
+        self.assertEqual(rows[0], {"code": "2891", "name": "中信金", "shares": None, "weight": 9.71})
+        self.assertEqual(meta["units"], 18799290000)
+
+    def test_yuanta_without_stockweights_is_an_error(self):
+        C.http = fake_http([("bridge", {
+            "PCF": {"trandate": "20260924", "osunit": 1000000, "baseunit": 500000},
+            "InKind": {"FundComposition": [{"stkcd": "2330", "name": "台積電", "qty": 100}]},
+            "FundWeights": {"StockWeights": []}})])
+        with self.assertRaises(C.AdapterError):
+            A.yuanta("0050")
 
     def test_capital(self):
         C.http = fake_http([

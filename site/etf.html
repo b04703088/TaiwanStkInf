@@ -469,7 +469,9 @@ const fmtSigned = (sh, code) => sh == null ? "—" : (sh > 0 ? "+" : "") + fmtLo
 const fmtYi = v => v == null ? "—" : fmtN(v / 1e8, Math.abs(v) >= 1e9 ? 1 : 2);
 const fmtYiSigned = v => v == null ? "—" : (v > 0 ? "+" : "") + fmtYi(v);
 const fmtDate = d => d ? d.slice(5).replace("-", "/") : "—";
-const CLS = { new: "新增", add: "增加", cut: "減少", removed: "剔除", same: "不變" };
+const CLS = { new: "新增", add: "增加", cut: "減少", removed: "剔除", same: "不變", nw: "僅公布權重" };
+const held = x => x.sh !== 0;                 // sh === null：有持有但投信未公布股數（國泰）
+const NOSH = '<span class="flat" style="font-size:12px" title="投信只公布持股權重，未公布股數">未公布</span>';
 const cls = v => v > 0 ? "up" : v < 0 ? "down" : "flat";
 const kindTag = e => `<span class="kind ${e.kind}">${e.kind === "active" ? "主動" : "被動"}</span>`;
 const unitTag = code => ` <span class="flat" style="font-size:11px">${unit(code)}</span>`;
@@ -559,7 +561,7 @@ const HOLDER_GET = {
 
 function renderPopular() {
   const list = [...state.byStock.entries()]
-    .map(([code, xs]) => ({ code, name: xs[0].name, n: xs.filter(x => x.sh > 0).length }))
+    .map(([code, xs]) => ({ code, name: xs[0].name, n: xs.filter(held).length }))
     .filter(x => x.n > 0)
     .sort((a, b) => b.n - a.n || a.code.localeCompare(b.code));
   $("popular").innerHTML = list.slice(0, 40).map(x =>
@@ -571,31 +573,36 @@ function renderPopular() {
 function renderHolder(code = state.holder) {
   state.holder = code;
   const any = state.byStock.get(code) || [];
-  const xs = any.filter(x => x.sh > 0 || x.cls === "removed");
-  const cur = xs.filter(x => x.sh > 0);
+  const xs = any.filter(x => held(x) || x.cls === "removed");
+  const cur = xs.filter(held);
+  const known = cur.filter(x => x.sh != null);
+  const noSh = cur.length - known.length;
   $("stockName").textContent = any[0]?.name || code;
   $("stockCode").textContent = code;
   const px = cur.find(x => x.px)?.px;
   $("stockPx").textContent = px ? `收盤 ${fmtN(px, px < 1000 ? 2 : 0)}` : "";
-  const totalSh = cur.reduce((s, x) => s + x.sh, 0);
-  const totalV = cur.length && cur.every(x => x.px) ? cur.reduce((s, x) => s + x.sh * x.px, 0) : null;
-  const comp = any.filter(x => x.cls != null);
+  const totalSh = known.reduce((s, x) => s + x.sh, 0);
+  const totalV = known.length && known.every(x => x.px) ? known.reduce((s, x) => s + x.sh * x.px, 0) : null;
+  const comp = any.filter(x => x.cls != null && x.d != null);
   const d = comp.reduce((s, x) => s + x.d, 0);
+  const excl = noSh ? `不含 ${noSh} 檔只公布權重` : "";
   $("holderStats").innerHTML = `
     <div class="stat"><span>持有 ETF</span><b class="mono">${cur.length}</b><small>檔</small></div>
-    <div class="stat"><span>合計持股</span><b class="mono">${fmtLots(totalSh, code)}</b><small>${unit(code)}</small></div>
-    <div class="stat"><span>合計市值</span><b class="mono">${fmtYi(totalV)}</b><small>${totalV == null ? "" : "億"}</small></div>
+    <div class="stat"><span>合計持股</span><b class="mono">${fmtLots(totalSh, code)}</b><small>${unit(code)}${excl ? "（" + excl + "）" : ""}</small></div>
+    <div class="stat"><span>合計市值</span><b class="mono">${fmtYi(totalV)}</b><small>${totalV == null ? "" : "億"}${excl ? "（" + excl + "）" : ""}</small></div>
     <div class="stat"><span>較前一份合計增減</span><b class="mono ${cls(d)}">${comp.length ? fmtSigned(d, code) : "—"}</b><small>${comp.length ? unit(code) + `（${comp.length} 檔可比）` : "尚無前一份"}</small></div>`;
   applySort("holderTable", xs, HOLDER_GET);
   $("holderRows").innerHTML = xs.length ? xs.map(x => `
     <tr class="clickable" data-query="${esc(x.etf.code)}" title="查看 ${esc(x.etf.name)} 的持股異動">
       <td class="l"><span class="stock-name">${esc(x.etf.name)}</span><span class="stock-code mono">${esc(x.etf.code)}</span>${kindTag(x.etf)}</td>
       <td class="mono col-hide flat">${fmtDate(x.etf.date)}</td>
-      <td class="mono">${x.sh > 0 ? fmtLots(x.sh, code) + unitTag(code) : "—"}</td>
-      <td class="mono">${x.sh > 0 ? fmtN(x.w, 2) + "%" : "—"}</td>
-      <td class="mono col-hide">${x.sh > 0 && x.px ? fmtYi(x.sh * x.px) : "—"}</td>
+      <td class="mono">${!held(x) ? "—" : x.sh == null ? NOSH : fmtLots(x.sh, code) + unitTag(code)}</td>
+      <td class="mono">${held(x) ? fmtN(x.w, 2) + "%" : "—"}</td>
+      <td class="mono col-hide">${held(x) && x.sh && x.px ? fmtYi(x.sh * x.px) : "—"}</td>
       <td class="mono">${x.cls == null ? '<span class="flat" style="font-size:12px">尚無前一份</span>'
-        : x.d ? `<span class="${cls(x.d)}">${fmtSigned(x.d, code)}</span> ${x.cls === "new" || x.cls === "removed" ? pill(x) : ""}` : '<span class="flat">0</span>'}</td>
+        : x.cls === "nw" ? `<span class="flat" style="font-size:12px" title="只公布權重，無法判斷股數增減">權重 ${fmtN(x.pw, 2)}→${fmtN(x.w, 2)}%</span>`
+        : x.cls === "new" || x.cls === "removed" ? `${x.d != null ? `<span class="${cls(x.d)}">${fmtSigned(x.d, code)}</span> ` : ""}${pill(x)}`
+        : x.d ? `<span class="${cls(x.d)}">${fmtSigned(x.d, code)}</span>` : '<span class="flat">0</span>'}</td>
     </tr>`).join("")
     : `<tr><td colspan="6" class="empty">目前沒有追蹤中的 ETF 持有這檔股票</td></tr>`;
   $("lookupHint").textContent = "";
@@ -604,7 +611,9 @@ function renderHolder(code = state.holder) {
 
 /* ---------- 子頁二：雙向查詢 ---------- */
 const kindOk = x => state.kind === "all" || x.etf.kind === state.kind;
-const changed = x => x.cls && x.cls !== "same";
+const changed = x => x.cls && x.cls !== "same" && x.cls !== "nw";
+const up = x => x.cls === "new" || x.cls === "add";
+const down = x => x.cls === "removed" || x.cls === "cut";
 
 const STOCK_MODE_HEAD = `<tr>
   <th class="l" data-sort="etf" data-dir="asc"><button type="button">ETF</button></th>
@@ -657,11 +666,13 @@ function renderChange(query = state.query) {
     $("changeCode").textContent = e.code;
     $("changeMode").textContent = "ETF";
     const flow = e.units && e.prev_units ? (e.units / e.prev_units - 1) * 100 : null;
-    $("changeMeta").textContent = e.prev ? `${fmtDate(e.prev)} → ${fmtDate(e.date)} · ${e.issuer}${e.kind === "active" ? " · 主動式" : ""}` : `${fmtDate(e.date)} · 尚無前一份可比較`;
+    const weightOnly = (state.byEtf.get(query.code) || []).some(x => held(x) && x.sh == null);
+    $("changeMeta").textContent = (e.prev ? `${fmtDate(e.prev)} → ${fmtDate(e.date)} · ${e.issuer}${e.kind === "active" ? " · 主動式" : ""}` : `${fmtDate(e.date)} · 尚無前一份可比較`)
+      + (weightOnly ? " · 投信只公布權重，僅列新增／剔除" : "");
     const amt = xs.reduce((s, x) => s + (amount(x) || 0), 0);
     $("changeStats").innerHTML = `
-      <div class="stat"><span>增加 / 新增</span><b class="mono up">${xs.filter(x => x.d > 0).length}</b><small>檔（新增 ${xs.filter(x => x.cls === "new").length}）</small></div>
-      <div class="stat"><span>減少 / 剔除</span><b class="mono down">${xs.filter(x => x.d < 0).length}</b><small>檔（剔除 ${xs.filter(x => x.cls === "removed").length}）</small></div>
+      <div class="stat"><span>增加 / 新增</span><b class="mono up">${xs.filter(up).length}</b><small>檔（新增 ${xs.filter(x => x.cls === "new").length}）</small></div>
+      <div class="stat"><span>減少 / 剔除</span><b class="mono down">${xs.filter(down).length}</b><small>檔（剔除 ${xs.filter(x => x.cls === "removed").length}）</small></div>
       <div class="stat"><span>台股淨買賣金額</span><b class="mono ${cls(amt)}">${e.prev ? fmtYiSigned(amt) : "—"}</b><small>${e.prev ? "億" : ""}</small></div>
       <div class="stat"><span>受益單位變化</span><b class="mono ${cls(flow)}">${flow == null ? "—" : (flow > 0 ? "+" : "") + flow.toFixed(2) + "%"}</b><small>${flow == null ? "未公布" : "申購贖回"}</small></div>`;
   } else {
@@ -672,11 +683,12 @@ function renderChange(query = state.query) {
     $("changeMode").textContent = "個股";
     const px = xs.find(x => x.px)?.px;
     $("changeMeta").textContent = px ? `收盤 ${fmtN(px, px < 1000 ? 2 : 0)}` : "";
-    const d = xs.reduce((s, x) => s + x.d, 0);
-    const amt = xs.every(x => x.px) ? xs.reduce((s, x) => s + amount(x), 0) : null;
+    const withD = xs.filter(x => x.d != null);
+    const d = withD.reduce((s, x) => s + x.d, 0);
+    const amt = withD.length && withD.every(x => x.px) ? withD.reduce((s, x) => s + amount(x), 0) : null;
     $("changeStats").innerHTML = `
-      <div class="stat"><span>買進的 ETF</span><b class="mono up">${xs.filter(x => x.d > 0).length}</b><small>檔（新增 ${xs.filter(x => x.cls === "new").length}）</small></div>
-      <div class="stat"><span>賣出的 ETF</span><b class="mono down">${xs.filter(x => x.d < 0).length}</b><small>檔（剔除 ${xs.filter(x => x.cls === "removed").length}）</small></div>
+      <div class="stat"><span>買進的 ETF</span><b class="mono up">${xs.filter(up).length}</b><small>檔（新增 ${xs.filter(x => x.cls === "new").length}）</small></div>
+      <div class="stat"><span>賣出的 ETF</span><b class="mono down">${xs.filter(down).length}</b><small>檔（剔除 ${xs.filter(x => x.cls === "removed").length}）</small></div>
       <div class="stat"><span>合計增減</span><b class="mono ${cls(d)}">${fmtSigned(d, query.code)}</b><small>${unit(query.code)}</small></div>
       <div class="stat"><span>估計淨金額</span><b class="mono ${cls(amt)}">${fmtYiSigned(amt)}</b><small>${amt == null ? "" : "億"}</small></div>`;
   }

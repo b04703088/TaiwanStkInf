@@ -2,14 +2,17 @@
 
 每檔 ETF 各自與「自己的前一份」持股比較（各投信公告進度不同，同一天不一定都有資料）。
 差異是原始股數增減（含申購贖回造成的同比例增減），不做任何過濾。
+只公布權重、不公布股數的投信（國泰），股數為 null，只判斷新增／剔除；
+權重變動可能只是股價漲跌，不當成買賣。
 
 輸出 data/etf/latest.json：
   etfs: [{code, name, issuer, kind, date, prev, aum, units, prev_units}]
   cols: ["e", "code", "name", "sh", "w", "psh", "pw", "px", "cls", "d"]
   rows: 每列一檔（ETF × 成分股），e 是 etfs 的索引；
-        sh / w:   最新股數、權重（剔除者為 0）
+        sh / w:   最新股數、權重（剔除者為 0；投信未公布股數為 null）
         psh / pw: 前一份股數、權重（新增者為 0；沒有前一份為 null）
-        cls: new 新增 / removed 剔除 / add 增加 / cut 減少 / same 不變 / null 沒有前一份可比
+        cls: new 新增 / removed 剔除 / add 增加 / cut 減少 / same 不變 /
+             nw 續抱但未公布股數（無法判斷增減）/ null 沒有前一份可比
         d:   股數增減 = sh − psh
         px:  該 ETF 資料日的收盤價（剔除者用前一份資料日；海外股、查無價格為 null）
 """
@@ -38,13 +41,16 @@ def date_of(path):
     return f"{s[:4]}-{s[4:6]}-{s[6:8]}"
 
 
-def classify(prev_sh, cur_sh):
-    """回傳 (類別, 股數增減)。prev_sh / cur_sh 為 None 表示不在該份持股中。"""
-    if prev_sh is None:
-        return "new", cur_sh or 0
-    if cur_sh is None:
-        return "removed", -(prev_sh or 0)
-    d = (cur_sh or 0) - (prev_sh or 0)
+def classify(prev, cur):
+    """prev / cur：該成分股在前一份 / 最新持股中的資料（dict），不在持股中為 None。
+    回傳 (類別, 股數增減)；股數未公布時增減為 None。"""
+    if prev is None:
+        return "new", cur["sh"]
+    if cur is None:
+        return "removed", (-prev["sh"] if prev["sh"] is not None else None)
+    if prev["sh"] is None or cur["sh"] is None:
+        return "nw", None
+    d = cur["sh"] - prev["sh"]
     if d == 0:
         return "same", 0
     return ("add" if d > 0 else "cut"), d
@@ -103,7 +109,7 @@ def build_latest(data_dir):
             if prev is None:
                 cls, d = None, None
             else:
-                cls, d = classify(a["sh"] if a else None, b["sh"] if b else None)
+                cls, d = classify(a, b)
             ref = b or a
             rows.append([e, c, ref["name"],
                          b["sh"] if b else 0, b["w"] if b else 0,
