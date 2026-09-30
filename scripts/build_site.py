@@ -24,7 +24,7 @@ def build(out: Path, days: int) -> list[str]:
     shutil.copytree(ROOT / "site", out)
     (out / ".nojekyll").touch()
 
-    files = sorted((ROOT / "data").glob("*/*.csv"), key=lambda p: p.name)[-days:]
+    files = sorted((ROOT / "data").glob("[0-9][0-9][0-9][0-9]/[0-9]*.csv"), key=lambda p: p.name)[-days:]  # 只取年份資料夾（排除 data/etf）
     daily = out / "data" / "daily"
     daily.mkdir(parents=True)
     dates = []

@@ -95,7 +95,7 @@ def pick_files(args):
         text = Path(args.list).read_text(encoding="utf-8") if Path(args.list).exists() else ""
         files = [Path(p.strip()) for p in text.splitlines() if p.strip().endswith(".csv")]
     elif args.latest:
-        files = sorted(DATA_DIR.glob("*/*.csv"))[-args.latest:]
+        files = sorted(DATA_DIR.glob("[0-9][0-9][0-9][0-9]/[0-9]*.csv"), key=lambda p: p.name)[-args.latest:]  # 排除 data/etf
     else:
         files = [Path(p) for p in args.files]
     files = sorted({f for f in files if f.exists()}, key=lambda p: p.name)
