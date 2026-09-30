@@ -37,6 +37,11 @@ jobs:
           IN_ETFS: ${{ inputs.etfs }}
         run: python fetch_etf.py $IN_ETFS
 
+      - name: Fetch AUM (all ETFs)
+        if: always()
+        continue-on-error: true  # 規模資料失敗不影響持股資料
+        run: python fetch_etf_aum.py
+
       - name: Commit data
         if: always()  # 部分 ETF 失敗，抓到的也要存
         run: |

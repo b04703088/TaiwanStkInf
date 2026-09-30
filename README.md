@@ -30,11 +30,17 @@ python fetch_etf.py 0050 00981A      # 指定
 python fetch_etf.py --issuer ctbc    # 某家投信
 ```
 
+### 全體 ETF 規模（AUM）
+
+`fetch_etf_aum.py` 抓證交所 ETF 淨值揭露（`mis.twse.com.tw/stock/data/all_etf.txt`，全體上市櫃 ETF 約 350 檔），
+算出規模 = 發行單位數 × 前一營業日淨值、資金流入 = 單位增減 × 淨值，存成 `data/etf/aum/<YYYYMMDD>.csv`；
+類型（國內股票／主動式／國外股票／債券／槓桿反向／期貨商品）依證交所 ETF 基本資料。隨 `etf.yml` 每天執行。
+
 ## 網站（GitHub Pages）
 
 網址：https://b04703088.github.io/TaiwanStkInf/ （成交排行：`ranking.html`）
 
-- `site/`：網頁原始檔（首頁 `index.html`、成交金額排行 `ranking.html`、ETF持股 `etf.html`：個股持有查詢／每日持股變化）
+- `site/`：網頁原始檔（首頁 `index.html`、成交金額排行 `ranking.html`、ETF持股 `etf.html`：個股持有查詢／每日持股變化／AUM 排行）
 - `scripts/etf_site.py`：整理 ETF 最新持股與前一份的差異（扣除申購贖回造成的同比例增減）→ `data/etf/latest.json`
 - `scripts/build_site.py`：把最近 120 個交易日的 CSV 轉成 `data/daily/<日期>.json` 給網頁讀
 - `.github/workflows/pages.yml`：每日抓完股價或 ETF 持股、或改了 `site/` 後自動重建部署

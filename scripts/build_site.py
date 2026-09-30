@@ -5,6 +5,7 @@
   data/days.json                     可用日期（由舊到新）
   data/daily/YYYY-MM-DD.json         當日全市場 {date, columns, rows}
   data/etf/latest.json               各 ETF 最新持股與前一份的差異（見 scripts/etf_site.py）
+  data/etf/aum.json                  全體 ETF 規模排行（fetch_etf_aum.py 的最新一天）
 
 用法：python scripts/build_site.py [--days 120] [--out _site]
 """
@@ -45,6 +46,7 @@ def build(out: Path, days: int) -> list[str]:
     (out / "data" / "days.json").write_text(json.dumps(dates), encoding="utf-8")
     if (ROOT / "data" / "etf" / "etf_list.csv").exists():
         etf_site.write_latest(ROOT / "data", out / "data" / "etf" / "latest.json")
+    etf_site.write_aum(ROOT / "data", out / "data" / "etf" / "aum.json")
     return dates
 
 

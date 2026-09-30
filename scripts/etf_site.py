@@ -118,3 +118,50 @@ def write_latest(data_dir, out_path):
     Path(out_path).parent.mkdir(parents=True, exist_ok=True)
     Path(out_path).write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     return payload
+
+
+# ---------------- AUM 排行 ----------------
+AUM_COLS = ["etf", "name", "cat", "aum", "nav", "units", "du", "flow", "flow5", "daum", "prem", "tracked"]
+
+
+def build_aum(data_dir, flow_days=5):
+    """data/etf/aum/ 最新一天 → 排行資料；另算較前一份的規模變化、近 N 份的資金流入合計。
+
+    flow5 只加總「實際有的」日檔（最多 flow_days 份），n_flow 告訴前端是幾天。
+    """
+    data_dir = Path(data_dir)
+    files = sorted((data_dir / "etf" / "aum").glob("[0-9]*.csv"))
+    if not files:
+        return None
+
+    def read(f):
+        with f.open(encoding="utf-8") as fp:
+            return {r["etf"]: r for r in csv.DictReader(fp)}
+
+    latest, prev = read(files[-1]), (read(files[-2]) if len(files) > 1 else {})
+    recent = [read(f) for f in files[-flow_days:]]
+    tracked = set()
+    lst = data_dir / "etf" / "etf_list.csv"
+    if lst.exists():
+        with lst.open(encoding="utf-8") as fp:
+            tracked = {r["etf"] for r in csv.DictReader(fp)}
+    rows = []
+    for code, r in latest.items():
+        aum = _num(r["aum"])
+        p = prev.get(code)
+        flow5 = sum(_num(day[code]["flow"]) or 0 for day in recent if code in day)
+        rows.append([code, r["name"], r["category"], aum, _num(r["nav"]), _num(r["units"]),
+                     _num(r["units_change"]), _num(r["flow"]), flow5,
+                     (aum - _num(p["aum"])) if p else None, _num(r["premium"]), code in tracked])
+    rows.sort(key=lambda x: -(x[3] or 0))
+    return {"date": date_of(files[-1]), "prev": date_of(files[-2]) if len(files) > 1 else None,
+            "n_flow": len(recent), "cols": AUM_COLS, "rows": rows}
+
+
+def write_aum(data_dir, out_path):
+    payload = build_aum(data_dir)
+    if payload is None:
+        return None
+    Path(out_path).parent.mkdir(parents=True, exist_ok=True)
+    Path(out_path).write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    return payload

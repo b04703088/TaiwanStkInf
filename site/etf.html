@@ -293,6 +293,9 @@
   th[aria-sort="descending"] button::after{content:"▼"; opacity:1;}
   .mode{font-size:11px; color:var(--text-faint); border:1px solid var(--line-strong); border-radius:2px; padding:1px 6px; vertical-align:3px;}
   .chip-group{margin-top:40px;}
+  .cat{font-size:11.5px; color:var(--text-muted); white-space:nowrap;}
+  #aumTable .bar-track{width:90px;}
+  .seg.wrap-seg{flex-wrap:wrap;}
   .chip-group + .chip-group{margin-top:28px;}
 </style>
 </head>
@@ -323,11 +326,12 @@
           <div class="eyebrow">ETF持股</div>
           <h1>ETF 怎麼換股，資金就怎麼流</h1>
         </div>
-        <p class="desc">追蹤 <span id="etfCount">50</span> 檔台股 ETF（含主動式）每天公告的完整持股。查一檔股票被哪些 ETF 持有，或查前一交易日到最新一交易日，哪些 ETF 買賣了哪些股票。</p>
+        <p class="desc">追蹤 <span id="etfCount">50</span> 檔台股 ETF（含主動式）每天公告的完整持股。查一檔股票被哪些 ETF 持有，查前一交易日到最新一交易日哪些 ETF 買賣了哪些股票，或看全體上市櫃 ETF 的規模排行與資金流向。</p>
       </div>
       <div class="tabs" role="tablist">
         <a href="#holders" id="tab-holders" role="tab" aria-selected="true" aria-controls="panel-holders">個股持有查詢</a>
         <a href="#changes" id="tab-changes" role="tab" aria-selected="false" aria-controls="panel-changes">每日持股變化</a>
+        <a href="#aum" id="tab-aum" role="tab" aria-selected="false" aria-controls="panel-aum">AUM 排行</a>
       </div>
     </div>
   </section>
@@ -413,11 +417,43 @@
       <p class="pending" id="pending"></p>
     </div>
   </section>
+  <!-- ============ 子頁三：AUM 排行 ============ -->
+  <section class="panel" id="panel-aum" role="tabpanel" aria-labelledby="tab-aum" hidden>
+    <div class="wrap">
+      <p class="panel-note" id="aumNote">全體上市櫃 ETF 的基金規模（AUM）= 已發行受益單位數 × 前一營業日單位淨值。
+        資金流入 = 受益單位增減 × 單位淨值，也就是申購減掉贖回的金額。資料來源為證交所 ETF 淨值揭露，每個交易日更新。</p>
+      <div class="stats" id="aumStats"></div>
+      <div class="toolbar">
+        <div class="seg wrap-seg" data-filter="cat" role="group" aria-label="ETF 類型" id="catSeg"></div>
+        <input class="search" id="aumSearch" type="search" autocomplete="off" placeholder="搜尋代號或名稱" aria-label="搜尋 ETF 代號或名稱">
+      </div>
+      <div class="table-wrap">
+        <table class="rank" id="aumTable">
+          <thead>
+            <tr>
+              <th class="l" data-sort="rank" data-dir="asc" title="目前類型內的規模名次"><button type="button">#</button></th>
+              <th class="l" data-sort="name" data-dir="asc"><button type="button">ETF</button></th>
+              <th class="l col-hide" data-sort="cat" data-dir="asc"><button type="button">類型</button></th>
+              <th data-sort="aum"><button type="button">規模（億）</button></th>
+              <th class="col-hide" data-sort="nav"><button type="button">淨值</button></th>
+              <th class="col-hide" data-sort="units"><button type="button">受益單位（億）</button></th>
+              <th data-sort="flow"><button type="button">當日流入（億）</button></th>
+              <th class="col-hide" data-sort="flow5"><button type="button" id="flow5Label">近 5 日流入（億）</button></th>
+              <th class="col-hide" data-sort="daum"><button type="button">規模變化（億）</button></th>
+              <th class="col-hide" data-sort="prem"><button type="button">折溢價</button></th>
+            </tr>
+          </thead>
+          <tbody id="aumRows"><tr><td colspan="10" class="empty">載入中…</td></tr></tbody>
+        </table>
+      </div>
+      <div class="more" id="aumMoreWrap"><button class="btn-ghost" id="aumMore" type="button">顯示更多</button></div>
+    </div>
+  </section>
 </main>
 
 <footer class="site">
   <div class="wrap">
-    <p class="foot-note">資料來源：各投信公告之 ETF 每日持股（PCF／投資組合），每個交易日自動更新；股價為臺灣證券交易所、證券櫃檯買賣中心收盤行情。海外持股以股數表示、不估算金額。本頁資訊僅供參考，不構成任何投資建議。</p>
+    <p class="foot-note">資料來源：各投信公告之 ETF 每日持股（PCF／投資組合）；ETF 規模為證交所 ETF 淨值揭露；每個交易日自動更新；股價為臺灣證券交易所、證券櫃檯買賣中心收盤行情。海外持股以股數表示、不估算金額。本頁資訊僅供參考，不構成任何投資建議。</p>
   </div>
 </footer>
 
@@ -490,13 +526,14 @@ function applySort(tableId, list, getters) {
 }
 
 /* ---------- 子頁切換 ---------- */
+const TABS = ["holders", "changes", "aum"];
 function showTab(name) {
-  for (const t of ["holders", "changes"]) {
+  for (const t of TABS) {
     $("tab-" + t).setAttribute("aria-selected", t === name);
     $("panel-" + t).hidden = t !== name;
   }
 }
-const route = () => showTab(location.hash.replace("#", "") === "changes" ? "changes" : "holders");
+const route = () => { const h = location.hash.replace("#", ""); showTab(TABS.includes(h) ? h : "holders"); };
 function setParam(k, v) {
   const url = new URL(location.href);
   url.searchParams.set(k, v);
@@ -698,6 +735,58 @@ function lookupHolder(q) {
   else $("lookupHint").textContent = `找不到「${q}」，請輸入代號（如 2330）或名稱`;
 }
 
+/* ---------- 子頁三：AUM 排行 ---------- */
+const CATS = ["全部", "國內股票", "主動式", "國外股票", "債券", "槓桿反向", "期貨商品"];
+const aum = { rows: [], date: null, prev: null, nFlow: 0, cat: "全部", q: "", shown: 100 };
+const AUM_GET = {
+  rank: x => x.rank, name: x => x.etf, cat: x => x.cat, aum: x => x.aum, nav: x => x.nav, units: x => x.units,
+  flow: x => x.flow, flow5: x => x.flow5, daum: x => x.daum, prem: x => x.prem,
+};
+
+async function loadAum() {
+  const r = await fetch("data/etf/aum.json", { cache: "no-cache" });
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  const d = await r.json();
+  aum.rows = d.rows.map(x => Object.fromEntries(d.cols.map((c, i) => [c, x[i]]))).map((x, i) => ({ ...x, rank: i + 1 }));
+  Object.assign(aum, { date: d.date, prev: d.prev, nFlow: d.n_flow });
+  $("flow5Label").textContent = `近 ${d.n_flow} 日流入（億）`;
+  $("catSeg").innerHTML = CATS.map(c => `<button type="button" data-v="${c}" aria-pressed="${c === "全部"}">${c}</button>`).join("");
+}
+
+function renderAum() {
+  const inCat = aum.rows.filter(x => aum.cat === "全部" || x.cat === aum.cat);
+  const q = aum.q.trim().toLowerCase();
+  const list = inCat.filter(x => !q || x.etf.toLowerCase().includes(q) || x.name.toLowerCase().includes(q));
+  [...inCat].sort((a, b) => b.aum - a.aum).forEach((x, i) => { x.rank = i + 1; });  // 名次：目前類型內依規模
+  const total = inCat.reduce((s, x) => s + x.aum, 0);
+  const flow = inCat.reduce((s, x) => s + (x.flow || 0), 0);
+  const top10 = [...inCat].sort((a, b) => b.aum - a.aum).slice(0, 10).reduce((s, x) => s + x.aum, 0);
+  const all = aum.rows.reduce((s, x) => s + x.aum, 0);
+  $("aumStats").innerHTML = `
+    <div class="stat"><span>ETF 檔數</span><b class="mono">${inCat.length}</b><small>檔 · ${fmtDate(aum.date)}</small></div>
+    <div class="stat"><span>總規模</span><b class="mono">${fmtN(total / 1e12, 2)}</b><small>兆${aum.cat === "全部" ? "" : `（佔 ${fmtN(total / all * 100, 1)}%）`}</small></div>
+    <div class="stat"><span>當日淨流入</span><b class="mono ${cls(flow)}">${fmtYiSigned(flow)}</b><small>億</small></div>
+    <div class="stat"><span>前 10 大佔比</span><b class="mono">${fmtN(top10 / total * 100, 1)}%</b><small class="hint">規模集中度</small></div>`;
+  applySort("aumTable", list, AUM_GET);
+  const maxAum = Math.max(...inCat.map(x => x.aum), 1);
+  const page = list.slice(0, aum.shown);
+  $("aumRows").innerHTML = page.length ? page.map(x => `
+    <tr${x.tracked ? ` class="clickable" data-query="${esc(x.etf)}" title="查看 ${esc(x.name)} 的持股異動"` : ""}>
+      <td class="l rank-no mono">${x.rank}</td>
+      <td class="l"><span class="stock-name">${esc(x.name)}</span><span class="stock-code mono">${esc(x.etf)}</span>${x.tracked ? '<span class="kind active" title="有追蹤每日持股">持股</span>' : ""}</td>
+      <td class="l col-hide"><span class="cat">${esc(x.cat)}</span></td>
+      <td><div class="value-cell"><span class="mono">${fmtN(x.aum / 1e8, 0)}</span><div class="bar-track"><div class="bar-fill" style="width:${(x.aum / maxAum * 100).toFixed(1)}%"></div></div></div></td>
+      <td class="mono col-hide flat">${fmtN(x.nav, 2)}</td>
+      <td class="mono col-hide flat">${fmtN(x.units / 1e8, 2)}</td>
+      <td class="mono ${cls(x.flow)}">${x.flow ? fmtYiSigned(x.flow) : '<span class="flat">0</span>'}</td>
+      <td class="mono col-hide ${cls(x.flow5)}">${x.flow5 ? fmtYiSigned(x.flow5) : '<span class="flat">0</span>'}</td>
+      <td class="mono col-hide ${cls(x.daum)}">${x.daum == null ? "—" : fmtYiSigned(x.daum)}</td>
+      <td class="mono col-hide ${cls(x.prem)}">${x.prem == null ? "—" : (x.prem > 0 ? "+" : "") + fmtN(x.prem, 2) + "%"}</td>
+    </tr>`).join("")
+    : `<tr><td colspan="10" class="empty">沒有符合條件的 ETF</td></tr>`;
+  $("aumMoreWrap").hidden = list.length <= aum.shown;
+}
+
 /* ---------- 互動 ---------- */
 document.addEventListener("click", e => {
   const el = e.target.closest("[data-stock], [data-query]");
@@ -724,6 +813,14 @@ document.querySelector('.seg[data-filter="kind"]').addEventListener("click", e =
   renderChange();
 });
 window.addEventListener("hashchange", route);
+$("catSeg").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  $("catSeg").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  aum.cat = b.dataset.v; aum.shown = 100; renderAum();
+});
+$("aumSearch").addEventListener("input", e => { aum.q = e.target.value; aum.shown = 100; renderAum(); });
+$("aumMore").addEventListener("click", () => { aum.shown += 100; renderAum(); });
+sortable("aumTable", { key: "aum", dir: -1 }, () => renderAum());
 sortable("holderTable", { key: "value", dir: -1 }, () => renderHolder());
 $("changeTable").querySelector("thead").addEventListener("click", e => {
   const th = e.target.closest("th[data-sort]"); if (!th) return;
@@ -733,6 +830,10 @@ $("changeTable").querySelector("thead").addEventListener("click", e => {
   renderChange();
 });
 
+loadAum().then(renderAum).catch(e => {
+  console.error(e);
+  $("aumRows").innerHTML = `<tr><td colspan="10" class="empty">讀取規模資料失敗，請重新整理頁面。</td></tr>`;
+});
 try {
   await load();
   const popular = renderPopular();
