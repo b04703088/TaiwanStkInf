@@ -59,18 +59,20 @@ class AdapterTest(unittest.TestCase):
         self.assertEqual(rows[0]["shares"], 108279064)
         self.assertEqual(meta["aum"], 478793858229)
 
-    def test_cathay_uses_official_weights_without_shares(self):
+    def test_cathay_uses_actual_holdings(self):
         C.http = fake_http([
             ("GetETFList", {"success": True, "result": [{"stockCode": "00878", "fundCode": "CN"}]}),
-            ("GetIndexStockWeights", {"success": True, "result": {"date": "2026/09/29", "stockWeights": [
-                {"stockCode": "2891", "stockName": "中信金", "weights": "9.71"},
-                {"stockCode": "2382", "stockName": "廣達", "weights": "9.24"}]}}),
-            ("GetBuySale", {"success": True, "result": {"totUnit": "18,799,290,000", "aum": "652,900,000,000", "nav": "34.73"}}),
+            ("GetETFAssets", {"success": True, "result": {"preDate": "2026/09/29", "fundNav": "652,907,591,089",
+                                                           "fundOutstandingShares": "18,799,290,000", "fundPerNav": "34.73"}}),
+            ("GetETFDetailStockList", lambda p, b: {"success": True, "result": [
+                {"stockCode": "2891", "stockName": "中信金", "volumn": "922,437,000", "weights": "9.71"},
+                {"stockCode": "2382", "stockName": "廣達", "volumn": "179,341,000", "weights": "9.24"}]}
+                if p.get("SearchDate") == "2026/09/29" else {"success": False, "result": None}),
         ])
         d, rows, meta = A.cathay("00878")
         self.assertEqual(d, "2026-09-29")
-        self.assertEqual(rows[0], {"code": "2891", "name": "中信金", "shares": None, "weight": 9.71})
-        self.assertEqual(meta["units"], 18799290000)
+        self.assertEqual(rows[0], {"code": "2891", "name": "中信金", "shares": 922437000, "weight": 9.71})
+        self.assertEqual((meta["units"], meta["nav"]), (18799290000, 34.73))
 
     def test_yuanta_without_stockweights_is_an_error(self):
         C.http = fake_http([("bridge", {

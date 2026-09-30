@@ -121,9 +121,11 @@ def fubon(code, name=""):
 
 
 # ---------------- 國泰 ----------------
-# 內部 FundCode 是兩碼（00878 = CN）。持股用官方「持股權重」（ETF/GetIndexStockWeights：代號、名稱、權重、資料日），
-# 國泰不公布實際持有股數，因此股數留空、不做推算（PCF 的每基數股數 × 單位數會把申購贖回誤當成買賣）。
-# 規模、單位數、淨值取自 PCF 表頭（BuySale/GetBuySale）。
+# 內部 FundCode 是兩碼（00878 = CN）。
+# 持股：ETF/GetETFDetailStockList {fundCode, SearchDate} → 代號、名稱、持有股數（volumn）、權重，
+#       即官網 ETF 詳情頁「持股權重」分頁（tab=etf3）的資料；SearchDate 必填，可查歷史。
+# 資料日與規模：ETF/GetETFAssets → preDate（持股基準日）、基金淨資產、流通單位數、單位淨值。
+# （不要用 PCF 的每基數股數 × 單位數推算總股數：會把申購贖回誤當成買賣，數字也不準。）
 CATHAY = "https://cwapi.cathaysite.com.tw/api/"
 _cathay_map = None
 
@@ -135,8 +137,7 @@ def _cathay(path, params):
     return d.get("result")
 
 
-@adapter("cathay")
-def cathay(code, name=""):
+def _cathay_fund(code):
     def load():
         global _cathay_map
         if _cathay_map is None:
@@ -144,21 +145,32 @@ def cathay(code, name=""):
             rows = res if isinstance(res, list) else (res or {}).get("list") or []
             _cathay_map = {r.get("stockCode"): r.get("fundCode") for r in rows if r.get("stockCode")}
         return _cathay_map
-    fc = _lookup_id("cathay", code, load)
-    w = _cathay("ETF/GetIndexStockWeights", {"fundCode": fc, "status": 1}) or {}
-    if not w.get("date") or not w.get("stockWeights"):
-        raise AdapterError(f"cathay {code}: 沒有持股權重資料")
+    return _lookup_id("cathay", code, load)
+
+
+def cathay_holdings(fc, date):
+    """指定持股基準日（'YYYY-MM-DD'）的持股；該日沒有資料回空 list。"""
+    d = C.http(CATHAY + "ETF/GetETFDetailStockList", {"fundCode": fc, "SearchDate": date.replace("-", "/")})
     rows = []
-    for r in w["stockWeights"]:
-        h = holding(r.get("stockCode"), r.get("stockName"), None, num(r.get("weights")))
+    for r in (d.get("result") or []) if d.get("success") else []:
+        h = holding(r.get("stockCode"), r.get("stockName"), num(r.get("volumn")), num(r.get("weights")))
         if is_security(h["code"]):
             rows.append(h)
-    try:
-        bs = _cathay("BuySale/GetBuySale", {"FundCode": fc, "IsTest": "false", "status": 1}) or {}
-        meta = _meta(bs.get("aum"), bs.get("totUnit"), bs.get("nav"))
-    except AdapterError:
-        meta = _meta()
-    return iso(w["date"]), rows, meta
+    return rows
+
+
+@adapter("cathay")
+def cathay(code, name=""):
+    fc = _cathay_fund(code)
+    assets = _cathay("ETF/GetETFAssets", {"fundCode": fc}) or {}
+    meta = _meta(assets.get("fundNav"), assets.get("fundOutstandingShares"), assets.get("fundPerNav"))
+    dates = [iso(assets["preDate"])] if assets.get("preDate") else []
+    dates += [d.isoformat() for d in C.recent_days(8) if d.isoformat() not in dates]
+    for d in dates:
+        rows = cathay_holdings(fc, d)
+        if rows:
+            return d, rows, (meta if dates and d == dates[0] else _meta())
+    raise AdapterError(f"cathay {code}: 最近幾個工作天都查無持股")
 
 
 # ---------------- 群益 ----------------
