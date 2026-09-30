@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>資料健檢｜潮汐</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0E1620; --panel:#141F2B; --panel-2:#182531;
+    --line:rgba(232,237,242,0.09); --line-strong:rgba(232,237,242,0.16);
+    --text:#E8EDF2; --text-muted:#8B99A6; --text-faint:#5C6B79;
+    --brass:#C6A15B; --rise:#E1594F; --fall:#3FAE72; --warn:#D9A441;
+    --radius-s:3px; --radius-m:6px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--ink); color:var(--text);
+    font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
+  h1,h2{font-family:'Noto Serif TC',serif; margin:0; font-weight:700;}
+  .mono{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+  a{color:inherit;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
+  header.site{position:sticky; top:0; z-index:40; background:rgba(14,22,32,0.88); backdrop-filter:blur(10px); border-bottom:1px solid var(--line);}
+  .nav-row{display:flex; align-items:center; justify-content:space-between; padding:16px 28px;}
+  .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
+  .brand-mark{font-family:'Noto Serif TC',serif; font-size:22px; font-weight:700;}
+  .brand-sub{font-size:12px; color:var(--text-faint);}
+  nav.links{display:flex; gap:30px; font-size:14px;}
+  nav.links a{text-decoration:none; color:var(--text-muted);}
+  nav.links a:hover{color:var(--brass);}
+  .page-head{padding:56px 0 28px;}
+  .eyebrow{font-size:13px; color:var(--brass); margin-bottom:10px;}
+  h1{font-size:32px;}
+  .desc{color:var(--text-muted); font-size:14.5px; margin:12px 0 0; max-width:46em;}
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden; margin-top:28px;}
+  .stat{background:var(--panel); padding:18px 20px;}
+  .stat .k{font-size:12.5px; color:var(--text-muted);}
+  .stat .v{font-size:26px; margin-top:4px;}
+  .v.ok{color:var(--fall);} .v.warn{color:var(--warn);} .v.error{color:var(--rise);}
+  .filters{display:flex; gap:8px; margin:32px 0 14px; flex-wrap:wrap;}
+  .filters button{background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:6px 14px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .filters button[aria-pressed="true"]{border-color:var(--brass); color:var(--brass);}
+  .tbl{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius-m);}
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  th,td{padding:10px 14px; text-align:left; border-bottom:1px solid var(--line); white-space:nowrap;}
+  th{font-weight:500; color:var(--text-muted); font-size:12.5px; background:var(--panel);}
+  td.num,th.num{text-align:right;}
+  td.msg{white-space:normal; color:var(--text-muted); min-width:14em;}
+  tr:last-child td{border-bottom:none;}
+  .dot{display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:8px; vertical-align:1px;}
+  .dot.ok{background:var(--fall);} .dot.warn{background:var(--warn);} .dot.error{background:var(--rise);}
+  .lvl.warn{color:var(--warn);} .lvl.error{color:var(--rise);}
+  .faint{color:var(--text-faint);}
+  .show-m{display:none; color:var(--text);}
+  .note{font-size:12.5px; color:var(--text-faint); margin-top:18px; line-height:1.8;}
+  footer.site{padding:48px 0; margin-top:64px; border-top:1px solid var(--line);}
+  @media (max-width:860px){
+    nav.links{display:none;} .nav-row{padding:14px 16px;} .wrap{padding:0 16px;}
+    .stats{grid-template-columns:repeat(2,1fr);} h1{font-size:26px;}
+    th,td{padding:8px 10px;} .hide-m{display:none;} .show-m{display:inline;}
+  }
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="nav-row">
+    <a href="index.html" class="brand"><span class="brand-mark">潮汐</span><span class="brand-sub">籌碼觀測站</span></a>
+    <nav class="links">
+      <a href="ranking.html">成交排行</a>
+      <a href="etf.html">ETF持股</a>
+      <a href="index.html#chips">分點籌碼</a>
+    </nav>
+  </div>
+</header>
+<main class="wrap">
+  <section class="page-head">
+    <div class="eyebrow">資料健檢</div>
+    <h1>每天的資料都有抓到嗎？</h1>
+    <p class="desc" id="sub">載入中…</p>
+    <div class="stats">
+      <div class="stat"><div class="k">檢查項目</div><div class="v mono" id="s-all">–</div></div>
+      <div class="stat"><div class="k">正常</div><div class="v mono ok" id="s-ok">–</div></div>
+      <div class="stat"><div class="k">需留意</div><div class="v mono warn" id="s-warn">–</div></div>
+      <div class="stat"><div class="k">異常</div><div class="v mono error" id="s-error">–</div></div>
+    </div>
+  </section>
+
+  <div class="filters" role="group" aria-label="篩選">
+    <button data-f="issue" aria-pressed="true">只看有問題的</button>
+    <button data-f="all" aria-pressed="false">全部</button>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>狀態</th><th>項目</th><th class="hide-m">名稱</th><th class="hide-m">資料日</th><th class="num hide-m">落後</th><th class="num hide-m">檔數</th><th class="num hide-m">權重加總</th><th>說明</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+  <p class="note">
+    落後＝資料日之後已經過了幾個交易日。多數投信當天晚上公告，凱基、統一等是隔天早上才公告，所以早上看到落後 1 天屬正常；落後 2 天以上就是漏抓。<br>
+    權重加總偏低常見於主動式 ETF（持有現金），單獨出現不一定是錯。<br>
+    每天台北 09:10 左右 GitHub 會自動跑一次健檢；有「異常」時該次執行會失敗，GitHub 會寄通知信到帳號信箱。
+  </p>
+</main>
+<footer class="site"><div class="wrap"><p class="note" style="margin:0">本頁於每次網站重建時產生。</p></div></footer>
+<script>
+const LABEL = {price:"股價", etf:"ETF", aum:"規模"};
+const TXT = {ok:"正常", warn:"留意", error:"異常"};
+let data, mode = "issue";
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function render(){
+  const order = {error:0, warn:1, ok:2};
+  const items = data.items.filter(i => mode === "all" || i.level !== "ok")
+    .sort((a,b) => order[a.level]-order[b.level] || a.kind.localeCompare(b.kind) || a.id.localeCompare(b.id));
+  document.getElementById("rows").innerHTML = items.length ? items.map(i => `<tr>
+    <td class="lvl ${i.level}"><span class="dot ${i.level}"></span>${TXT[i.level]}</td>
+    <td class="mono">${LABEL[i.kind]} ${i.kind === "etf" ? esc(i.id) : ""}</td>
+    <td class="hide-m">${esc(i.name)}</td>
+    <td class="mono hide-m">${esc(i.date || "–")}</td>
+    <td class="num mono hide-m">${i.lag ?? "–"}</td>
+    <td class="num mono hide-m">${i.n ?? i.rows ?? "–"}</td>
+    <td class="num mono hide-m">${i.wsum != null ? i.wsum.toFixed(1) + "%" : "–"}</td>
+    <td class="msg"><span class="show-m">${esc(i.name)}・${esc(i.date || "–")}<br></span>${esc(i.msg)}</td></tr>`).join("")
+    : `<tr><td colspan="8" class="faint" style="padding:28px 14px">全部正常 ✓</td></tr>`;
+}
+document.querySelectorAll(".filters button").forEach(b => b.onclick = () => {
+  mode = b.dataset.f;
+  document.querySelectorAll(".filters button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  render();
+});
+fetch("data/health.json", {cache:"no-cache"}).then(r => r.json()).then(h => {
+  data = h;
+  document.getElementById("sub").textContent =
+    `檢查時間 ${h.generated}（台北）・最近應開盤日 ${h.expected}・最新股價 ${h.latest_price}`;
+  for (const k of ["ok","warn","error"]) document.getElementById("s-"+k).textContent = h.count[k];
+  document.getElementById("s-all").textContent = h.items.length;
+  render();
+}).catch(() => { document.getElementById("sub").textContent = "健檢資料載入失敗"; });
+</script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+name: Data health check
+
+# 每個交易日隔天早上檢查前一個交易日的股價、ETF 持股、ETF 規模是否都有抓到。
+# 有「異常」時這次執行會失敗 → GitHub 寄 Actions 失敗通知信；報告也寫在執行結果的 Summary。
+# 網站上的 health.html 是同一份檢查（每次重建網站時產生）。
+on:
+  schedule:
+    - cron: "7 1 * * 2-6"   # 台北 週二至週六 09:07
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python scripts/health.py --strict

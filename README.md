@@ -72,3 +72,14 @@ python -m unittest discover tests                       # 測試
 ```
 
 也可在 GitHub → Actions → "Fetch daily stock prices" → Run workflow 手動觸發或回補。
+
+## 資料健檢
+
+`scripts/health.py` 檢查資料有沒有漏抓或抓錯，結果在網站的 `health.html`（ETF持股、成交排行頁尾有連結）。
+
+- 股價：最近一個應開盤日（平日、不在 `data/no_trading_days.txt`）是否有收盤檔、檔數是否正常
+- ETF 持股：每檔落後幾個交易日（≥ 2 為異常；T+1 公告的投信早上落後 1 天屬正常）、成分股數、權重加總（< 70% 或 > 105% 異常，< 80% 留意）、檔數與前一份相差 > 25%、股數缺漏
+- ETF 規模：最新一天是否落後
+- `.github/workflows/health.yml` 每週二至週六台北 09:07 自動執行；有異常時該次執行失敗，GitHub 會寄 Actions 失敗通知信
+- 另外 `etf.yml` 只要有任何一檔 ETF 抓取失敗，整次執行就會標示失敗（已抓到的仍會存檔），同樣會寄通知信
+

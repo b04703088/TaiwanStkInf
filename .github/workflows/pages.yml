@@ -12,6 +12,7 @@ on:
       - "site/**"
       - "scripts/build_site.py"
       - "scripts/etf_site.py"
+      - "scripts/health.py"
       - ".github/workflows/pages.yml"
   workflow_dispatch: {}
 
