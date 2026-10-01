@@ -73,12 +73,26 @@ python -m unittest discover tests                       # 測試
 
 也可在 GitHub → Actions → "Fetch daily stock prices" → Run workflow 手動觸發或回補。
 
+
+## 券商分點（前 15 大）
+
+`fetch_broker.py` 每天抓全部有成交的上市櫃股票（約 2,400 檔）的前 15 大買超、前 15 大賣超分點，
+來源是富邦證券網站的公開頁面（MoneyDJ 券商分點進出明細，免登入），單位：張。
+
+- 輸出 `data/broker/<YYYY>/<YYYYMMDD>.csv`：`date, code, side(B/S), rank, bid, broker, buy, sell, net, pct`
+- 輸出 `data/broker/<YYYY>/<YYYYMMDD>_total.csv`：前 15 大合計買超／賣超張數、平均買超／賣超成本
+- `.github/workflows/broker.yml`：股價 workflow 完成後接著跑，另有台北 18:33、22:03 備援；資料尚未公布時直接結束
+- 一次一條連線、每頁間隔 0.15 秒，全部約 30～40 分鐘；中斷後重跑只補沒抓到的股票
+- 只公布前 15 大，不是全部分點；分點頁只看得到該分點擠進某檔股票前 15 大的部分
+- 網站「分點籌碼」頁（`broker.html`）：主力買賣超排行（集中度 = 主力買賣超 ÷ 成交量）、個股分點明細、單一分點的上榜個股
+
 ## 資料健檢
 
 `scripts/health.py` 檢查資料有沒有漏抓或抓錯，結果在網站的 `health.html`（ETF持股、成交排行頁尾有連結）。
 
 - 股價：最近一個應開盤日（平日、不在 `data/no_trading_days.txt`）是否有收盤檔、檔數是否正常
 - ETF 持股：每檔落後幾個交易日（≥ 2 為異常；T+1 公告的投信早上落後 1 天屬正常）、成分股數、權重加總（< 70% 或 > 105% 異常，< 80% 留意）、檔數與前一份相差 > 25%、股數缺漏
+- 券商分點：最新一天是否落後、檔數是否齊全
 - ETF 規模：最新一天是否落後
 - `.github/workflows/health.yml` 每週二至週六台北 09:07 自動執行；有異常時該次執行失敗，GitHub 會寄 Actions 失敗通知信
 - 另外 `etf.yml` 只要有任何一檔 ETF 抓取失敗，整次執行就會標示失敗（已抓到的仍會存檔），同樣會寄通知信

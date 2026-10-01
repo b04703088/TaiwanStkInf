@@ -7,6 +7,7 @@
   data/etf/latest.json               各 ETF 最新持股與前一份的差異（見 scripts/etf_site.py）
   data/etf/aum.json                  全體 ETF 規模排行（fetch_etf_aum.py 的最新一天）
   data/health.json                   資料健檢結果（見 scripts/health.py）
+  data/broker/days.json, <日期>.json  券商分點前 15 大（見 scripts/broker_site.py）
 
 用法：python scripts/build_site.py [--days 120] [--out _site]
 """
@@ -23,6 +24,7 @@ from upload_firestore import SNAPSHOT_FIELDS, read_rows  # noqa: E402
 sys.path.insert(0, str(ROOT / "scripts"))
 import etf_site  # noqa: E402
 import health  # noqa: E402
+import broker_site  # noqa: E402
 
 
 def build(out: Path, days: int) -> list[str]:
@@ -49,6 +51,7 @@ def build(out: Path, days: int) -> list[str]:
     if (ROOT / "data" / "etf" / "etf_list.csv").exists():
         etf_site.write_latest(ROOT / "data", out / "data" / "etf" / "latest.json")
     etf_site.write_aum(ROOT / "data", out / "data" / "etf" / "aum.json")
+    broker_site.write_site(ROOT / "data", out, days=20)
     (out / "data" / "health.json").write_text(
         json.dumps(health.check(ROOT / "data"), ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     return dates

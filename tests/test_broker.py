@@ -64,3 +64,29 @@ class BrokerParseTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class BrokerSiteTest(unittest.TestCase):
+    def test_build_day_indexes(self):
+        sys.path.insert(0, str(ROOT / "scripts"))
+        import broker_site as S
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            (d / "2026").mkdir()
+            (d / "2026" / "20260930.csv").write_text(
+                "date,market,code,name,close,change,volume\n2026-09-30,TWSE,2330,台積電,1000,5,32500000\n", encoding="utf-8")
+            (d / "broker" / "2026").mkdir(parents=True)
+            (d / "broker" / "2026" / "20260930.csv").write_text(
+                "date,code,side,rank,bid,broker,buy,sell,net,pct\n"
+                "2026-09-30,2330,B,1,8440,摩根大通,6241,4053,2188,6.73\n"
+                "2026-09-30,2330,S,1,1650,新加坡商瑞銀,3308,6989,-3681,11.32\n", encoding="utf-8")
+            (d / "broker" / "2026" / "20260930_total.csv").write_text(
+                "date,code,buy_total,sell_total,buy_cost,sell_cost\n2026-09-30,2330,9555,8446,2491.47,2489.04\n", encoding="utf-8")
+            out = d / "_site"
+            self.assertEqual(S.write_site(d, out), ["2026-09-30"])
+            import json
+            j = json.loads((out / "data" / "broker" / "2026-09-30.json").read_text(encoding="utf-8"))
+            self.assertEqual(j["stocks"][0][:6], ["2330", "台積電", "TWSE", 1000, 5, 32500])
+            self.assertEqual(j["stocks"][0][6:8], [9555, 8446])
+            self.assertEqual(j["brokers"], [["8440", "摩根大通"], ["1650", "新加坡商瑞銀"]])
+            self.assertEqual(j["rows"][1], [0, 1, 1, 1, 3308, 6989, 11.32])

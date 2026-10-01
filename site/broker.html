@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>分點籌碼｜潮汐</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  /* ===== 與首頁 tide-chip-dashboard.html 相同的設計變數 ===== */
+  :root{
+    --ink:#0E1620;
+    --panel:#141F2B;
+    --panel-2:#182531;
+    --line:rgba(232,237,242,0.09);
+    --line-strong:rgba(232,237,242,0.16);
+    --text:#E8EDF2;
+    --text-muted:#8B99A6;
+    --text-faint:#5C6B79;
+    --brass:#C6A15B;
+    --brass-dim:#8A7240;
+    --rise:#E1594F;
+    --fall:#3FAE72;
+    --radius-s:3px;
+    --radius-m:6px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--ink); color:var(--text);
+    font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;
+    line-height:1.6; -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:'Noto Serif TC',serif; margin:0; font-weight:700; letter-spacing:0.01em;}
+  .mono{font-family:'IBM Plex Mono','SFMono-Regular',monospace; font-variant-numeric:tabular-nums;}
+  a{color:inherit;}
+  a:focus-visible, button:focus-visible{outline:2px solid var(--brass); outline-offset:3px;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
+  .up{color:var(--rise);}
+  .down{color:var(--fall);}
+  .flat{color:var(--text-muted);}
+
+  /* ---------- nav（同首頁） ---------- */
+  header.site{
+    position:sticky; top:0; z-index:40;
+    background:rgba(14,22,32,0.88); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-row{display:flex; align-items:center; justify-content:space-between; padding:16px 28px;}
+  .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
+  .brand-mark{font-family:'Noto Serif TC',serif; font-size:22px; font-weight:700; color:var(--text);}
+  .brand-sub{font-size:12px; color:var(--text-faint);}
+  nav.links{display:flex; gap:26px; font-size:14px;}
+  nav.links a{text-decoration:none; color:var(--text-muted); transition:color .15s ease;}
+  nav.links a:hover{color:var(--brass);}
+  nav.links a[aria-current="page"]{color:var(--brass);}
+  .nav-cta{
+    font-size:13px; color:var(--ink); background:var(--brass);
+    padding:8px 16px; border-radius:var(--radius-s); text-decoration:none; font-weight:500;
+  }
+
+  /* ---------- page head（沿用 feature-head） ---------- */
+  .page-head{padding:64px 0 36px;}
+  .feature-head{display:grid; grid-template-columns:0.9fr 1.1fr; gap:56px;}
+  .eyebrow{font-size:13px; color:var(--brass); margin-bottom:10px;}
+  .feature-head h1{font-size:34px; line-height:1.35;}
+  .feature-head .desc{color:var(--text-muted); font-size:14.5px; align-self:end; margin:0;}
+
+  /* 日期切換 */
+  .date-bar{
+    margin-top:32px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+    font-size:13px; color:var(--text-muted);
+  }
+  .date-nav{display:flex; align-items:center; border:1px solid var(--line-strong); border-radius:var(--radius-s);}
+  .date-nav button{
+    background:none; border:none; color:var(--text-muted); cursor:pointer;
+    padding:7px 12px; font-size:14px; font-family:inherit;
+  }
+  .date-nav button:hover:not(:disabled){color:var(--brass);}
+  .date-nav button:disabled{color:var(--text-faint); cursor:default;}
+  .date-nav .date-label{
+    padding:7px 14px; color:var(--text); font-size:14px;
+    border-left:1px solid var(--line); border-right:1px solid var(--line);
+    display:flex; align-items:center; gap:8px;
+  }
+  .date-nav .date-label::after{
+    content:""; width:6px; height:6px; margin-top:-3px;
+    border-right:1.5px solid var(--text-muted); border-bottom:1.5px solid var(--text-muted);
+    transform:rotate(45deg); transition:transform .15s ease;
+  }
+  .date-nav .date-label[aria-expanded="true"]::after{transform:rotate(-135deg); margin-top:3px;}
+
+  /* ---------- 行事曆 ---------- */
+  .date-picker{position:relative;}
+  .cal{
+    position:absolute; top:calc(100% + 8px); left:0; z-index:30;
+    width:min(300px, calc(100vw - 32px)); padding:14px 14px 12px;
+    background:var(--panel); border:1px solid var(--line-strong); border-radius:var(--radius-m);
+    box-shadow:0 16px 40px rgba(0,0,0,0.45);
+  }
+  .cal-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;}
+  .cal-title{font-family:'Noto Serif TC',serif; font-size:15px; font-weight:700;}
+  .cal-head button{
+    background:none; border:none; color:var(--text-muted); cursor:pointer;
+    font-size:16px; padding:4px 10px; border-radius:var(--radius-s); font-family:inherit;
+  }
+  .cal-head button:hover:not(:disabled){color:var(--brass); background:var(--panel-2);}
+  .cal-head button:disabled{color:var(--text-faint); opacity:.4; cursor:default;}
+  .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:2px;}
+  .cal-wd{font-size:11px; color:var(--text-faint); text-align:center; padding:4px 0 6px;}
+  .cal-day{
+    height:36px; border:none; background:none; border-radius:var(--radius-s);
+    color:var(--text); cursor:pointer; font-size:13px; position:relative;
+  }
+  .cal-day:hover:not(:disabled){background:var(--panel-2); color:var(--brass);}
+  .cal-day:disabled{color:var(--text-faint); opacity:.45; cursor:default;}
+  .cal-day.latest::after{
+    content:""; position:absolute; left:50%; bottom:5px; width:4px; height:4px; margin-left:-2px;
+    border-radius:50%; background:var(--brass);
+  }
+  .cal-day.sel{background:var(--brass); color:var(--ink); font-weight:600;}
+  .cal-day.sel::after{background:var(--ink);}
+  .cal-foot{
+    display:flex; justify-content:space-between; align-items:center; gap:10px;
+    margin-top:10px; padding-top:10px; border-top:1px solid var(--line);
+    font-size:11.5px; color:var(--text-faint);
+  }
+  .cal-foot button{
+    background:none; border:1px solid var(--line-strong); color:var(--text-muted);
+    border-radius:var(--radius-s); padding:4px 10px; font-size:12px; cursor:pointer; font-family:inherit;
+  }
+  .cal-foot button:hover{color:var(--brass); border-color:var(--brass);}
+  .source-tag{font-size:12px; color:var(--text-faint);}
+
+  /* ---------- 市場摘要（沿用 quant-grid 的 1px 格線） ---------- */
+  .stats{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:1px;
+    background:var(--line); border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden;
+  }
+  .stat{background:var(--panel); padding:20px 22px;}
+  .stat span{display:block; font-size:12px; color:var(--text-faint); margin-bottom:6px;}
+  .stat b{font-size:22px; font-weight:600;}
+  .stat small{font-size:12.5px; color:var(--text-muted); margin-left:6px;}
+  .stat em{font-style:normal;}
+  .stat em + small{margin:0 6px;}
+  .breadth{display:flex; height:5px; border-radius:3px; overflow:hidden; margin-top:10px; background:var(--panel-2);}
+  .breadth i{display:block; height:100%;}
+
+  /* ---------- 篩選列 ---------- */
+  .toolbar{
+    display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;
+    margin:44px 0 18px;
+  }
+  .seg-group{display:flex; gap:18px; flex-wrap:wrap;}
+  .seg{display:flex; border:1px solid var(--line-strong); border-radius:var(--radius-s); overflow:hidden;}
+  .seg button{
+    background:none; border:none; color:var(--text-muted); cursor:pointer; font-family:inherit;
+    font-size:13px; padding:7px 14px; border-right:1px solid var(--line);
+  }
+  .seg button:last-child{border-right:none;}
+  .seg button:hover{color:var(--text);}
+  .seg button[aria-pressed="true"]{background:var(--brass); color:var(--ink); font-weight:500;}
+  .search{
+    background:var(--panel); border:1px solid var(--line-strong); border-radius:var(--radius-s);
+    color:var(--text); font-family:inherit; font-size:13px; padding:8px 12px; width:200px;
+  }
+  .search::placeholder{color:var(--text-faint);}
+  .search:focus{outline:none; border-color:var(--brass);}
+
+  /* ---------- 排行表（沿用 table.chips） ---------- */
+  .table-wrap{overflow-x:auto;}
+  table.rank{width:100%; border-collapse:collapse; font-size:14px;}
+  table.rank th{
+    text-align:right; font-weight:500; color:var(--text-faint); font-size:12px;
+    padding:0 14px 12px; border-bottom:1px solid var(--line-strong); white-space:nowrap;
+  }
+  table.rank th.l, table.rank td.l{text-align:left;}
+  table.rank td{padding:14px; border-bottom:1px solid var(--line); text-align:right; white-space:nowrap;}
+  table.rank tbody tr{transition:background .15s ease;}
+  table.rank tbody tr:hover{background:var(--panel-2);}
+  .rank-no{color:var(--text-faint); width:44px;}
+  tr.top3 .rank-no{color:var(--brass); font-weight:600;}
+  .stock-name{color:var(--text);}
+  .stock-code{color:var(--text-faint); font-size:12px; margin-left:6px;}
+  .mkt{
+    font-size:10.5px; color:var(--text-faint); border:1px solid var(--line-strong);
+    border-radius:2px; padding:0 4px; margin-left:8px; vertical-align:1px;
+  }
+  .value-cell{display:flex; align-items:center; justify-content:flex-end; gap:12px;}
+  .bar-track{width:120px; height:5px; background:var(--panel-2); border-radius:3px; overflow:hidden;}
+  .bar-fill{height:100%; background:linear-gradient(90deg,var(--brass-dim),var(--brass));}
+  .share{color:var(--text-muted); font-size:12.5px;}
+  [hidden]{display:none !important;}
+  .empty{padding:48px 0; text-align:center; color:var(--text-faint); font-size:14px;}
+  .more{display:flex; justify-content:center; margin-top:28px;}
+  .btn-ghost{
+    background:transparent; color:var(--text); border:1px solid var(--line-strong);
+    padding:10px 22px; border-radius:var(--radius-s); font-size:14px; cursor:pointer; font-family:inherit;
+  }
+  .btn-ghost:hover{border-color:var(--brass); color:var(--brass);}
+
+  footer.site{padding:64px 0 56px; margin-top:72px; border-top:1px solid var(--line);}
+  .foot-note{font-size:12.5px; color:var(--text-faint); max-width:40em; line-height:1.7; margin:0;}
+
+  @media (max-width: 860px){
+    .nav-row{padding:14px 20px;}
+    .nav-row{flex-wrap:wrap; row-gap:10px;}
+    nav.links{display:flex; order:3; width:100%; gap:20px; overflow-x:auto; white-space:nowrap; font-size:13.5px; padding-bottom:2px; scrollbar-width:none;}
+    nav.links::-webkit-scrollbar{display:none;}
+    .page-head{padding:44px 0 28px;}
+    .feature-head{grid-template-columns:1fr; gap:14px;}
+    .feature-head h1{font-size:28px;}
+    .stats{grid-template-columns:repeat(2,1fr);}
+    .wrap{padding:0 16px;}
+    table.rank{font-size:12.5px;}
+    table.rank td, table.rank th{padding-left:8px; padding-right:8px;}
+    .col-vol, .col-share, .bar-track, .mkt{display:none;}
+    .stock-code{display:block; margin-left:0; line-height:1.3;}
+    .stat .hint{display:none;}
+    .search{width:100%;}
+    .toolbar{flex-direction:column; align-items:stretch;}
+  }
+
+  /* ---------- 分點籌碼 ---------- */
+  .search-box{position:relative;}
+  .search-box .search{width:280px;}
+  .suggest{
+    position:absolute; top:calc(100% + 6px); right:0; z-index:30; width:min(340px, calc(100vw - 32px));
+    background:var(--panel); border:1px solid var(--line-strong); border-radius:var(--radius-m);
+    box-shadow:0 16px 40px rgba(0,0,0,0.45); padding:6px; max-height:360px; overflow:auto;
+  }
+  .suggest button{
+    display:flex; justify-content:space-between; gap:10px; width:100%; text-align:left;
+    background:none; border:none; color:var(--text); font:inherit; font-size:13.5px;
+    padding:8px 10px; border-radius:var(--radius-s); cursor:pointer;
+  }
+  .suggest button:hover, .suggest button.on{background:var(--panel-2); color:var(--brass);}
+  .suggest .k{font-size:11.5px; color:var(--text-faint);}
+  .suggest .none{padding:10px; color:var(--text-faint); font-size:13px;}
+  .link{background:none; border:none; padding:0; font:inherit; color:inherit; cursor:pointer; text-align:left;
+    border-bottom:1px dashed var(--line-strong);}
+  .link:hover{color:var(--brass); border-bottom-color:var(--brass);}
+  .crumb{display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin:0 0 20px;}
+  .crumb .back{background:none; border:1px solid var(--line-strong); color:var(--text-muted); border-radius:var(--radius-s);
+    padding:6px 12px; font:inherit; font-size:13px; cursor:pointer;}
+  .crumb .back:hover{color:var(--brass); border-color:var(--brass);}
+  .crumb h2{font-size:24px;}
+  .crumb .sub{color:var(--text-faint); font-size:13px;}
+  .pair{display:grid; grid-template-columns:1fr 1fr; gap:28px; margin-top:8px;}
+  .pair > div{min-width:0;}
+  .pair h3{font-family:'Noto Serif TC',serif; font-size:16px; margin:0 0 12px;}
+  .pair h3 small{font-family:'Noto Sans TC',sans-serif; font-size:12px; color:var(--text-faint); font-weight:400; margin-left:8px;}
+  .note{font-size:12.5px; color:var(--text-faint); margin-top:18px; line-height:1.8;}
+  table.rank td.name-cell{max-width:200px; overflow:hidden; text-overflow:ellipsis;}
+  .pair table.rank td, .pair table.rank th{padding-left:10px; padding-right:10px;}
+  @media (max-width: 860px){
+    .pair{grid-template-columns:1fr;}
+    .search-box, .search-box .search{width:100%;}
+    .col-hide{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="nav-row">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">潮汐</span>
+      <span class="brand-sub">籌碼觀測站</span>
+    </a>
+    <nav class="links">
+      <a href="index.html">首頁</a>
+      <a href="ranking.html">成交排行</a>
+      <a href="broker.html" aria-current="page">分點籌碼</a>
+      <a href="etf.html">ETF持股</a>
+      <a href="index.html#cb">CB詢圈</a>
+      <a href="index.html#quant">量化策略</a>
+      <a href="health.html">資料健檢</a>
+    </nav>
+    <a href="index.html#cta" class="nav-cta">開始追蹤</a>
+  </div>
+</header>
+
+<main>
+  <section class="page-head">
+    <div class="wrap">
+      <div class="feature-head">
+        <div>
+          <div class="eyebrow">分點籌碼</div>
+          <h1>誰在買，誰在賣</h1>
+        </div>
+        <p class="desc">每檔股票當日前 15 大買超與賣超的券商分點。主力買賣超 = 前 15 大買超合計 − 前 15 大賣超合計；集中度 = 主力買賣超 ÷ 當日成交量。輸入股票可看分點明細，輸入分點可看它買賣了哪些股票。</p>
+      </div>
+      <div class="date-bar">
+        <div class="date-picker" id="datePicker">
+          <div class="date-nav">
+            <button id="prevDay" type="button" aria-label="前一交易日">‹</button>
+            <button class="date-label mono" id="dateLabel" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="cal" title="選擇日期">—</button>
+            <button id="nextDay" type="button" aria-label="下一交易日">›</button>
+          </div>
+          <div class="cal" id="cal" role="dialog" aria-label="選擇交易日" hidden>
+            <div class="cal-head">
+              <button type="button" id="calPrev" aria-label="上個月">‹</button>
+              <span class="cal-title mono" id="calTitle"></span>
+              <button type="button" id="calNext" aria-label="下個月">›</button>
+            </div>
+            <div class="cal-grid" id="calGrid"></div>
+            <div class="cal-foot">
+              <span>可點選的是有資料的交易日</span>
+              <button type="button" id="calLatest">最新一天</button>
+            </div>
+          </div>
+        </div>
+        <span class="source-tag" id="sourceTag">載入中…</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div id="crumb"></div>
+      <div class="stats" id="stats"></div>
+
+      <div class="toolbar">
+        <div class="seg-group" id="rankTools">
+          <div class="seg" data-filter="side" role="group" aria-label="方向">
+            <button type="button" data-v="buy" aria-pressed="true">主力買超</button>
+            <button type="button" data-v="sell" aria-pressed="false">主力賣超</button>
+          </div>
+          <div class="seg" data-filter="market" role="group" aria-label="市場">
+            <button type="button" data-v="all" aria-pressed="true">全部</button>
+            <button type="button" data-v="TWSE" aria-pressed="false">上市</button>
+            <button type="button" data-v="TPEx" aria-pressed="false">上櫃</button>
+          </div>
+          <div class="seg" data-filter="kind" role="group" aria-label="類型">
+            <button type="button" data-v="all" aria-pressed="true">全部</button>
+            <button type="button" data-v="stock" aria-pressed="false">個股</button>
+            <button type="button" data-v="etf" aria-pressed="false">ETF</button>
+          </div>
+        </div>
+        <div class="search-box">
+          <input class="search" id="search" type="search" autocomplete="off" placeholder="輸入股票代號／名稱，或分點名稱" aria-label="搜尋股票或分點" aria-controls="suggest">
+          <div class="suggest" id="suggest" role="listbox" hidden></div>
+        </div>
+      </div>
+
+      <div id="view"><p class="empty">載入中…</p></div>
+      <p class="note">資料來源：富邦證券網站券商分點進出（前 15 大買超、前 15 大賣超分點），單位：張。只公布前 15 大，分點頁只看得到該分點擠進某檔股票前 15 大的部分。</p>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <p class="foot-note">資料來源：富邦證券網站券商分點進出明細；收盤價、成交量為臺灣證券交易所、證券櫃檯買賣中心收盤行情。每個交易日收盤後自動更新。本頁資訊僅供參考，不構成任何投資建議。<a href="health.html" style="margin-left:6px;color:var(--text-muted)">資料健檢 →</a></p>
+  </div>
+</footer>
+
+<script type="module">
+const PAGE_SIZE = 50;
+const state = { days: [], idx: -1, date: null, d: null, view: { t: "rank" }, side: "buy", market: "all", kind: "all", shown: PAGE_SIZE };
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const fmt = v => v == null ? "—" : Math.round(v).toLocaleString("zh-TW");
+const fmtS = v => v == null ? "—" : (v > 0 ? "+" : "") + Math.round(v).toLocaleString("zh-TW");
+const fmtP = v => v == null ? "—" : v.toLocaleString("zh-TW", { minimumFractionDigits: v < 1000 ? 2 : 0, maximumFractionDigits: 2 });
+const cls = v => v > 0 ? "up" : v < 0 ? "down" : "flat";
+const isEtf = code => code.startsWith("00");
+
+async function getJSON(url) {
+  const r = await fetch(url, { cache: "no-cache" });
+  if (!r.ok) throw new Error(`${url}: HTTP ${r.status}`);
+  return r.json();
+}
+
+function prepare(j) {
+  const stocks = j.stocks.map((s, i) => {
+    const o = Object.fromEntries(j.scols.map((c, k) => [c, s[k]]));
+    o.i = i; o.B = []; o.S = [];
+    o.net = o.bt != null && o.st != null ? o.bt - o.st : null;
+    o.conc = o.net != null && o.vol ? o.net / o.vol * 100 : null;
+    const prev = o.close != null && o.change != null ? o.close - o.change : null;
+    o.pct = prev ? o.change / prev * 100 : null;
+    return o;
+  });
+  const brokers = j.brokers.map(([id, name], i) => ({ i, id, name, rows: [] }));
+  for (const r of j.rows) {
+    const [s, side, rank, b, buy, sell, pct] = r;
+    const row = { s: stocks[s], side, rank, b: brokers[b], buy, sell, net: buy - sell, pct };
+    (side === 0 ? stocks[s].B : stocks[s].S).push(row);
+    brokers[b].rows.push(row);
+  }
+  for (const s of stocks) { s.B.sort((a, b) => a.rank - b.rank); s.S.sort((a, b) => a.rank - b.rank); }
+  const byCode = new Map(stocks.map(s => [s.code, s]));
+  const byBid = new Map(brokers.map(b => [b.id, b]));
+  return { date: j.date, stocks, brokers, byCode, byBid };
+}
+
+async function showDay(idx) {
+  if (idx < 0 || idx >= state.days.length) return;
+  document.body.style.cursor = "progress";
+  try {
+    const j = await getJSON(`data/broker/${state.days[idx]}.json`);
+    state.idx = idx; state.date = j.date; state.d = prepare(j); state.shown = PAGE_SIZE;
+    render();
+  } catch (e) { console.error(e); showError("讀取資料失敗，請重新整理頁面。"); }
+  finally { document.body.style.cursor = ""; }
+}
+
+function syncURL() {
+  const url = new URL(location.href);
+  url.search = "";
+  if (state.idx !== state.days.length - 1) url.searchParams.set("date", state.date);
+  if (state.view.t === "stock") url.searchParams.set("s", state.view.k);
+  if (state.view.t === "broker") url.searchParams.set("b", state.view.k);
+  history.replaceState(null, "", url);
+}
+
+function go(view) { state.view = view; state.shown = PAGE_SIZE; render(); window.scrollTo({ top: $("stats").offsetTop - 90, behavior: "smooth" }); }
+
+/* ---------- 主力排行 ---------- */
+function rankList() {
+  const d = state.d;
+  return d.stocks.filter(s => s.net != null &&
+      (state.market === "all" || s.market === state.market) &&
+      (state.kind === "all" || (state.kind === "etf") === isEtf(s.code)))
+    .sort((a, b) => state.side === "buy" ? b.net - a.net : a.net - b.net);
+}
+
+function stockCell(s) {
+  return `<button class="link" data-s="${esc(s.code)}"><span class="stock-name">${esc(s.name || s.code)}</span></button><span class="stock-code mono">${esc(s.code)}</span>`;
+}
+function brokerCell(b) { return `<button class="link" data-b="${esc(b.id)}">${esc(b.name)}</button>`; }
+
+function renderRankStats() {
+  const list = state.d.stocks.filter(s => s.net != null);
+  const nb = list.filter(s => s.net > 0).length, ns = list.filter(s => s.net < 0).length;
+  const counts = new Map();
+  for (const b of state.d.brokers) counts.set(b, b.rows.filter(r => r.side === 0).length);
+  const topB = [...counts].sort((a, b) => b[1] - a[1])[0];
+  const big = list.slice().sort((a, b) => b.net - a.net)[0];
+  $("stats").innerHTML = `
+    <div class="stat"><span>有分點資料的股票</span><b class="mono">${list.length.toLocaleString()}</b><small>檔</small></div>
+    <div class="stat"><span>主力買超 / 賣超家數</span><b class="mono"><em class="up">${nb}</em><small>/</small><em class="down">${ns}</em></b></div>
+    <div class="stat"><span>主力買超最多</span><b>${big ? esc(big.name) : "—"}</b><small class="mono">${big ? fmtS(big.net) + " 張" : ""}</small></div>
+    <div class="stat"><span>上榜買超檔數最多的分點</span><b>${topB ? esc(topB[0].name) : "—"}</b><small class="mono">${topB ? topB[1] + " 檔" : ""}</small></div>`;
+}
+
+function renderRank() {
+  $("crumb").innerHTML = "";
+  renderRankStats();
+  const list = rankList();
+  const page = list.slice(0, state.shown);
+  const key = state.side === "buy" ? "B" : "S";
+  $("view").innerHTML = `
+    <div class="table-wrap"><table class="rank">
+      <thead><tr><th class="l">#</th><th class="l">股票</th><th>收盤</th><th>漲跌幅</th>
+        <th>主力${state.side === "buy" ? "買超" : "賣超"}（張）</th><th>集中度</th>
+        <th class="col-hide">成交量（張）</th><th class="l col-hide">最大${state.side === "buy" ? "買超" : "賣超"}分點</th></tr></thead>
+      <tbody>${page.length ? page.map((s, i) => {
+        const top = s[key][0];
+        return `<tr class="${i < 3 ? "top3" : ""}">
+          <td class="l rank-no mono">${i + 1}</td>
+          <td class="l name-cell">${stockCell(s)}</td>
+          <td class="mono">${fmtP(s.close)}</td>
+          <td class="mono ${cls(s.change)}">${s.pct == null ? "—" : (s.pct > 0 ? "+" : "") + s.pct.toFixed(2) + "%"}</td>
+          <td class="mono ${cls(s.net)}">${fmtS(s.net)}</td>
+          <td class="mono ${cls(s.conc)}">${s.conc == null ? "—" : s.conc.toFixed(1) + "%"}</td>
+          <td class="mono flat col-hide">${fmt(s.vol)}</td>
+          <td class="l col-hide">${top ? brokerCell(top.b) + ` <span class="share mono">${fmtS(top.net)}</span>` : "—"}</td></tr>`;
+      }).join("") : `<tr><td colspan="8" class="empty">沒有符合條件的股票</td></tr>`}</tbody>
+    </table></div>
+    ${list.length > state.shown ? `<div class="more"><button class="btn-ghost" id="moreBtn" type="button">顯示更多</button></div>` : ""}`;
+  $("moreBtn")?.addEventListener("click", () => { state.shown += PAGE_SIZE; renderRank(); });
+}
+
+/* ---------- 個股 ---------- */
+function sideTable(rows, sideName) {
+  return `<div class="table-wrap"><table class="rank">
+    <thead><tr><th class="l">#</th><th class="l">分點</th><th>買進</th><th>賣出</th><th>${sideName}</th><th>佔成交量</th></tr></thead>
+    <tbody>${rows.length ? rows.map(r => `<tr>
+      <td class="l rank-no mono">${r.rank}</td><td class="l">${brokerCell(r.b)}</td>
+      <td class="mono">${fmt(r.buy)}</td><td class="mono">${fmt(r.sell)}</td>
+      <td class="mono ${cls(r.net)}">${fmtS(r.net)}</td>
+      <td class="mono share">${r.pct == null ? "—" : r.pct.toFixed(2) + "%"}</td></tr>`).join("")
+      : `<tr><td colspan="6" class="empty">無資料</td></tr>`}</tbody></table></div>`;
+}
+
+function renderStock(code) {
+  const s = state.d.byCode.get(code);
+  if (!s) {
+    $("stats").innerHTML = "";
+    $("crumb").innerHTML = crumb(code, ""); $("view").innerHTML = `<p class="empty">${esc(state.date)} 沒有 ${esc(code)} 的分點資料</p>`;
+    return;
+  }
+  $("stats").innerHTML = `
+    <div class="stat"><span>收盤 / 漲跌幅</span><b class="mono">${fmtP(s.close)}</b><small class="mono ${cls(s.change)}">${s.pct == null ? "" : (s.pct > 0 ? "+" : "") + s.pct.toFixed(2) + "%"}</small></div>
+    <div class="stat"><span>主力買賣超</span><b class="mono ${cls(s.net)}">${fmtS(s.net)}</b><small>張</small></div>
+    <div class="stat"><span>集中度</span><b class="mono ${cls(s.conc)}">${s.conc == null ? "—" : s.conc.toFixed(1) + "%"}</b><small class="mono">量 ${fmt(s.vol)} 張</small></div>
+    <div class="stat"><span>平均買超 / 賣超成本</span><b class="mono">${fmtP(s.bc)}</b><small class="mono">/ ${fmtP(s.sc)}</small></div>`;
+  $("crumb").innerHTML = crumb(`${s.name} ${s.code}`, `前 15 大買超合計 ${fmt(s.bt)} 張・賣超合計 ${fmt(s.st)} 張`);
+  $("view").innerHTML = `
+    <div class="pair">
+      <div><h3>買超分點<small>前 15 大</small></h3>${sideTable(s.B, "買超")}</div>
+      <div><h3>賣超分點<small>前 15 大</small></h3>${sideTable(s.S, "賣超")}</div>
+    </div>`;
+}
+
+/* ---------- 分點 ---------- */
+function brokerTable(rows, sideName) {
+  return `<div class="table-wrap"><table class="rank">
+    <thead><tr><th class="l">股票</th><th>買進</th><th>賣出</th><th>${sideName}</th><th>佔成交量</th><th>名次</th></tr></thead>
+    <tbody>${rows.length ? rows.map(r => `<tr>
+      <td class="l name-cell">${stockCell(r.s)}</td>
+      <td class="mono">${fmt(r.buy)}</td><td class="mono">${fmt(r.sell)}</td>
+      <td class="mono ${cls(r.net)}">${fmtS(r.net)}</td>
+      <td class="mono share">${r.pct == null ? "—" : r.pct.toFixed(2) + "%"}</td>
+      <td class="mono flat">${r.rank}</td></tr>`).join("")
+      : `<tr><td colspan="6" class="empty">當天沒有擠進任何股票的前 15 大</td></tr>`}</tbody></table></div>`;
+}
+
+function renderBroker(id) {
+  const b = state.d.byBid.get(id);
+  if (!b) {
+    $("stats").innerHTML = "";
+    $("crumb").innerHTML = crumb(id, ""); $("view").innerHTML = `<p class="empty">${esc(state.date)} 這個分點沒有擠進任何股票的前 15 大</p>`;
+    return;
+  }
+  const buys = b.rows.filter(r => r.side === 0).sort((x, y) => y.net - x.net);
+  const sells = b.rows.filter(r => r.side === 1).sort((x, y) => x.net - y.net);
+  const sb = buys.reduce((t, r) => t + r.net, 0), ss = sells.reduce((t, r) => t + r.net, 0);
+  $("stats").innerHTML = `
+    <div class="stat"><span>上榜買超</span><b class="mono up">${buys.length}</b><small>檔</small></div>
+    <div class="stat"><span>上榜賣超</span><b class="mono down">${sells.length}</b><small>檔</small></div>
+    <div class="stat"><span>上榜買超合計</span><b class="mono up">${fmtS(sb)}</b><small>張</small></div>
+    <div class="stat"><span>上榜賣超合計</span><b class="mono down">${fmtS(ss)}</b><small>張</small></div>`;
+  $("crumb").innerHTML = crumb(b.name, `分點代號 ${b.id}・只列出擠進該股前 15 大的股票`);
+  $("view").innerHTML = `
+    <div class="pair">
+      <div><h3>買超個股</h3>${brokerTable(buys, "買超")}</div>
+      <div><h3>賣超個股</h3>${brokerTable(sells, "賣超")}</div>
+    </div>`;
+}
+
+function crumb(title, sub) {
+  return `<div class="crumb"><button class="back" id="backBtn" type="button">← 主力排行</button>
+    <h2>${esc(title)}</h2><span class="sub">${esc(sub)}</span></div>`;
+}
+
+function render() {
+  const d = new Date(state.date + "T00:00:00+08:00");
+  $("dateLabel").textContent = `${state.date.replaceAll("-", "/")}（${"日一二三四五六"[d.getDay()]}）`;
+  $("prevDay").disabled = state.idx <= 0;
+  $("nextDay").disabled = state.idx >= state.days.length - 1;
+  $("sourceTag").textContent = state.idx === state.days.length - 1 ? "最新交易日 · 每日收盤後自動更新" : "歷史資料";
+  $("rankTools").hidden = state.view.t !== "rank";
+  if (state.view.t === "stock") renderStock(state.view.k);
+  else if (state.view.t === "broker") renderBroker(state.view.k);
+  else renderRank();
+  $("backBtn")?.addEventListener("click", () => go({ t: "rank" }));
+  syncURL();
+}
+
+function showError(msg) { $("view").innerHTML = `<p class="empty">${esc(msg)}</p>`; }
+
+/* ---------- 搜尋 ---------- */
+let sugg = [], sel = -1;
+function suggestions(q) {
+  q = q.trim().toLowerCase();
+  if (!q || !state.d) return [];
+  const st = state.d.stocks.filter(s => s.code.toLowerCase().startsWith(q) || (s.name || "").toLowerCase().includes(q))
+    .sort((a, b) => (a.code.toLowerCase() === q ? -1 : 0) - (b.code.toLowerCase() === q ? -1 : 0) || a.code.localeCompare(b.code))
+    .slice(0, 6).map(s => ({ t: "stock", k: s.code, label: `${s.name} ${s.code}`, kind: "股票" }));
+  const br = state.d.brokers.filter(b => b.name.toLowerCase().includes(q) || b.id.toLowerCase() === q)
+    .sort((a, b) => b.rows.length - a.rows.length)
+    .slice(0, 8).map(b => ({ t: "broker", k: b.id, label: b.name, kind: "分點" }));
+  return [...st, ...br];
+}
+function renderSuggest() {
+  const box = $("suggest");
+  if (!$("search").value.trim()) { box.hidden = true; return; }
+  box.innerHTML = sugg.length ? sugg.map((x, i) => `<button type="button" role="option" class="${i === sel ? "on" : ""}" data-i="${i}">
+      <span>${esc(x.label)}</span><span class="k">${x.kind}</span></button>`).join("")
+    : `<div class="none">找不到符合的股票或分點（當天沒擠進前 15 大的分點不會出現）</div>`;
+  box.hidden = false;
+}
+function pick(x) { if (!x) return; $("search").value = ""; $("suggest").hidden = true; go({ t: x.t, k: x.k }); }
+$("search").addEventListener("input", e => { sugg = suggestions(e.target.value); sel = sugg.length ? 0 : -1; renderSuggest(); });
+$("search").addEventListener("keydown", e => {
+  if (e.key === "ArrowDown") { sel = Math.min(sel + 1, sugg.length - 1); renderSuggest(); e.preventDefault(); }
+  else if (e.key === "ArrowUp") { sel = Math.max(sel - 1, 0); renderSuggest(); e.preventDefault(); }
+  else if (e.key === "Enter") pick(sugg[sel]);
+  else if (e.key === "Escape") $("suggest").hidden = true;
+});
+$("suggest").addEventListener("click", e => { const b = e.target.closest("button"); if (b) pick(sugg[+b.dataset.i]); });
+document.addEventListener("click", e => {
+  if (!e.target.closest(".search-box")) $("suggest").hidden = true;
+  const s = e.target.closest("[data-s]"), b = e.target.closest("[data-b]");
+  if (s) go({ t: "stock", k: s.dataset.s });
+  else if (b) go({ t: "broker", k: b.dataset.b });
+});
+
+document.querySelectorAll(".seg").forEach(seg => seg.addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  seg.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  state[seg.dataset.filter] = b.dataset.v; state.shown = PAGE_SIZE; renderRank();
+}));
+$("prevDay").addEventListener("click", () => showDay(state.idx - 1));
+$("nextDay").addEventListener("click", () => showDay(state.idx + 1));
+
+/* ---------- 行事曆 ---------- */
+const cal = { y: 0, m: 0 }; // m: 0-11
+const ym = s => ({ y: +s.slice(0, 4), m: +s.slice(5, 7) - 1 });
+const pad = n => String(n).padStart(2, "0");
+const monthKey = (y, m) => y * 12 + m;
+
+function renderCal() {
+  const daySet = new Set(state.days);
+  const first = ym(state.days[0]), last = ym(state.days[state.days.length - 1]);
+  const { y, m } = cal;
+  $("calTitle").textContent = `${y} 年 ${m + 1} 月`;
+  $("calPrev").disabled = monthKey(y, m) <= monthKey(first.y, first.m);
+  $("calNext").disabled = monthKey(y, m) >= monthKey(last.y, last.m);
+  const startWd = new Date(Date.UTC(y, m, 1)).getUTCDay();
+  const nDays = new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
+  const latest = state.days[state.days.length - 1];
+  let html = "日一二三四五六".split("").map(w => `<div class="cal-wd">${w}</div>`).join("");
+  html += "<div></div>".repeat(startWd);
+  for (let d = 1; d <= nDays; d++) {
+    const iso = `${y}-${pad(m + 1)}-${pad(d)}`;
+    const has = daySet.has(iso);
+    const c = ["cal-day", "mono", iso === state.date ? "sel" : "", iso === latest ? "latest" : ""].join(" ");
+    html += `<button type="button" class="${c}" data-date="${iso}" ${has ? "" : "disabled"}
+      ${iso === state.date ? 'aria-current="date"' : ""} aria-label="${m + 1}月${d}日${has ? "" : "（無資料）"}">${d}</button>`;
+  }
+  $("calGrid").innerHTML = html;
+}
+
+function openCal() {
+  Object.assign(cal, ym(state.date));
+  renderCal();
+  $("cal").hidden = false;
+  $("dateLabel").setAttribute("aria-expanded", "true");
+  ($("calGrid").querySelector(".sel") || $("calGrid").querySelector(".cal-day:not(:disabled)"))?.focus();
+}
+function closeCal(refocus = false) {
+  if ($("cal").hidden) return;
+  $("cal").hidden = true;
+  $("dateLabel").setAttribute("aria-expanded", "false");
+  if (refocus) $("dateLabel").focus();
+}
+function shiftMonth(delta) {
+  const k = monthKey(cal.y, cal.m) + delta;
+  cal.y = Math.floor(k / 12); cal.m = k % 12;
+  renderCal();
+}
+
+$("dateLabel").addEventListener("click", () => $("cal").hidden ? openCal() : closeCal());
+$("calPrev").addEventListener("click", () => shiftMonth(-1));
+$("calNext").addEventListener("click", () => shiftMonth(1));
+$("calGrid").addEventListener("click", e => {
+  const b = e.target.closest(".cal-day"); if (!b || b.disabled) return;
+  closeCal(true);
+  showDay(state.days.indexOf(b.dataset.date));
+});
+$("calLatest").addEventListener("click", () => { closeCal(true); showDay(state.days.length - 1); });
+document.addEventListener("click", e => { if (!$("datePicker").contains(e.target)) closeCal(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeCal(true); });
+
+try {
+  state.days = await getJSON("data/broker/days.json");
+  if (!state.days.length) throw new Error("no days");
+  const p = new URLSearchParams(location.search);
+  if (p.get("s")) state.view = { t: "stock", k: p.get("s") };
+  else if (p.get("b")) state.view = { t: "broker", k: p.get("b") };
+  const i = p.get("date") ? state.days.indexOf(p.get("date")) : -1;
+  await showDay(i >= 0 ? i : state.days.length - 1);
+} catch (e) {
+  console.error(e);
+  showError("還沒有分點資料，或讀取失敗。");
+}
+</script>
+<script>(function(){var a=document.querySelector('nav.links a[aria-current="page"]');if(a&&a.parentNode.scrollWidth>a.parentNode.clientWidth){a.parentNode.scrollLeft=a.offsetLeft-a.parentNode.offsetLeft-16;}})();</script>
+</body>
+</html>
