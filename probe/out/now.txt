@@ -1,0 +1,4 @@
+now 19:01:59
+/z/zc/zco/zco.djhtm?a=2330&e=2026-10-1&f=2026-10-1: zco0 links=31 upd=['2026/10/01'] 資料日期=[] GenLink=0
+/z/zc/zco/zco.djhtm?a=2330: zco0 links=31 upd=['2026/10/01'] 資料日期=[] GenLink=0
+/z/zg/zgb/zgb0.djhtm?a=9800&b=9801&c=B&e=2026-10-1&f=2026-10-1: zco0 links=0 upd=[] 資料日期=['20261001'] GenLink=91
