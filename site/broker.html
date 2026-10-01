@@ -258,6 +258,12 @@
     .search-box, .search-box .search{width:100%;}
     .col-hide{display:none;}
   }
+
+  /* 子頁籤（分點籌碼） */
+  .subtabs{display:flex; gap:6px; margin-top:28px; border-bottom:1px solid var(--line);}
+  .subtabs a{padding:10px 16px; font-size:14px; color:var(--text-muted); text-decoration:none; border-bottom:2px solid transparent; margin-bottom:-1px;}
+  .subtabs a:hover{color:var(--text);}
+  .subtabs a[aria-current="page"]{color:var(--brass); border-bottom-color:var(--brass);}
 </style>
 </head>
 <body>
@@ -291,6 +297,10 @@
         </div>
         <p class="desc">每檔股票當日前 15 大買超與賣超的券商分點。主力買賣超 = 前 15 大買超合計 − 前 15 大賣超合計；集中度 = 主力買賣超 ÷ 當日成交量。輸入股票可看分點明細，輸入分點可看它買賣了哪些股票。</p>
       </div>
+      <nav class="subtabs" aria-label="分點籌碼子頁">
+        <a href="broker.html" aria-current="page">全市場前 15 大</a>
+        <a href="watch.html">重點分點</a>
+      </nav>
       <div class="date-bar">
         <div class="date-picker" id="datePicker">
           <div class="date-nav">

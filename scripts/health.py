@@ -159,6 +159,22 @@ def check(data_dir=ROOT / "data", now=None):
     else:
         add("broker", "broker", "券商分點（前 15 大）", "warn", None, "還沒有分點資料")
 
+    # ---------- 重點分點 ----------
+    cfg = ROOT / "config" / "broker_watch.csv"
+    wfiles = sorted((data_dir / "broker" / "watch").glob("[0-9][0-9][0-9][0-9]/[0-9]*.csv"), key=lambda p: p.name)
+    if cfg.exists():
+        n_cfg = sum(1 for r in _read(cfg) if (r.get("branch") or "").strip())
+        if not wfiles:
+            add("watch", "watch", "重點分點", "warn", None, "還沒有重點分點資料")
+        else:
+            d = _date(wfiles[-1].stem)
+            n_have = len({r["bid"] for r in _read(wfiles[-1])})
+            lg = lag(d)
+            errs = [f"落後 {lg} 個交易日"] if lg is not None and lg >= BROKER_LAG_ERROR else []
+            warns = [f"只有 {n_have}/{n_cfg} 個分點有資料"] if n_have < n_cfg else []
+            add("watch", "watch", "重點分點", "error" if errs else ("warn" if warns else "ok"), d,
+                "；".join(errs + warns) or f"{n_have} 個分點", rows=n_have, lag=lg)
+
     # ---------- ETF 規模 ----------
     aum_files = sorted((etf_dir / "aum").glob("[0-9]*.csv"))
     if not aum_files:

@@ -86,6 +86,15 @@ python -m unittest discover tests                       # 測試
 - 只公布前 15 大，不是全部分點；分點頁只看得到該分點擠進某檔股票前 15 大的部分
 - 網站「分點籌碼」頁（`broker.html`）：主力買賣超排行（集中度 = 主力買賣超 ÷ 成交量）、個股分點明細、單一分點的上榜個股
 
+### 重點分點追蹤
+
+`config/broker_watch.csv` 列出要追蹤的分點（`label` 網頁顯示名稱、`branch` 富邦網站上的分點名稱；總公司就寫券商名稱，例如「康和」）。
+分點名稱可查 `data/broker/branches.csv`（約 900 個分點）。**增刪分點只要編輯這個檔案**，存檔後 `broker.yml` 會自動回補近 20 個交易日、網站也會跟著更新。
+
+- `fetch_broker_watch.py`：富邦「分點明細查詢」，每個分點每天買超、賣超各前 50 檔，金額（仟元）與張數
+- 輸出 `data/broker/watch/<YYYY>/<YYYYMMDD>.csv`：`date, bid, branch, code, name, buy_amt, sell_amt, net_amt, buy_sh, sell_sh, net_sh`
+- 網站 `watch.html`（分點籌碼 → 重點分點）：選取分點的買賣超金額加總排行，可選當日／近 5、10、20 日，可只看部分分點
+
 ## 資料健檢
 
 `scripts/health.py` 檢查資料有沒有漏抓或抓錯，結果在網站的 `health.html`（ETF持股、成交排行頁尾有連結）。
@@ -93,6 +102,7 @@ python -m unittest discover tests                       # 測試
 - 股價：最近一個應開盤日（平日、不在 `data/no_trading_days.txt`）是否有收盤檔、檔數是否正常
 - ETF 持股：每檔落後幾個交易日（≥ 2 為異常；T+1 公告的投信早上落後 1 天屬正常）、成分股數、權重加總（< 70% 或 > 105% 異常，< 80% 留意）、檔數與前一份相差 > 25%、股數缺漏
 - 券商分點：最新一天是否落後、檔數是否齊全
+- 重點分點：最新一天是否落後、設定的分點是否都有資料
 - ETF 規模：最新一天是否落後
 - `.github/workflows/health.yml` 每週二至週六台北 09:07 自動執行；有異常時該次執行失敗，GitHub 會寄 Actions 失敗通知信
 - 另外 `etf.yml` 只要有任何一檔 ETF 抓取失敗，整次執行就會標示失敗（已抓到的仍會存檔），同樣會寄通知信

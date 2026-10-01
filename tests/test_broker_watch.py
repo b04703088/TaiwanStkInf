@@ -73,3 +73,24 @@ class WatchTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class WatchSiteTest(unittest.TestCase):
+    def test_config_order_and_filter(self):
+        sys.path.insert(0, str(ROOT / "scripts"))
+        import broker_site as S
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            (tmp / "config").mkdir()
+            (tmp / "config" / "broker_watch.csv").write_text("label,branch\n凱基三多,凱基-三多\n康和總公司,康和\n", encoding="utf-8")
+            d = tmp / "data" / "broker" / "watch" / "2026"
+            d.mkdir(parents=True)
+            (d / "20260930.csv").write_text(
+                "date,bid,branch,code,name,buy_amt,sell_amt,net_amt,buy_sh,sell_sh,net_sh\n"
+                "2026-09-30,8450,康和,2330,台積電,100,50,50,1,0,1\n"
+                "2026-09-30,9275,凱基-三多,1709,和益,200,0,200,,,\n"
+                "2026-09-30,9801,元大-松江,1301,台塑,300,0,300,3,0,3\n", encoding="utf-8")
+            j = S.build_watch(tmp / "data", tmp)
+            self.assertEqual([b["label"] for b in j["branches"]], ["凱基三多", "康和總公司"])
+            self.assertEqual(len(j["rows"]), 2)  # 元大松江已從設定刪除，不輸出
+            self.assertIn([0, 0, "1709", 200, 0, None, None], j["rows"])
