@@ -385,7 +385,7 @@
 
       <div class="table-wrap"><table class="rank" id="tbl"></table></div>
       <div class="more" id="moreWrap" hidden><button class="btn-ghost" id="moreBtn" type="button">顯示更多</button></div>
-      <p class="note">金額單位：萬元。資料來源：富邦證券網站分點明細查詢，每個分點每天只公布買超、賣超各前 50 檔，所以多日加總只包含每天有進前 50 的部分。點股票可看該股全市場前 15 大分點。</p>
+      <p class="note">不含 ETF。金額單位：萬元。資料來源：富邦證券網站分點明細查詢，每個分點每天只公布買超、賣超各前 50 檔，所以多日加總只包含每天有進前 50 的部分。點股票可看該股全市場前 15 大分點。</p>
       <p class="edit">要新增或刪除追蹤的分點：在 GitHub 編輯 <a href="https://github.com/b04703088/TaiwanStkInf/blob/claude/claim-credit-endpoint-3km5kj/config/broker_watch.csv" target="_blank" rel="noopener">config/broker_watch.csv</a>（一行一個分點，名稱可查 <a href="https://github.com/b04703088/TaiwanStkInf/blob/claude/claim-credit-endpoint-3km5kj/data/broker/branches.csv" target="_blank" rel="noopener">分點清單</a>），存檔後會自動回補近 20 個交易日並更新本頁。</p>
     </div>
   </section>
@@ -412,7 +412,7 @@ function aggregate() {
   const W = state.W, lo = Math.max(0, state.idx - state.period + 1), hi = state.idx;
   const stocks = new Map(), perBranch = W.branches.map(() => ({ buy: 0, sell: 0, net: new Map() }));
   for (const [d, b, code, ba, sa, bs, ss] of W.rows) {
-    if (d < lo || d > hi) continue;
+    if (d < lo || d > hi || code.startsWith("00")) continue;  // 不含 ETF
     const pb = perBranch[b];
     if (ba != null) { pb.buy += ba; pb.sell += sa; pb.net.set(code, (pb.net.get(code) || 0) + ba - sa); }
     if (!state.on.has(b)) continue;

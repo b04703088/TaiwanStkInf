@@ -295,7 +295,7 @@
           <div class="eyebrow">分點籌碼</div>
           <h1>誰在買，誰在賣</h1>
         </div>
-        <p class="desc">每檔股票當日前 15 大買超與賣超的券商分點。主力買賣超 = 前 15 大買超合計 − 前 15 大賣超合計；集中度 = 主力買賣超 ÷ 當日成交量。輸入股票可看分點明細，輸入分點可看它買賣了哪些股票。</p>
+        <p class="desc">每檔股票當日前 15 大買超與賣超的券商分點。主力買賣超 = 前 15 大買超合計 − 前 15 大賣超合計；集中度 = 主力買賣超 ÷ 當日成交量。輸入股票可看分點明細，輸入分點可看它買賣了哪些股票。排行不含 ETF。</p>
       </div>
       <nav class="subtabs" aria-label="分點籌碼子頁">
         <a href="broker.html" aria-current="page">全市場前 15 大</a>
@@ -342,11 +342,6 @@
             <button type="button" data-v="TWSE" aria-pressed="false">上市</button>
             <button type="button" data-v="TPEx" aria-pressed="false">上櫃</button>
           </div>
-          <div class="seg" data-filter="kind" role="group" aria-label="類型">
-            <button type="button" data-v="all" aria-pressed="true">全部</button>
-            <button type="button" data-v="stock" aria-pressed="false">個股</button>
-            <button type="button" data-v="etf" aria-pressed="false">ETF</button>
-          </div>
         </div>
         <div class="search-box">
           <input class="search" id="search" type="search" autocomplete="off" placeholder="輸入股票代號／名稱，或分點名稱" aria-label="搜尋股票或分點" aria-controls="suggest">
@@ -368,7 +363,7 @@
 
 <script type="module">
 const PAGE_SIZE = 50;
-const state = { days: [], idx: -1, date: null, d: null, view: { t: "rank" }, side: "buy", market: "all", kind: "all", shown: PAGE_SIZE };
+const state = { days: [], idx: -1, date: null, d: null, view: { t: "rank" }, side: "buy", market: "all", shown: PAGE_SIZE };
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const fmt = v => v == null ? "—" : Math.round(v).toLocaleString("zh-TW");
@@ -433,7 +428,7 @@ function rankList() {
   const d = state.d;
   return d.stocks.filter(s => s.net != null &&
       (state.market === "all" || s.market === state.market) &&
-      (state.kind === "all" || (state.kind === "etf") === isEtf(s.code)))
+      !isEtf(s.code))
     .sort((a, b) => state.side === "buy" ? b.net - a.net : a.net - b.net);
 }
 
@@ -443,10 +438,10 @@ function stockCell(s) {
 function brokerCell(b) { return `<button class="link" data-b="${esc(b.id)}">${esc(b.name)}</button>`; }
 
 function renderRankStats() {
-  const list = state.d.stocks.filter(s => s.net != null);
+  const list = state.d.stocks.filter(s => s.net != null && !isEtf(s.code));
   const nb = list.filter(s => s.net > 0).length, ns = list.filter(s => s.net < 0).length;
   const counts = new Map();
-  for (const b of state.d.brokers) counts.set(b, b.rows.filter(r => r.side === 0).length);
+  for (const b of state.d.brokers) counts.set(b, b.rows.filter(r => r.side === 0 && !isEtf(r.s.code)).length);
   const topB = [...counts].sort((a, b) => b[1] - a[1])[0];
   const big = list.slice().sort((a, b) => b.net - a.net)[0];
   $("stats").innerHTML = `
@@ -536,8 +531,8 @@ function renderBroker(id) {
     $("crumb").innerHTML = crumb(id, ""); $("view").innerHTML = `<p class="empty">${esc(state.date)} 這個分點沒有擠進任何股票的前 15 大</p>`;
     return;
   }
-  const buys = b.rows.filter(r => r.side === 0).sort((x, y) => y.net - x.net);
-  const sells = b.rows.filter(r => r.side === 1).sort((x, y) => x.net - y.net);
+  const buys = b.rows.filter(r => r.side === 0 && !isEtf(r.s.code)).sort((x, y) => y.net - x.net);
+  const sells = b.rows.filter(r => r.side === 1 && !isEtf(r.s.code)).sort((x, y) => x.net - y.net);
   const sb = buys.reduce((t, r) => t + r.net, 0), ss = sells.reduce((t, r) => t + r.net, 0);
   $("stats").innerHTML = `
     <div class="stat"><span>上榜買超</span><b class="mono up">${buys.length}</b><small>檔</small></div>
