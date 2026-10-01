@@ -9,6 +9,9 @@ on:
     # 備援：台北 18:33、22:03（分點資料收盤後一段時間才公布；尚未公布時會直接結束，下次再抓）
     - cron: "33 10 * * 1-5"
     - cron: "3 14 * * 1-5"
+  # 改了重點分點設定就回補新分點
+  push:
+    paths: ["config/broker_watch.csv"]
   workflow_dispatch:
     inputs:
       date:
@@ -40,6 +43,10 @@ jobs:
           args=()
           [ -n "$IN_DATE" ] && args+=(--date "$IN_DATE")
           python fetch_broker.py --max-minutes 100 "${args[@]}"
+
+      - name: Fetch watched branches
+        if: always()
+        run: python fetch_broker_watch.py --days 20
 
       - name: Commit data
         if: always()  # 部分失敗也要存已抓到的

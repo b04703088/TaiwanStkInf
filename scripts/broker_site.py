@@ -83,3 +83,55 @@ def write_site(data_dir, out_dir, days=20):
         dates.append(date)
     (out / "days.json").write_text(json.dumps(dates), encoding="utf-8")
     return dates
+
+
+# ---------------- 重點分點 ----------------
+WCOLS = ["d", "b", "code", "ba", "sa", "bs", "ss"]
+
+
+def _watch_config(root):
+    p = Path(root) / "config" / "broker_watch.csv"
+    if not p.exists():
+        return []
+    with p.open(encoding="utf-8-sig") as fp:
+        return [{"label": (r.get("label") or "").strip() or r["branch"].strip(), "branch": r["branch"].strip()}
+                for r in csv.DictReader(fp) if (r.get("branch") or "").strip()]
+
+
+def build_watch(data_dir, root, days=60):
+    """config 裡的分點、最近 days 個交易日 → 網頁用 JSON（金額：仟元；張數：張）。"""
+    files = sorted((Path(data_dir) / "broker" / "watch").glob("[0-9][0-9][0-9][0-9]/[0-9]*.csv"),
+                   key=lambda p: p.name)[-days:]
+    config = _watch_config(root)
+    if not files or not config:
+        return None
+    rows_all = [r for f in files for r in _read(f)]
+    name_to_bid = {}
+    for r in rows_all:
+        name_to_bid.setdefault(r["branch"], r["bid"])
+    branches = []
+    for c in config:
+        bid = name_to_bid.get(c["branch"]) or name_to_bid.get(c["branch"].replace("總公司", ""))
+        if bid and bid not in [b["bid"] for b in branches]:
+            branches.append({"bid": bid, "label": c["label"], "branch": c["branch"]})
+    b_idx = {b["bid"]: i for i, b in enumerate(branches)}
+    day_list = [f"{f.stem[:4]}-{f.stem[4:6]}-{f.stem[6:8]}" for f in files]
+    d_idx = {d: i for i, d in enumerate(day_list)}
+    names, rows = {}, []
+    for r in rows_all:
+        if r["bid"] not in b_idx:
+            continue
+        names[r["code"]] = r["name"]
+        rows.append([d_idx[r["date"]], b_idx[r["bid"]], r["code"],
+                     _int(r["buy_amt"]), _int(r["sell_amt"]), _int(r["buy_sh"]), _int(r["sell_sh"])])
+    return {"days": day_list, "branches": branches, "names": names, "cols": WCOLS, "rows": rows}
+
+
+def write_watch(data_dir, root, out_dir, days=60):
+    payload = build_watch(data_dir, root, days)
+    if payload is None:
+        return None
+    out = Path(out_dir) / "data" / "broker" / "watch.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    return payload

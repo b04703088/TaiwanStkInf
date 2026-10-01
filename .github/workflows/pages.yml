@@ -9,6 +9,7 @@ on:
   push:
     paths:
       - "data/**"
+      - "config/**"
       - "site/**"
       - "scripts/build_site.py"
       - "scripts/etf_site.py"
