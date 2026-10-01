@@ -1,0 +1,59 @@
+name: Fetch broker branches
+
+on:
+  # 股價抓完就接著抓分點（股票清單取自當天收盤行情）
+  workflow_run:
+    workflows: ["Fetch daily stock prices"]
+    types: [completed]
+  schedule:
+    # 備援：台北 18:33、22:03（分點資料收盤後一段時間才公布；尚未公布時會直接結束，下次再抓）
+    - cron: "33 10 * * 1-5"
+    - cron: "3 14 * * 1-5"
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "交易日 YYYY-MM-DD（留空 = 最新收盤行情的日期）"
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fetch-broker
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Fetch
+        env:
+          IN_DATE: ${{ inputs.date }}
+        run: |
+          args=()
+          [ -n "$IN_DATE" ] && args+=(--date "$IN_DATE")
+          python fetch_broker.py --max-minutes 100 "${args[@]}"
+
+      - name: Commit data
+        if: always()  # 部分失敗也要存已抓到的
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/broker
+          if git diff --cached --quiet; then
+            echo "No new data"
+            exit 0
+          fi
+          git commit -m "data: broker branches $(TZ=Asia/Taipei date +%F)"
+          for i in 1 2 3; do
+            git pull --rebase -q && git push && exit 0
+            sleep 10
+          done
+          exit 1

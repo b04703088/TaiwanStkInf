@@ -4,6 +4,7 @@
 檢查項目
   股價   最近一個應開盤日（今天之前、平日、不在 no_trading_days.txt）有沒有收盤檔、筆數是否正常
   ETF   每檔最新持股落後幾個交易日、成分股數、權重加總、檔數與前一份相比是否暴增暴減、股數是否缺漏
+  分點   最新一天是否落後、檔數是否齊全
   規模   data/etf/aum/ 最新一天是否落後
 
 等級：ok 正常 / warn 需留意（可能是投信資料本身的狀況）/ error 幾乎可以確定漏抓或抓錯
@@ -27,6 +28,7 @@ TPE = timezone(timedelta(hours=8))
 # 門檻
 ETF_LAG_ERROR = 2      # 持股落後 ≥ 2 個交易日 → error（T+1 公告的投信早上本來就落後 1 天）
 AUM_LAG_WARN = 2
+BROKER_LAG_ERROR = 2   # 分點落後 ≥ 2 個交易日 → error
 WEIGHT_LOW_ERROR, WEIGHT_LOW_WARN, WEIGHT_HIGH_ERROR = 70.0, 80.0, 105.0
 COUNT_JUMP_WARN = 0.25  # 成分股數與前一份相差超過 25%
 PRICE_MIN_ROWS = 1000   # 上市櫃合計一天應有數千檔
@@ -131,6 +133,31 @@ def check(data_dir=ROOT / "data", now=None):
             msg = ""
         level = "error" if errs else ("warn" if warns else "ok")
         add("etf", code, name, level, d, "；".join(errs + warns) or msg, **stats)
+
+    # ---------- 券商分點 ----------
+    bfiles = sorted((f for f in (data_dir / "broker").glob("[0-9][0-9][0-9][0-9]/[0-9]*.csv")
+                     if f.stem.endswith("_total")), key=lambda p: p.name)
+    if bfiles:
+        f = bfiles[-1]
+        d = _date(f.stem)
+        tot = _read(f)
+        with_data = sum(1 for r in tot if r["buy_total"])
+        pf = data_dir / d[:4] / f"{d.replace('-', '')}.csv"
+        n_stocks = sum(1 for r in _read(pf) if (_num(r.get("volume")) or 0) > 0) if pf.exists() else None
+        lg = lag(d)
+        errs, warns = [], []
+        if lg is not None and lg >= BROKER_LAG_ERROR:
+            errs.append(f"落後 {lg} 個交易日")
+        if n_stocks and len(tot) < n_stocks:
+            (errs if len(tot) < 0.9 * n_stocks else warns).append(f"只抓到 {len(tot)}/{n_stocks} 檔")
+        if tot and with_data < 0.9 * len(tot):
+            warns.append(f"{len(tot) - with_data} 檔查無分點資料")
+        level = "error" if errs else ("warn" if warns else "ok")
+        add("broker", "broker", "券商分點（前 15 大）", level, d,
+            "；".join(errs + warns) or f"{with_data} 檔" + ("，T+1 等下一次排程" if lg == 1 else ""),
+            rows=len(tot), lag=lg)
+    else:
+        add("broker", "broker", "券商分點（前 15 大）", "warn", None, "還沒有分點資料")
 
     # ---------- ETF 規模 ----------
     aum_files = sorted((etf_dir / "aum").glob("[0-9]*.csv"))
