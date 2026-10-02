@@ -45,7 +45,9 @@ python fetch_etf.py --issuer ctbc    # 某家投信
 並用證交所 ETF 基本資料的「標的指數」比對追蹤的 ETF。隨 `etf.yml` 每天執行（TIP 會原檔更新，最新 3 份每次重抓）。
 
 - 輸出 `data/etf/tip/schedule.csv`（index, announce_date, effective_date, schedule, source_id, file_date）、`etf_index.csv`、`sources.json`
-- 網站 ETF持股 →「指數調整行事曆」：即將公告／已公告、只看有 ETF 追蹤的指數、30 天內審核
+- 同時抓「定審結果」公告（2024/09 起約 300 份），輸出 `data/etf/tip/results.csv`（index, announce_date, effective_date, action add/del/none, code, name, source_id），
+  含富時合編的臺灣50、中型100、高股息等指數；網頁在每個指數下列出納入／刪除名單
+- 網站 ETF持股 →「指數調整行事曆」：即將公告／已公告、只看有 ETF 追蹤的指數、30 天內審核，可用個股代號或名稱搜尋
 - 比對不到的（多半是上櫃 ETF）可在 `config/tip_index_etf.csv` 手動補一行 `指數名稱,ETF代號`
 
 ## 網站（GitHub Pages）

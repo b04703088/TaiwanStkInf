@@ -317,6 +317,14 @@
   button.etf-chip{cursor:pointer;}
   button.etf-chip:hover{border-color:var(--brass); color:var(--brass);}
   .tip-row .none{color:var(--text-faint); font-size:12.5px;}
+  .tip-res{grid-column:1 / -1; display:flex; flex-direction:column; gap:4px; font-size:13px; margin-top:2px;}
+  .tip-res .lbl{display:inline-block; min-width:44px; font-size:12px; margin-right:6px;}
+  .tip-res .lbl.add{color:var(--rise);} .tip-res .lbl.del{color:var(--fall);}
+  .tip-res .stk{color:var(--text-muted); margin-right:10px; white-space:nowrap;}
+  .tip-res .stk b{font-family:'IBM Plex Mono',monospace; font-weight:500; color:var(--text); margin-right:4px;}
+  .tip-res .muted{color:var(--text-faint);}
+  .tip-res a{color:var(--text-faint); font-size:12px;}
+  .pending{color:var(--text-faint); font-size:12px;}
   @media (max-width: 860px){ .tip-row{grid-template-columns:1fr; gap:6px;} }
 </style>
 </head>
@@ -477,7 +485,8 @@
   <section class="panel" id="panel-calendar" role="tabpanel" aria-labelledby="tab-calendar" hidden>
     <div class="wrap">
       <p class="panel-note" id="tipNote">臺灣指數公司（TIP）每月公布的「指數定期審核日程表」：各指數在哪一天收盤後公告成分股調整結果、哪一天生效，
-        以及追蹤該指數的 ETF。追蹤 ETF 依證交所 ETF 基本資料的標的指數比對（上櫃 ETF 可能對不到）。</p>
+        以及追蹤該指數的 ETF；公告後列出成分股納入、刪除名單（取自臺灣指數公司的定審結果公告，含富時合編的臺灣50 等指數）。
+        追蹤 ETF 依證交所 ETF 基本資料的標的指數比對（上櫃 ETF 可能對不到）。</p>
       <div class="stats" id="tipStats"></div>
       <div class="toolbar">
         <div class="seg-group" style="display:flex;gap:18px;flex-wrap:wrap">
@@ -491,7 +500,7 @@
             <button type="button" data-v="all" aria-pressed="false">全部指數</button>
           </div>
         </div>
-        <input class="search" id="tipSearch" type="search" autocomplete="off" placeholder="搜尋指數或 ETF" aria-label="搜尋指數或 ETF">
+        <input class="search" id="tipSearch" type="search" autocomplete="off" placeholder="搜尋指數、ETF 或個股" aria-label="搜尋指數、ETF 或個股">
       </div>
       <div id="tipList"><p class="empty">載入中…</p></div>
     </div>
@@ -905,12 +914,24 @@ async function loadTip() {
   Object.assign(tip, { etfs: d.etfs, pdf: d.pdf, updated: d.updated, loaded: true });
 }
 
+
+function resHtml(r) {
+  if (!r.add && !r.del) return r.ann <= todayISO() ? `<div class="tip-res"><span class="pending">定審結果尚未取得</span></div>` : "";
+  const stk = xs => xs.map(([c, n]) => `<span class="stk"><b>${esc(c)}</b>${esc(n)}</span>`).join("");
+  const src = r.rsrc ? ` <a href="${tip.pdf.replace("{}", r.rsrc)}" target="_blank" rel="noopener">公告 ↗</a>` : "";
+  if (!r.add.length && !r.del.length) return `<div class="tip-res"><span class="muted">成分股無異動</span>${src}</div>`;
+  return `<div class="tip-res">
+    <div><span class="lbl add">納入 ${r.add.length}</span>${r.add.length ? stk(r.add) : '<span class="muted">無</span>'}</div>
+    <div><span class="lbl del">刪除 ${r.del.length}</span>${r.del.length ? stk(r.del) : '<span class="muted">無</span>'}${src}</div></div>`;
+}
+
 function renderTip() {
   if (!tip.loaded) return;
   const today = todayISO(), q = tip.q.trim().toLowerCase();
   const aumOf = c => aum.rows.find(x => x.etf === c)?.aum;
   const tracked = new Set((state.etfs || []).map(e => e.code));
-  const match = r => !q || r.index.toLowerCase().includes(q) || r.etfs.some(c => c.toLowerCase().includes(q) || (tip.etfs[c] || "").toLowerCase().includes(q));
+  const inRes = r => [...(r.add || []), ...(r.del || [])].some(([c, n]) => c.toLowerCase() === q || n.toLowerCase().includes(q));
+  const match = r => !q || r.index.toLowerCase().includes(q) || inRes(r) || r.etfs.some(c => c.toLowerCase().includes(q) || (tip.etfs[c] || "").toLowerCase().includes(q));
   const list = tip.rows.filter(r =>
     (tip.when === "all" || (tip.when === "upcoming" ? r.ann >= today : r.ann < today)) &&
     (tip.etf === "all" || r.etfs.length) && match(r));
@@ -930,16 +951,16 @@ function renderTip() {
   $("tipList").innerHTML = groups.size ? [...groups].map(([k, rs]) => {
     const [ann, eff] = k.split("|"), n = daysTo(ann);
     const left = n < 0 ? "" : `<span class="left ${n > 7 ? "far" : ""}">${n === 0 ? "今天" : n + " 天後"}</span>`;
-    const src = rs[0].src;
+    const src = rs[0].src || rs[0].rsrc;
     return `<div class="tip-day"><h3><span class="mono">${ann.replaceAll("-", "/")}（${wk(ann)}）收盤後公告</span>
-      <span class="eff">生效日 ${eff.replaceAll("-", "/")}（${wk(eff)}）</span>${left}
-      <a href="${tip.pdf.replace("{}", src)}" target="_blank" rel="noopener">日程表 PDF ↗</a></h3>
+      <span class="eff">${eff ? `生效日 ${eff.replaceAll("-", "/")}（${wk(eff)}）` : "生效日見公告"}</span>${left}
+      ${rs[0].src ? `<a href="${tip.pdf.replace("{}", src)}" target="_blank" rel="noopener">日程表 PDF ↗</a>` : ""}</h3>
       ${rs.map(r => `<div class="tip-row"><div class="idx">${esc(shortIdx(r.index))}<small>${esc(r.index)}</small></div>
         <div class="etfs">${r.etfs.length ? r.etfs.map(c => {
           const a = aumOf(c), inner = `<b>${esc(c)}</b>${esc(tip.etfs[c] || "")}${a ? `<small>${fmtN(a / 1e8, 0)} 億</small>` : ""}`;
           return tracked.has(c) ? `<button type="button" class="etf-chip" data-query="${esc(c)}" title="查看 ${esc(c)} 的持股異動">${inner}</button>`
                                 : `<span class="etf-chip">${inner}</span>`;
-        }).join("") : '<span class="none">沒有對到追蹤的上市 ETF</span>'}</div></div>`).join("")}
+        }).join("") : '<span class="none">沒有對到追蹤的上市 ETF</span>'}</div>${resHtml(r)}</div>`).join("")}
     </div>`;
   }).join("") : `<p class="empty">沒有符合條件的指數</p>`;
 }

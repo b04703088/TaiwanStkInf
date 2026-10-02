@@ -37,3 +37,28 @@ class TipTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TipResultTest(unittest.TestCase):
+    def load(self, i):
+        return (FIX / f"tip_result_{i}.txt").read_text(encoding="utf-8")
+
+    def test_single_index(self):
+        r = T.parse_result(self.load(1317), "「臺灣指數公司台灣上市上櫃旗艦動能50指數」成分股審核結果")
+        self.assertEqual(len(r), 1)
+        idx, eff, adds, dels = r[0]
+        self.assertEqual((idx, eff), ("臺灣指數公司台灣上市上櫃旗艦動能50指數", "2026-09-17"))
+        self.assertEqual((len(adds), len(dels)), (22, 21))
+        self.assertEqual(adds[0], ("1101", "台泥"))
+        self.assertNotIn("2026", [c for c, _ in adds])   # 前言裡的日期不能被當成股票
+
+    def test_multi_index_ftse(self):
+        r = {x[0]: x for x in T.parse_result(self.load(1312), "臺灣指數系列成分股定期審核結果")}
+        self.assertEqual(r["臺灣50指數"][2], [("6446", "藥華藥")])
+        self.assertEqual(r["臺灣50指數"][3], [("3661", "世芯-KY")])   # 候補名單不算
+        self.assertEqual(len(r["臺灣中型100指數"][2]), 4)
+        self.assertEqual(r["臺灣50指數"][1], "2026-09-21")
+
+    def test_inline_and_reversed_formats(self):
+        self.assertEqual(T._stocks("3532 台勝科、6187 萬潤"), [("3532", "台勝科"), ("6187", "萬潤")])
+        self.assertEqual(T._stocks("祥碩 5269\n9921巨大"), [("5269", "祥碩"), ("9921", "巨大")])

@@ -204,15 +204,36 @@ def build_tip(data_dir, root):
             names = {r["code"]: r["name"] for r in csv.DictReader(fp)}
     for e in etf_rows:
         names.setdefault(e["etf"], e["name"])
-    mapping = match_etfs(sorted({r["index"] for r in sched}), etf_rows, overrides)
-    used = sorted({c for v in mapping.values() for c in v})
+    from fetch_tip_schedule import index_key
+    # 定審結果：(指數, 生效日) → 納入／刪除
+    results = {}
+    if (tip / "results.csv").exists():
+        with (tip / "results.csv").open(encoding="utf-8") as fp:
+            for r in csv.DictReader(fp):
+                g = results.setdefault((index_key(r["index"]), r["effective_date"]),
+                                       {"index": r["index"], "ann": r["announce_date"], "eff": r["effective_date"],
+                                        "src": r["source_id"], "add": [], "del": []})
+                if r["action"] in ("add", "del"):
+                    g[r["action"]].append([r["code"], names.get(r["code"]) or r["name"]])
+    all_idx = sorted({r["index"] for r in sched} | {g["index"] for g in results.values()})
+    mapping = match_etfs(all_idx, etf_rows, overrides)
     sources = {}
     if (tip / "sources.json").exists():
         sources = json.loads((tip / "sources.json").read_text(encoding="utf-8"))
-    rows = [[r["index"], r["announce_date"], r["effective_date"], r["schedule"], r["source_id"], mapping.get(r["index"], [])]
-            for r in sched]
+    rows, used_res = [], set()
+    for r in sched:
+        k = (index_key(r["index"]), r["effective_date"])
+        g = results.get(k)
+        if g:
+            used_res.add(k)
+        rows.append([r["index"], r["announce_date"], r["effective_date"], r["schedule"], r["source_id"],
+                     mapping.get(r["index"], []), g["add"] if g else None, g["del"] if g else None, g["src"] if g else None])
+    for k, g in results.items():  # 不在日程表裡的（例如臺灣50 等合編指數）
+        if k not in used_res:
+            rows.append([g["index"], g["ann"], g["eff"], "", None, mapping.get(g["index"], []), g["add"], g["del"], g["src"]])
+    used = sorted({c for r in rows for c in r[5]})
     updated = max((v.get("file_date", "") for v in sources.values()), default="")
-    return {"updated": updated, "cols": ["index", "ann", "eff", "sched", "src", "etfs"], "rows": rows,
+    return {"updated": updated, "cols": ["index", "ann", "eff", "sched", "src", "etfs", "add", "del", "rsrc"], "rows": rows,
             "etfs": {c: names.get(c, "") for c in used},
             "pdf": "https://backend.taiwanindex.com.tw/api/downloadFile/TechnicalNotices/{}/tw"}
 
