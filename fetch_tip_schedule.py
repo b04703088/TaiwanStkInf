@@ -11,7 +11,7 @@
 輸出：
   data/etf/tip/schedule.csv   index, announce_date, effective_date, schedule, source_id, file_date
   data/etf/tip/sources.json   已解析過的 PDF（id → 標題、檔案日期、筆數）
-  data/etf/tip/etf_index.csv  etf, name, index（追蹤 TIP 指數的上市 ETF）
+  data/etf/tip/etf_index.csv  etf, name, index（全部上市 ETF 的標的指數；網頁建置時再比對 TIP 指數）
 
 TIP 會直接更新同一個 PDF（同一個 id），所以清單第一頁最新的幾份每次都重新下載解析。
 需要 pdfplumber（pip install pdfplumber）。
@@ -89,6 +89,14 @@ def norm_index(name):
     return s
 
 
+def index_key(name):
+    """比對用的寬鬆鍵：再去掉「特選」「報酬」「股價」等常被省略的字，讓日程表與 ETF 標的指數名稱對得上。"""
+    s = norm_index(name)
+    for w in ("報酬", "股價", "特選", "上市上櫃", "指數"):
+        s = s.replace(w, "")
+    return s
+
+
 def read_schedule():
     p = OUT / "schedule.csv"
     if not p.exists():
@@ -106,7 +114,7 @@ def write_csv(path, cols, rows):
 
 
 def map_etfs():
-    """上市 ETF 的標的指數 → 只留追蹤 TIP 指數（名稱含「臺灣指數公司」或與日程表指數相符）的。"""
+    """證交所上市 ETF 基本資料 → [{etf, name, index}]。"""
     try:
         info = C.http(ETF_INFO)
     except C.AdapterError as e:
@@ -172,11 +180,10 @@ def main(argv=None):
     sources_p.write_text(json.dumps(sources, ensure_ascii=False, indent=1, sort_keys=True), encoding="utf-8")
 
     etfs = map_etfs()
-    if etfs is not None:
-        tip = {norm_index(r["index"]) for r in rows}
-        keep = [e for e in etfs if norm_index(e["index"]) in tip or "臺灣指數公司" in e["index"].replace("台灣", "臺灣")]
-        write_csv(OUT / "etf_index.csv", ["etf", "name", "index"], sorted(keep, key=lambda e: e["etf"]))
-        print(f"追蹤 TIP 指數的上市 ETF：{len(keep)} 檔")
+    if etfs:
+        write_csv(OUT / "etf_index.csv", ["etf", "name", "index"], sorted(etfs, key=lambda e: e["etf"]))
+        tip = {index_key(r["index"]) for r in rows}
+        print(f"追蹤 TIP 指數的上市 ETF：{sum(1 for e in etfs if index_key(e['index']) in tip)} 檔")
     print(f"日程表：解析 {n_new} 份，共 {len(rows)} 筆指數審核，失敗 {len(failed)}")
     return 1 if failed else 0
 
