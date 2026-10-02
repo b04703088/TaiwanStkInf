@@ -237,6 +237,7 @@
   .home .eyebrow{font-size:13px; color:var(--brass); margin-bottom:10px;}
   .home h1{font-size:36px;}
   .home .lede{color:var(--text-muted); font-size:15px; margin:14px 0 32px;}
+  .home h1{margin-bottom:4px;}
   .quick{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line);
     border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden;}
   .quick a{background:var(--panel); padding:22px 22px 24px; text-decoration:none; transition:background .15s ease;}
@@ -244,6 +245,32 @@
   .quick a:hover b{color:var(--brass);}
   .quick b{display:block; font-family:'Noto Serif TC',serif; font-size:17px; margin-bottom:6px;}
   .quick span{font-size:13px; color:var(--text-muted); line-height:1.6;}
+
+  .block{margin-top:36px;}
+  .block-head{display:flex; align-items:baseline; justify-content:space-between; gap:12px; border-bottom:1px solid var(--line-strong); padding-bottom:10px; margin-bottom:6px;}
+  .block-head h2{font-size:20px;}
+  .block-head a{font-size:13px; color:var(--text-muted); text-decoration:none;}
+  .block-head a:hover{color:var(--brass);}
+  .block-note{font-size:12.5px; color:var(--text-faint); margin:8px 0 4px;}
+  .wk-item{display:grid; grid-template-columns:150px minmax(0,1fr); gap:18px; padding:16px 0; border-bottom:1px solid var(--line);}
+  .wk-date b{display:block; font-family:'IBM Plex Mono',monospace; font-size:15px;}
+  .wk-date span{display:block; font-size:12px; color:var(--text-faint); margin-top:2px;}
+  .wk-date .tag{display:inline-block; margin-top:6px; font-size:11.5px; padding:1px 7px; border-radius:2px; border:1px solid var(--line-strong); color:var(--text-muted);}
+  .wk-date .tag.done{border-color:var(--brass-dim); color:var(--brass);}
+  .wk-date .tag.today{background:var(--brass); color:var(--ink); border-color:var(--brass);}
+  .wk-idx{font-size:14.5px;}
+  .wk-etfs{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;}
+  .wk-etfs a{border:1px solid var(--line-strong); border-radius:3px; padding:2px 8px; font-size:12.5px; color:var(--text-muted); text-decoration:none;}
+  .wk-etfs a:hover{border-color:var(--brass); color:var(--brass);}
+  .wk-etfs b{font-family:'IBM Plex Mono',monospace; font-weight:500; color:var(--text); margin-right:6px;}
+  .wk-res{margin-top:10px; font-size:13px; line-height:1.9;}
+  .wk-res .lbl{display:inline-block; min-width:48px; font-size:12px;}
+  .wk-res .add{color:var(--rise);} .wk-res .del{color:var(--fall);}
+  .wk-res .stk{color:var(--text-muted); margin-right:10px; white-space:nowrap;}
+  .wk-res .stk b{font-family:'IBM Plex Mono',monospace; font-weight:500; color:var(--text); margin-right:4px;}
+  .wk-res .muted, .wk-empty{color:var(--text-faint);}
+  .wk-empty{padding:22px 0; font-size:14px;}
+  @media (max-width: 860px){ .wk-item{grid-template-columns:1fr; gap:6px;} }
   @media (max-width: 860px){
     .home{padding:48px 0 24px;}
     .home h1{font-size:28px;}
@@ -276,12 +303,22 @@
   <section class="home">
     <div class="wrap">
       <div class="eyebrow">潮汐 · 籌碼觀測站</div>
-      <h1>重點資訊整理中</h1>
-      <p class="lede">這裡之後會放每天最需要先看的重點。現有的資料頁：</p>
+      <h1>今天要先看的重點</h1>
+
+      <div class="block">
+        <div class="block-head">
+          <h2>未來一週 ETF 指數調整</h2>
+          <a href="etf.html#calendar">完整行事曆 →</a>
+        </div>
+        <p class="block-note" id="weekNote">載入中…</p>
+        <div id="weekList"></div>
+      </div>
+
+      <div class="block-head" style="margin-top:56px"><h2>資料頁</h2></div>
       <div class="quick">
         <a href="ranking.html"><b>成交排行</b><span>當日成交金額排行、市場資金集中度</span></a>
         <a href="broker.html"><b>分點籌碼</b><span>全市場前 15 大分點、重點分點加總排行</span></a>
-        <a href="etf.html"><b>ETF持股</b><span>個股被哪些 ETF 持有、每日持股變化、AUM 排行</span></a>
+        <a href="etf.html"><b>ETF持股</b><span>個股被哪些 ETF 持有、每日持股變化、AUM 排行、指數調整行事曆</span></a>
         <a href="health.html"><b>資料健檢</b><span>每天的資料是否都有正確抓到</span></a>
       </div>
     </div>
@@ -303,5 +340,44 @@
 </footer>
 
 <script>(function(){var a=document.querySelector('nav.links a[aria-current="page"]');if(a&&a.parentNode.scrollWidth>a.parentNode.clientWidth){a.parentNode.scrollLeft=a.offsetLeft-a.parentNode.offsetLeft-16;}})();</script>
+<script>
+(async function () {
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const today = new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);
+  const plus = n => new Date(Date.parse(today + "T00:00:00Z") + n * 864e5).toISOString().slice(0, 10);
+  const end = plus(7);
+  const wk = d => "日一二三四五六"[new Date(d + "T00:00:00+08:00").getDay()];
+  const md = d => d.slice(5).replace("-", "/");
+  const short = s => s.replace(/^臺灣指數公司/, "");
+  try {
+    const r = await fetch("data/etf/tip.json", { cache: "no-cache" });
+    const d = await r.json();
+    const rows = d.rows.map(x => Object.fromEntries(d.cols.map((c, i) => [c, x[i]])))
+      // 未來一週要公告的，加上已公告但還沒生效的；只列有 ETF 追蹤的指數
+      .filter(x => x.etfs.length && x.ann <= end && (x.ann >= today || (x.eff && x.eff >= today)))
+      .sort((a, b) => a.ann.localeCompare(b.ann) || a.index.localeCompare(b.index));
+    const nEtf = new Set(rows.flatMap(x => x.etfs)).size;
+    $("weekNote").textContent = `${md(today)} ～ ${md(end)}：${rows.length} 個指數、${nEtf} 檔 ETF。公告後（收盤後）列出成分股納入／刪除名單，生效前一個交易日收盤 ETF 通常會調整持股。`;
+    const stk = xs => xs.map(([c, n]) => `<span class="stk"><b>${esc(c)}</b>${esc(n)}</span>`).join("");
+    $("weekList").innerHTML = rows.length ? rows.map(x => {
+      const announced = x.add || x.del;
+      const tag = announced ? '<span class="tag done">已公告</span>' : x.ann === today ? '<span class="tag today">今天收盤後公告</span>' : '<span class="tag">待公告</span>';
+      const res = !announced ? "" : (!x.add.length && !x.del.length) ? '<div class="wk-res muted">成分股無異動</div>' :
+        `<div class="wk-res"><div><span class="lbl add">納入 ${x.add.length}</span>${x.add.length ? stk(x.add) : '<span class="muted">無</span>'}</div>
+         <div><span class="lbl del">刪除 ${x.del.length}</span>${x.del.length ? stk(x.del) : '<span class="muted">無</span>'}</div></div>`;
+      return `<div class="wk-item">
+        <div class="wk-date"><b>${md(x.ann)}（${wk(x.ann)}）</b><span>${x.eff ? `生效 ${md(x.eff)}（${wk(x.eff)}）` : ""}</span>${tag}</div>
+        <div><div class="wk-idx">${esc(short(x.index))}</div>
+          <div class="wk-etfs">${x.etfs.map(c => `<a href="etf.html?q=${encodeURIComponent(c)}#changes"><b>${esc(c)}</b>${esc(d.etfs[c] || "")}</a>`).join("")}</div>
+          ${res}</div>
+      </div>`;
+    }).join("") : '<p class="wk-empty">未來一週沒有 ETF 追蹤的指數要調整。</p>';
+  } catch (e) {
+    console.error(e);
+    $("weekNote").textContent = "讀取行事曆失敗，請重新整理頁面。";
+  }
+})();
+</script>
 </body>
 </html>
