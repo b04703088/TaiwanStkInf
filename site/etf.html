@@ -329,6 +329,15 @@
   .prov{display:inline-block; font-size:10.5px; border:1px solid var(--line-strong); color:var(--text-faint); border-radius:2px; padding:0 5px; margin-right:8px; vertical-align:2px;}
   .prov.MSCI{color:#7FA7D9; border-color:rgba(127,167,217,.4);} .prov.FTSE{color:#C08BD0; border-color:rgba(192,139,208,.4);}
   @media (max-width: 860px){ .tip-row{grid-template-columns:1fr; gap:6px;} }
+
+  /* ---------- 主動式買賣超 ---------- */
+  .act-chips{display:flex; flex-wrap:wrap; gap:6px; margin:0 0 18px;}
+  .act-chips button{background:none; border:1px solid var(--line-strong); color:var(--text-muted); border-radius:999px; padding:4px 11px; font:inherit; font-size:12.5px; cursor:pointer;}
+  .act-chips button[aria-pressed="true"]{border-color:var(--brass); color:var(--brass);}
+  .act-chips button.all{border-style:dashed;}
+  .who{font-size:12px; color:var(--text-muted); white-space:normal;}
+  .who span{margin-right:10px; white-space:nowrap;}
+  .who b{font-family:'IBM Plex Mono',monospace; font-weight:500; color:var(--text); margin-right:3px;}
 </style>
 </head>
 <body>
@@ -365,6 +374,7 @@
       <div class="tabs" role="tablist">
         <a href="#holders" id="tab-holders" role="tab" aria-selected="true" aria-controls="panel-holders">個股持有查詢</a>
         <a href="#changes" id="tab-changes" role="tab" aria-selected="false" aria-controls="panel-changes">每日持股變化</a>
+        <a href="#active" id="tab-active" role="tab" aria-selected="false" aria-controls="panel-active">主動式買賣超</a>
         <a href="#aum" id="tab-aum" role="tab" aria-selected="false" aria-controls="panel-aum">AUM 排行</a>
         <a href="#calendar" id="tab-calendar" role="tab" aria-selected="false" aria-controls="panel-calendar">指數調整行事曆</a>
       </div>
@@ -453,6 +463,45 @@
     </div>
   </section>
   <!-- ============ 子頁三：AUM 排行 ============ -->
+  <section class="panel" id="panel-active" role="tabpanel" aria-labelledby="tab-active" hidden>
+    <div class="wrap">
+      <p class="panel-note">主動式 ETF（代號 A 結尾）每次公布持股，與自己前一次比較的股數增減，依個股加總成買賣超；金額 = 增減股數 × 該日收盤價。
+        「扣除申購贖回」：先把前一次持股依受益單位數變化等比例放大縮小，再算增減，剩下的才是經理人主動調整。只計台股。</p>
+      <div class="stats" id="actStats"></div>
+      <div class="toolbar">
+        <div class="seg-group" style="display:flex;gap:18px;flex-wrap:wrap">
+          <div class="seg" id="actN" role="group" aria-label="期間">
+            <button type="button" data-v="1" aria-pressed="true">最新一次</button>
+            <button type="button" data-v="5" aria-pressed="false">近 5 次</button>
+            <button type="button" data-v="10" aria-pressed="false">近 10 次</button>
+            <button type="button" data-v="20" aria-pressed="false">近 20 次</button>
+          </div>
+          <div class="seg" id="actMode" role="group" aria-label="計算方式">
+            <button type="button" data-v="raw" aria-pressed="true">原始增減</button>
+            <button type="button" data-v="adj" aria-pressed="false">扣除申購贖回</button>
+          </div>
+          <div class="seg" id="actSide" role="group" aria-label="方向">
+            <button type="button" data-v="buy" aria-pressed="true">買超</button>
+            <button type="button" data-v="sell" aria-pressed="false">賣超</button>
+          </div>
+        </div>
+        <input class="search" id="actSearch" type="search" autocomplete="off" placeholder="搜尋股票" aria-label="搜尋股票">
+      </div>
+      <div class="chips act-chips" id="actChips" role="group" aria-label="選擇 ETF"></div>
+      <div class="table-wrap">
+        <table class="rank" id="actTable">
+          <thead><tr>
+            <th class="l">#</th><th class="l">股票</th><th>收盤</th>
+            <th id="actAmtLabel">買超金額（億）</th><th>張數</th><th>買 / 賣 ETF</th><th class="l col-hide">主要 ETF</th>
+          </tr></thead>
+          <tbody id="actRows"><tr><td colspan="7" class="empty">載入中…</td></tr></tbody>
+        </table>
+      </div>
+      <div class="more" id="actMoreWrap" hidden><button class="btn-ghost" id="actMore" type="button">顯示更多</button></div>
+      <p class="panel-note" id="actFoot" style="margin-top:16px"></p>
+    </div>
+  </section>
+
   <section class="panel" id="panel-aum" role="tabpanel" aria-labelledby="tab-aum" hidden>
     <div class="wrap">
       <p class="panel-note" id="aumNote">全體上市櫃 ETF 的基金規模（AUM）= 已發行受益單位數 × 前一營業日單位淨值。
@@ -593,7 +642,7 @@ function applySort(tableId, list, getters) {
 }
 
 /* ---------- 子頁切換 ---------- */
-const TABS = ["holders", "changes", "aum", "calendar"];
+const TABS = ["holders", "changes", "active", "aum", "calendar"];
 function showTab(name) {
   for (const t of TABS) {
     $("tab-" + t).setAttribute("aria-selected", t === name);
@@ -907,6 +956,86 @@ $("changeTable").querySelector("thead").addEventListener("click", e => {
   renderChange();
 });
 
+
+
+/* ---------- 子頁：主動式 ETF 買賣超 ---------- */
+const act = { etfs: [], rows: [], names: {}, n: 1, mode: "raw", side: "buy", q: "", on: null, shown: 50, loaded: false };
+async function loadActive() {
+  const r = await fetch("data/etf/active.json", { cache: "no-cache" });
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  const d = await r.json();
+  act.etfs = d.etfs; act.names = d.names; act.latest = d.latest;
+  act.rows = d.rows.map(x => Object.fromEntries(d.cols.map((c, i) => [c, x[i]])));
+  act.on = new Set(act.etfs.map((_, i) => i));
+  act.noUnits = new Set(act.rows.filter(x => x.da == null).map(x => x.e));
+  act.loaded = true;
+}
+function renderActive() {
+  if (!act.loaded) return;
+  $("actChips").innerHTML = `<button type="button" class="all" data-all="1">全選</button>` +
+    act.etfs.map((e, i) => `<button type="button" data-i="${i}" aria-pressed="${act.on.has(i)}" title="${esc(e.name)}・最新 ${fmtDate(e.date)}">${esc(e.code)} ${esc(e.name.replace(/^主動/, ""))}</button>`).join("");
+  const by = new Map();
+  for (const x of act.rows) {
+    if (x.n >= act.n || !act.on.has(x.e)) continue;
+    const d = act.mode === "adj" && x.da != null ? x.da : x.d;
+    if (!d) continue;
+    let s = by.get(x.code);
+    if (!s) by.set(x.code, s = { code: x.code, name: act.names[x.code] || x.code, sh: 0, amt: 0, px: null, pxd: "", per: new Map() });
+    s.sh += d;
+    if (x.px) { s.amt += d * x.px; if (x.date >= s.pxd) { s.px = x.px; s.pxd = x.date; } }
+    const p = s.per.get(x.e) || { sh: 0, amt: 0 };
+    p.sh += d; p.amt += x.px ? d * x.px : 0; s.per.set(x.e, p);
+  }
+  const all = [...by.values()];
+  for (const s of all) { s.nb = [...s.per.values()].filter(p => p.sh > 0).length; s.ns = [...s.per.values()].filter(p => p.sh < 0).length; }
+  const buy = all.filter(s => s.amt > 0), sell = all.filter(s => s.amt < 0);
+  const tb = buy.reduce((t, s) => t + s.amt, 0), ts = sell.reduce((t, s) => t + s.amt, 0);
+  const crowd = [...all].sort((a, b) => b.nb - a.nb || b.amt - a.amt)[0];
+  $("actStats").innerHTML = `
+    <div class="stat"><span>主動式 ETF</span><b class="mono">${act.on.size}</b><small>/ ${act.etfs.length} 檔 · 最新 ${fmtDate(act.latest)}</small></div>
+    <div class="stat"><span>合計買超金額</span><b class="mono up">${fmtYiSigned(tb)}</b><small>億 · ${buy.length} 檔</small></div>
+    <div class="stat"><span>合計賣超金額</span><b class="mono down">${fmtYiSigned(ts)}</b><small>億 · ${sell.length} 檔</small></div>
+    <div class="stat"><span>最多 ETF 同時買進</span><b>${crowd ? esc(crowd.name) : "—"}</b><small class="mono">${crowd ? crowd.nb + " 檔 ETF" : ""}</small></div>`;
+  const q = act.q.trim().toLowerCase();
+  const list = all.filter(s => (act.side === "buy" ? s.amt > 0 : s.amt < 0) && (!q || s.code.toLowerCase().includes(q) || s.name.toLowerCase().includes(q)))
+    .sort((a, b) => act.side === "buy" ? b.amt - a.amt : a.amt - b.amt);
+  $("actAmtLabel").textContent = act.side === "buy" ? "買超金額（億）" : "賣超金額（億）";
+  $("actRows").innerHTML = list.slice(0, act.shown).map((s, i) => {
+    const top = [...s.per].filter(([, p]) => act.side === "buy" ? p.amt > 0 : p.amt < 0)
+      .sort((a, b) => act.side === "buy" ? b[1].amt - a[1].amt : a[1].amt - b[1].amt).slice(0, 3);
+    return `<tr class="clickable ${i < 3 ? "top3" : ""}" data-query="${esc(s.code)}" title="查看哪些 ETF 買賣 ${esc(s.name)}">
+      <td class="l rank-no mono">${i + 1}</td>
+      <td class="l"><span class="stock-name">${esc(s.name)}</span><span class="stock-code mono">${esc(s.code)}</span></td>
+      <td class="mono">${s.px == null ? "—" : fmtN(s.px, 2)}</td>
+      <td class="mono ${cls(s.amt)}">${fmtYiSigned(s.amt)}</td>
+      <td class="mono ${cls(s.sh)}">${(s.sh > 0 ? "+" : "") + fmtN(s.sh / 1000, 0)}</td>
+      <td class="mono"><span class="up">${s.nb}</span> / <span class="down">${s.ns}</span></td>
+      <td class="l col-hide who">${top.map(([e, p]) => `<span><b>${esc(act.etfs[e].code)}</b>${fmtYiSigned(p.amt)}</span>`).join("")}</td></tr>`;
+  }).join("") || `<tr><td colspan="7" class="empty">沒有符合條件的股票</td></tr>`;
+  $("actMoreWrap").hidden = list.length <= act.shown;
+  const miss = [...act.noUnits].filter(i => act.on.has(i)).map(i => act.etfs[i].code);
+  $("actFoot").textContent = (act.mode === "adj" && miss.length ? `扣除申購贖回需要受益單位數，${miss.join("、")} 部分日期缺少，這些以原始增減計。` : "") +
+    "各 ETF 公布時間不同（部分為隔日公布），「最新一次」是各 ETF 自己最新一次公布與前一次的比較。點股票可看是哪些 ETF 在買賣。";
+}
+for (const [id, key] of [["actN", "n"], ["actMode", "mode"], ["actSide", "side"]]) {
+  $(id).addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    $(id).querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+    act[key] = key === "n" ? +b.dataset.v : b.dataset.v; act.shown = 50; renderActive();
+  });
+}
+$("actChips").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.all) act.on = new Set(act.etfs.map((_, i) => i));
+  else { const i = +b.dataset.i; act.on.has(i) && act.on.size > 1 ? act.on.delete(i) : act.on.add(i); }
+  renderActive();
+});
+$("actSearch").addEventListener("input", e => { act.q = e.target.value; renderActive(); });
+$("actMore").addEventListener("click", () => { act.shown += 50; renderActive(); });
+loadActive().then(renderActive).catch(e => {
+  console.error(e);
+  $("actRows").innerHTML = `<tr><td colspan="7" class="empty">讀取資料失敗，請重新整理頁面。</td></tr>`;
+});
 
 /* ---------- 子頁四：指數調整行事曆 ---------- */
 const tip = { rows: [], etfs: {}, pdf: "", when: "upcoming", etf: "etf", prov: "all", q: "", loaded: false };

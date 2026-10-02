@@ -302,3 +302,74 @@ def write_tip(data_dir, root, out_path):
     Path(out_path).parent.mkdir(parents=True, exist_ok=True)
     Path(out_path).write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     return payload
+
+
+# ---------------- 主動式 ETF 買賣超 ----------------
+ACTIVE_COLS = ["e", "n", "date", "code", "d", "da", "px"]
+
+
+def _units_book(data_dir):
+    """{(ETF, 日期): 受益單位數}：summary.csv 優先，沒有就用證交所 ETF 淨值揭露（data/etf/aum/）。"""
+    data_dir = Path(data_dir)
+    book = {}
+    for f in sorted((data_dir / "etf" / "aum").glob("[0-9]*.csv")):
+        with f.open(encoding="utf-8") as fp:
+            for r in csv.DictReader(fp):
+                if _num(r.get("units")):
+                    book[(r["etf"], r["date"])] = _num(r["units"])
+    sp = data_dir / "etf" / "summary.csv"
+    if sp.exists():
+        with sp.open(encoding="utf-8") as fp:
+            for r in csv.DictReader(fp):
+                if _num(r.get("units")):
+                    book[(r["etf"], r["date"])] = _num(r["units"])
+    return book
+
+
+def build_active(data_dir, max_n=20):
+    """每檔主動式 ETF 最近 max_n 次持股變化（台股）→ 網頁 JSON。
+    d：原始股數增減；da：扣除申購贖回後的增減 = 本次股數 − 前次股數 × (本次單位數 ÷ 前次單位數)，單位數缺漏時為 null。
+    n：該 ETF 由新到舊第幾次變化（0 = 最新一次），網頁用來取「近 N 次」。"""
+    data_dir = Path(data_dir)
+    etf_dir = data_dir / "etf"
+    with (etf_dir / "etf_list.csv").open(encoding="utf-8") as fp:
+        actives = [r for r in csv.DictReader(fp) if r["kind"] == "active"]
+    prices, units = PriceBook(data_dir), _units_book(data_dir)
+    tw = re.compile(r"^\d{4,6}[A-Z]?$")
+    etfs, rows, names, days = [], [], {}, set()
+    for info in actives:
+        files = sorted((etf_dir / info["etf"]).glob("[0-9]*.csv"))[-(max_n + 1):]
+        if len(files) < 2:
+            continue
+        e = len(etfs)
+        etfs.append({"code": info["etf"], "name": info["name"], "issuer": info["issuer_name"],
+                     "date": date_of(files[-1]), "n": len(files) - 1})
+        snaps = [(date_of(f), read_holdings(f)) for f in files]
+        for k in range(1, len(snaps)):
+            (d0, h0), (d1, h1) = snaps[k - 1], snaps[k]
+            u0, u1 = units.get((info["etf"], d0)), units.get((info["etf"], d1))
+            ratio = (u1 / u0) if u0 and u1 else None
+            px = prices.get(d1)
+            n = len(snaps) - 1 - k
+            days.add(d1)
+            for c in set(h0) | set(h1):
+                if not tw.match(c):
+                    continue
+                a, b = (h0.get(c) or {}).get("sh"), (h1.get(c) or {}).get("sh")
+                if (c in h0 and a is None) or (c in h1 and b is None):
+                    continue
+                a, b = a or 0, b or 0
+                d = b - a
+                da = (b - a * ratio) if ratio is not None else None
+                if d == 0 and (da is None or abs(da) < 1):
+                    continue
+                names[c] = (h1.get(c) or h0.get(c))["name"]
+                rows.append([e, n, d1, c, round(d), None if da is None else round(da), px.get(c) or prices.get(d0).get(c)])
+    return {"etfs": etfs, "names": names, "cols": ACTIVE_COLS, "rows": rows, "latest": max(days) if days else None}
+
+
+def write_active(data_dir, out_path):
+    payload = build_active(data_dir)
+    Path(out_path).parent.mkdir(parents=True, exist_ok=True)
+    Path(out_path).write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    return payload
