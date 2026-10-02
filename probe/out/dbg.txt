@@ -1,0 +1,27 @@
+== https://taiwanindex.com.tw/downloads/technical_notice?category_id=3 -> 200 265863 text/html; charset=utf-8
+js /_nuxt/115ec17.js
+js /_nuxt/1496195.js
+js /_nuxt/26e6aab.js
+js /_nuxt/95a9f76.js
+js /_nuxt/c73009a.js
+js /_nuxt/ee26829.js
+js /cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js
+js https://code.jquery.com/jquery-3.6.3.slim.min.js
+be https://backend.taiwanindex.com.tw/api/downloadFile/TechnicalNotices/1179/tw
+be https://backend.taiwanindex.com.tw/api/downloadFile/TechnicalNotices/1191/tw
+be https://backend.taiwanindex.com.tw/api/downloadFile/TechnicalNotices/1198/tw
+be https://backend.taiwanindex.com.tw/api/downloadFile/TechnicalNotices/1210/tw
+be https://backend.taiwanindex.com.tw/api/downloadFile/TechnicalNotices/1237/tw
+be https://backend.taiwanindex.com.tw/api/downloadFile/TechnicalNotices/1254/tw
+be https://backend.taiwanindex.com.tw/api/downloadFile/TechnicalNotices/1286/tw
+be https://backend.taiwanindex.com.tw/api/downloadFile/TechnicalNotices/1306/tw
+be https://backend.taiwanindex.com.tw/api/downloadFile/TechnicalNotices/1311/tw
+be https://backend.taiwanindex.com.tw/api/downloadFile/TechnicalNotices/1325/tw
+== https://backend.taiwanindex.com.tw/api/TechnicalNotices?category_id=3 -> ERR HTTP Error 404: Not Found
+
+== https://backend.taiwanindex.com.tw/api/technicalNotices?categoryId=3&lang=tw -> ERR HTTP Error 404: Not Found
+
+== https://backend.taiwanindex.com.tw/api/TechnicalNotice/list?category_id=3 -> ERR HTTP Error 404: Not Found
+
+== https://backend.taiwanindex.com.tw/api/downloadFile/TechnicalNotices/1325/tw -> 200 172282 application/pdf
+== https://backend.taiwanindex.com.tw/api/downloadFile/TechnicalNotices/1311/tw -> 200 168328 application/pdf
