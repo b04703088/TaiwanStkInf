@@ -42,6 +42,13 @@ jobs:
         continue-on-error: true  # 規模資料失敗不影響持股資料
         run: python fetch_etf_aum.py
 
+      - name: Fetch TIP index review schedule
+        if: always()
+        continue-on-error: true  # 行事曆失敗不影響持股資料
+        run: |
+          pip install -q pdfplumber
+          python fetch_tip_schedule.py
+
       - name: Commit data
         if: always()  # 部分 ETF 失敗，抓到的也要存
         run: |

@@ -171,3 +171,56 @@ def write_aum(data_dir, out_path):
     Path(out_path).parent.mkdir(parents=True, exist_ok=True)
     Path(out_path).write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     return payload
+
+
+# ---------------- 臺灣指數公司 定期審核行事曆 ----------------
+def build_tip(data_dir, root):
+    """data/etf/tip/schedule.csv + 追蹤 ETF 對應 → 網頁 JSON。
+    ETF 對應：證交所上市 ETF 的標的指數名稱比對；config/tip_index_etf.csv（index,etf）可手動補。"""
+    import sys
+    sys.path.insert(0, str(Path(root)))
+    from fetch_tip_schedule import match_etfs
+    tip = Path(data_dir) / "etf" / "tip"
+    if not (tip / "schedule.csv").exists():
+        return None
+    with (tip / "schedule.csv").open(encoding="utf-8") as fp:
+        sched = list(csv.DictReader(fp))
+    etf_rows = []
+    if (tip / "etf_index.csv").exists():
+        with (tip / "etf_index.csv").open(encoding="utf-8") as fp:
+            etf_rows = list(csv.DictReader(fp))
+    overrides = {}
+    ov = Path(root) / "config" / "tip_index_etf.csv"
+    if ov.exists():
+        with ov.open(encoding="utf-8-sig") as fp:
+            for r in csv.DictReader(fp):
+                if (r.get("index") or "").strip() and (r.get("etf") or "").strip():
+                    overrides.setdefault(r["index"].strip(), []).append(r["etf"].strip())
+    # 名稱優先用每日行情檔的交易所簡稱（證交所 ETF 基本資料的名稱常帶「ETF基金」）
+    names = {}
+    pf = sorted(Path(data_dir).glob("[0-9][0-9][0-9][0-9]/[0-9]*.csv"), key=lambda p: p.name)
+    if pf:
+        with pf[-1].open(encoding="utf-8") as fp:
+            names = {r["code"]: r["name"] for r in csv.DictReader(fp)}
+    for e in etf_rows:
+        names.setdefault(e["etf"], e["name"])
+    mapping = match_etfs(sorted({r["index"] for r in sched}), etf_rows, overrides)
+    used = sorted({c for v in mapping.values() for c in v})
+    sources = {}
+    if (tip / "sources.json").exists():
+        sources = json.loads((tip / "sources.json").read_text(encoding="utf-8"))
+    rows = [[r["index"], r["announce_date"], r["effective_date"], r["schedule"], r["source_id"], mapping.get(r["index"], [])]
+            for r in sched]
+    updated = max((v.get("file_date", "") for v in sources.values()), default="")
+    return {"updated": updated, "cols": ["index", "ann", "eff", "sched", "src", "etfs"], "rows": rows,
+            "etfs": {c: names.get(c, "") for c in used},
+            "pdf": "https://backend.taiwanindex.com.tw/api/downloadFile/TechnicalNotices/{}/tw"}
+
+
+def write_tip(data_dir, root, out_path):
+    payload = build_tip(data_dir, root)
+    if payload is None:
+        return None
+    Path(out_path).parent.mkdir(parents=True, exist_ok=True)
+    Path(out_path).write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    return payload

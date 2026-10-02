@@ -39,6 +39,15 @@ python fetch_etf.py --issuer ctbc    # 某家投信
 算出規模 = 發行單位數 × 前一營業日淨值、資金流入 = 單位增減 × 淨值，存成 `data/etf/aum/<YYYYMMDD>.csv`；
 類型（國內股票／主動式／國外股票／債券／槓桿反向／期貨商品）依證交所 ETF 基本資料。隨 `etf.yml` 每天執行。
 
+### 指數調整行事曆（臺灣指數公司）
+
+`fetch_tip_schedule.py` 讀臺灣指數公司每月的「指數定期審核日程表」PDF（公開下載），整理各指數的公告日（收盤後）與生效日，
+並用證交所 ETF 基本資料的「標的指數」比對追蹤的 ETF。隨 `etf.yml` 每天執行（TIP 會原檔更新，最新 3 份每次重抓）。
+
+- 輸出 `data/etf/tip/schedule.csv`（index, announce_date, effective_date, schedule, source_id, file_date）、`etf_index.csv`、`sources.json`
+- 網站 ETF持股 →「指數調整行事曆」：即將公告／已公告、只看有 ETF 追蹤的指數、30 天內審核
+- 比對不到的（多半是上櫃 ETF）可在 `config/tip_index_etf.csv` 手動補一行 `指數名稱,ETF代號`
+
 ## 網站（GitHub Pages）
 
 網址：https://b04703088.github.io/TaiwanStkInf/ （成交排行：`ranking.html`）

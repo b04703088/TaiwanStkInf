@@ -299,6 +299,25 @@
   #aumTable .bar-track{width:90px;}
   .seg.wrap-seg{flex-wrap:wrap;}
   .chip-group + .chip-group{margin-top:28px;}
+
+  /* ---------- 指數調整行事曆 ---------- */
+  .tip-day{margin-top:26px;}
+  .tip-day h3{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; font-size:17px; margin:0 0 10px; padding-bottom:10px; border-bottom:1px solid var(--line-strong);}
+  .tip-day h3 .eff{font-family:'Noto Sans TC',sans-serif; font-weight:400; font-size:13px; color:var(--text-muted);}
+  .tip-day h3 .left{font-family:'Noto Sans TC',sans-serif; font-weight:500; font-size:12px; color:var(--ink); background:var(--brass); border-radius:2px; padding:1px 7px;}
+  .tip-day h3 .left.far{background:none; color:var(--text-faint); border:1px solid var(--line-strong);}
+  .tip-day h3 a{margin-left:auto; font-family:'Noto Sans TC',sans-serif; font-weight:400; font-size:12px; color:var(--text-faint);}
+  .tip-row{display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); gap:14px; padding:11px 0; border-bottom:1px solid var(--line); font-size:14px;}
+  .tip-row .idx{color:var(--text);}
+  .tip-row .idx small{display:block; color:var(--text-faint); font-size:11.5px; margin-top:2px;}
+  .tip-row .etfs{display:flex; flex-wrap:wrap; gap:6px; align-content:flex-start;}
+  .etf-chip{border:1px solid var(--line-strong); border-radius:3px; padding:2px 8px; font-size:12.5px; color:var(--text-muted); background:none; font-family:inherit; text-align:left;}
+  .etf-chip b{font-family:'IBM Plex Mono',monospace; font-weight:500; color:var(--text); margin-right:6px;}
+  .etf-chip small{color:var(--text-faint); margin-left:6px;}
+  button.etf-chip{cursor:pointer;}
+  button.etf-chip:hover{border-color:var(--brass); color:var(--brass);}
+  .tip-row .none{color:var(--text-faint); font-size:12.5px;}
+  @media (max-width: 860px){ .tip-row{grid-template-columns:1fr; gap:6px;} }
 </style>
 </head>
 <body>
@@ -336,6 +355,7 @@
         <a href="#holders" id="tab-holders" role="tab" aria-selected="true" aria-controls="panel-holders">個股持有查詢</a>
         <a href="#changes" id="tab-changes" role="tab" aria-selected="false" aria-controls="panel-changes">每日持股變化</a>
         <a href="#aum" id="tab-aum" role="tab" aria-selected="false" aria-controls="panel-aum">AUM 排行</a>
+        <a href="#calendar" id="tab-calendar" role="tab" aria-selected="false" aria-controls="panel-calendar">指數調整行事曆</a>
       </div>
     </div>
   </section>
@@ -453,6 +473,29 @@
       <div class="more" id="aumMoreWrap"><button class="btn-ghost" id="aumMore" type="button">顯示更多</button></div>
     </div>
   </section>
+
+  <section class="panel" id="panel-calendar" role="tabpanel" aria-labelledby="tab-calendar" hidden>
+    <div class="wrap">
+      <p class="panel-note" id="tipNote">臺灣指數公司（TIP）每月公布的「指數定期審核日程表」：各指數在哪一天收盤後公告成分股調整結果、哪一天生效，
+        以及追蹤該指數的 ETF。追蹤 ETF 依證交所 ETF 基本資料的標的指數比對（上櫃 ETF 可能對不到）。</p>
+      <div class="stats" id="tipStats"></div>
+      <div class="toolbar">
+        <div class="seg-group" style="display:flex;gap:18px;flex-wrap:wrap">
+          <div class="seg" id="tipWhen" role="group" aria-label="期間">
+            <button type="button" data-v="upcoming" aria-pressed="true">即將公告</button>
+            <button type="button" data-v="past" aria-pressed="false">已公告</button>
+            <button type="button" data-v="all" aria-pressed="false">全部</button>
+          </div>
+          <div class="seg" id="tipEtf" role="group" aria-label="ETF">
+            <button type="button" data-v="etf" aria-pressed="true">有 ETF 追蹤</button>
+            <button type="button" data-v="all" aria-pressed="false">全部指數</button>
+          </div>
+        </div>
+        <input class="search" id="tipSearch" type="search" autocomplete="off" placeholder="搜尋指數或 ETF" aria-label="搜尋指數或 ETF">
+      </div>
+      <div id="tipList"><p class="empty">載入中…</p></div>
+    </div>
+  </section>
 </main>
 
 <footer class="site">
@@ -532,7 +575,7 @@ function applySort(tableId, list, getters) {
 }
 
 /* ---------- 子頁切換 ---------- */
-const TABS = ["holders", "changes", "aum"];
+const TABS = ["holders", "changes", "aum", "calendar"];
 function showTab(name) {
   for (const t of TABS) {
     $("tab-" + t).setAttribute("aria-selected", t === name);
@@ -846,7 +889,75 @@ $("changeTable").querySelector("thead").addEventListener("click", e => {
   renderChange();
 });
 
-loadAum().then(renderAum).catch(e => {
+
+/* ---------- 子頁四：指數調整行事曆 ---------- */
+const tip = { rows: [], etfs: {}, pdf: "", when: "upcoming", etf: "etf", q: "", loaded: false };
+const todayISO = () => { const d = new Date(Date.now() + 8 * 3600e3); return d.toISOString().slice(0, 10); };
+const shortIdx = s => s.replace(/^臺灣指數公司/, "").replace(/\s+(?=[\u4e00-\u9fff])|(?<=[\u4e00-\u9fff])\s+/g, "");
+const wk = d => "日一二三四五六"[new Date(d + "T00:00:00+08:00").getDay()];
+const daysTo = d => Math.round((new Date(d + "T00:00:00+08:00") - new Date(todayISO() + "T00:00:00+08:00")) / 864e5);
+
+async function loadTip() {
+  const r = await fetch("data/etf/tip.json", { cache: "no-cache" });
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  const d = await r.json();
+  tip.rows = d.rows.map(x => Object.fromEntries(d.cols.map((c, i) => [c, x[i]])));
+  Object.assign(tip, { etfs: d.etfs, pdf: d.pdf, updated: d.updated, loaded: true });
+}
+
+function renderTip() {
+  if (!tip.loaded) return;
+  const today = todayISO(), q = tip.q.trim().toLowerCase();
+  const aumOf = c => aum.rows.find(x => x.etf === c)?.aum;
+  const tracked = new Set((state.etfs || []).map(e => e.code));
+  const match = r => !q || r.index.toLowerCase().includes(q) || r.etfs.some(c => c.toLowerCase().includes(q) || (tip.etfs[c] || "").toLowerCase().includes(q));
+  const list = tip.rows.filter(r =>
+    (tip.when === "all" || (tip.when === "upcoming" ? r.ann >= today : r.ann < today)) &&
+    (tip.etf === "all" || r.etfs.length) && match(r));
+  list.sort((a, b) => tip.when === "past" ? b.ann.localeCompare(a.ann) || a.index.localeCompare(b.index) : a.ann.localeCompare(b.ann) || a.index.localeCompare(b.index));
+  const up = tip.rows.filter(r => r.ann >= today);
+  const next = up.length ? up.reduce((m, r) => r.ann < m ? r.ann : m, up[0].ann) : null;
+  const nextRows = up.filter(r => r.ann === next);
+  const nextEtfs = new Set(nextRows.flatMap(r => r.etfs));
+  const in30 = up.filter(r => daysTo(r.ann) <= 30);
+  $("tipStats").innerHTML = `
+    <div class="stat"><span>下一個公告日</span><b class="mono">${next ? fmtDate(next) : "—"}</b><small>${next ? `（${wk(next)}）${daysTo(next) === 0 ? "今天" : daysTo(next) + " 天後"}` : ""}</small></div>
+    <div class="stat"><span>當天公告的指數</span><b class="mono">${nextRows.length}</b><small>個 · ${nextEtfs.size} 檔 ETF</small></div>
+    <div class="stat"><span>30 天內審核</span><b class="mono">${in30.length}</b><small>個指數 · ${new Set(in30.flatMap(r => r.etfs)).size} 檔 ETF</small></div>
+    <div class="stat"><span>日程表更新</span><b class="mono">${tip.updated ? fmtDate(tip.updated) : "—"}</b><small>${tip.updated ? tip.updated.slice(0, 4) : ""}</small></div>`;
+  const groups = new Map();
+  for (const r of list) { const k = r.ann + "|" + r.eff; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(r); }
+  $("tipList").innerHTML = groups.size ? [...groups].map(([k, rs]) => {
+    const [ann, eff] = k.split("|"), n = daysTo(ann);
+    const left = n < 0 ? "" : `<span class="left ${n > 7 ? "far" : ""}">${n === 0 ? "今天" : n + " 天後"}</span>`;
+    const src = rs[0].src;
+    return `<div class="tip-day"><h3><span class="mono">${ann.replaceAll("-", "/")}（${wk(ann)}）收盤後公告</span>
+      <span class="eff">生效日 ${eff.replaceAll("-", "/")}（${wk(eff)}）</span>${left}
+      <a href="${tip.pdf.replace("{}", src)}" target="_blank" rel="noopener">日程表 PDF ↗</a></h3>
+      ${rs.map(r => `<div class="tip-row"><div class="idx">${esc(shortIdx(r.index))}<small>${esc(r.index)}</small></div>
+        <div class="etfs">${r.etfs.length ? r.etfs.map(c => {
+          const a = aumOf(c), inner = `<b>${esc(c)}</b>${esc(tip.etfs[c] || "")}${a ? `<small>${fmtN(a / 1e8, 0)} 億</small>` : ""}`;
+          return tracked.has(c) ? `<button type="button" class="etf-chip" data-query="${esc(c)}" title="查看 ${esc(c)} 的持股異動">${inner}</button>`
+                                : `<span class="etf-chip">${inner}</span>`;
+        }).join("") : '<span class="none">沒有對到追蹤的上市 ETF</span>'}</div></div>`).join("")}
+    </div>`;
+  }).join("") : `<p class="empty">沒有符合條件的指數</p>`;
+}
+
+for (const [id, key] of [["tipWhen", "when"], ["tipEtf", "etf"]]) {
+  $(id).addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    $(id).querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+    tip[key] = b.dataset.v; renderTip();
+  });
+}
+$("tipSearch").addEventListener("input", e => { tip.q = e.target.value; renderTip(); });
+loadTip().then(renderTip).catch(e => {
+  console.error(e);
+  $("tipList").innerHTML = `<p class="empty">讀取行事曆失敗，請重新整理頁面。</p>`;
+});
+
+loadAum().then(() => { renderAum(); renderTip(); }).catch(e => {
   console.error(e);
   $("aumRows").innerHTML = `<tr><td colspan="10" class="empty">讀取規模資料失敗，請重新整理頁面。</td></tr>`;
 });
@@ -861,6 +972,7 @@ try {
   renderChange(q || (stockList[0] ? { type: "stock", code: stockList[0].code }
                    : etfList[0] ? { type: "etf", code: etfList[0].e.code } : null));
   route();
+  renderTip();
 } catch (e) {
   console.error(e);
   $("holderRows").innerHTML = `<tr><td colspan="6" class="empty">讀取資料失敗，請重新整理頁面。</td></tr>`;

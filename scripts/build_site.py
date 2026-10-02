@@ -6,6 +6,7 @@
   data/daily/YYYY-MM-DD.json         當日全市場 {date, columns, rows}
   data/etf/latest.json               各 ETF 最新持股與前一份的差異（見 scripts/etf_site.py）
   data/etf/aum.json                  全體 ETF 規模排行（fetch_etf_aum.py 的最新一天）
+  data/etf/tip.json                  臺灣指數公司定期審核行事曆（見 fetch_tip_schedule.py）
   data/health.json                   資料健檢結果（見 scripts/health.py）
   data/broker/days.json, <日期>.json  券商分點前 15 大（見 scripts/broker_site.py）
   data/broker/watch.json             重點分點（config/broker_watch.csv）近 60 個交易日
@@ -52,6 +53,7 @@ def build(out: Path, days: int) -> list[str]:
     if (ROOT / "data" / "etf" / "etf_list.csv").exists():
         etf_site.write_latest(ROOT / "data", out / "data" / "etf" / "latest.json")
     etf_site.write_aum(ROOT / "data", out / "data" / "etf" / "aum.json")
+    etf_site.write_tip(ROOT / "data", ROOT, out / "data" / "etf" / "tip.json")
     broker_site.write_site(ROOT / "data", out, days=20)
     broker_site.write_watch(ROOT / "data", ROOT, out, days=60)
     (out / "data" / "health.json").write_text(

@@ -175,6 +175,16 @@ def check(data_dir=ROOT / "data", now=None):
             add("watch", "watch", "重點分點", "error" if errs else ("warn" if warns else "ok"), d,
                 "；".join(errs + warns) or f"{n_have} 個分點", rows=n_have, lag=lg)
 
+    # ---------- 臺灣指數公司 審核行事曆 ----------
+    src = data_dir / "etf" / "tip" / "sources.json"
+    if src.exists():
+        latest = max((v.get("file_date", "") for v in json.loads(src.read_text(encoding="utf-8")).values()), default="")
+        sched = _read(data_dir / "etf" / "tip" / "schedule.csv") if (data_dir / "etf" / "tip" / "schedule.csv").exists() else []
+        upcoming = sum(1 for r in sched if r["announce_date"] >= now.date().isoformat())
+        stale = latest and (now.date() - datetime.strptime(latest, "%Y-%m-%d").date()).days > 40
+        add("tip", "tip", "指數調整行事曆（TIP）", "warn" if stale or not upcoming else "ok", latest or None,
+            (f"日程表 {latest} 之後沒有新的一份" if stale else "") or (f"即將公告 {upcoming} 筆" if upcoming else "沒有即將公告的審核"))
+
     # ---------- ETF 規模 ----------
     aum_files = sorted((etf_dir / "aum").glob("[0-9]*.csv"))
     if not aum_files:
