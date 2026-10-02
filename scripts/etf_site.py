@@ -220,20 +220,41 @@ def build_tip(data_dir, root):
     sources = {}
     if (tip / "sources.json").exists():
         sources = json.loads((tip / "sources.json").read_text(encoding="utf-8"))
+    from datetime import date as _date
+    by_idx = {}
+    for k, g in results.items():
+        by_idx.setdefault(k[0], []).append((k, g))
+
+    def find_result(r):
+        """同一指數、結果公告日最接近排程公告日的那一份（前 5 天～後 10 天內）。
+        實際公告可能提前一兩天，或遇颱風等因素順延（日程表不另更新）。"""
+        a0 = _date.fromisoformat(r["announce_date"])
+        best = None
+        for k, g in by_idx.get(index_key(r["index"]), []):
+            if k in used_res or not g["ann"]:
+                continue
+            gap = (_date.fromisoformat(g["ann"]) - a0).days
+            if -5 <= gap <= 10 and (best is None or abs(gap) < best[0]):
+                best = (abs(gap), k, g)
+        return best
+
     rows, used_res = [], set()
     for r in sched:
-        k = (index_key(r["index"]), r["effective_date"])
-        g = results.get(k)
-        if g:
-            used_res.add(k)
-        rows.append([r["index"], r["announce_date"], r["effective_date"], r["schedule"], r["source_id"],
-                     mapping.get(r["index"], []), g["add"] if g else None, g["del"] if g else None, g["src"] if g else None])
+        hit = find_result(r)
+        g = hit[2] if hit else None
+        if hit:
+            used_res.add(hit[1])
+        moved = bool(g and (g["ann"] != r["announce_date"] or (g["eff"] and g["eff"] != r["effective_date"])))
+        rows.append([r["index"], g["ann"] if moved else r["announce_date"], (g["eff"] or r["effective_date"]) if moved else r["effective_date"],
+                     r["schedule"], r["source_id"], mapping.get(r["index"], []),
+                     g["add"] if g else None, g["del"] if g else None, g["src"] if g else None,
+                     [r["announce_date"], r["effective_date"]] if moved else None])
     for k, g in results.items():  # 不在日程表裡的（例如臺灣50 等合編指數）
         if k not in used_res:
-            rows.append([g["index"], g["ann"], g["eff"], "", None, mapping.get(g["index"], []), g["add"], g["del"], g["src"]])
+            rows.append([g["index"], g["ann"], g["eff"], "", None, mapping.get(g["index"], []), g["add"], g["del"], g["src"], None])
     used = sorted({c for r in rows for c in r[5]})
     updated = max((v.get("file_date", "") for v in sources.values()), default="")
-    return {"updated": updated, "cols": ["index", "ann", "eff", "sched", "src", "etfs", "add", "del", "rsrc"], "rows": rows,
+    return {"updated": updated, "cols": ["index", "ann", "eff", "sched", "src", "etfs", "add", "del", "rsrc", "orig"], "rows": rows,
             "etfs": {c: names.get(c, "") for c in used},
             "pdf": "https://backend.taiwanindex.com.tw/api/downloadFile/TechnicalNotices/{}/tw"}
 

@@ -325,6 +325,7 @@
   .tip-res .muted{color:var(--text-faint);}
   .tip-res a{color:var(--text-faint); font-size:12px;}
   .pending{color:var(--text-faint); font-size:12px;}
+  .tip-row .idx small.moved{color:var(--brass); opacity:.85;}
   @media (max-width: 860px){ .tip-row{grid-template-columns:1fr; gap:6px;} }
 </style>
 </head>
@@ -955,7 +956,7 @@ function renderTip() {
     return `<div class="tip-day"><h3><span class="mono">${ann.replaceAll("-", "/")}（${wk(ann)}）收盤後公告</span>
       <span class="eff">${eff ? `生效日 ${eff.replaceAll("-", "/")}（${wk(eff)}）` : "生效日見公告"}</span>${left}
       ${rs[0].src ? `<a href="${tip.pdf.replace("{}", src)}" target="_blank" rel="noopener">日程表 PDF ↗</a>` : ""}</h3>
-      ${rs.map(r => `<div class="tip-row"><div class="idx">${esc(shortIdx(r.index))}<small>${esc(r.index)}</small></div>
+      ${rs.map(r => `<div class="tip-row"><div class="idx">${esc(shortIdx(r.index))}<small>${esc(r.index)}</small>${r.orig ? `<small class="moved">日程表原訂 ${fmtDate(r.orig[0])} 公告、${fmtDate(r.orig[1])} 生效，實際依公告日期</small>` : ""}</div>
         <div class="etfs">${r.etfs.length ? r.etfs.map(c => {
           const a = aumOf(c), inner = `<b>${esc(c)}</b>${esc(tip.etfs[c] || "")}${a ? `<small>${fmtN(a / 1e8, 0)} 億</small>` : ""}`;
           return tracked.has(c) ? `<button type="button" class="etf-chip" data-query="${esc(c)}" title="查看 ${esc(c)} 的持股異動">${inner}</button>`
