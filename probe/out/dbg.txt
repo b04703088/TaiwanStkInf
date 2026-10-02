@@ -1,6 +1,5 @@
-hidden ['__EVENTTARGET', '__EVENTARGUMENT', '__LASTFOCUS', '__VIEWSTATE', '__VIEWSTATEGENERATOR', '__EVENTVALIDATION'] rb=['UnderwritingNotice']
-127 CB rows; using [('115386', '安碁科技股份有限公司', '詢價圈購', 'ctl00$cphMain$gvResult$ctl387$imgbtnFileName'), ('115391', '可寧衛股份有限公司', '競價拍賣', 'ctl00$cphMain$gvResult$ctl392$imgbtnFileName'), ('115395', '高力熱處理工業股份有限公司', '詢價圈購', 'ctl00$cphMain$gvResult$ctl395$imgbtnFileName')]
-115386 安碁科技股份有限公司 詢價圈購: ct=application/pdf cd=attachment;filename=d009574d-d832-4654-965b-d18b4108d12f.pdf len=293560 head=b'%PDF-1.7'
-115391 可寧衛股份有限公司 競價拍賣: ct=application/pdf cd=attachment;filename=5f4f33a4-4b07-4a7f-857c-b5bac976ca91.pdf len=256789 head=b'%PDF-1.7'
-115395 高力熱處理工業股份有限公司 詢價圈購: ct=application/pdf cd=attachment;filename=344f17f5-66f5-4fd3-b9bf-c275ebe38494.pdf len=245686 head=b'%PDF-1.7'
-115003 志聖工業股份有限公司 詢價圈購: ct=application/pdf cd=attachment;filename=969bee37-df3b-4824-84d9-ad48c65d3973.pdf len=225263 head=b'%PDF-1.7'
+headers: 序號|發行公司|主辦承銷商|發行性質|承銷股數(千股/張)|詢圈銷售股數(千股/張)|圈購期間|價格(元)|公告檔
+hidden ['__EVENTTARGET', '__EVENTARGUMENT', '__LASTFOCUS', '__VIEWSTATE', '__VIEWSTATEGENERATOR', '__EVENTVALIDATION'] rb=['BookBuilding']
+63 CB rows; using [('115063', '無擔保轉換公司債', '115063|啓碁科技股份有限公司|凱基證券股份有限公司|無擔保轉換公司債|60,000|51,000|2026/09/24~2026/09/30|110.00%~120.00%|', 'ctl00$cphMain$gvResult$ctl64$imgbtnFileName'), ('115064', '無擔保轉換公司債', '115064|迅得機械股份有限公司|台新綜合證券股份有限公司|無擔保轉換公司債|5,000|4,400|2026/09/29~2026/09/30|105.01%~130.00%|', 'ctl00$cphMain$gvResult$ctl65$imgbtnFileName'), ('115065', '無擔保轉換公司債', '115065|東聯互動股份有限公司|永豐金證券股份有限公司|無擔保轉換公司債|5,000|4,500|2026/10/02~2026/10/05|105.01%~110.00%|', 'ctl00$cphMain$gvResult$ctl66$imgbtnFileName')]
+115064 無擔保轉換公司債 115064|迅得機械股份有限公司|台新綜合證券股份有限公司|無擔保轉換公司債|5,000|4,400|2026/09/29~2026/09/30|105.01%~130.00%|: ct=application/pdf cd=attachment;filename=69f38596-8573-4ace-9c47-acc4a643517d.pdf len=723145 head=b'%PDF-1.7'
+115065 無擔保轉換公司債 115065|東聯互動股份有限公司|永豐金證券股份有限公司|無擔保轉換公司債|5,000|4,500|2026/10/02~2026/10/05|105.01%~110.00%|: ct=application/pdf cd=attachment;filename=e1b53e38-b567-4617-a57b-a50335088070.pdf len=222929 head=b'%PDF-1.7'
