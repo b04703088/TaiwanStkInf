@@ -17,6 +17,7 @@
         px:  該 ETF 資料日的收盤價（剔除者用前一份資料日；海外股、查無價格為 null）
 """
 import csv
+import re
 import json
 from pathlib import Path
 
@@ -252,11 +253,46 @@ def build_tip(data_dir, root):
     for k, g in results.items():  # 不在日程表裡的（例如臺灣50 等合編指數）
         if k not in used_res:
             rows.append([g["index"], g["ann"], g["eff"], "", None, mapping.get(g["index"], []), g["add"], g["del"], g["src"], None])
+    # 提供者：臺灣指數公司自編、富時合編（臺灣50 等，結果也由 TIP 轉公告）
+    FTSE = ("臺灣50指數", "臺灣中型100指數", "臺灣資訊科技指數", "臺灣發達指數", "臺灣高股息指數", "臺灣永續指數",
+            "臺灣就業99指數", "臺灣高薪100指數")
+    for r in rows:
+        r.append("FTSE" if any(index_key(r[0]) == index_key(f) for f in FTSE) or "富時" in r[0] else "TIP")
+    rows += msci_rows(data_dir, names, etf_rows)
     used = sorted({c for r in rows for c in r[5]})
     updated = max((v.get("file_date", "") for v in sources.values()), default="")
-    return {"updated": updated, "cols": ["index", "ann", "eff", "sched", "src", "etfs", "add", "del", "rsrc", "orig"], "rows": rows,
+    return {"updated": updated, "cols": ["index", "ann", "eff", "sched", "src", "etfs", "add", "del", "rsrc", "orig", "prov"], "rows": rows,
             "etfs": {c: names.get(c, "") for c in used},
             "pdf": "https://backend.taiwanindex.com.tw/api/downloadFile/TechnicalNotices/{}/tw"}
+
+
+def msci_rows(data_dir, names, etf_rows):
+    """MSCI Taiwan Index 季度審核（fetch_msci.py）→ 與 TIP 行事曆相同格式的列。"""
+    d = Path(data_dir) / "etf" / "msci"
+    import html as _html
+    etfs = sorted({e["etf"] for e in etf_rows
+                   if re.sub(r"\s+", "", _html.unescape(e["index"])).replace("®", "").upper() in ("MSCI臺灣指數", "MSCI台灣指數")})
+    label = "MSCI 臺灣指數（MSCI Taiwan Index）"
+    pdf = "https://app2.msci.com/eqb/gimi/stdindex/MSCI_{}_STPublicList.pdf"
+    mon = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    groups = {}
+    if (d / "results.csv").exists():
+        with (d / "results.csv").open(encoding="utf-8") as fp:
+            for r in csv.DictReader(fp):
+                g = groups.setdefault(r["review"], {"ann": r["announce_date"], "eff": r["effective_date"], "add": [], "del": []})
+                if r["action"] in ("add", "del"):
+                    g[r["action"]].append([r["code"], names.get(r["code"], "") or r["en_name"], r["en_name"]])
+    out = []
+    for review, g in sorted(groups.items()):
+        y, m = review.split("-")
+        out.append([label, g["ann"], g["eff"], "MSCI", None, etfs, g["add"], g["del"],
+                    pdf.format(f"{mon[int(m) - 1]}{y[2:]}"), None, "MSCI"])
+    if (d / "schedule.csv").exists():
+        with (d / "schedule.csv").open(encoding="utf-8") as fp:
+            for r in csv.DictReader(fp):
+                if r["review"] not in groups:
+                    out.append([label, r["announce_date"], r["effective_date"], "MSCI", None, etfs, None, None, None, None, "MSCI"])
+    return out
 
 
 def write_tip(data_dir, root, out_path):

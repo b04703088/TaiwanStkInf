@@ -1,0 +1,72 @@
+{
+ "/eqb/gimi/stdindex/MSCI_Aug23_STPublicList.pdf": {
+  "adds": 1,
+  "dels": 1,
+  "review": "2023-08"
+ },
+ "/eqb/gimi/stdindex/MSCI_Aug24_STPublicList.pdf": {
+  "adds": 0,
+  "dels": 1,
+  "review": "2024-08"
+ },
+ "/eqb/gimi/stdindex/MSCI_Aug25_STPublicList.pdf": {
+  "adds": 2,
+  "dels": 2,
+  "review": "2025-08"
+ },
+ "/eqb/gimi/stdindex/MSCI_Aug26_STPublicList.pdf": {
+  "adds": 6,
+  "dels": 6,
+  "review": "2026-08"
+ },
+ "/eqb/gimi/stdindex/MSCI_Feb23_STPublicList.pdf": {
+  "adds": 0,
+  "dels": 0,
+  "review": "2023-02"
+ },
+ "/eqb/gimi/stdindex/MSCI_Feb24_STPublicList.pdf": {
+  "adds": 0,
+  "dels": 1,
+  "review": "2024-02"
+ },
+ "/eqb/gimi/stdindex/MSCI_Feb25_STPublicList.pdf": {
+  "adds": 2,
+  "dels": 2,
+  "review": "2025-02"
+ },
+ "/eqb/gimi/stdindex/MSCI_Feb26_STPublicList.pdf": {
+  "adds": 1,
+  "dels": 4,
+  "review": "2026-02"
+ },
+ "/eqb/gimi/stdindex/MSCI_May23_STPublicList.pdf": {
+  "adds": 2,
+  "dels": 0,
+  "review": "2023-05"
+ },
+ "/eqb/gimi/stdindex/MSCI_May24_STPublicList.pdf": {
+  "adds": 2,
+  "dels": 3,
+  "review": "2024-05"
+ },
+ "/eqb/gimi/stdindex/MSCI_May25_STPublicList.pdf": {
+  "adds": 0,
+  "dels": 0,
+  "review": "2025-05"
+ },
+ "/eqb/gimi/stdindex/MSCI_Nov23_STPublicList.pdf": {
+  "adds": 1,
+  "dels": 1,
+  "review": "2023-11"
+ },
+ "/eqb/gimi/stdindex/MSCI_Nov24_STPublicList.pdf": {
+  "adds": 2,
+  "dels": 1,
+  "review": "2024-11"
+ },
+ "/eqb/gimi/stdindex/MSCI_Nov25_STPublicList.pdf": {
+  "adds": 6,
+  "dels": 7,
+  "review": "2025-11"
+ }
+}

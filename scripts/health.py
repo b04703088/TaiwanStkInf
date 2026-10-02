@@ -185,6 +185,16 @@ def check(data_dir=ROOT / "data", now=None):
         add("tip", "tip", "指數調整行事曆（TIP）", "warn" if stale or not upcoming else "ok", latest or None,
             (f"日程表 {latest} 之後沒有新的一份" if stale else "") or (f"即將公告 {upcoming} 筆" if upcoming else "沒有即將公告的審核"))
 
+    # ---------- MSCI 審核名單 ----------
+    mres = data_dir / "etf" / "msci" / "results.csv"
+    if mres.exists():
+        rows_m = _read(mres)
+        unmatched = sorted({r["en_name"] for r in rows_m if r["en_name"] and not r["code"]})
+        latest_m = max((r["announce_date"] for r in rows_m), default=None)
+        add("msci", "msci", "MSCI 臺灣指數審核", "warn" if unmatched else "ok", latest_m,
+            ("英文名稱對不到代號：" + "、".join(unmatched[:5]) + "（請加到 config/msci_names.csv）") if unmatched
+            else f"{len({r['review'] for r in rows_m})} 期名單")
+
     # ---------- ETF 規模 ----------
     aum_files = sorted((etf_dir / "aum").glob("[0-9]*.csv"))
     if not aum_files:

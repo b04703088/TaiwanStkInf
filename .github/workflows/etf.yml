@@ -48,6 +48,7 @@ jobs:
         run: |
           pip install -q pdfplumber
           python fetch_tip_schedule.py
+          python fetch_msci.py
 
       - name: Commit data
         if: always()  # 部分 ETF 失敗，抓到的也要存

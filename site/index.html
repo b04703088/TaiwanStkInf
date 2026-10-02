@@ -259,6 +259,7 @@
   .wk-date .tag.done{border-color:var(--brass-dim); color:var(--brass);}
   .wk-date .tag.today{background:var(--brass); color:var(--ink); border-color:var(--brass);}
   .wk-idx{font-size:14.5px;}
+  .wk-prov{font-size:10.5px; border:1px solid var(--line-strong); color:var(--text-faint); border-radius:2px; padding:0 5px; margin-right:8px; vertical-align:2px;}
   .wk-etfs{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;}
   .wk-etfs a{border:1px solid var(--line-strong); border-radius:3px; padding:2px 8px; font-size:12.5px; color:var(--text-muted); text-decoration:none;}
   .wk-etfs a:hover{border-color:var(--brass); color:var(--brass);}
@@ -359,7 +360,7 @@
       .sort((a, b) => a.ann.localeCompare(b.ann) || a.index.localeCompare(b.index));
     const nEtf = new Set(rows.flatMap(x => x.etfs)).size;
     $("weekNote").textContent = `${md(today)} ～ ${md(end)}：${rows.length} 個指數、${nEtf} 檔 ETF。公告後（收盤後）列出成分股納入／刪除名單，生效前一個交易日收盤 ETF 通常會調整持股。`;
-    const stk = xs => xs.map(([c, n]) => `<span class="stk"><b>${esc(c)}</b>${esc(n)}</span>`).join("");
+    const stk = xs => xs.map(([c, n, en]) => `<span class="stk"${en ? ` title="${esc(en)}"` : ""}><b>${esc(c || "—")}</b>${esc(n)}</span>`).join("");
     $("weekList").innerHTML = rows.length ? rows.map(x => {
       const announced = x.add || x.del;
       const tag = announced ? '<span class="tag done">已公告</span>' : x.ann === today ? '<span class="tag today">今天收盤後公告</span>' : '<span class="tag">待公告</span>';
@@ -368,7 +369,7 @@
          <div><span class="lbl del">刪除 ${x.del.length}</span>${x.del.length ? stk(x.del) : '<span class="muted">無</span>'}</div></div>`;
       return `<div class="wk-item">
         <div class="wk-date"><b>${md(x.ann)}（${wk(x.ann)}）</b><span>${x.eff ? `生效 ${md(x.eff)}（${wk(x.eff)}）` : ""}</span>${tag}</div>
-        <div><div class="wk-idx">${esc(short(x.index))}</div>
+        <div><div class="wk-idx">${x.prov === "MSCI" ? '<span class="wk-prov">MSCI</span>' : x.prov === "FTSE" ? '<span class="wk-prov">富時</span>' : ""}${esc(short(x.index))}</div>
           <div class="wk-etfs">${x.etfs.map(c => `<a href="etf.html?q=${encodeURIComponent(c)}#changes"><b>${esc(c)}</b>${esc(d.etfs[c] || "")}</a>`).join("")}</div>
           ${res}</div>
       </div>`;

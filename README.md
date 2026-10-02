@@ -50,6 +50,16 @@ python fetch_etf.py --issuer ctbc    # 某家投信
 - 網站 ETF持股 →「指數調整行事曆」：即將公告／已公告、只看有 ETF 追蹤的指數、30 天內審核，可用個股代號或名稱搜尋
 - 比對不到的（多半是上櫃 ETF）可在 `config/tip_index_etf.csv` 手動補一行 `指數名稱,ETF代號`
 
+### MSCI 臺灣指數季度審核
+
+`fetch_msci.py` 讀 MSCI 官網公開的「Global Standard Indexes List of Additions/Deletions」PDF，取 MSCI TAIWAN INDEX 段（2023 年起），
+以及 MSCI 公布的未來八次審核日期（ir_dates.csv）。追蹤 ETF：0057、006203。
+
+- 名單只有英文名，用證交所／櫃買中心公司資料（英文簡稱、網址、e-mail 網域）自動對應代號；不夠確定時留空，
+  手動對照寫在 `config/msci_names.csv`（en_name,code），資料健檢會列出對不到的名稱
+- 輸出 `data/etf/msci/results.csv`、`schedule.csv`；生效日 = MSCI「as of the close of」的下一個交易日
+- 富時合編指數（臺灣50、中型100、高股息等）的審核結果由臺灣指數公司轉公告，已含在 TIP 定審結果中
+
 ## 網站（GitHub Pages）
 
 網址：https://b04703088.github.io/TaiwanStkInf/ （成交排行：`ranking.html`）
