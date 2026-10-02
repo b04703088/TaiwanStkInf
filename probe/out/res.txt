@@ -1,0 +1,6 @@
+rc=0
+日程表：解析 3 份，共 335 筆指數審核，失敗 0
+定審結果：新解析 150 份，累計 450 份、8627 筆，失敗 0
+
+--stderr--
+ETF 基本資料抓取失敗：https://openapi.twse.com.tw/v1/opendata/t187ap47_L: JSONDecodeError('Expecting value: line 1 column 1 (char 0)')
