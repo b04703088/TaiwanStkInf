@@ -28,6 +28,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import etf_site  # noqa: E402
 import health  # noqa: E402
 import broker_site  # noqa: E402
+import cb_site  # noqa: E402
 
 
 def build(out: Path, days: int) -> list[str]:
@@ -58,6 +59,7 @@ def build(out: Path, days: int) -> list[str]:
     etf_site.write_active(ROOT / "data", out / "data" / "etf" / "active.json")
     broker_site.write_site(ROOT / "data", out, days=20)
     broker_site.write_watch(ROOT / "data", ROOT, out, days=60)
+    cb_site.write_cb(ROOT / "data", out / "data" / "cb" / "cb.json")
     (out / "data" / "health.json").write_text(
         json.dumps(health.check(ROOT / "data"), ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     return dates

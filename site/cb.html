@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CB詢圈｜潮汐</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0E1620; --panel:#141F2B; --panel-2:#182531;
+    --line:rgba(232,237,242,0.09); --line-strong:rgba(232,237,242,0.16);
+    --text:#E8EDF2; --text-muted:#8B99A6; --text-faint:#5C6B79;
+    --brass:#C6A15B; --brass-soft:rgba(198,161,91,0.14); --rise:#E1594F; --fall:#3FAE72; --warn:#D9A441; --sky:#6FA8DC;
+    --radius-s:3px; --radius-m:6px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--ink); color:var(--text);
+    font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
+  h1,h2{font-family:'Noto Serif TC',serif; margin:0; font-weight:700;}
+  h2{font-size:20px;}
+  .mono{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+  a{color:inherit;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
+  header.site{position:sticky; top:0; z-index:40; background:rgba(14,22,32,0.88); backdrop-filter:blur(10px); border-bottom:1px solid var(--line);}
+  .nav-row{display:flex; align-items:center; justify-content:space-between; padding:16px 28px;}
+  .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
+  .brand-mark{font-family:'Noto Serif TC',serif; font-size:22px; font-weight:700;}
+  .brand-sub{font-size:12px; color:var(--text-faint);}
+  nav.links{display:flex; gap:26px; font-size:14px;}
+  nav.links a{text-decoration:none; color:var(--text-muted);}
+  nav.links a:hover{color:var(--brass);}
+  nav.links a[aria-current="page"]{color:var(--brass);}
+  .nav-cta{font-size:13px; color:var(--ink); background:var(--brass); padding:8px 16px; border-radius:var(--radius-s); text-decoration:none; font-weight:500;}
+  .page-head{padding:56px 0 8px;}
+  .eyebrow{font-size:13px; color:var(--brass); margin-bottom:10px;}
+  h1{font-size:32px;}
+  .desc{color:var(--text-muted); font-size:14.5px; margin:12px 0 0; max-width:50em;}
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden; margin-top:28px;}
+  .stat{background:var(--panel); padding:16px 20px;}
+  .stat .k{font-size:12.5px; color:var(--text-muted);}
+  .stat .v{font-size:26px; margin-top:2px;}
+  section.block{margin-top:48px;}
+  .block-head{display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin-bottom:14px; flex-wrap:wrap;}
+  .block-head .hint{font-size:12.5px; color:var(--text-faint);}
+
+  /* 兩週行事曆 */
+  .agenda{border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden;}
+  .day{display:grid; grid-template-columns:120px 1fr; border-bottom:1px solid var(--line);}
+  .day:last-child{border-bottom:none;}
+  .day .d{background:var(--panel); padding:12px 16px; font-size:13px; color:var(--text-muted);}
+  .day .d b{display:block; color:var(--text); font-size:15px; font-weight:600;}
+  .day.today .d{color:var(--brass);} .day.today .d b{color:var(--brass);}
+  .day .ev{padding:10px 16px; display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
+  .tag{display:inline-flex; align-items:center; gap:6px; font-size:13px; border:1px solid var(--line-strong); border-radius:var(--radius-s); padding:3px 9px; background:var(--panel-2); cursor:pointer;}
+  .tag i{font-style:normal; font-size:11.5px; padding:0 5px; border-radius:2px; color:var(--ink);}
+  .k-start i{background:var(--sky);} .k-end i{background:var(--brass);} .k-price i{background:var(--warn);}
+  .k-pay i{background:#B48EAD;} .k-list i{background:var(--fall);}
+  .empty{padding:24px 16px; color:var(--text-faint); font-size:13.5px;}
+
+  /* 進行中卡片 */
+  .cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:14px;}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-m); padding:16px 18px; scroll-margin-top:90px;}
+  .card.hl{border-color:var(--brass);}
+  .card-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
+  .card .nm{font-size:16px; font-weight:700;}
+  .card .nm .mono{font-size:13px; color:var(--text-muted); font-weight:500; margin-left:6px;}
+  .card .sub{font-size:12.5px; color:var(--text-muted); margin-top:2px;}
+  .stage{font-size:12px; padding:2px 8px; border-radius:var(--radius-s); white-space:nowrap; border:1px solid currentColor;}
+  .st-soon{color:var(--sky);} .st-bb{color:var(--brass);} .st-price{color:var(--warn);} .st-pay{color:#B48EAD;} .st-list{color:var(--fall);} .st-done{color:var(--text-faint);}
+  .steps{display:grid; grid-template-columns:repeat(5,1fr); margin:16px 0 12px; position:relative;}
+  .step{text-align:center; font-size:11.5px; color:var(--text-faint); position:relative;}
+  .step::before{content:""; position:absolute; top:6px; left:-50%; width:100%; height:2px; background:var(--line-strong);}
+  .step:first-child::before{display:none;}
+  .step .dot{width:14px; height:14px; border-radius:50%; border:2px solid var(--line-strong); background:var(--ink); margin:0 auto 6px; position:relative; z-index:1;}
+  .step.done{color:var(--text-muted);} .step.done .dot{background:var(--brass); border-color:var(--brass);} .step.done::before{background:var(--brass);}
+  .step.now{color:var(--text);} .step.now .dot{border-color:var(--brass); box-shadow:0 0 0 3px var(--brass-soft);} .step.now::before{background:var(--brass);}
+  .step .dt{display:block; font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:inherit;}
+  .step .dt.est{color:var(--text-faint); font-style:italic;}
+  .kv{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; border-top:1px solid var(--line); padding-top:10px;}
+  .kv div{font-size:11.5px; color:var(--text-faint);}
+  .kv b{display:block; font-size:14px; color:var(--text); font-weight:500; font-family:'IBM Plex Mono',monospace;}
+
+  /* 全部案件 */
+  .toolbar{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+  .toolbar button{background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:6px 12px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .toolbar button[aria-pressed="true"]{border-color:var(--brass); color:var(--brass);}
+  .toolbar input{background:var(--panel); border:1px solid var(--line-strong); color:var(--text); padding:6px 10px; border-radius:var(--radius-s); font:inherit; font-size:13px; width:180px;}
+  .tbl{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius-m); margin-top:12px;}
+  table{width:100%; border-collapse:collapse; font-size:13px;}
+  th,td{padding:9px 12px; text-align:left; border-bottom:1px solid var(--line); white-space:nowrap;}
+  th{font-weight:500; color:var(--text-muted); font-size:12px; background:var(--panel); cursor:pointer; user-select:none;}
+  th.sorted{color:var(--brass);}
+  td.num,th.num{text-align:right;}
+  tbody tr:hover{background:var(--panel);}
+  tr:last-child td{border-bottom:none;}
+  .faint{color:var(--text-faint);}
+  .more{display:block; margin:12px auto 0; background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:7px 18px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .note{font-size:12.5px; color:var(--text-faint); margin-top:18px; line-height:1.8;}
+  footer.site{padding:48px 0; margin-top:64px; border-top:1px solid var(--line);}
+  @media (max-width:860px){
+    .nav-row{padding:14px 16px; flex-wrap:wrap; row-gap:10px;}
+    nav.links{order:3; width:100%; gap:20px; overflow-x:auto; white-space:nowrap; font-size:13.5px; scrollbar-width:none;}
+    .wrap{padding:0 16px;}
+    .stats{grid-template-columns:repeat(2,1fr);} h1{font-size:26px;}
+    .day{grid-template-columns:78px 1fr;} .day .d{padding:10px;} .day .ev{padding:8px 10px;}
+    .cards{grid-template-columns:1fr;}
+    .toolbar input{width:100%;}
+    th,td{padding:8px 9px;} .hide-m{display:none;}
+  }
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="nav-row">
+    <a href="index.html" class="brand"><span class="brand-mark">潮汐</span><span class="brand-sub">籌碼觀測站</span></a>
+    <nav class="links">
+      <a href="index.html">首頁</a>
+      <a href="ranking.html">成交排行</a>
+      <a href="broker.html">分點籌碼</a>
+      <a href="etf.html">ETF持股</a>
+      <a href="cb.html" aria-current="page">CB詢圈</a>
+      <a href="index.html#quant">量化策略</a>
+      <a href="health.html">資料健檢</a>
+    </nav>
+    <a href="index.html#cta" class="nav-cta">開始追蹤</a>
+  </div>
+</header>
+<main class="wrap">
+  <section class="page-head">
+    <div class="eyebrow">CB 詢圈</div>
+    <h1>可轉債從圈購到掛牌</h1>
+    <p class="desc" id="sub">載入中…</p>
+    <div class="stats">
+      <div class="stat"><div class="k">詢圈／競拍中</div><div class="v mono" id="s-bb">–</div></div>
+      <div class="stat"><div class="k">即將開始</div><div class="v mono" id="s-soon">–</div></div>
+      <div class="stat"><div class="k">已訂價、待掛牌</div><div class="v mono" id="s-wait">–</div></div>
+      <div class="stat"><div class="k">今年已掛牌</div><div class="v mono" id="s-done">–</div></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>接下來兩週</h2><span class="hint">點名稱可跳到該案進度</span></div>
+    <div class="agenda" id="agenda"></div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>進行中</h2><span class="hint" id="active-hint"></span></div>
+    <div class="cards" id="cards"></div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>全部案件</h2>
+      <div class="toolbar" role="group" aria-label="篩選">
+        <button data-m="詢價圈購" aria-pressed="true">詢圈</button>
+        <button data-m="競價拍賣" aria-pressed="false">競拍</button>
+        <button data-m="" aria-pressed="false">全部</button>
+        <input id="q" type="search" placeholder="公司、代號、承銷商" aria-label="搜尋">
+      </div>
+    </div>
+    <div class="tbl">
+      <table>
+        <thead><tr id="thead"></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <button class="more" id="more" hidden>顯示更多</button>
+    <p class="note">
+      流程：董事會決議 → 金管會申報生效 → <b>詢價圈購</b>（承銷商向投資人詢問願意接受的轉換溢價率）→ <b>訂價基準日</b>（取前 1／3／5 個營業日均價擇一 × 議定溢價率 = 轉換價）→ <b>繳款</b> → <b>上櫃掛牌</b>。<br>
+      斜體灰字的日期是還沒公告時依慣例推估（訂價基準日 ≈ 圈購截止後 2 個營業日、掛牌 ≈ 訂價後 7 個營業日），以正式公告為準。<br>
+      來源：證券商業同業公會承銷公告（詢圈公告、競拍公告、承銷公告 PDF）、櫃買中心轉(交)換公司債發行資料。每天 08:00、18:00 左右更新。
+    </p>
+  </section>
+</main>
+<footer class="site"><div class="wrap"><p class="note" style="margin:0">資料僅供參考，實際條件以公開說明書與主管機關公告為準。</p></div></footer>
+<script>
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const tpeToday = () => new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);
+const TODAY = tpeToday();
+const WD = "日一二三四五六";
+const md = d => d ? `${+d.slice(5,7)}/${+d.slice(8,10)}` : "–";
+const addBiz = (d, n) => { const t = new Date(d + "T00:00:00Z"); while (n > 0) { t.setUTCDate(t.getUTCDate() + 1); const w = t.getUTCDay(); if (w && w < 6) n--; } return t.toISOString().slice(0, 10); };
+const fmt = (v, dp) => v == null ? "–" : (dp == null ? v.toLocaleString() : v.toFixed(dp));
+const pct = v => v == null ? "–" : (+v).toFixed(2).replace(/\.?0+$/, "") + "%";
+
+let cases = [], mode = "詢價圈購", q = "", limit = 60, sortKey = "start", sortDir = -1;
+
+function stage(c){
+  const lst = c.list_date || c.list_expected;
+  const auc = c.method === "競價拍賣";
+  if (c.list_date && c.list_date <= TODAY) return ["done", "已掛牌"];
+  const last = [c.bb_end, c.done_date, c.price_base_date, c.pay_date, c.list_expected, c.issue_date].filter(Boolean).sort().pop();
+  if (!last || last < addDays(TODAY, -40)) return ["done", "已結束"];
+  if (c.bb_start && c.bb_start > TODAY) return ["soon", auc ? "即將競拍" : "即將詢圈"];
+  if (c.bb_start && c.bb_end && c.bb_end >= TODAY) return ["bb", auc ? "競拍中" : "詢圈中"];
+  if (!lst && c.bb_end && c.bb_end < addDays(TODAY, -40)) return ["done", "已結束"];
+  if (lst && lst <= TODAY) return ["done", "已掛牌"];
+  if (c.conv_price == null) return ["price", "待訂價"];
+  if (c.pay_date && c.pay_date >= TODAY) return ["pay", "待繳款"];
+  return ["list", "待掛牌"];
+}
+function addDays(d, n){ const t = new Date(d + "T00:00:00Z"); t.setUTCDate(t.getUTCDate() + n); return t.toISOString().slice(0, 10); }
+
+// 五個節點：開始、截止、訂價、繳款、掛牌（沒公告的用推估）
+function steps(c){
+  const base = c.price_base_date || (c.bb_end ? addBiz(c.bb_end, 2) : null);
+  const list = c.list_date || c.list_expected || (base ? addBiz(base, 7) : null);
+  return [
+    ["開始", c.bb_start, false],
+    ["截止", c.bb_end, false],
+    ["訂價", base, !c.price_base_date],
+    ["繳款", c.pay_date || (base ? addBiz(base, 2) : null), !c.pay_date],
+    ["掛牌", list, !(c.list_date || c.list_expected)],
+  ];
+}
+const label = c => `${esc(c.short || c.company)}${c.code ? ` <span class="mono">${esc(c.code)}</span>` : ""}`;
+
+function renderAgenda(){
+  const end = addDays(TODAY, 14), days = {};
+  const KIND = {start:["k-start","開始"], end:["k-end","截止"], price:["k-price","訂價"], pay:["k-pay","繳款"], list:["k-list","掛牌"]};
+  for (const c of cases){
+    const ev = [["start", c.bb_start], ["end", c.bb_end], ["price", c.price_base_date], ["pay", c.pay_date], ["list", c.list_date || c.list_expected]];
+    const seen = new Set();
+    for (const [k, d] of ev){
+      if (!d || d < TODAY || d > end || seen.has(k + d)) continue;
+      seen.add(k + d);
+      (days[d] ||= []).push([k, c]);
+    }
+  }
+  const ds = Object.keys(days).sort();
+  document.getElementById("agenda").innerHTML = ds.length ? ds.map(d => {
+    const w = new Date(d + "T00:00:00Z").getUTCDay();
+    const order = ["start","end","price","pay","list"];
+    const evs = days[d].sort((a, b) => order.indexOf(a[0]) - order.indexOf(b[0]));
+    return `<div class="day${d === TODAY ? " today" : ""}"><div class="d"><b class="mono">${md(d)}</b>週${WD[w]}${d === TODAY ? "・今天" : ""}</div>
+      <div class="ev">${evs.map(([k, c]) => `<span class="tag ${KIND[k][0]}" data-id="${esc(c.id)}"><i>${KIND[k][1]}</i>${label(c)}${c.method === "競價拍賣" ? '<span class="faint">競拍</span>' : ""}</span>`).join("")}</div></div>`;
+  }).join("") : `<div class="empty">未來兩週沒有已公告的詢圈、訂價或掛牌。</div>`;
+  document.querySelectorAll("#agenda .tag").forEach(t => t.onclick = () => {
+    const el = document.getElementById("c-" + t.dataset.id);
+    if (el){ el.scrollIntoView({behavior:"smooth", block:"center"}); el.classList.add("hl"); setTimeout(() => el.classList.remove("hl"), 1800); }
+  });
+}
+
+function renderCards(){
+  const act = cases.filter(c => c._st[0] !== "done").sort((a, b) => (a.bb_start || a.done_date || "9").localeCompare(b.bb_start || b.done_date || "9"));
+  document.getElementById("active-hint").textContent = `${act.length} 檔`;
+  document.getElementById("cards").innerHTML = act.length ? act.map(c => {
+    const st = steps(c);
+    let cur = st.findIndex(s => !s[1] || s[1] > TODAY);
+    if (cur < 0) cur = st.length;
+    const prem = c.premium != null ? pct(c.premium) : (c.premium_lo != null ? `${pct(c.premium_lo)}~${pct(c.premium_hi)}` : "–");
+    return `<article class="card" id="c-${esc(c.id)}">
+      <div class="card-top"><div><div class="nm">${esc(c.short || c.company)}${c.code ? `<span class="mono">${esc(c.code)}</span>` : ""}</div>
+        <div class="sub">${c.series ? `第 ${c.series} 次・` : ""}${esc((c.type || "").replace("轉換公司債", "CB").replace("交換公司債", "EB"))}・${esc(c.method || "")}・${esc(c.lead || "")}</div></div>
+        <span class="stage st-${c._st[0]}">${c._st[1]}</span></div>
+      <div class="steps">${st.map(([n, d, est], i) => `<div class="step ${i < cur ? "done" : i === cur ? "now" : ""}"><div class="dot"></div>${n}<span class="dt${est ? " est" : ""}">${d ? md(d) : "–"}</span></div>`).join("")}</div>
+      <div class="kv">
+        <div>${c.premium != null ? "議定溢價率" : "溢價區間"}<b>${prem}</b></div>
+        <div>轉換價<b>${c.conv_price != null ? fmt(c.conv_price) : "–"}</b></div>
+        <div>張數${c.bb_units ? "（圈購）" : ""}<b>${fmt(c.units)}${c.bb_units ? `<span class="faint" style="font-size:12px">（${fmt(c.bb_units)}）</span>` : ""}</b></div>
+      </div></article>`;
+  }).join("") : `<div class="empty">目前沒有進行中的案件。</div>`;
+}
+
+const COLS = [
+  ["name", "公司", c => `${label(c)}`, c => c.short || c.company || ""],
+  ["series", "次", c => c.series ?? "–", c => c.series ?? 0, "num hide-m"],
+  ["stage", "進度", c => `<span class="stage st-${c._st[0]}">${c._st[1]}</span>`, c => c._st[1]],
+  ["lead", "主辦", c => esc(c.lead || "–"), c => c.lead || "", "hide-m"],
+  ["units", "張數", c => fmt(c.units), c => c.units ?? 0, "num"],
+  ["start", "詢圈／競拍期間", c => c.bb_start ? `${md(c.bb_start)}~${md(c.bb_end)}` : "–", c => c.bb_start || c.done_date || c.issue_date || "", "mono"],
+  ["range", "溢價區間", c => c.premium_lo != null ? `${pct(c.premium_lo)}~${pct(c.premium_hi)}` : "–", c => c.premium_lo ?? 0, "num hide-m"],
+  ["base", "訂價基準日", c => md(c.price_base_date), c => c.price_base_date || "", "mono hide-m"],
+  ["conv", "轉換價", c => c.conv_price != null ? fmt(c.conv_price) : "–", c => c.conv_price ?? 0, "num"],
+  ["prem", "溢價率", c => pct(c.premium), c => c.premium ?? 0, "num"],
+  ["issue", "發行價", c => c.issue_pct != null ? fmt(c.issue_pct) : "–", c => c.issue_pct ?? 0, "num hide-m"],
+  ["pay", "繳款", c => md(c.pay_date), c => c.pay_date || "", "mono hide-m"],
+  ["list", "掛牌", c => c.list_date ? md(c.list_date) : c.list_expected ? `<span class="faint">${md(c.list_expected)}</span>` : "–", c => c.list_date || c.list_expected || "", "mono"],
+];
+
+function renderTable(){
+  document.getElementById("thead").innerHTML = COLS.map(([k, n, , , cls]) => `<th data-k="${k}" class="${cls || ""}${k === sortKey ? " sorted" : ""}">${n}${k === sortKey ? (sortDir > 0 ? " ↑" : " ↓") : ""}</th>`).join("");
+  document.querySelectorAll("#thead th").forEach(th => th.onclick = () => {
+    sortDir = th.dataset.k === sortKey ? -sortDir : (["name","lead","stage"].includes(th.dataset.k) ? 1 : -1);
+    sortKey = th.dataset.k; renderTable();
+  });
+  const col = COLS.find(c => c[0] === sortKey);
+  const ql = q.trim().toLowerCase();
+  const list = cases.filter(c => (!mode || c.method === mode) &&
+      (!ql || [c.company, c.short, c.code, c.lead, c.bond_code].some(x => (x || "").toLowerCase().includes(ql))))
+    .sort((a, b) => { const x = col[3](a), y = col[3](b); return (x > y ? 1 : x < y ? -1 : 0) * sortDir; });
+  document.getElementById("rows").innerHTML = list.slice(0, limit).map(c => `<tr>${COLS.map(([k, , f, , cls]) => `<td class="${cls || ""}">${f(c)}</td>`).join("")}</tr>`).join("")
+    || `<tr><td colspan="${COLS.length}" class="faint" style="padding:24px 12px">沒有符合的案件</td></tr>`;
+  const more = document.getElementById("more");
+  more.hidden = list.length <= limit;
+  more.textContent = `顯示更多（共 ${list.length} 檔）`;
+}
+
+document.querySelectorAll(".toolbar button").forEach(b => b.onclick = () => {
+  mode = b.dataset.m; limit = 60;
+  document.querySelectorAll(".toolbar button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  renderTable();
+});
+document.getElementById("q").oninput = e => { q = e.target.value; limit = 60; renderTable(); };
+document.getElementById("more").onclick = () => { limit += 120; renderTable(); };
+
+fetch("data/cb/cb.json", {cache:"no-cache"}).then(r => r.json()).then(d => {
+  cases = d.rows.map(r => Object.fromEntries(d.cols.map((k, i) => [k, r[i]])));
+  cases.forEach(c => c._st = stage(c));
+  const n = k => cases.filter(c => c._st[0] === k).length;
+  document.getElementById("s-bb").textContent = n("bb");
+  document.getElementById("s-soon").textContent = n("soon");
+  document.getElementById("s-wait").textContent = n("price") + n("pay") + n("list");
+  document.getElementById("s-done").textContent = cases.filter(c => c._st[0] === "done" && (c.list_date || "").slice(0, 4) === TODAY.slice(0, 4)).length;
+  document.getElementById("sub").textContent = `今天 ${TODAY}・共 ${cases.length} 檔 CB／EB 案件${d.generated ? `・資料更新 ${d.generated}` : ""}。把每檔可轉債的詢圈期間、訂價基準日、轉換價、繳款與掛牌日排在同一條時間軸上。`;
+  renderAgenda(); renderCards(); renderTable();
+}).catch(() => { document.getElementById("sub").textContent = "CB 資料載入失敗"; });
+</script>
+<script>(function(){var a=document.querySelector('nav.links a[aria-current="page"]');if(a&&a.parentNode.scrollWidth>a.parentNode.clientWidth){a.parentNode.scrollLeft=a.offsetLeft-a.parentNode.offsetLeft-16;}})();</script>
+</body>
+</html>

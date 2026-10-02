@@ -116,6 +116,21 @@ python -m unittest discover tests                       # 測試
 - 輸出 `data/broker/watch/<YYYY>/<YYYYMMDD>.csv`：`date, bid, branch, code, name, buy_amt, sell_amt, net_amt, buy_sh, sell_sh, net_sh`
 - 網站 `watch.html`（分點籌碼 → 重點分點）：選取分點的買賣超金額加總排行，可選當日／近 5、10、20 日，可只看部分分點
 
+## 可轉債詢圈（CB）
+
+`fetch_cb.py`（`.github/workflows/cb.yml`，平日台北 08:13、18:13）把每檔 CB 從圈購到掛牌的時間點整理成 `data/cb/cases.csv`，網頁在 `cb.html`。
+
+| 來源 | 拿到什麼 |
+|---|---|
+| 證券商業同業公會承銷公告 — 詢圈公告 | 圈購期間、溢價率區間、承銷／圈購張數（還沒訂價的案子只有這裡有） |
+| 同上 — 競拍公告 | 投標期間、競拍張數 |
+| 同上 — 承銷公告 PDF（銷售辦法公告） | 第幾次、訂價基準日、轉換價、溢價率、發行價、繳款日、預定上櫃日 |
+| 櫃買中心 OpenAPI `bond_ISSBD5_data` | 債券代號、實際發行／上櫃日、發行時轉換價（只含流通中的債券） |
+
+- 已解析過的 PDF 記在 `data/cb/notices.csv`，不會重抓；剛申報（30 天內）而 PDF 還沒有訂價結果的會每次重試。
+- 公司全名對不到代號時，網頁的資料健檢會列出來；在 `config/cb_names.csv` 加一行 `name,code` 即可。
+- 手動回補：Actions → Fetch CB bookbuilding → Run workflow，`years` 填 `2024 2025`。
+
 ## 資料健檢
 
 `scripts/health.py` 檢查資料有沒有漏抓或抓錯，結果在網站的 `health.html`（ETF持股、成交排行頁尾有連結）。

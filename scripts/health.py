@@ -195,6 +195,28 @@ def check(data_dir=ROOT / "data", now=None):
             ("英文名稱對不到代號：" + "、".join(unmatched[:5]) + "（請加到 config/msci_names.csv）") if unmatched
             else f"{len({r['review'] for r in rows_m})} 期名單")
 
+    # ---------- CB 詢圈 ----------
+    cb_src = data_dir / "cb" / "sources.json"
+    if cb_src.exists():
+        src = json.loads(cb_src.read_text(encoding="utf-8"))
+        gen = (src.get("generated") or "")[:10] or None
+        cases = _read(data_dir / "cb" / "cases.csv") if (data_dir / "cb" / "cases.csv").exists() else []
+        nts = _read(data_dir / "cb" / "notices.csv") if (data_dir / "cb" / "notices.csv").exists() else []
+        bad = [n for n in nts if n.get("parsed") == "0"]
+        stale = gen and (now.date() - datetime.strptime(gen, "%Y-%m-%d").date()).days > 4
+        errs = src.get("errors") or []
+        level = "error" if stale or not cases else "warn" if errs or bad or src.get("unmapped") else "ok"
+        msg = f"{len(cases)} 檔"
+        if stale:
+            msg += "，超過 4 天沒更新"
+        if errs:
+            msg += f"，抓取錯誤 {len(errs)} 筆：{errs[0]}"
+        if bad:
+            msg += "，PDF 欄位不完整：" + "、".join(f"{n['sn']}{n['company'][:6]}" for n in bad[:3])
+        if src.get("unmapped"):
+            msg += "，對不到代號：" + "、".join(src["unmapped"][:3])
+        add("cb", "cb", "CB 詢圈", level, gen, msg, rows=len(cases))
+
     # ---------- ETF 規模 ----------
     aum_files = sorted((etf_dir / "aum").glob("[0-9]*.csv"))
     if not aum_files:

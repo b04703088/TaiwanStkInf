@@ -1,0 +1,55 @@
+name: Fetch CB bookbuilding
+
+on:
+  schedule:
+    # 台北 08:13、18:13（UTC 00:13、10:13），週一至週五。
+    # 詢圈公告、承銷公告多在白天上傳；GitHub 排程常延遲，可用 cron-job.org 呼叫 workflow_dispatch 準時觸發。
+    - cron: "13 0 * * 1-5"
+    - cron: "13 10 * * 1-5"
+  workflow_dispatch:
+    inputs:
+      years:
+        description: "抓哪幾年，空白分隔（留空 = 今年和去年）"
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fetch-cb
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Fetch
+        env:
+          IN_YEARS: ${{ inputs.years }}
+        run: |
+          pip install -q pdfplumber
+          if [ -n "$IN_YEARS" ]; then python fetch_cb.py --years $IN_YEARS; else python fetch_cb.py; fi
+
+      - name: Commit data
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/cb
+          if git diff --cached --quiet; then
+            echo "No new data"
+            exit 0
+          fi
+          git commit -m "data: CB bookbuilding $(TZ=Asia/Taipei date +%F)"
+          for i in 1 2 3; do
+            git pull --rebase -q && git push && exit 0
+            sleep 10
+          done
+          exit 1

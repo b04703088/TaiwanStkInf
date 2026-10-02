@@ -3,7 +3,7 @@ name: Deploy site
 on:
   # 每日抓完股價或 ETF 持股後自動重建網站
   workflow_run:
-    workflows: ["Fetch daily stock prices", "Fetch ETF holdings", "Fetch broker branches"]
+    workflows: ["Fetch daily stock prices", "Fetch ETF holdings", "Fetch broker branches", "Fetch CB bookbuilding"]
     types: [completed]
   # 改了網頁或手動更新資料也重建（排程 bot 的 commit 不會觸發 push 事件，不會重複部署）
   push:
@@ -15,6 +15,7 @@ on:
       - "scripts/etf_site.py"
       - "scripts/health.py"
       - "scripts/broker_site.py"
+      - "scripts/cb_site.py"
       - ".github/workflows/pages.yml"
   workflow_dispatch: {}
 
