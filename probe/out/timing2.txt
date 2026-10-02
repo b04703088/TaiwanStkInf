@@ -1,0 +1,20 @@
+2026-10-02 job start 14:51:33
+15:15:06 {'zco_2330': False, 'zco_8069': False, 'zgb_9801': False}
+15:25:11 {'zco_2330': False, 'zco_8069': False, 'zgb_9801': False}
+15:35:13 {'zco_2330': False, 'zco_8069': False, 'zgb_9801': False}
+15:45:15 {'zco_2330': False, 'zco_8069': False, 'zgb_9801': False}
+15:55:17 {'zco_2330': False, 'zco_8069': False, 'zgb_9801': False}
+16:05:19 {'zco_2330': False, 'zco_8069': False, 'zgb_9801': False}
+16:15:21 {'zco_2330': False, 'zco_8069': False, 'zgb_9801': False}
+16:25:23 {'zco_2330': False, 'zco_8069': False, 'zgb_9801': False}
+16:35:25 {'zco_2330': False, 'zco_8069': False, 'zgb_9801': False}
+16:45:27 {'zco_2330': False, 'zco_8069': False, 'zgb_9801': False}
+16:55:30 {'zco_2330': False, 'zco_8069': False, 'zgb_9801': False}
+17:05:32 {'zco_2330': False, 'zco_8069': False, 'zgb_9801': False}
+17:15:34 {'zco_2330': False, 'zco_8069': False, 'zgb_9801': False}
+17:25:36 {'zco_2330': False, 'zco_8069': False, 'zgb_9801': False}
+17:35:38 {'zco_2330': False, 'zco_8069': False, 'zgb_9801': False}
+17:45:40 {'zco_2330': False, 'zco_8069': False, 'zgb_9801': False}
+17:55:43 {'zco_2330': False, 'zco_8069': True, 'zgb_9801': True}
+18:05:45 {'zco_2330': True, 'zco_8069': True, 'zgb_9801': True}
+first available: {'zco_8069': '17:55', 'zgb_9801': '17:55', 'zco_2330': '18:05'}
