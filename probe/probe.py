@@ -1,35 +1,27 @@
-import pathlib, re, subprocess, sys, json, urllib.request
-subprocess.run([sys.executable, "-m", "pip", "install", "-q", "pdfplumber"], check=False)
+import pathlib, re, json, urllib.request
 OUT = pathlib.Path(__file__).parent / "out"; OUT.mkdir(exist_ok=True)
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
 log = []
-def get(url, name=None):
+def get(url):
     try:
         r = urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "*/*"}), timeout=40)
-        b = r.read(); log.append(f"== {url} -> {r.status} {len(b)} {r.headers.get('content-type')}")
-        if name: (OUT / name).write_bytes(b)
-        return b
+        return r.read()
     except Exception as e:
-        log.append(f"== {url} -> ERR {e}"); return b""
-page = get("https://taiwanindex.com.tw/downloads/technical_notice?category_id=3", "list.html").decode("utf-8", "ignore")
-for m in sorted(set(re.findall(r'(?:src|href)="([^"]+\.js)"', page)))[:30]: log.append("js " + m)
-for m in sorted(set(re.findall(r'https?://backend\.taiwanindex\.com\.tw/[^"\'\s<]+', page)))[:30]: log.append("be " + m)
-# try likely list APIs
-for u in ["https://backend.taiwanindex.com.tw/api/TechnicalNotices?category_id=3",
-          "https://backend.taiwanindex.com.tw/api/technicalNotices?categoryId=3&lang=tw",
-          "https://backend.taiwanindex.com.tw/api/TechnicalNotice/list?category_id=3"]:
-    b = get(u); log.append(b[:300].decode("utf-8", "ignore"))
-for i in (1325, 1311):
-    b = get(f"https://backend.taiwanindex.com.tw/api/downloadFile/TechnicalNotices/{i}/tw", f"tn{i}.bin")
-    try:
-        import pdfplumber, io
-        with pdfplumber.open(io.BytesIO(b)) as pdf:
-            txt = []
-            for pg in pdf.pages:
-                txt.append(pg.extract_text() or "")
-                for t in pg.extract_tables():
-                    txt.append("TABLE: " + json.dumps(t, ensure_ascii=False))
-            (OUT / f"tn{i}.txt").write_text("\n".join(txt), encoding="utf-8")
-    except Exception as e:
-        log.append(f"pdf {i} ERR {e}")
-(OUT / "dbg.txt").write_text("\n".join(log), encoding="utf-8")
+        log.append(f"ERR {url} {e}"); return b""
+d = json.loads(get("https://openapi.twse.com.tw/v1/opendata/t187ap47_L") or b"[]")
+log.append("t187ap47_L keys: " + json.dumps(list(d[0].keys()) if d else [], ensure_ascii=False))
+log.append(json.dumps([x for x in d if x.get("基金代號", "").strip() in ("00940", "00947", "00946", "00878", "0050")], ensure_ascii=False)[:3000])
+# tpex etf info
+for u in ["https://www.tpex.org.tw/openapi/v1/tpex_etf_basic_info", "https://www.tpex.org.tw/openapi/v1/etf_info"]:
+    b = get(u); log.append(f"{u}: {b[:400].decode('utf-8','ignore')}")
+for p in range(1, 7):
+    page = get(f"https://taiwanindex.com.tw/downloads/technical_notice?category_id=3&page={p}").decode("utf-8", "ignore")
+    ids = re.findall(r"TechnicalNotices/(\d+)/tw", page)
+    titles = re.findall(r"(20\d\d\s*年\s*\d+\s*月指數定期審核日程表)", page)
+    log.append(f"page {p}: {ids} {titles[:12]}")
+# index list page for ETF mapping
+page = get("https://taiwanindex.com.tw/indexes").decode("utf-8", "ignore")
+log.append("indexes page len %d, IX ids %d" % (len(page), len(set(re.findall(r"IX\d{4}", page)))))
+pg = get("https://taiwanindex.com.tw/indexes/IX0124").decode("utf-8", "ignore")
+i = pg.find("ETF"); log.append("IX0124: " + re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", pg))[:1500])
+(OUT / "dbg2.txt").write_text("\n".join(log), encoding="utf-8")
