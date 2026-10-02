@@ -26,7 +26,7 @@ import json
 import re
 import sys
 import time
-import urllib.parse
+import unicodedata
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
@@ -34,6 +34,7 @@ import etf_common as C
 
 ROOT = Path(__file__).resolve().parent
 OUT = ROOT / "data" / "cb"
+NAMES = ROOT / "config" / "cb_names.csv"  # 自動對不到代號時手動補：name,code
 EDOC = "https://web.twsa.org.tw/Edoc2/Default.aspx"
 ISSBD5 = "https://www.tpex.org.tw/openapi/v1/bond_ISSBD5_data"
 CO_TWSE = "https://openapi.twse.com.tw/v1/opendata/t187ap03_L"
@@ -99,8 +100,39 @@ def cn_num(s):
     return n
 
 
+_NOTE = re.compile(r"\((?:第?[一二三四五六七八九十\d]+次?|未訂價|創新板|更正|補正|修正|重新公告|[^()]*公告)\)$")
+
+
+def next_biz(d):
+    """下一個平日（競拍開標日 ≈ 投標截止次一營業日；不考慮國定假日）。"""
+    if not d:
+        return ""
+    t = date.fromisoformat(d) + timedelta(days=1)
+    while t.weekday() >= 5:
+        t += timedelta(days=1)
+    return t.isoformat()
+
+
 def norm_company(s):
-    s = re.sub(r"\s+", "", s or "").replace("臺", "台").replace("（", "(").replace("）", ")")
+    """公會清單上的公司名稱 → 乾淨的中文全名：
+    去掉「(第一次)」「(三)」「(未訂價)」「(創新板)」等註記；「English(中文-KY)」取括號內中文。"""
+    s = re.sub(r"\s+", "", unicodedata.normalize("NFKC", s or "")).replace("臺", "台").replace("（", "(").replace("）", ")").replace("－", "-")
+    s = s.replace("啓", "啟").replace("股分", "股份").replace("股份有公司", "股份有限公司")
+    while _NOTE.search(s):
+        s = _NOTE.sub("", s)
+    m = re.fullmatch(r"([^\u4e00-\u9fff]+)\((.*[\u4e00-\u9fff].*)\)", s)
+    if m:
+        s = m.group(2)
+    return re.sub(r"^[A-Za-z0-9.,&'()-]+(?=[\u4e00-\u9fff])", "", s)
+
+
+def core(name):
+    """比對用：去掉公司型態、開曼註記、-KY。"""
+    s = norm_company(name)
+    s = re.sub(r"^(?:英屬)?開曼群島商?|^英屬維京群島商|^百慕達商|^萬那杜商|^薩摩亞商", "", s)
+    s = re.sub(r"-?KY$|\*$", "", s)
+    s = re.sub(r"(?:股份)?有限公司$|控股$", "", s)
+    s = re.sub(r"(?:股份)?有限公司$", "", s)
     return s
 
 
@@ -190,7 +222,7 @@ def parse_bookbuilding(head, rows):
 def parse_auction(head, rows):
     """競價拍賣清單 → AU_COLS（欄位依表頭名稱對應；只留公司債）。"""
     ix = {"company": _col(head, "發行公司"), "lead": _col(head, "主辦"), "type": _col(head, "性質"),
-          "units": _col(head, "承銷"), "au_units": _col(head, "競拍") or _col(head, "拍賣"),
+          "units": _col(head, "承銷股數"), "au_units": _col(head, "競拍股數") or _col(head, "拍賣"),
           "bid": _col(head, "投標"), "open": _col(head, "開標")}
     out = []
     for tds, _ in rows:
@@ -205,7 +237,7 @@ def parse_auction(head, rows):
         out.append({"sn": tds[0], "company": norm_company(g("company")), "lead": g("lead"), "type": g("type"),
                     "units": _int(g("units")), "au_units": _int(g("au_units")),
                     "bid_start": ad(period[0]) if period else "", "bid_end": ad(period[-1]) if period else "",
-                    "open_date": ad(g("open")), "raw": raw})
+                    "open_date": ad(g("open")) or next_biz(ad(period[-1]) if period else ""), "raw": raw})
     return out
 
 
@@ -234,31 +266,33 @@ def _find_date(t, *pats):
 
 def parse_notice(text):
     """銷售辦法公告全文 → 關鍵欄位（找不到的留空）。"""
-    t = re.sub(r"\s+", "", text).replace("臺", "台").replace("（", "(").replace("）", ")").replace("：", ":")
+    t = re.sub(r"\s+", "", unicodedata.normalize("NFKC", text)).replace("臺", "台").replace("（", "(").replace("）", ")").replace("：", ":")
+    t = t.replace("民國", "")
     r = {}
-    m = re.search(r"國內第([一二三四五六七八九十〇零\d]+)次", t)
+    m = re.search(r"(?:國內|境內)第([一二三四五六七八九十〇零\d]+)次", t) or re.search(r"第([一二三四五六七八九十\d]+)次(?:有|無)擔保", t)
     r["series"] = cn_num(m.group(1)) if m else ""
     m = re.search(r"(?:面額|票面金額)之?([\d.]+)%(?:發行|溢價發行)", t)
     if m:
         r["issue_pct"] = m.group(1)
-    elif "十足發行" in t:
+    elif re.search(r"十足發行|面額發行", t):
         r["issue_pct"] = "100"
     else:
-        m = re.search(r"承銷價格為([\d.]+)元", t)
+        m = re.search(r"(?:承銷|發行)價格為([\d.]+)元", t)
         r["issue_pct"] = m.group(1) if m else ""
-    m = re.search(r"共計發行([\d,]+)張", t) or re.search(r"發行總張數為?([\d,]+)張", t)
-    r["total_units"] = _int(m.group(1)) if m else ""
-    r["done_date"] = _find_date(t, r"(?:詢價圈購|競價拍賣)作業(?:已)?於<D>完成")
-    r["price_base_date"] = _find_date(t, r"以<D>為(?:訂價|轉換價格)基準日", r"訂價基準日(?:為|:)<D>")
-    m = (re.search(r"轉換價格(?:訂)?為(?:每股)?(?:新台幣)?([\d,]+(?:\.\d+)?)元", t)
-         or re.search(r"轉換價格(?:訂)?為(?:每股)?(?:新台幣)?([\d,]+(?:\.\d+)?)", t))
+    m = re.search(r"共計發行([\d,]+)張", t) or re.search(r"發行總張數為?([\d,]+)張", t) or re.search(r"合計[\d,]+張?[\d,]+張?([\d,]+)張?", t)
+    r["total_units"] = (_int(m.group(1)) or "") if m else ""
+    r["done_date"] = _find_date(t, r"(?:詢價圈購|競價拍賣)(?:作業)?(?:業|已)?於<D>(?:完成|辦理完成)", r"以<D>開標日為訂價日")
+    r["price_base_date"] = _find_date(
+        t, r"以<D>(?:為|作為)(?:轉換|交換)?(?:價格)?(?:訂定|訂價)?基準日", r"(?:訂價|轉換價格|交換價格)基準日(?:為|:)<D>")
+    m = re.search(r"(?:轉換|交換)價格(?:為|訂為|訂定為)?(?:每股)?(?:新台幣)?([\d,]+(?:\.\d+)?)元", t)
     r["conv_price"] = m.group(1).replace(",", "") if m else ""
-    m = re.search(r"溢價率(?:為|訂為)?([\d.]+)%", t)
+    m = re.search(r"溢價率(?:為|訂為|定為)?([\d.]+)%", t)
     r["premium"] = m.group(1) if m else ""
     r["pay_date"] = _find_date(t, r"繳款日[^()]{0,8}\(即<D>\)", r"繳款截止日(?:為|:)?<D>",
-                               r"繳存往來銀行截止日為<D>", r"繳款期間[^。]{0,30}至<D>")
-    r["list_expected"] = _find_date(t, r"預定(?:於|為)<D>(?:掛牌)?上櫃", r"上櫃日期預定為<D>",
-                                    r"預定於<D>", r"預定上櫃日(?:期)?(?:為|:)<D>")
+                               r"繳存往來銀行截止日為<D>", r"繳款期間[^。]{0,30}至<D>", r"繳款日(?:為|:)<D>")
+    r["list_expected"] = _find_date(t, r"預[定訂](?:於|為)<D>(?:掛牌)?上櫃", r"上櫃日期預[定訂]為<D>",
+                                    r"預[定訂]於<D>", r"上櫃日期(?:為|:)<D>", r"上櫃交易日\(<D>\)",
+                                    r"預[定訂]上櫃日(?:期)?(?:為|:)<D>")
     return r
 
 
@@ -289,25 +323,25 @@ def load_companies(refresh=True):
     return _read(p) or rows
 
 
-def company_mapper(companies, issued):
+def company_mapper(companies, issued, overrides=None):
+    """公司全名 → 代號：先比全名（去公司型態），再用櫃買發行資料／公司簡稱當前綴比。"""
     full = {}
     for c in companies:
-        full.setdefault(c["name"], c["code"])
-    shorts = sorted(((re.sub(r"[-*].*$", "", i["name"]), i["code"]) for i in issued if i["name"]),
+        full.setdefault(core(c["name"]), c["code"])
+    shorts = sorted(((re.sub(r"[-*].*$|KY$", "", i["name"]), i["code"]) for i in issued if i["name"]),
                     key=lambda x: -len(x[0]))
-    shorts += sorted(((c["abbr"], c["code"]) for c in companies if len(c.get("abbr") or "") >= 2),
-                     key=lambda x: -len(x[0]))
+    shorts += sorted(((re.sub(r"[-*].*$|KY$", "", c["abbr"]), c["code"]) for c in companies
+                      if len(c.get("abbr") or "") >= 2), key=lambda x: -len(x[0]))
+    over = {core(k): v for k, v in (overrides or {}).items()}
 
     def f(name):
-        name = norm_company(name)
-        if name in full:
-            return full[name]
-        base = name.replace("股份有限公司", "")
-        for k, v in full.items():
-            if k.replace("股份有限公司", "") == base:
-                return v
+        k = core(name)
+        if k in over:
+            return over[k]
+        if k in full:
+            return full[k]
         for s, code in shorts:
-            if s and base.startswith(s):
+            if len(s) >= 2 and k.startswith(s):
                 return code
         return ""
     return f
@@ -367,15 +401,16 @@ def merge(bb, au, notices, issued, code_of):
     notices = [n for n in notices if n.get("status") != "撤銷"]
     by_company = {}
     for n in notices:
-        by_company.setdefault(n["company"], []).append(n)
+        by_company.setdefault(core(n["company"]), []).append(n)
 
     def find_notice(company, start, end):
-        for n in sorted(by_company.get(company, []), key=lambda n: n["sn"]):
+        for n in sorted(by_company.get(core(company), []), key=lambda n: n["sn"]):
             if n["sn"] in nt_used:
                 continue
-            if n.get("done_date") and _near(n["done_date"], end, -1, 3):
-                return n
-            if not n.get("done_date") and _near(n["filed"], end, -20, 3):
+            if n.get("done_date"):
+                if _near(n["done_date"], end, -2, 4):
+                    return n
+            elif _near(n.get("price_base_date"), end, -15, 6) or _near(n["filed"], end, -30, 3):
                 return n
         return None
 
@@ -492,7 +527,11 @@ def main(argv=None):
         errors.append(f"櫃買發行資料：{e}")
         issued = _read(OUT / "issued.csv")
 
-    code_of = company_mapper(load_companies(), issued)
+    over = {}
+    if NAMES.exists():
+        with NAMES.open(encoding="utf-8-sig") as fp:
+            over = {r["name"].strip(): r["code"].strip() for r in csv.DictReader(fp) if (r.get("code") or "").strip()}
+    code_of = company_mapper(load_companies(), issued, over)
     bb_rows = sorted(bb.values(), key=lambda r: r["sn"])
     au_rows = sorted(au.values(), key=lambda r: r["sn"])
     nt_rows = sorted(nts.values(), key=lambda r: r["sn"])
