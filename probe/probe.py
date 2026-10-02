@@ -1,29 +1,40 @@
-import pathlib, re, json, urllib.request, urllib.parse
+import pathlib, re, json, urllib.request, urllib.parse, http.cookiejar, io, subprocess, sys
+subprocess.run([sys.executable, "-m", "pip", "install", "-q", "pdfplumber"], check=False)
 OUT = pathlib.Path(__file__).parent / "out"; OUT.mkdir(exist_ok=True)
+for p in OUT.iterdir(): p.unlink()
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+cj = http.cookiejar.CookieJar(); op = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cj))
 log = []
-def get(url, data=None, name=None, hdr=None):
-    try:
-        h = {"User-Agent": UA, "Accept": "*/*"}; h.update(hdr or {})
-        b = urllib.request.urlopen(urllib.request.Request(url, data=data, headers=h), timeout=60).read()
-        log.append(f"== {url} -> {len(b)}")
-        if name: (OUT / name).write_bytes(b)
-        return b
-    except Exception as e:
-        log.append(f"== {url} -> ERR {e}"); return b""
+URL = "https://web.twsa.org.tw/Edoc2/Default.aspx?Year=2026"
+def req(url, data=None):
+    r = op.open(urllib.request.Request(url, data=data, headers={"User-Agent": UA, "Referer": URL}), timeout=60)
+    return r.read(), r.headers.get("content-type"), r.headers.get("content-disposition")
 try:
-    p = get("https://web.twsa.org.tw/Edoc2/Default.aspx?Year=2026", name="edoc2026.html")
-    s = p.decode("utf-8", "ignore")
-    links = re.findall(r'href="([^"]+)"', s)
-    log.append("links sample: " + json.dumps([l for l in links if not l.startswith('#')][:60], ensure_ascii=False))
-    # follow first PDF-like link mentioning 轉換
-    for m in re.finditer(r'<a[^>]+href="([^"]+)"[^>]*>([^<]*轉換公司債[^<]*)</a>', s):
-        log.append("CB link: " + m.group(2).strip()[:120] + " -> " + m.group(1))
-    b = get("https://www.tpex.org.tw/openapi/v1/bond_ISSBD5_data", name="issbd5.json")
-    try:
-        d = json.loads(b); log.append(f"ISSBD5 n={len(d)} keys={list(d[0].keys())} last={json.dumps(d[-1], ensure_ascii=False)[:800]}")
-    except Exception as e:
-        log.append(f"ISSBD5 decode {e} {b[:300]!r}")
+    page, ct, _ = req(URL); s = page.decode("utf-8", "ignore")
+    hidden = dict(re.findall(r'<input type="hidden" name="([^"]+)" id="[^"]*" value="([^"]*)"', s))
+    rb = re.findall(r'name="ctl00\$cphMain\$rblReportType" value="([^"]+)" checked', s)
+    log.append(f"hidden {list(hidden)} rb={rb}")
+    rows = re.findall(r'<tr style="color:#[0-9A-F]+;background-color:#[0-9A-F]+;font-size:12px;">(.*?)</tr>', s, re.S)
+    targets = []
+    for r in rows:
+        tds = [re.sub(r"<[^>]+>", "", x).strip() for x in re.findall(r"<td[^>]*>(.*?)</td>", r, re.S)]
+        btn = re.search(r'name="([^"]+imgbtnFileName)"', r)
+        if "轉換" in tds[6] and btn:
+            targets.append((tds[0], tds[3], tds[7], btn.group(1)))
+    log.append(f"{len(targets)} CB rows; using {targets[-3:]}")
+    import pdfplumber
+    for sn, name, method, btn in targets[-3:] + targets[:1]:
+        form = dict(hidden); form["ctl00$cphMain$ddlYear"] = "2026"
+        if rb: form["ctl00$cphMain$rblReportType"] = rb[0]
+        form[btn + ".x"] = "8"; form[btn + ".y"] = "8"
+        body, ct, cd = req(URL, urllib.parse.urlencode(form).encode())
+        log.append(f"{sn} {name} {method}: ct={ct} cd={cd} len={len(body)} head={body[:8]!r}")
+        if body[:4] == b"%PDF":
+            with pdfplumber.open(io.BytesIO(body)) as pdf:
+                txt = "\n".join(pg.extract_text() or "" for pg in pdf.pages)
+            (OUT / f"cb_{sn}.txt").write_text(txt, encoding="utf-8")
+        else:
+            (OUT / f"cb_{sn}.bin").write_bytes(body[:200000])
 except Exception as e:
     log.append(f"FATAL {e!r}")
 (OUT / "dbg.txt").write_text("\n".join(log), encoding="utf-8")
