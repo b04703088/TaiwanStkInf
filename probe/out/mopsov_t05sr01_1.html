@@ -1,0 +1,408 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+<title>公開資訊觀測站</title>
+
+
+
+<link href="css/css2.css" rel="stylesheet" type="text/css" />
+<link href="css/clickmenu1.css"rel="stylesheet" type="text/css"/>
+
+
+<link href="css/print_css1.css" rel="stylesheet" type="text/css" Media="Print"/>
+
+ 
+ 
+ 
+<!--
+<link href="css/tag.css" rel="stylesheet" type="text/css" />
+<link href="css/tablea.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" language="JavaScript1.2" src="js/menu/stmenu.js"></script>
+-->
+<!-- 2021.09.07 start 拿掉舊插件  -->
+<!-- <script type="text/javascript" src="js/jquery-1.1.4.pack.js"></script>
+<script type="text/javascript" src="js/jquery.clickmenu.js"></script> -->
+<!-- 2021.09.07 end 拿掉舊插件  -->
+<!-- 2021.09.07 start -->
+<script type="text/javascript" src="js/jquery-3.6.0.min.js"></script>
+
+
+<script type="text/javascript" src="js/mops2.js"></script>
+
+<!-- 2021.09.07 end -->
+
+
+
+
+</head>
+<body>
+<center>
+<table border="0"><tr><td align="left">
+
+
+<form name='fh' style='margin:0;' action='/mops/web/ajax_autoComplete' method='post' onsubmit='return false;'><input type='hidden' name='firstin' id='firstin' value = '1'><input type='hidden' name='TYPEK' id='TYPEK' value = 'all'><input type='hidden' name='step' id='step' value = '1'><input type='hidden' name='co_id' value = ''><input type='hidden' name = 'funcName' value = 't05sr01_1'><input type='hidden' name='searchtype' id='searchtype' value = ''><input type='hidden' name='inpuType' id='inpuType' value = 'keyword'><input type='hidden' name='auto-more' id='auto-more' value = ''><input type = 'hidden' name = 'keycon' value = ''><div id='head'><div id='head_02'><a href='/mops/web/index' alt='回首頁'><img src='images/blank.gif' width='232' height='52' border='0'></a></div><div id='head_03'><div id='search_bar'><div id='nav'><a style='color:yellow;text-decoration:none;'>全站搜尋</a></div><div id='search_b1' align='left'><table><tr><td align='left'><input name='keyword' type='text' class='textbox' id='keyword' size='45' oninput="document.getElementById('auto-more').value='';autoComplete(this.form , 'keyword' , 'auto-complete-data' , event);" onkeydown='chkKeyDown(this.form , this , "auto-complete-data" , event);' onkeyUp="document.getElementById('auto-more').value='';autoComplete(this.form , 'keyword' , 'auto-complete-data' , event);" onblur="setTimeout(function(){hideDiv('auto-complete-data');} , 200);" onClick="this.value='';document.getElementById('oldKeyWord').value='';hideDiv('auto-complete-data');" placeholder='請輸入公司代號、簡稱，或報表關鍵字' autocomplete='off'></td><td><input type='button' name='rulesubmit' id='rulesubmit' value=' 搜尋 ' onclick="document.fh.action='/mops/web/autoAction';document.fh.submit();"></td></tr></table></div><div id='search_txt' class='search_b2' style='z-index:1;'><table border='0'><tr><td><div style='background-image: url(images/map01.jpg) ; height: 19px; width:32px;background-position:-161px 0px;'></div></td><td><a href='javascript:void(0);' onClick='document.fh.keyword.value="營收";goaction("營收" , "0");'>營收</a><a href='javascript:void(0);' onClick='document.fh.keyword.value="除權息";goaction("除權息" , "0");'>除權息</a><a href='javascript:void(0);' onClick='document.fh.keyword.value="電子書";goaction("電子書" , "0");'>電子書</a><a href='javascript:void(0);' onClick='document.fh.keyword.value="法說會";goaction("法說會" , "0");'>法說會</a><a href='javascript:void(0);' onClick='document.fh.keyword.value="庫藏股";goaction("庫藏股" , "0");'>庫藏股</a><a href='javascript:void(0);' onClick='document.fh.keyword.value="董監持股";goaction("董監持股" , "0");'>董監持股</a><a href='javascript:void(0);' onClick='document.fh.keyword.value="獨立董事";goaction("獨立董事" , "0");'>獨立董事</a><a href='javascript:void(0);' onClick='document.fh.keyword.value="董監酬金";goaction("董監酬金" , "0");'>董監酬金</a><a href='javascript:void(0);' onClick='document.fh.keyword.value="ETF";goaction("ETF" , "0");'>ETF</a><a href='javascript:void(0);' onClick='document.fh.keyword.value="TDR";goaction("TDR" , "0");'>TDR</a></td></tr></table></div></div></div><div id='head_04'><a href='http://emops.twse.com.tw/emops_all.htm'><img src='images/blank.gif' width='89' height='32' border='0' /></a><p style='margin-left:11px;'><a href='/mops/web/ezsearch'><img src='images/blank.png' border='0'></a></p></div></div></form><input type='hidden' id='oldKeyWord'><div id='auto-complete-data'></div><div id='auto-complete-data2'></div><form name='fh2' style='margin:0;' action='' method='post' onsubmit='return false;'><input type='hidden' name='usually' id='usually' value = ''></form><script>window.onload=getMsg;    var MAR = document.querySelector("#marquee");     if(MAR){         var MARS = document.querySelectorAll("#marquee a");         for(var i=0;i<MARS.length;i++){             MARS[i].setAttribute("target","_blank");             MARS[i].setAttribute("style","margin-right:20px");         };         if(MARS.length<1){             MAR.parentNode.innerHTML = "<span style='color:#ff0;'>全站搜尋</span>";             MAR.setAttribute("scrollamount","0")         };     };</script><style>    #marquee,#marquee a{color: #ff0!important;}    #marquee a:hover{color: #ff0!important;text-decoration: none!important;}    #marquee a[href]{text-decoration: underline!important;}</style> 
+
+
+
+
+<div id="menu" class="clickMenu">
+	<table width="100%" border="0" cellspacing="0" cellpadding="0">
+		<!-- 2021.09.07 start -->
+		<!-- <script>
+			$(document).ready(function() {
+			
+				$('#list').clickMenu();
+				document.getElementById('list').style.display='block';
+			});
+		</script> -->
+		<!-- 2021.09.07 end  -->
+		<tr>
+			<td id="menu1">
+				<ul id="list" style="display:none;">
+					<li class = "L00_Pop" id="mm0">常用報表
+					</li>
+					<li class = "L00_Pop" id="mm1">基本資料
+					</li>
+					<li class = "L00_Pop" id="mm2">彙總報表
+					</li>
+					<li class = "L00_Pop" id="mm3">股東會及股利
+					</li>
+					<li class = "L00_Pop" id="mm4">公司治理
+					</li>
+					<li class = "L00_Pop" id="mm5">財務報表
+					</li>
+					<li class = "L00_Pop" id="mm6">重大訊息與公告
+					</li>
+					<li class = "L00_Pop" id="mm7">營運概況
+					</li>
+					<li class = "L00_Pop" id="mm8">投資專區
+					</li>
+					<li class = "L00_Pop" id="mm9">認購（售）權證
+					</li>
+					<li class = "L00_Pop" id="mm10">債券
+					</li>
+					<li class = "L00_Pop" id="mm11">資產證券化
+					</li>
+
+				</ul>
+			</td>
+		</tr>
+	</table>
+</div>
+
+
+
+
+
+
+<div id="maincontent_in">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td >
+<div id="PageBody">
+<table><tr><td valign="top" style="height:400px">
+<div id="main" >
+
+
+
+<!--  
+	程式名稱:submenu-6.htm
+	程式功能:submenu-6.htm
+	修改紀錄:(格式=>西元日期+版次+程式設計師)
+	2026040810thomas:(T88J)修改反詐騙連結
+	2024080612thomas:(T88K)新增 t179sb01
+	2024071012thomas:(T88G)新增 t179sb01
+	201909271.1:hsin(T88K)重大訊息合併上市/第一/第二上市櫃，調整即時重大訊息t05sr01_1與重大訊息綜合查詢
+	201909271.1:hsin(T88G)重大訊息合併上市/第一/第二上市櫃，調整即時重大訊息t05sr01_1與重大訊息綜合查詢
+
+	 -->
+<table width="176" border="0" cellpadding="0" cellspacing="0">
+<tr>
+	<td width="176">
+		<span style="cursor: pointer; font-weight: bold; font-size: 13px;" onclick="showhide('level6','img-6')" id="menu1">
+			<img src="images/minus4.gif" id="img-6"/>
+				<a href="#">重大訊息與公告</a>
+		</span>
+	</td>
+</tr>
+<tr style="display: inline;" id="level6">
+	<td style="padding-left: 10px;">
+		<img src="images/pointer.gif"/><a href="t05sr01_1">即時重大訊息</a><br/>
+			
+		<img src="images/minus3.gif" id="img-6001"/><a onclick="showhide('level-6001','img-6001')" target="_self" href="#">重大訊息綜合查詢</a><br/>
+			<span style="display: none;" id="level-6001">
+				<span style="padding-left: 15px;">
+					<img src="images/pointer.gif"/><a target="_self" href="t05st02">當日重大訊息</a><br/>
+				</span>
+				<span style="padding-left: 15px;">
+					<img src="images/pointer.gif"/><a target="_self" 
+					href="t05st01">歷史重大訊息</a><br/>
+
+				</span>
+				<span style="padding-left: 15px;">
+					<img src="images/pointer.gif"/><a target="_self" href="t51sb10_q1">重大訊息主旨全文檢索</a><br/>
+				</span>
+			</span>
+
+		<img src="images/pointer.gif"/><a href="t132sb12">臺灣存託憑證收盤價彙總<br/><span style="padding-left: 15px;">表</span></a><br/>
+			
+		<img src="images/pointer.gif"/><a href="t100sb07_1">法說會</a><br/>
+
+		<img src="images/pointer.gif"/><a href="t146sb10">公告查詢</a><br/>
+
+		<img src="images/pointer.gif"/><a href="t178sb01">券商對媒體轉載之澄清或<br/><span style="padding-left: 15px;">說明</span></a><br/>
+
+		<img src="images/pointer.gif"/><a href="https://cam.twse.com.tw/antifraud"  target="_blank">反詐騙聯防行動專區查詢<br/></a><br/>
+
+	</td>
+</tr>
+</table>
+
+
+</div>
+</td><td valign="top">
+
+<div id='sw'><div id='pic' style="cursor: hand; background: url(images/map2.gif) no-repeat scroll 0% 0%; -moz-background-clip: border; -moz-background-origin: padding; -moz-background-inline-policy: continuous; height: 324px; width:14px;background-position:-542px 0px;" onclick="closex();"></div></div>
+</td><td valign="top">
+<div id="nav02">
+
+
+
+<input type="hidden" id="subMenuID" value="6">
+
+
+
+<div class="t0"></div>
+
+
+<div class="t01" id='caption'><br>&nbsp;&nbsp;&nbsp;即時重大訊息</div>
+
+<div id="zoom"><div id="table02" style='overflow:auto;'></div>
+
+<div id="table_ess">
+  <table border="0" cellspacing="0" cellpadding="2">
+    <tr>
+      
+	  
+	  <th align="left" width="80px"><a href="javascript:print();"><img src="images/bu_01.gif" alt="列印網頁" border=0></img></a></th><th width="80px"><a href="javascript:outputNewWindow();"><img src="images/bu_02.gif" alt="開新視窗" border=0></img></a></th><th width="80px"><a href="javascript:reportError();"><img src="images/bu_04.gif" alt="問題回報" border=0></img></a></th><th width="80px"><a id='ajax_back_button' href="javascript:void(0)" onclick="ajax_back();" style="visibility:hidden;"></a></th>
+      <th><table border="0" cellspacing="0" cellpadding="0">
+        <tr>
+           
+		  <td width="900px"></td>
+        </tr>
+      </table></th>
+    </tr>
+  </table>
+  </div>
+  
+
+
+<div id="zoom01"><div id="table01"><form name='fm_t05sr01_1_1' action='/mops/web/ajax_t05sr01_1' method='post' onsubmit='return false;'>
+<input type='hidden' name='TYPEK' value='all'>
+<input type='hidden' name='step' value='0'>
+<table class='noBorder' align='center'><tr>
+<td colspan='5' align='center' class='compName'>市場別：全體公司</td></tr><tr>
+<td><input type='button' value='全體公司' onclick="document.fm_t05sr01_1_1.TYPEK.value='all';ajax1(this.form,'table01');"></td>
+<td><input type='button' value='上市公司' onclick="document.fm_t05sr01_1_1.TYPEK.value='sii';ajax1(this.form,'table01');"></td>
+<td><input type='button' value='上櫃公司' onclick="document.fm_t05sr01_1_1.TYPEK.value='otc';ajax1(this.form,'table01');"></td>
+<td><input type='button' value='興櫃公司' onclick="document.fm_t05sr01_1_1.TYPEK.value='rotc';ajax1(this.form,'table01');"></td>
+<td><input type='button' value='公開發行公司' onclick="document.fm_t05sr01_1_1.TYPEK.value='pub';ajax1(this.form,'table01');"></td>
+</tr></table></form>
+<form name='fm_t05sr01_1' action='/mops/web/ajax_t05sr01_1' method='post' onsubmit='return false;'>
+<input type='hidden' name='TYPEK' value='all'>
+<input type='hidden' name='step' value='1'>
+<input type='hidden' name='skey'>
+<input type='hidden' name='hhc_co_name'>
+<input type='hidden' name='firstin' value='true'>
+<input type='hidden' name='COMPANY_ID'>
+<input type='hidden' name='COMPANY_NAME'>
+<input type='hidden' name='SPOKE_DATE'>
+<input type='hidden' name='SPOKE_TIME'>
+<input type='hidden' name='SEQ_NO'>
+<table class='hasBorder' align='center' border=1>
+<tr class='tblHead'>
+<th nowrap>公司代號</th>
+<th nowrap>公司簡稱</th>
+<th nowrap>發言日期</th>
+<th nowrap>發言時間</th>
+<th nowrap>主旨</th>
+<th nowrap>&nbsp;</th>
+</tr>
+<tr class='even'>
+<td>4747</td>
+<td style='text-align:left !important;' nowrap>強生*</td>
+<td style='text-align:left !important;'>115/10/05</td>
+<td style='text-align:left !important;'>07:00:04</td>
+<td style='text-align:left !important;'>公告本公司股票面額由「新台幣10元」變更為「新台幣5元」
+公告期間：115年7月22日至115年10月21日</td>
+<td><input type='button' value='詳細資料' onclick="document.fm_t05sr01_1.SEQ_NO.value='1';document.fm_t05sr01_1.SPOKE_TIME.value='70004';document.fm_t05sr01_1.SPOKE_DATE.value='20261005';document.fm_t05sr01_1.COMPANY_ID.value='4747';document.fm_t05sr01_1.skey.value='4747202610051';openWindow(this.form ,'');">
+</td></tr>
+<tr class='odd'>
+<td>6696</td>
+<td style='text-align:left !important;' nowrap>仁新*</td>
+<td style='text-align:left !important;'>115/10/05</td>
+<td style='text-align:left !important;'>07:00:04</td>
+<td style='text-align:left !important;'>公告本公司股票面額由「新台幣10元」變更為「新台幣1元」，
+公告期間：115年8月5日至115年11月4日。</td>
+<td><input type='button' value='詳細資料' onclick="document.fm_t05sr01_1.SEQ_NO.value='1';document.fm_t05sr01_1.SPOKE_TIME.value='70004';document.fm_t05sr01_1.SPOKE_DATE.value='20261005';document.fm_t05sr01_1.COMPANY_ID.value='6696';document.fm_t05sr01_1.skey.value='6696202610051';openWindow(this.form ,'');">
+</td></tr>
+<tr class='even'>
+<td>6949</td>
+<td style='text-align:left !important;' nowrap>沛爾生醫*-創</td>
+<td style='text-align:left !important;'>115/10/05</td>
+<td style='text-align:left !important;'>07:00:04</td>
+<td style='text-align:left !important;'>公告本公司股票面額由「新台幣10元」變更為「新台幣0.5元」，
+公告期間：115年08月06日至115年11月05日。</td>
+<td><input type='button' value='詳細資料' onclick="document.fm_t05sr01_1.SEQ_NO.value='1';document.fm_t05sr01_1.SPOKE_TIME.value='70004';document.fm_t05sr01_1.SPOKE_DATE.value='20261005';document.fm_t05sr01_1.COMPANY_ID.value='6949';document.fm_t05sr01_1.skey.value='6949202610051';openWindow(this.form ,'');">
+</td></tr>
+<tr class='odd'>
+<td>2072</td>
+<td style='text-align:left !important;' nowrap>世紀風電</td>
+<td style='text-align:left !important;'>115/10/05</td>
+<td style='text-align:left !important;'>07:00:03</td>
+<td style='text-align:left !important;'>公告本公司名稱由「世紀離岸風電設備股份有限公司」更名
+為「世紀能源設備股份有限公司」，公告期間：115年8月26日至
+115年11月25日。</td>
+<td><input type='button' value='詳細資料' onclick="document.fm_t05sr01_1.SEQ_NO.value='1';document.fm_t05sr01_1.SPOKE_TIME.value='70003';document.fm_t05sr01_1.SPOKE_DATE.value='20261005';document.fm_t05sr01_1.COMPANY_ID.value='2072';document.fm_t05sr01_1.skey.value='2072202610051';openWindow(this.form ,'');">
+</td></tr>
+<tr class='even'>
+<td>4530</td>
+<td style='text-align:left !important;' nowrap>天意能創</td>
+<td style='text-align:left !important;'>115/10/05</td>
+<td style='text-align:left !important;'>07:00:03</td>
+<td style='text-align:left !important;'>公告本公司名稱由「宏易創新國際股份有限公司」
+更名為「天意能創股份有限公司」，
+公告期間：115年7月09日至115年10月08日。</td>
+<td><input type='button' value='詳細資料' onclick="document.fm_t05sr01_1.SEQ_NO.value='1';document.fm_t05sr01_1.SPOKE_TIME.value='70003';document.fm_t05sr01_1.SPOKE_DATE.value='20261005';document.fm_t05sr01_1.COMPANY_ID.value='4530';document.fm_t05sr01_1.skey.value='4530202610051';openWindow(this.form ,'');">
+</td></tr>
+</table></form><br>
+<form action='/mops/web/ajax_t59sb01' name='t59sb01_form' id='t59sb01_form' method='post' onsubmit='return false;'>
+<input type='hidden' name='firstin' value='true' />
+<input type=hidden name=co_id>
+<input type=hidden name='colorchg' value=''>
+<input type=hidden name='TYPEK' value='all'>
+<input type=hidden name='YEAR' value='115'>
+<input type=hidden name='MONTH' value='10'>
+<input type=hidden name='SDAY' value='20261005'>
+<input type=hidden name='EDAY' value='20261005'>
+<input type=hidden name=DATE1>
+<input type=hidden name=SKEY>
+<input type=hidden name=step value='2b'>
+<table class='hasBorder' align='center'>
+</table></form><br>
+<center><form action='/mops/web/t05st02' method='post' onsubmit='return false;' name='fm'>
+<input type='hidden' name='step' value='0'>
+<input type='hidden' name='newstuff' value='1'>
+<input type='hidden' name='firstin' value='1' >
+<input type='hidden' name='year' value='115' >
+<input type='hidden' name='month' value='10'>
+<input type='hidden' name='day' value='04' >
+<input type='button' value='前一日資料（市場別：全體公司）' onclick='submit();'>
+</form></center>
+<script>setInterval("ajax1(document.fm_t05sr01_1_1,'table01');",180000);</script>
+</div>
+
+  <br></div>
+</td></tr></table>
+</DIV></tr>
+</table>
+</div>
+
+
+<div id="footer">
+   <table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <th>
+		<div class="text1" id="text1" align="center">
+			<a href='https://www.stockvote.com.tw/' target='_blank'>電子投票</a>│
+			<a href='http://www.sfb.gov.tw/Layout/main_ch/index.aspx?frame=5' target='_blank'>不繼續公開發行</a>│
+			<a href='/server-java/t39sb01' target='_blank'>市場公告</a>│
+			
+			
+			
+			<a href='https://webline.sfi.org.tw/CGE/' target='_blank'>公司治理評鑑</a>│
+
+
+			
+			
+			
+			<a href='/mops/web/t146sb08'>網站地圖</a>│
+			<a href='/nas/MOPS_HandBook.doc' target='_MOPS_handbook'>網站使用說明</a>
+			<div class="text1" id="text1" align="center" height="80">
+			<a href=#>投資人服務中心(02)2792-8188</a> <u><a href='http://Suggestionbox.twse.com.tw' target='_blank'>聯絡我們</a></u>
+			</div>
+
+			
+			
+			
+			
+			
+			
+			
+			
+		</div>
+	</th>
+  </tr>
+</table>
+</div>
+</td></tr></table></center>
+</body>
+
+
+
+<script>
+	function checkAutoRunScript(){
+		if (document.autoForm!=null && document.autoForm!=undefined && document.autoForm.run.value==''){
+			ajax1(document.autoForm,'table01');
+			document.querySelector('form[name=autoForm]').remove();
+		}
+
+		// if (document.autoRunScript!=null && document.autoRunScript!=undefined && document.autoRunScript.run.value!=''){
+		// 	var s = document.autoRunScript.run.value;
+		// 	document.autoRunScript.run.value = '';
+		// 	new function(){
+		// 		eval(s);
+		// 	};
+		// }
+		if (document.autoRunScript!=null && document.autoRunScript!=undefined && document.autoRunScript.run!=null && document.autoRunScript.run.value!=''){
+			let s = document.autoRunScript.run.value;
+			s = htmlEncode(s);
+
+			let script = document.createElement("script");
+			script.innerText = s;
+			document.body.appendChild(script);
+
+			document.querySelector('form[name=autoRunScript] > input[name=run]').remove()
+		}
+	}
+
+	setInterval("checkAutoRunScript()",100);
+</script>
+<!-- 2021.09.07 start -->
+<script>
+	function htmlEncode(value){
+		return value;
+	}
+	function listinnerli(){
+		if(document.querySelector('#mm0'))document.querySelector('#mm0').innerHTML = menu0;
+		if(document.querySelector('#mm1'))document.querySelector('#mm1').innerHTML = menu1;
+		if(document.querySelector('#mm2'))document.querySelector('#mm2').innerHTML = menu2;
+		if(document.querySelector('#mm3'))document.querySelector('#mm3').innerHTML = menu3;
+		if(document.querySelector('#mm4'))document.querySelector('#mm4').innerHTML = menu4;
+		if(document.querySelector('#mm5'))document.querySelector('#mm5').innerHTML = menu5;
+		if(document.querySelector('#mm6'))document.querySelector('#mm6').innerHTML = menu6;
+		if(document.querySelector('#mm7'))document.querySelector('#mm7').innerHTML = menu7;
+		if(document.querySelector('#mm8'))document.querySelector('#mm8').innerHTML = menu8;
+		if(document.querySelector('#mm9'))document.querySelector('#mm9').innerHTML = menu9;
+		if(document.querySelector('#mm10'))document.querySelector('#mm10').innerHTML = menu10;
+		if(document.querySelector('#mm11'))document.querySelector('#mm11').innerHTML = menu11;
+		if(document.querySelector('#mm12'))document.querySelector('#mm12').innerHTML = menu12;
+	}
+	window.onload = listinnerli;
+</script> 
+<!-- 2021.09.07 end -->
+</html>
