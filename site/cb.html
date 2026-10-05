@@ -56,7 +56,7 @@
   .tag{display:inline-flex; align-items:center; gap:6px; font-size:13px; border:1px solid var(--line-strong); border-radius:var(--radius-s); padding:3px 9px; background:var(--panel-2); cursor:pointer;}
   .tag i{font-style:normal; font-size:11.5px; padding:0 5px; border-radius:2px; color:var(--ink);}
   .k-start i{background:var(--sky);} .k-end i{background:var(--brass);} .k-price i{background:var(--warn);}
-  .k-pay i{background:#B48EAD;} .k-list i{background:var(--fall);}
+  .k-pay i{background:#B48EAD;} .k-eff i{background:#8FB86A;} .k-list i{background:var(--fall);}
   .empty{padding:24px 16px; color:var(--text-faint); font-size:13.5px;}
 
   /* 進行中卡片 */
@@ -68,7 +68,7 @@
   .card .nm .mono{font-size:13px; color:var(--text-muted); font-weight:500; margin-left:6px;}
   .card .sub{font-size:12.5px; color:var(--text-muted); margin-top:2px;}
   .stage{font-size:12px; padding:2px 8px; border-radius:var(--radius-s); white-space:nowrap; border:1px solid currentColor;}
-  .st-soon{color:var(--sky);} .st-bb{color:var(--brass);} .st-price{color:var(--warn);} .st-pay{color:#B48EAD;} .st-list{color:var(--fall);} .st-done{color:var(--text-faint);}
+  .st-board{color:#9AA5B1;} .st-review{color:#7FB3A8;} .st-eff{color:#8FB86A;} .st-wd{color:var(--rise);} .st-soon{color:var(--sky);} .st-bb{color:var(--brass);} .st-price{color:var(--warn);} .st-pay{color:#B48EAD;} .st-list{color:var(--fall);} .st-done{color:var(--text-faint);}
   .steps{display:grid; grid-template-columns:repeat(5,1fr); margin:16px 0 12px; position:relative;}
   .step{text-align:center; font-size:11.5px; color:var(--text-faint); position:relative;}
   .step::before{content:""; position:absolute; top:6px; left:-50%; width:100%; height:2px; background:var(--line-strong);}
@@ -80,6 +80,8 @@
   .step .dt.est{color:var(--text-faint); font-style:italic;}
   .kv{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; border-top:1px solid var(--line); padding-top:10px;}
   .kv div{font-size:11.5px; color:var(--text-faint);}
+  .pre{margin-top:10px; font-size:11.5px; color:var(--text-faint);}
+  .pre .mono{color:var(--text-muted);}
   .kv b{display:block; font-size:14px; color:var(--text); font-weight:500; font-family:'IBM Plex Mono',monospace;}
 
   /* 全部案件 */
@@ -169,6 +171,7 @@
     <p class="desc" id="sub">載入中…</p>
     <nav class="subtabs" aria-label="CB詢圈子頁">
       <a href="cb.html" data-tab="overview">總覽</a>
+      <a href="cb-pipeline.html" data-tab="pipeline">籌備中<span class="n" id="n-pipeline"></span></a>
       <a href="cb-active.html" data-tab="active">進行中<span class="n" id="n-active"></span></a>
       <a href="cb-bb.html" data-tab="bb">詢價圈購<span class="n" id="n-bb"></span></a>
       <a href="cb-auction.html" data-tab="auction">競價拍賣<span class="n" id="n-auction"></span></a>
@@ -187,6 +190,11 @@
       <div class="block-head"><h2>最近訂價</h2><a class="hint" href="cb-listed.html">看全部已掛牌 →</a></div>
       <div class="tbl"><table><thead><tr id="recent-head"></tr></thead><tbody id="recent"></tbody></table></div>
     </section>
+  </div>
+
+  <!-- 籌備中 -->
+  <div data-view="pipeline">
+    <section class="block" id="pipe"></section>
   </div>
 
   <!-- 進行中 -->
@@ -229,11 +237,12 @@ const avg = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
 const AUC = c => c.method === "競價拍賣";
 
 // 由檔名決定顯示哪個子頁（build_site.py 會把 cb.html 複製成各子頁檔名）
-const PAGES = {"cb-active.html":"active", "cb-bb.html":"bb", "cb-auction.html":"auction", "cb-listed.html":"listed"};
+const PAGES = {"cb-pipeline.html":"pipeline", "cb-active.html":"active", "cb-bb.html":"bb", "cb-auction.html":"auction", "cb-listed.html":"listed"};
 const VIEW = PAGES[location.pathname.split("/").pop()] || new URLSearchParams(location.search).get("v") || "overview";
 
 const INFO = {
   overview: ["可轉債從圈購到掛牌", "把每檔可轉債（CB／EB）的詢圈、訂價、繳款與掛牌日排在同一條時間軸上。"],
+  pipeline: ["籌備中的案件", "還沒開始詢圈／競拍的案子：董事會已決議、已送件給金管會審查、或已申報生效等待承銷。送件與生效日來自證期局申報案件彙總表，董事會決議來自公開資訊觀測站重大訊息。"],
   active:   ["進行中的案件", "還沒掛牌的案子，依目前進度分組；灰色斜體日期是依慣例推估。"],
   bb:       ["詢價圈購", "承銷商先公告溢價率區間，向投資人詢問願意接受的溢價率，再與發行公司議定。落點＝議定溢價率在區間中的位置，越靠左代表越接近下緣（對投資人越有利、需求越熱）。"],
   auction:  ["競價拍賣", "投資人以價格投標（以百元計），由高價往下得標，承銷價＝得標加權平均價。轉換溢價率在開標前就已定好。得標溢價＝加權得標價 − 最低承銷價，越高代表搶得越兇。"],
@@ -242,9 +251,23 @@ const INFO = {
 
 let cases = [];
 
+const PRE = ["board", "review", "eff"];
+const isPre = c => PRE.includes(c._st[0]);
+const CLOSED = ["自行撤回", "退件", "廢止/撤銷"];
 function stage(c){
   const lst = c.list_date || c.list_expected, auc = AUC(c);
   if (c.list_date && c.list_date <= TODAY) return ["done", "已掛牌"];
+  // 還沒進承銷階段（沒有詢圈／競拍、承銷公告、發行資料）
+  if (!c.bb_start && !c.done_date && c.conv_price == null && !lst && !c.issue_date){
+    if (c.wd_date || CLOSED.includes(c.sfb_status)) return ["wd", c.sfb_status === "退件" ? "退件" : "已撤回"];
+    if (c.filed_date){
+      if (c.stop_date) return ["review", "停止生效"];
+      if (!c.eff_date || c.eff_date > TODAY) return ["review", "審查中"];
+      if (c.eff_date >= addDays(TODAY, -120)) return ["eff", "已生效"];
+      return ["done", "生效未發行"];
+    }
+    if (c.board_date) return c.board_date >= addDays(TODAY, -365) ? ["board", "董事會通過"] : ["done", "逾期未送件"];
+  }
   const last = [c.bb_end, c.done_date, c.price_base_date, c.pay_date, c.list_expected, c.issue_date].filter(Boolean).sort().pop();
   if (!last || last < addDays(TODAY, -40)) return ["done", "已結束"];
   if (c.bb_start && c.bb_start > TODAY) return ["soon", auc ? "即將競拍" : "即將詢圈"];
@@ -255,6 +278,7 @@ function stage(c){
   return ["list", "待掛牌"];
 }
 const listed = c => c._st[1] === "已掛牌";
+const inUW = c => !isPre(c) && c._st[0] !== "wd" && !!(c.bb_start || c.done_date || c.issue_date || c.list_expected);  // 已進入承銷階段
 const listDay = c => c.list_date || c.list_expected || c.issue_date || "";
 
 function steps(c){
@@ -286,13 +310,13 @@ function renderStats(items){
 function viewOverview(){
   const n = k => cases.filter(c => c._st[0] === k).length;
   const year = TODAY.slice(0, 4);
-  renderStats([["詢圈／競拍中", n("bb")], ["即將開始", n("soon")], ["已訂價、待掛牌", n("price") + n("pay") + n("list")],
+  renderStats([["籌備中（董事會／審查／已生效）", `${n("board")}／${n("review")}／${n("eff")}`], ["詢圈／競拍中・即將開始", `${n("bb")}・${n("soon")}`], ["已訂價、待掛牌", n("price") + n("pay") + n("list")],
                [`${year} 年已掛牌`, cases.filter(c => listed(c) && listDay(c).startsWith(year)).length]]);
 
   const end = addDays(TODAY, 14), days = {};
-  const KIND = {start:["k-start","開始"], end:["k-end","截止"], price:["k-price","訂價"], pay:["k-pay","繳款"], list:["k-list","掛牌"]};
+  const KIND = {eff:["k-eff","生效"], start:["k-start","開始"], end:["k-end","截止"], price:["k-price","訂價"], pay:["k-pay","繳款"], list:["k-list","掛牌"]};
   for (const c of cases){
-    const ev = [["start", c.bb_start], ["end", c.bb_end], [ "price", AUC(c) ? c.done_date : c.price_base_date], ["pay", c.pay_date], ["list", c.list_date || c.list_expected]];
+    const ev = [["eff", c.eff_date && !c.stop_date && !c.wd_date ? c.eff_date : null], ["start", c.bb_start], ["end", c.bb_end], [ "price", AUC(c) ? c.done_date : c.price_base_date], ["pay", c.pay_date], ["list", c.list_date || c.list_expected]];
     const seen = new Set();
     for (const [k, d] of ev){
       if (!d || d < TODAY || d > end || seen.has(k + d)) continue;
@@ -300,13 +324,13 @@ function viewOverview(){
       (days[d] ||= []).push([k, c]);
     }
   }
-  const order = ["start","end","price","pay","list"];
+  const order = ["eff","start","end","price","pay","list"];
   const ds = Object.keys(days).sort();
   document.getElementById("agenda").innerHTML = ds.length ? ds.map(d => {
     const w = new Date(d + "T00:00:00Z").getUTCDay();
     const evs = days[d].sort((a, b) => order.indexOf(a[0]) - order.indexOf(b[0]));
     return `<div class="day${d === TODAY ? " today" : ""}"><div class="d"><b class="mono">${md(d)}</b>週${WD[w]}${d === TODAY ? "・今天" : ""}</div>
-      <div class="ev">${evs.map(([k, c]) => `<a class="tag ${KIND[k][0]}" href="cb-active.html#c-${esc(c.id)}" style="text-decoration:none"><i>${AUC(c) && k === "price" ? "開標" : KIND[k][1]}</i>${label(c)}${AUC(c) ? '<span class="faint">競拍</span>' : ""}</a>`).join("")}</div></div>`;
+      <div class="ev">${evs.map(([k, c]) => `<a class="tag ${KIND[k][0]}" href="${isPre(c) ? "cb-pipeline.html" : "cb-active.html"}#c-${esc(c.id)}" style="text-decoration:none"><i>${AUC(c) && k === "price" ? "開標" : KIND[k][1]}</i>${label(c)}${AUC(c) ? '<span class="faint">競拍</span>' : ""}</a>`).join("")}</div></div>`;
   }).join("") : `<div class="empty">未來兩週沒有已公告的詢圈、訂價或掛牌。</div>`;
 
   const recent = cases.filter(c => c.conv_price != null && (c.price_base_date || c.done_date))
@@ -317,6 +341,49 @@ function viewOverview(){
     <td>${label(c)}</td><td>${AUC(c) ? "競拍" : "詢圈"}</td><td class="mono">${md(c.done_date || c.price_base_date)}</td>
     <td class="num mono">${pct(c.premium)}</td><td class="num mono">${fmt(c.conv_price)}</td><td class="num mono">${fmt(c.issue_pct)}</td>
     <td class="num mono">${fmt(c.units)}</td><td class="mono">${c.list_date ? md(c.list_date) : `<span class="faint">${md(c.list_expected)}</span>`}</td></tr>`).join("");
+}
+
+/* ---------- 籌備中 ---------- */
+const yi = v => v == null || !+v ? "–" : (v / 1e8 >= 10 ? Math.round(v / 1e8) : +(v / 1e8).toFixed(2)) + " 億";
+const ago = d => d ? Math.round((new Date(TODAY) - new Date(d)) / 864e5) : null;
+function pipeTable(list, cols){
+  const H = {name:["公司"], kind:["擔保", "hide-m"], method:["方式"], lead:["主辦", "hide-m"], amt:["額度", "num"], board:["董事會", "mono"],
+             filed:["送件", "mono"], eff:["生效", "mono"], wait:["已過", "num"], wd:["撤回／退件", "mono"], st:["狀態"]};
+  const F = {
+    name: c => `<span id="c-${esc(c.id)}" style="scroll-margin-top:90px">${label(c)}</span>`,
+    kind: c => (c.type || "").includes("有擔保") ? "有" : (c.type || "").includes("無擔保") ? "無" : "–",
+    method: c => { const m = c.method || c.board_method; return m ? (m === "競價拍賣" ? "競拍" : "詢圈") : "–"; },
+    lead: c => esc(/授權|董事長|未定/.test(c.lead || "") ? "–" : (c.lead || "–").replace(/股份有限公司|\(股\)公司|綜合證券|證券/g, "")),
+    amt: c => yi(c.sfb_amount || c.board_amount || (c.units ? c.units * 1e5 : null)),
+    board: c => md(c.board_date),
+    filed: c => md(c.filed_date),
+    eff: c => c.stop_date ? `<span class="st-wd">停止 ${md(c.stop_date)}</span>` : c.eff_date ? (c.eff_date > TODAY ? `<span class="faint">${md(c.eff_date)} 預計</span>` : md(c.eff_date)) : "–",
+    wait: c => { const d = c.eff_date && c.eff_date <= TODAY ? c.eff_date : c.filed_date || c.board_date; const n = ago(d); return n == null ? "–" : `<span class="mono">${n} 天</span>`; },
+    wd: c => md(c.wd_date),
+    st: c => stageTag(c),
+  };
+  return `<div class="tbl"><table><thead><tr>${cols.map(k => `<th class="${H[k][1] || ""}" style="cursor:default">${H[k][0]}</th>`).join("")}</tr></thead>
+    <tbody>${list.map(c => `<tr>${cols.map(k => `<td class="${H[k][1] || ""}">${F[k](c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+}
+
+function viewPipeline(){
+  const g = k => cases.filter(c => c._st[0] === k);
+  const review = g("review").sort((a, b) => (a.eff_date || "9").localeCompare(b.eff_date || "9"));
+  const eff = g("eff").sort((a, b) => a.eff_date.localeCompare(b.eff_date));
+  const board = g("board").sort((a, b) => b.board_date.localeCompare(a.board_date));
+  const wd = g("wd").filter(c => (c.wd_date || c.filed_date || c.board_date || "") >= addDays(TODAY, -120))
+    .sort((a, b) => (b.wd_date || "").localeCompare(a.wd_date || ""));
+  const sum = l => yi(l.reduce((s, c) => s + (+(c.sfb_amount || c.board_amount || 0)), 0));
+  renderStats([["送件審查中", review.length], ["已生效、待詢圈", eff.length], ["董事會通過、未送件", board.length], ["審查中＋已生效額度", sum(review.concat(eff))]]);
+  const sec = (k, title, hint, list, cols) => list.length ? `<div class="group"><h3><span class="stage st-${k}">${title}</span><span class="c">${list.length} 檔</span><span style="font-weight:400;font-size:12.5px;color:var(--text-faint)">${hint}</span></h3>${pipeTable(list, cols)}</div>` : "";
+  document.getElementById("pipe").innerHTML =
+    (sec("review", "送件審查中", "生效日是證期局公布的預計生效日", review, ["name","kind","method","lead","amt","board","filed","eff","st"]) +
+     sec("eff", "已生效、待詢圈", "生效後 3 個月內要募集完成，通常 1～4 週內開始詢圈或競拍", eff, ["name","kind","method","lead","amt","board","filed","eff","wait"]) +
+     sec("board", "董事會通過、未送件", "超過一年未送件不列入", board, ["name","kind","method","lead","amt","board","wait"]) +
+     sec("wd", "近期撤回／退件", "近 120 天", wd, ["name","kind","lead","amt","board","filed","wd","st"])) ||
+    `<div class="empty">目前沒有籌備中的案件。</div>`;
+  const id = location.hash.slice(1), el = id && document.getElementById(id);
+  if (el) setTimeout(() => el.scrollIntoView({block:"center"}), 50);
 }
 
 /* ---------- 進行中 ---------- */
@@ -339,11 +406,16 @@ function card(c){
       <div class="sub">${c.series ? `第 ${c.series} 次・` : ""}${esc((c.type || "").replace("轉換公司債", "CB").replace("交換公司債", "EB"))}・${auc ? "競價拍賣" : "詢價圈購"}・${esc(c.lead || "")}</div></div>
       ${stageTag(c)}</div>
     <div class="steps">${st.map(([n, d, est], i) => `<div class="step ${i < cur ? "done" : i === cur ? "now" : ""}"><div class="dot"></div>${n}<span class="dt${est ? " est" : ""}">${d ? md(d) : "–"}</span></div>`).join("")}</div>
-    <div class="kv">${kv.map(([k, v]) => `<div>${k}<b>${v}</b></div>`).join("")}</div></article>`;
+    <div class="kv">${kv.map(([k, v]) => `<div>${k}<b>${v}</b></div>`).join("")}</div>${preLine(c)}</article>`;
+}
+
+function preLine(c){
+  const p = [["董事會", c.board_date], ["送件", c.filed_date], ["生效", c.eff_date]].filter(x => x[1]);
+  return p.length ? `<div class="pre">${p.map(([k, d]) => `${k} <span class="mono">${md(d)}</span>`).join(" → ")}</div>` : "";
 }
 
 function viewActive(){
-  const act = cases.filter(c => c._st[0] !== "done");
+  const act = cases.filter(c => c._st[0] !== "done" && c._st[0] !== "wd" && !isPre(c));
   const G = [["bb", "詢圈／競拍中"], ["price", "截止、等訂價／開標"], ["pay", "已訂價、待繳款"], ["list", "已繳款、待掛牌"], ["soon", "即將開始"]];
   const by = k => act.filter(c => c._st[0] === k).sort((a, b) => (a.bb_end || a.list_expected || "").localeCompare(b.bb_end || b.list_expected || ""));
   renderStats(G.slice(0, 4).map(([k, n]) => [n, by(k).length]));
@@ -383,6 +455,9 @@ const C = {
   conv:  ["轉換價", c => fmt(c.conv_price), c => c.conv_price ?? 0, "num"],
   issue: ["發行價", c => fmt(c.issue_pct), c => c.issue_pct ?? 0, "num hide-m"],
   pay:   ["繳款", c => md(c.pay_date), c => c.pay_date || "", "mono hide-m"],
+  board: ["董事會", c => md(c.board_date), c => c.board_date || "", "mono hide-m"],
+  filed: ["送件", c => md(c.filed_date), c => c.filed_date || "", "mono hide-m"],
+  eff:   ["生效", c => md(c.eff_date), c => c.eff_date || "", "mono hide-m"],
   list:  ["掛牌", c => c.list_date ? md(c.list_date) : c.list_expected ? `<span class="faint">${md(c.list_expected)}</span>` : "–", c => listDay(c), "mono"],
   ldate: ["掛牌日", c => ymd(listDay(c)), c => listDay(c), "mono"],
   bond:  ["債券代號", c => c.bond_code ? `<span class="mono">${esc(c.bond_code)}</span>` : "–", c => c.bond_code || ""],
@@ -430,7 +505,7 @@ function renderTable(){
 function median(a){ if (!a.length) return null; const s = [...a].sort((x, y) => x - y), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; }
 
 function viewBB(){
-  const list = cases.filter(c => c.method === "詢價圈購" || (!c.method && c.bb_sn));
+  const list = cases.filter(c => (c.method === "詢價圈購" || (!c.method && c.bb_sn)) && inUW(c));
   const yr = list.filter(c => (c.bb_start || "").startsWith(TODAY.slice(0, 4)));
   const pr = yr.filter(c => c.premium != null);
   const spots = yr.filter(c => c.premium != null && c.premium_hi > c.premium_lo).map(c => (c.premium - c.premium_lo) / (c.premium_hi - c.premium_lo));
@@ -438,18 +513,18 @@ function viewBB(){
                ["議定溢價率中位數", pct(median(pr.map(c => c.premium)))],
                ["議定在區間下緣（落點 ≤10%）", spots.length ? Math.round(spots.filter(p => p <= 0.1).length / spots.length * 100) + "%" : "–"],
                ["發行價中位數", fmt(median(pr.map(c => c.issue_pct).filter(v => v != null)))]]);
-  setupTable(["name","series","stage","lead","units","bbu","period","range","prem","spot","conv","issue","base","pay","list"], list, "period", "詢價圈購案件");
+  setupTable(["name","series","stage","lead","units","bbu","board","filed","eff","period","range","prem","spot","conv","issue","base","pay","list"], list, "period", "詢價圈購案件");
 }
 
 function viewAuction(){
-  const list = cases.filter(c => AUC(c));
+  const list = cases.filter(c => AUC(c) && inUW(c));
   const yr = list.filter(c => (c.bb_start || listDay(c)).startsWith(TODAY.slice(0, 4)));
   const ov = yr.filter(c => c.issue_pct != null && c.min_price != null).map(c => c.issue_pct - c.min_price);
   renderStats([[`${TODAY.slice(0, 4)} 年競拍`, `${yr.length}<span class="faint" style="font-size:14px"> 檔</span>`],
                ["得標加權價中位數", fmt(median(yr.map(c => c.issue_pct).filter(v => v != null)))],
                ["得標溢價中位數", ov.length ? median(ov).toFixed(2) : "–"],
                ["轉換溢價率中位數", pct(median(yr.map(c => c.premium).filter(v => v != null)))]]);
-  setupTable(["name","series","stage","lead","units","auu","period","open","minp","wavg","over","prem","conv","pay","list"], list, "period", "競價拍賣案件");
+  setupTable(["name","series","stage","lead","units","auu","board","filed","eff","period","open","minp","wavg","over","prem","conv","pay","list"], list, "period", "競價拍賣案件");
 }
 
 function viewListed(){
@@ -483,11 +558,12 @@ fetch("data/cb/cb.json", {cache:"no-cache"}).then(r => r.json()).then(d => {
   cases = d.rows.map(r => Object.fromEntries(d.cols.map((k, i) => [k, r[i]])));
   cases.forEach(c => c._st = stage(c));
   document.getElementById("sub").textContent = `${INFO[VIEW][1]}${d.generated ? `（資料更新 ${d.generated}）` : ""}`;
-  document.getElementById("n-active").textContent = cases.filter(c => c._st[0] !== "done").length;
-  document.getElementById("n-bb").textContent = cases.filter(c => c.method === "詢價圈購").length;
-  document.getElementById("n-auction").textContent = cases.filter(AUC).length;
+  document.getElementById("n-pipeline").textContent = cases.filter(isPre).length;
+  document.getElementById("n-active").textContent = cases.filter(c => !["done", "wd"].includes(c._st[0]) && !isPre(c)).length;
+  document.getElementById("n-bb").textContent = cases.filter(c => c.method === "詢價圈購" && inUW(c)).length;
+  document.getElementById("n-auction").textContent = cases.filter(c => AUC(c) && inUW(c)).length;
   document.getElementById("n-listed").textContent = cases.filter(listed).length;
-  ({overview: viewOverview, active: viewActive, bb: viewBB, auction: viewAuction, listed: viewListed})[VIEW]();
+  ({overview: viewOverview, pipeline: viewPipeline, active: viewActive, bb: viewBB, auction: viewAuction, listed: viewListed})[VIEW]();
 }).catch(e => { console.error(e); document.getElementById("sub").textContent = "CB 資料載入失敗"; });
 </script>
 <script>(function(){var a=document.querySelector('nav.links a[aria-current="page"]');if(a&&a.parentNode.scrollWidth>a.parentNode.clientWidth){a.parentNode.scrollLeft=a.offsetLeft-a.parentNode.offsetLeft-16;}})();</script>

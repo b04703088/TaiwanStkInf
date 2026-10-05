@@ -131,6 +131,19 @@ python -m unittest discover tests                       # 測試
 - 公司全名對不到代號時，網頁的資料健檢會列出來；在 `config/cb_names.csv` 加一行 `name,code` 即可。
 - 手動回補：Actions → Fetch CB bookbuilding → Run workflow，`years` 填 `2024 2025`。
 
+### 詢圈之前：董事會決議 → 送件 → 申報生效
+
+`fetch_cb_pre.py`（同一個 workflow，在 `fetch_cb.py` 之前跑）補上承銷之前的三個時間點，網頁在「籌備中」子頁（`cb-pipeline.html`）。
+
+| 來源 | 拿到什麼 |
+|---|---|
+| 金管會證期局「受理申報(請)案件情形」→ 申報案件彙總表（今年＋去年，ODS） | 送件（收文）日、生效日（審查中的是預計生效日）、停止生效／撤回／退件 |
+| 公開資訊觀測站重大訊息（新版 API，依日期） | 董事會決議日、第幾次、有無擔保、發行總額、詢圈或競拍、主辦承銷商；撤回公告 |
+
+- 結果在 `data/cb/sfb.csv`、`data/cb/mops_events.csv`，`fetch_cb.py` 會把它們接到同一檔 CB（同代號、日期與金額最接近者）。
+- 重訊第一次會從 2025-01-01 逐日回補，每次最多 20 分鐘，進度記在 `data/cb/mops_days.txt`；之後每次只重抓最近 7 天。
+- 董事會通過超過一年仍未送件的不列入。
+
 ## 資料健檢
 
 `scripts/health.py` 檢查資料有沒有漏抓或抓錯，結果在網站的 `health.html`（ETF持股、成交排行頁尾有連結）。

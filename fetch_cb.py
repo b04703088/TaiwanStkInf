@@ -54,7 +54,10 @@ IS_COLS = ["code", "name", "bond_code", "short", "series", "issue_date", "list_d
 CASE_COLS = ["id", "code", "company", "short", "series", "bond_code", "type", "method", "lead",
              "units", "bb_units", "bb_start", "bb_end", "premium_lo", "premium_hi", "min_price", "done_date",
              "price_base_date", "conv_price", "premium", "issue_pct", "pay_date", "list_expected",
-             "issue_date", "list_date", "bb_sn", "au_sn", "nt_sn"]
+             "issue_date", "list_date", "bb_sn", "au_sn", "nt_sn",
+             # 詢圈前：董事會決議（觀測站重訊）、送件／生效（證期局申報案件）
+             "board_date", "board_amount", "board_method", "filed_date", "eff_date", "sfb_status", "stop_date",
+             "sfb_amount", "wd_date"]
 
 
 # ---------------- 小工具 ----------------
@@ -500,6 +503,129 @@ def merge(bb, au, notices, issued, code_of):
     return cases
 
 
+# ---------------- 詢圈前：董事會／送件／生效 ----------------
+def _days(a, b):
+    return (date.fromisoformat(a) - date.fromisoformat(b)).days
+
+
+def _anchor(c):
+    """案件進入承銷階段的日期（詢圈／競拍開始、承銷公告、發行）"""
+    return c.get("bb_start") or c.get("done_date") or c.get("price_base_date") or c.get("issue_date") or c.get("list_date") or ""
+
+
+def _series_list(s):
+    return [x for x in str(s or "").split(",") if x]
+
+
+def attach_pipeline(cases, sfb, events, today):
+    """把證期局申報案件、觀測站董事會決議接到既有案件；接不上的變成「籌備中」新案件。"""
+    by_code = {}
+    for c in cases:
+        if c.get("code"):
+            by_code.setdefault(c["code"], []).append(c)
+
+    def new_case(**kw):
+        c = {k: "" for k in CASE_COLS}
+        c.update(kw)
+        cases.append(c)
+        by_code.setdefault(c["code"], []).append(c)
+        return c
+
+    # 1. 申報案件 → 既有案件（同代號；承銷開始在生效日前 10 天～後 150 天內）
+    #    先配金額完全相同的，再配剩下的（同一家公司常同時申報兩檔不同金額的 CB）
+    closed = ("自行撤回", "退件", "廢止/撤銷")
+
+    def cands_for(r):
+        ref = r["effective"] or r["filed"]
+        if r["status"] in closed or not ref:
+            return []
+        return [c for c in by_code.get(r["code"], []) if not c.get("filed_date") and _anchor(c)
+                and -10 <= _days(_anchor(c), ref) <= 150]
+
+    def link_sfb(c, r):
+        c.update(filed_date=r["filed"], eff_date=r["effective"], sfb_status=r["status"],
+                 stop_date="" if r.get("unstop") else r.get("stop", ""), sfb_amount=int(r["amount"] or 0) or "",
+                 wd_date=r.get("withdrawn") or r.get("returned") or r.get("revoked") or "")
+
+    rows = sorted(sfb, key=lambda r: (r["filed"], r["code"], r["amount"]))
+    left = []
+    for r in rows:
+        exact = [c for c in cands_for(r) if int(c.get("units") or 0) * 100000 == int(r["amount"] or 0)]
+        if exact:
+            ref = r["effective"] or r["filed"]
+            link_sfb(min(exact, key=lambda c: abs(_days(_anchor(c), ref))), r)
+        else:
+            left.append(r)
+    for r in left:
+        cands = cands_for(r)
+        if cands:
+            ref = r["effective"] or r["filed"]
+            link_sfb(min(cands, key=lambda c: abs(_days(_anchor(c), ref))), r)
+            continue
+        amt = int(r["amount"] or 0)
+        secured = "有擔保" if "有擔保" in r["kind"] else "無擔保" if "無擔保" in r["kind"] else ""
+        c = new_case(code=r["code"], company=r["name"], lead=r["lead"],
+                     type=secured + ("交換公司債" if "交換" in r["kind"] else "轉換公司債"),
+                     units=amt // 100000 or "", id=f"f{r['code']}-{r['filed']}-{amt // 1000000}")
+        link_sfb(c, r)
+
+    # 2. 董事會決議：同公司、同一組「第幾次」在 120 天內的更正／補充／變更額度併成一筆
+    #    （決議日取最早，額度與承銷方式取最新）
+    boards = []
+    for e in sorted((e for e in events if e.get("kind") == "board" and e.get("board_date")),
+                    key=lambda e: (e["date"], e.get("time", ""))):
+        e = dict(e)
+        if "," in (e.get("series") or ""):
+            e["method"] = ""  # 一次決議多檔，承銷方式可能各不相同
+        prev = next((b for b in boards if b["code"] == e["code"] and (b.get("series") or "") == (e.get("series") or "")
+                     and 0 <= _days(e["board_date"], b["board_date"]) <= 120), None)
+        if prev:
+            for k in ("amount", "method", "lead"):
+                if e.get(k):
+                    prev[k] = e[k]
+            continue
+        boards.append(e)
+    used = set()
+    for c in sorted(cases, key=lambda c: c.get("filed_date") or _anchor(c) or "9"):
+        ref = c.get("filed_date") or _anchor(c)
+        if not c.get("code") or not ref:
+            continue
+        cands = [b for b in boards if b["code"] == c["code"] and 0 <= _days(ref, b["board_date"]) <= 400
+                 and (id(b) not in used or len(_series_list(b.get("series"))) > 1)]
+        if not cands:
+            continue
+        amt = int(c.get("sfb_amount") or 0) or int(c.get("units") or 0) * 100000
+
+        def score(b):
+            return (not (amt and str(b.get("amount")) == str(amt)),
+                    not (c.get("series") and str(c["series"]) in _series_list(b.get("series"))),
+                    -_days(b["board_date"], "2000-01-01"))
+        b = min(cands, key=score)
+        used.add(id(b))
+        c.update(board_date=b["board_date"], board_amount=b.get("amount", ""), board_method=b.get("method", ""))
+        if not c.get("method") and b.get("method"):
+            c["method"] = b["method"]
+        if not c.get("lead") and b.get("lead"):
+            c["lead"] = b["lead"]
+
+    # 3. 還沒送件的董事會決議（一年內）→ 新案件
+    wds = [e for e in events if e.get("kind") == "withdraw"]
+    for b in boards:
+        if id(b) in used or _days(today.isoformat(), b["board_date"]) > 365:
+            continue
+        if b.get("series") and any(o is not b and id(o) not in used and o["code"] == b["code"]
+                                   and o.get("series") == b["series"] and o["board_date"] > b["board_date"] for o in boards):
+            continue  # 同一次 CB 後來又重新決議，以最新一次為準
+        wd = next((w["date"] for w in wds if w["code"] == b["code"] and w["date"] >= b["board_date"]), "")
+        amt = int(b.get("amount") or 0)
+        new_case(code=b["code"], company=b["name"], series=b.get("series", "") if "," not in b.get("series", "") else "",
+                 type=(b.get("secured") or "") + ("交換公司債" if "交換" in b.get("subject", "") else "轉換公司債"),
+                 method=b.get("method", ""), lead=b.get("lead", ""), units=amt // 100000 or "",
+                 board_date=b["board_date"], board_amount=amt or "", board_method=b.get("method", ""), wd_date=wd,
+                 id=f"b{b['code']}-{b['board_date']}-{(b.get('series') or '').replace(',', '_')}")
+    return cases
+
+
 # ---------------- 主程式 ----------------
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -582,6 +708,9 @@ def main(argv=None):
     _write(OUT / "auction.csv", AU_COLS, au_rows)
     _write(OUT / "notices.csv", NT_COLS, nt_rows)
     cases = merge(bb_rows, au_rows, nt_rows, issued, code_of)
+    # 詢圈前階段（fetch_cb_pre.py 產生；沒有就略過）
+    cases = attach_pipeline(cases, _read(OUT / "sfb.csv"), _read(OUT / "mops_events.csv"), datetime.now(C.TPE).date())
+    cases.sort(key=lambda c: (_anchor(c) or c.get("filed_date") or c.get("board_date") or "", c["id"]), reverse=True)
     _write(OUT / "cases.csv", CASE_COLS, cases)
     log.update({"generated": datetime.now(C.TPE).strftime("%Y-%m-%d %H:%M"), "errors": errors,
                 "unmapped": sorted({c["company"] for c in cases if not c["code"]})})

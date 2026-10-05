@@ -22,13 +22,20 @@ concurrency:
 jobs:
   fetch:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
+      - name: Fetch board resolutions and filings
+        continue-on-error: true  # 董事會／送件資料失敗不影響詢圈資料
+        run: |
+          pip install -q pdfplumber openpyxl
+          # 證期局申報案件＋觀測站重訊；第一次會回補到 2025 年初，每次最多 20 分鐘，下次接著抓
+          python fetch_cb_pre.py --max-minutes 20
 
       - name: Fetch
         env:

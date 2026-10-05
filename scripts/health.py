@@ -217,6 +217,26 @@ def check(data_dir=ROOT / "data", now=None):
             msg += "，對不到代號：" + "、".join(src["unmapped"][:3])
         add("cb", "cb", "CB 詢圈", level, gen, msg, rows=len(cases))
 
+    # ---------- CB 詢圈前（董事會／送件／生效） ----------
+    pre_src = data_dir / "cb" / "pre_sources.json"
+    if pre_src.exists():
+        src = json.loads(pre_src.read_text(encoding="utf-8"))
+        gen = (src.get("generated") or "")[:10] or None
+        stale = gen and (now.date() - datetime.strptime(gen, "%Y-%m-%d").date()).days > 4
+        sfb = _read(data_dir / "cb" / "sfb.csv") if (data_dir / "cb" / "sfb.csv").exists() else []
+        mops = src.get("mops") or {}
+        errs = src.get("errors") or []
+        left = mops.get("left_days") or 0
+        level = "warn" if stale or errs or not sfb or left > 3 else "ok"
+        msg = f"證期局申報 {len(sfb)} 筆、審查中 {sum(r['status'] == '審查中' for r in sfb)} 筆；CB 重訊 {mops.get('events', 0)} 則"
+        if left > 3:
+            msg += f"，重訊回補中（還剩 {left} 天）"
+        if stale:
+            msg += "，超過 4 天沒更新"
+        if errs:
+            msg += f"，錯誤：{errs[0]}"
+        add("cb", "cb-pre", "CB 董事會／送件", level, gen, msg, rows=len(sfb))
+
     # ---------- ETF 規模 ----------
     aum_files = sorted((etf_dir / "aum").glob("[0-9]*.csv"))
     if not aum_files:
