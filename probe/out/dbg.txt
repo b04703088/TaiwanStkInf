@@ -1,0 +1,63 @@
+OK 200 4442 application/json https://openapi.twse.com.tw/v1/opendata/t187ap04_L
+  n=3 keys=['出表日期', '發言日期', '發言時間', '公司代號', '公司名稱', '主旨 ', '符合條款', '事實發生日', '說明']
+  CB hits=0
+OK 200 5878 application/json https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap04_O
+  n=4 keys=['Date', '發言日期', '發言時間', 'SecuritiesCompanyCode', 'CompanyName', '主旨', '符合條款', '事實發生日', '說明']
+  CB hits=0
+OK 200 24183 text/html https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap04_R
+  parse JSONDecodeError('Expecting value: line 1 column 1 (char 0)')
+OK 200 19916 text/html; charset=utf-8 https://mopsov.twse.com.tw/mops/web/t05st02
+OK 200 18374 text/html; charset=utf-8 https://mopsov.twse.com.tw/mops/web/t51sb10
+OK 200 21121 text/html; charset=utf-8 https://mopsov.twse.com.tw/mops/web/t05sr01_1
+OK 200 65 text/html;charset=UTF-8 https://mops.twse.com.tw/mops/web/t05st02
+OK 200 65 text/html;charset=UTF-8 https://mops.twse.com.tw/mops/web/t51sb10
+OK 200 65 text/html;charset=UTF-8 https://mops.twse.com.tw/mops/web/t05sr01_1
+OK 200 1118463 text/html; charset=UTF-8 https://mopsov.twse.com.tw/mops/web/ajax_t05st02
+  t05st02 rows~401 cb=30 snippet=
+
+
+ 
+ 
+	 公開資訊觀測站 
+	
+	
+	  
+	
+	  
+	
+	
+	
+ 
+
+ 
+
+
+ 
+  
+              公司當日重大訊息之詳細內容  
+  (本日重大訊息包含前一日17:30以後之訊息)   
+       
+var win;
+function popupWindow(){
+	if (win==null || win.closed){
+		win = window.open('/mops/web/ajax_t05st02','popup','top=10,left=10,toolbar=0,location=0,directories=0,status=1
+OK 200 800 text/html; charset=UTF-8 https://mops.twse.com.tw/mops/web/ajax_t05st02
+  t05st02 rows~0 cb=0 snippet= 
+ 
+ 
+ 
+  
+因為安全性考量，您所執行的頁面無法呈現。 
+FOR SECURITY REASONS, THIS PAGE CAN NOT BE ACCESSED. 
+ 
+您可以 回上一頁 繼續其他動作，或撥打以下電話通報問題：(02)8101-5840, (02)8101-5834。 
+YOU COULD GO  BACK  TO PREVIOUS PAGE OR CALL US FOR FURTHER HELP：(02)8101-5840, (02)8101-5834。 
+ 
+錯誤代碼：7641438221776676233 
+ 
+	function getIP(json) {
+	d
+OK 200 93017 application/json;charset=UTF-8 https://mops.twse.com.tw/mops/api/t05st02
+  {"code":200,"message":"查詢成功","result":{"data":[["115/09/29","17:31:15","2023","燁輝","公告本公司董事會通過第二十六次買回庫藏股",{"apiName":"t05st02_detail","parameters":{"companyId":"2023","marketKind":"sii","enterDate":"1150929","serialNumber":1}}],["115/09/29","17:32:
+OK 200 89 application/json;charset=UTF-8 https://mops.twse.com.tw/mops/api/t05sr01_1
+  {"code":500,"message":"傳入參數異常","result":null,"datetime":"115/10/05 10:27:36"}
