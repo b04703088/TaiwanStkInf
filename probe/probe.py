@@ -1,47 +1,41 @@
-import pathlib, re, json, urllib.request, urllib.parse, http.cookiejar, traceback
+import pathlib, re, json, time, urllib.request
 OUT = pathlib.Path(__file__).parent / "out"; OUT.mkdir(exist_ok=True)
 for p in OUT.iterdir(): p.unlink()
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
-cj = http.cookiejar.CookieJar(); op = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cj))
 log = []
-def req(url, data=None, headers=None, name=None):
-    h = {"User-Agent": UA, "Accept": "*/*"}; h.update(headers or {})
-    if isinstance(data, dict): data = urllib.parse.urlencode(data).encode()
+def api(name, body):
+    t = time.time()
+    r = urllib.request.urlopen(urllib.request.Request(f"https://mops.twse.com.tw/mops/api/{name}", data=json.dumps(body).encode(),
+        headers={"User-Agent": UA, "Content-Type": "application/json", "Referer": "https://mops.twse.com.tw/mops/"}), timeout=60)
+    d = json.loads(r.read()); log.append(f"{name} {body} -> {d.get('code')} {d.get('message')} {time.time()-t:.1f}s")
+    return d
+subs = []
+import datetime
+day = datetime.date(2026, 7, 1)
+while day <= datetime.date(2026, 10, 2):
+    if day.weekday() < 5:
+        try:
+            d = api("t05st02", {"year": str(day.year - 1911), "month": f"{day.month:02d}", "day": f"{day.day:02d}"})
+            for x in (d.get("result") or {}).get("data") or []:
+                if re.search(r"[轉交]換公司債", x[4]): subs.append(x)
+        except Exception as e:
+            log.append(f"ERR {day} {e!r}")
+        time.sleep(1.0)
+    day += datetime.timedelta(days=1)
+(OUT / "subjects.json").write_text(json.dumps(subs, ensure_ascii=False, indent=0), encoding="utf-8")
+# 詳細內容：每種主旨類型挑幾則
+pick, seen = [], set()
+for x in subs:
+    s = x[4]
+    k = "board" if "董事會" in s and "決議" in s else "eff" if "生效" in s else "price" if "轉換價格" in s or "訂定" in s else "other"
+    if "私募" in s or "海外" in s: k = "skip"
+    if sum(1 for p in pick if p[0] == k) < 4 and k != "skip":
+        pick.append((k, x))
+for k, x in pick:
     try:
-        r = op.open(urllib.request.Request(url, data=data, headers=h), timeout=60)
-        b = r.read()
-        log.append(f"OK {r.status} {len(b)} {r.headers.get('content-type')} {url}")
-        if name: (OUT / name).write_bytes(b)
-        return b
+        d = api("t05st02_detail", x[5]["parameters"])
+        (OUT / f"detail_{k}_{x[2]}_{x[5]['parameters']['enterDate']}.json").write_text(json.dumps(d, ensure_ascii=False, indent=1), encoding="utf-8")
     except Exception as e:
-        log.append(f"ERR {url}: {e!r}")
-        return b""
-KW = ("轉換公司債", "交換公司債")
-# 1. OpenAPI 每日重大訊息
-for url, name in [("https://openapi.twse.com.tw/v1/opendata/t187ap04_L", "twse_ap04.json"),
-                  ("https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap04_O", "tpex_ap04.json"),
-                  ("https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap04_R", "tpex_ap04R.json")]:
-    b = req(url, name=name)
-    try:
-        d = json.loads(b); log.append(f"  n={len(d)} keys={list(d[0].keys()) if d else None}")
-        hits = [x for x in d if any(k in json.dumps(x, ensure_ascii=False) for k in KW)]
-        log.append(f"  CB hits={len(hits)}"); (OUT / ("hits_" + name)).write_text(json.dumps(hits[:8], ensure_ascii=False, indent=1), encoding="utf-8")
-    except Exception as e:
-        log.append(f"  parse {e!r}")
-# 2. 觀測站舊版：依日期查詢、全文檢索表單頁
-for host in ["https://mopsov.twse.com.tw", "https://mops.twse.com.tw"]:
-    for pg in ["t05st02", "t51sb10", "t05sr01_1"]:
-        req(f"{host}/mops/web/{pg}", name=f"{host.split('//')[1].split('.')[0]}_{pg}.html")
-# 依日期查詢重訊（115/09/30）
-for host in ["https://mopsov.twse.com.tw", "https://mops.twse.com.tw"]:
-    b = req(f"{host}/mops/web/ajax_t05st02", data={"encodeURIComponent": "1", "step": "1", "step00": "0", "firstin": "1", "off": "1",
-             "TYPEK": "all", "year": "115", "month": "09", "day": "30"}, headers={"Referer": f"{host}/mops/web/t05st02"},
-             name=f"{host.split('//')[1].split('.')[0]}_ajax_t05st02.html")
-    s = b.decode("utf-8", "ignore"); log.append(f"  t05st02 rows~{s.count('<tr')} cb={sum(s.count(k) for k in KW)} snippet={re.sub(r'<[^>]+>|\\s+',' ',s)[:300]}")
-# 3. 新版觀測站 API 猜測
-for url, body in [("https://mops.twse.com.tw/mops/api/t05st02", {"year": "115", "month": "09", "day": "30"}),
-                  ("https://mops.twse.com.tw/mops/api/t05sr01_1", {})]:
-    b = req(url, data=json.dumps(body).encode(), headers={"Content-Type": "application/json", "Referer": "https://mops.twse.com.tw/mops/"},
-            name="new_" + url.split("/")[-1] + ".json")
-    log.append("  " + b[:300].decode("utf-8", "ignore"))
+        log.append(f"ERR detail {x[2]} {e!r}")
+    time.sleep(1.0)
 (OUT / "dbg.txt").write_text("\n".join(log), encoding="utf-8")
