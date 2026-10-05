@@ -1,63 +1,80 @@
-OK 200 4442 application/json https://openapi.twse.com.tw/v1/opendata/t187ap04_L
-  n=3 keys=['出表日期', '發言日期', '發言時間', '公司代號', '公司名稱', '主旨 ', '符合條款', '事實發生日', '說明']
-  CB hits=0
-OK 200 5878 application/json https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap04_O
-  n=4 keys=['Date', '發言日期', '發言時間', 'SecuritiesCompanyCode', 'CompanyName', '主旨', '符合條款', '事實發生日', '說明']
-  CB hits=0
-OK 200 24183 text/html https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap04_R
-  parse JSONDecodeError('Expecting value: line 1 column 1 (char 0)')
-OK 200 19916 text/html; charset=utf-8 https://mopsov.twse.com.tw/mops/web/t05st02
-OK 200 18374 text/html; charset=utf-8 https://mopsov.twse.com.tw/mops/web/t51sb10
-OK 200 21121 text/html; charset=utf-8 https://mopsov.twse.com.tw/mops/web/t05sr01_1
-OK 200 65 text/html;charset=UTF-8 https://mops.twse.com.tw/mops/web/t05st02
-OK 200 65 text/html;charset=UTF-8 https://mops.twse.com.tw/mops/web/t51sb10
-OK 200 65 text/html;charset=UTF-8 https://mops.twse.com.tw/mops/web/t05sr01_1
-OK 200 1118463 text/html; charset=UTF-8 https://mopsov.twse.com.tw/mops/web/ajax_t05st02
-  t05st02 rows~401 cb=30 snippet=
-
-
- 
- 
-	 公開資訊觀測站 
-	
-	
-	  
-	
-	  
-	
-	
-	
- 
-
- 
-
-
- 
-  
-              公司當日重大訊息之詳細內容  
-  (本日重大訊息包含前一日17:30以後之訊息)   
-       
-var win;
-function popupWindow(){
-	if (win==null || win.closed){
-		win = window.open('/mops/web/ajax_t05st02','popup','top=10,left=10,toolbar=0,location=0,directories=0,status=1
-OK 200 800 text/html; charset=UTF-8 https://mops.twse.com.tw/mops/web/ajax_t05st02
-  t05st02 rows~0 cb=0 snippet= 
- 
- 
- 
-  
-因為安全性考量，您所執行的頁面無法呈現。 
-FOR SECURITY REASONS, THIS PAGE CAN NOT BE ACCESSED. 
- 
-您可以 回上一頁 繼續其他動作，或撥打以下電話通報問題：(02)8101-5840, (02)8101-5834。 
-YOU COULD GO  BACK  TO PREVIOUS PAGE OR CALL US FOR FURTHER HELP：(02)8101-5840, (02)8101-5834。 
- 
-錯誤代碼：7641438221776676233 
- 
-	function getIP(json) {
-	d
-OK 200 93017 application/json;charset=UTF-8 https://mops.twse.com.tw/mops/api/t05st02
-  {"code":200,"message":"查詢成功","result":{"data":[["115/09/29","17:31:15","2023","燁輝","公告本公司董事會通過第二十六次買回庫藏股",{"apiName":"t05st02_detail","parameters":{"companyId":"2023","marketKind":"sii","enterDate":"1150929","serialNumber":1}}],["115/09/29","17:32:
-OK 200 89 application/json;charset=UTF-8 https://mops.twse.com.tw/mops/api/t05sr01_1
-  {"code":500,"message":"傳入參數異常","result":null,"datetime":"115/10/05 10:27:36"}
+t05st02 {'year': '115', 'month': '07', 'day': '01'} -> 200 查詢成功 0.9s
+t05st02 {'year': '115', 'month': '07', 'day': '02'} -> 200 查詢成功 1.6s
+t05st02 {'year': '115', 'month': '07', 'day': '03'} -> 200 查詢成功 3.5s
+t05st02 {'year': '115', 'month': '07', 'day': '06'} -> 200 查詢成功 1.3s
+t05st02 {'year': '115', 'month': '07', 'day': '07'} -> 200 查詢成功 1.4s
+t05st02 {'year': '115', 'month': '07', 'day': '08'} -> 200 查詢成功 0.9s
+t05st02 {'year': '115', 'month': '07', 'day': '09'} -> 200 查詢成功 0.9s
+t05st02 {'year': '115', 'month': '07', 'day': '10'} -> 200 查詢成功 0.9s
+t05st02 {'year': '115', 'month': '07', 'day': '13'} -> 200 查詢成功 0.9s
+t05st02 {'year': '115', 'month': '07', 'day': '14'} -> 200 查詢成功 1.0s
+t05st02 {'year': '115', 'month': '07', 'day': '15'} -> 200 查詢成功 2.7s
+t05st02 {'year': '115', 'month': '07', 'day': '16'} -> 200 查詢成功 0.9s
+t05st02 {'year': '115', 'month': '07', 'day': '17'} -> 200 查詢成功 1.5s
+t05st02 {'year': '115', 'month': '07', 'day': '20'} -> 200 查詢成功 0.9s
+t05st02 {'year': '115', 'month': '07', 'day': '21'} -> 200 查詢成功 0.9s
+t05st02 {'year': '115', 'month': '07', 'day': '22'} -> 200 查詢成功 2.7s
+t05st02 {'year': '115', 'month': '07', 'day': '23'} -> 200 查詢成功 6.0s
+t05st02 {'year': '115', 'month': '07', 'day': '24'} -> 200 查詢成功 4.3s
+t05st02 {'year': '115', 'month': '07', 'day': '27'} -> 200 查詢成功 2.9s
+t05st02 {'year': '115', 'month': '07', 'day': '28'} -> 200 查詢成功 2.7s
+t05st02 {'year': '115', 'month': '07', 'day': '29'} -> 200 查詢成功 6.2s
+t05st02 {'year': '115', 'month': '07', 'day': '30'} -> 200 查詢成功 5.4s
+t05st02 {'year': '115', 'month': '07', 'day': '31'} -> 200 查詢成功 3.7s
+t05st02 {'year': '115', 'month': '08', 'day': '03'} -> 200 查詢成功 6.0s
+t05st02 {'year': '115', 'month': '08', 'day': '04'} -> 200 查詢成功 9.1s
+t05st02 {'year': '115', 'month': '08', 'day': '05'} -> 200 查詢成功 12.7s
+t05st02 {'year': '115', 'month': '08', 'day': '06'} -> 200 查詢成功 14.3s
+t05st02 {'year': '115', 'month': '08', 'day': '07'} -> 200 查詢成功 10.5s
+t05st02 {'year': '115', 'month': '08', 'day': '10'} -> 200 查詢成功 9.3s
+t05st02 {'year': '115', 'month': '08', 'day': '11'} -> 200 查詢成功 15.8s
+t05st02 {'year': '115', 'month': '08', 'day': '12'} -> 200 查詢成功 11.1s
+t05st02 {'year': '115', 'month': '08', 'day': '13'} -> 200 查詢成功 11.5s
+t05st02 {'year': '115', 'month': '08', 'day': '14'} -> 200 查詢成功 4.5s
+t05st02 {'year': '115', 'month': '08', 'day': '17'} -> 200 查詢成功 1.8s
+t05st02 {'year': '115', 'month': '08', 'day': '18'} -> 200 查詢成功 1.6s
+t05st02 {'year': '115', 'month': '08', 'day': '19'} -> 200 查詢成功 1.2s
+t05st02 {'year': '115', 'month': '08', 'day': '20'} -> 200 查詢成功 1.6s
+t05st02 {'year': '115', 'month': '08', 'day': '21'} -> 200 查詢成功 4.4s
+t05st02 {'year': '115', 'month': '08', 'day': '24'} -> 200 查詢成功 1.0s
+t05st02 {'year': '115', 'month': '08', 'day': '25'} -> 200 查詢成功 1.6s
+t05st02 {'year': '115', 'month': '08', 'day': '26'} -> 200 查詢成功 1.5s
+t05st02 {'year': '115', 'month': '08', 'day': '27'} -> 200 查詢成功 1.3s
+t05st02 {'year': '115', 'month': '08', 'day': '28'} -> 200 查詢成功 2.6s
+t05st02 {'year': '115', 'month': '08', 'day': '31'} -> 200 查詢成功 4.2s
+t05st02 {'year': '115', 'month': '09', 'day': '01'} -> 200 查詢成功 3.4s
+t05st02 {'year': '115', 'month': '09', 'day': '02'} -> 200 查詢成功 4.4s
+t05st02 {'year': '115', 'month': '09', 'day': '03'} -> 200 查詢成功 5.4s
+t05st02 {'year': '115', 'month': '09', 'day': '04'} -> 200 查詢成功 4.0s
+t05st02 {'year': '115', 'month': '09', 'day': '07'} -> 200 查詢成功 3.3s
+t05st02 {'year': '115', 'month': '09', 'day': '08'} -> 200 查詢成功 2.9s
+t05st02 {'year': '115', 'month': '09', 'day': '09'} -> 200 查詢成功 3.3s
+t05st02 {'year': '115', 'month': '09', 'day': '10'} -> 200 查詢成功 1.3s
+t05st02 {'year': '115', 'month': '09', 'day': '11'} -> 200 查詢成功 1.9s
+t05st02 {'year': '115', 'month': '09', 'day': '14'} -> 200 查詢成功 1.9s
+t05st02 {'year': '115', 'month': '09', 'day': '15'} -> 200 查詢成功 4.2s
+t05st02 {'year': '115', 'month': '09', 'day': '16'} -> 200 查詢成功 1.3s
+t05st02 {'year': '115', 'month': '09', 'day': '17'} -> 200 查詢成功 2.0s
+t05st02 {'year': '115', 'month': '09', 'day': '18'} -> 200 查詢成功 1.8s
+t05st02 {'year': '115', 'month': '09', 'day': '21'} -> 200 查詢成功 1.1s
+t05st02 {'year': '115', 'month': '09', 'day': '22'} -> 200 查詢成功 4.9s
+t05st02 {'year': '115', 'month': '09', 'day': '23'} -> 200 查詢成功 1.4s
+t05st02 {'year': '115', 'month': '09', 'day': '24'} -> 200 查詢成功 3.3s
+t05st02 {'year': '115', 'month': '09', 'day': '25'} -> 200 查詢成功 1.4s
+t05st02 {'year': '115', 'month': '09', 'day': '28'} -> 200 查詢成功 0.5s
+t05st02 {'year': '115', 'month': '09', 'day': '29'} -> 200 查詢成功 1.2s
+t05st02 {'year': '115', 'month': '09', 'day': '30'} -> 200 查詢成功 2.1s
+t05st02 {'year': '115', 'month': '10', 'day': '01'} -> 200 查詢成功 2.1s
+t05st02 {'year': '115', 'month': '10', 'day': '02'} -> 200 查詢成功 1.2s
+t05st02_detail {'companyId': '7610', 'marketKind': 'sii', 'enterDate': '1150630', 'serialNumber': 1} -> 200 查詢成功 0.6s
+t05st02_detail {'companyId': '3016', 'marketKind': 'sii', 'enterDate': '1150630', 'serialNumber': 2} -> 200 查詢成功 0.6s
+t05st02_detail {'companyId': '8021', 'marketKind': 'sii', 'enterDate': '1150701', 'serialNumber': 3} -> 200 查詢成功 0.4s
+t05st02_detail {'companyId': '2906', 'marketKind': 'sii', 'enterDate': '1150701', 'serialNumber': 1} -> 200 查詢成功 0.7s
+t05st02_detail {'companyId': '2528', 'marketKind': 'sii', 'enterDate': '1150630', 'serialNumber': 1} -> 200 查詢成功 1.7s
+t05st02_detail {'companyId': '8996', 'marketKind': 'sii', 'enterDate': '1150701', 'serialNumber': 1} -> 200 查詢成功 0.5s
+t05st02_detail {'companyId': '2247', 'marketKind': 'sii', 'enterDate': '1150701', 'serialNumber': 3} -> 200 查詢成功 2.2s
+t05st02_detail {'companyId': '3219', 'marketKind': 'otc', 'enterDate': '1150701', 'serialNumber': 1} -> 200 查詢成功 2.0s
+t05st02_detail {'companyId': '8996', 'marketKind': 'sii', 'enterDate': '1150702', 'serialNumber': 1} -> 200 查詢成功 0.6s
+t05st02_detail {'companyId': '8422', 'marketKind': 'sii', 'enterDate': '1150630', 'serialNumber': 1} -> 200 查詢成功 0.6s
+t05st02_detail {'companyId': '4190', 'marketKind': 'sii', 'enterDate': '1150702', 'serialNumber': 1} -> 200 查詢成功 1.6s
+t05st02_detail {'companyId': '3219', 'marketKind': 'otc', 'enterDate': '1150701', 'serialNumber': 1} -> 200 查詢成功 4.4s
