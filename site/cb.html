@@ -109,6 +109,41 @@
     .toolbar input{width:100%;}
     th,td{padding:8px 9px;} .hide-m{display:none;}
   }
+
+  /* 子頁籤 */
+  .subtabs{display:flex; gap:6px; margin-top:28px; border-bottom:1px solid var(--line); overflow-x:auto; scrollbar-width:none;}
+  .subtabs a{padding:10px 16px; font-size:14px; color:var(--text-muted); text-decoration:none; border-bottom:2px solid transparent; margin-bottom:-1px; white-space:nowrap;}
+  .subtabs a:hover{color:var(--text);}
+  .subtabs a[aria-current="page"]{color:var(--brass); border-bottom-color:var(--brass);}
+  .subtabs a .n{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--text-faint); margin-left:4px;}
+  .subtabs a[aria-current="page"] .n{color:var(--brass);}
+  [data-view]{display:none;}
+  [data-view].on{display:block;}
+
+  /* 進行中分組 */
+  .group{margin-top:36px;}
+  .group:first-child{margin-top:8px;}
+  .group h3{font-size:15px; font-weight:600; margin:0 0 12px; display:flex; align-items:center; gap:10px;}
+  .group h3 .stage{font-size:12px;}
+  .group h3 .c{font-family:'IBM Plex Mono',monospace; color:var(--text-faint); font-size:13px; font-weight:500;}
+
+  /* 溢價率落點 */
+  .range{position:relative; display:inline-block; width:60px; height:6px; background:var(--line-strong); border-radius:3px; vertical-align:middle; margin-right:8px;}
+  .range i{position:absolute; top:-3px; width:3px; height:12px; background:var(--brass); border-radius:1px; transform:translateX(-1px);}
+
+  /* 每月掛牌數 */
+  .months{display:grid; grid-template-columns:repeat(12,1fr); gap:6px; align-items:end; height:150px; padding:14px 16px 0; border:1px solid var(--line); border-radius:var(--radius-m); background:var(--panel);}
+  .mbar{display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; font-size:11px; color:var(--text-faint);}
+  .mbar b{font-family:'IBM Plex Mono',monospace; font-weight:500; color:var(--text-muted); font-size:12px; margin-bottom:4px;}
+  .mbar i{display:block; width:70%; max-width:34px; background:var(--brass); border-radius:2px 2px 0 0; min-height:2px;}
+  .mbar span{padding:6px 0 8px;}
+  .mbar.cur i{background:var(--brass); opacity:.55;}
+  @media (max-width:860px){
+    .subtabs a{padding:10px 12px;}
+    .range{width:56px;}
+    .months{gap:3px; padding:12px 8px 0;}
+    .mbar{font-size:10px;} .mbar b{font-size:11px;}
+  }
 </style>
 </head>
 <body>
@@ -130,83 +165,108 @@
 <main class="wrap">
   <section class="page-head">
     <div class="eyebrow">CB 詢圈</div>
-    <h1>可轉債從圈購到掛牌</h1>
+    <h1 id="title">可轉債從圈購到掛牌</h1>
     <p class="desc" id="sub">載入中…</p>
-    <div class="stats">
-      <div class="stat"><div class="k">詢圈／競拍中</div><div class="v mono" id="s-bb">–</div></div>
-      <div class="stat"><div class="k">即將開始</div><div class="v mono" id="s-soon">–</div></div>
-      <div class="stat"><div class="k">已訂價、待掛牌</div><div class="v mono" id="s-wait">–</div></div>
-      <div class="stat"><div class="k">今年已掛牌</div><div class="v mono" id="s-done">–</div></div>
-    </div>
+    <nav class="subtabs" aria-label="CB詢圈子頁">
+      <a href="cb.html" data-tab="overview">總覽</a>
+      <a href="cb-active.html" data-tab="active">進行中<span class="n" id="n-active"></span></a>
+      <a href="cb-bb.html" data-tab="bb">詢價圈購<span class="n" id="n-bb"></span></a>
+      <a href="cb-auction.html" data-tab="auction">競價拍賣<span class="n" id="n-auction"></span></a>
+      <a href="cb-listed.html" data-tab="listed">已掛牌<span class="n" id="n-listed"></span></a>
+    </nav>
+    <div class="stats" id="stats"></div>
   </section>
 
-  <section class="block">
-    <div class="block-head"><h2>接下來兩週</h2><span class="hint">點名稱可跳到該案進度</span></div>
-    <div class="agenda" id="agenda"></div>
-  </section>
+  <!-- 總覽 -->
+  <div data-view="overview">
+    <section class="block">
+      <div class="block-head"><h2>接下來兩週</h2><span class="hint">點名稱看該案進度</span></div>
+      <div class="agenda" id="agenda"></div>
+    </section>
+    <section class="block">
+      <div class="block-head"><h2>最近訂價</h2><a class="hint" href="cb-listed.html">看全部已掛牌 →</a></div>
+      <div class="tbl"><table><thead><tr id="recent-head"></tr></thead><tbody id="recent"></tbody></table></div>
+    </section>
+  </div>
 
-  <section class="block">
-    <div class="block-head"><h2>進行中</h2><span class="hint" id="active-hint"></span></div>
-    <div class="cards" id="cards"></div>
-  </section>
+  <!-- 進行中 -->
+  <div data-view="active">
+    <section class="block" id="groups"></section>
+  </div>
 
-  <section class="block">
-    <div class="block-head"><h2>全部案件</h2>
-      <div class="toolbar" role="group" aria-label="篩選">
-        <button data-m="詢價圈購" aria-pressed="true">詢圈</button>
-        <button data-m="競價拍賣" aria-pressed="false">競拍</button>
-        <button data-m="" aria-pressed="false">全部</button>
-        <input id="q" type="search" placeholder="公司、代號、承銷商" aria-label="搜尋">
+  <!-- 詢價圈購／競價拍賣／已掛牌：共用表格 -->
+  <div data-view="bb auction listed">
+    <section class="block" id="monthly-wrap" hidden>
+      <div class="block-head"><h2>每月掛牌檔數</h2><span class="hint">近 12 個月・含詢圈與競拍</span></div>
+      <div class="months" id="months"></div>
+    </section>
+    <section class="block">
+      <div class="block-head"><h2 id="tbl-title">案件</h2>
+        <div class="toolbar" role="group" aria-label="篩選">
+          <span id="years"></span>
+          <input id="q" type="search" placeholder="公司、代號、承銷商" aria-label="搜尋">
+        </div>
       </div>
-    </div>
-    <div class="tbl">
-      <table>
-        <thead><tr id="thead"></tr></thead>
-        <tbody id="rows"></tbody>
-      </table>
-    </div>
-    <button class="more" id="more" hidden>顯示更多</button>
-    <p class="note">
-      流程：董事會決議 → 金管會申報生效 → <b>詢價圈購</b>（承銷商向投資人詢問願意接受的轉換溢價率）→ <b>訂價基準日</b>（取前 1／3／5 個營業日均價擇一 × 議定溢價率 = 轉換價）→ <b>繳款</b> → <b>上櫃掛牌</b>。<br>
-      斜體灰字的日期是還沒公告時依慣例推估（訂價基準日 ≈ 圈購截止後 2 個營業日、掛牌 ≈ 訂價後 7 個營業日），以正式公告為準。<br>
-      來源：證券商業同業公會承銷公告（詢圈公告、競拍公告、承銷公告 PDF）、櫃買中心轉(交)換公司債發行資料。每天 08:00、18:00 左右更新。
-    </p>
-  </section>
+      <div class="tbl"><table><thead><tr id="thead"></tr></thead><tbody id="rows"></tbody></table></div>
+      <button class="more" id="more" hidden>顯示更多</button>
+    </section>
+  </div>
+
+  <p class="note" id="note"></p>
 </main>
 <footer class="site"><div class="wrap"><p class="note" style="margin:0">資料僅供參考，實際條件以公開說明書與主管機關公告為準。</p></div></footer>
 <script>
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const tpeToday = () => new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);
-const TODAY = tpeToday();
+const TODAY = new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);
 const WD = "日一二三四五六";
 const md = d => d ? `${+d.slice(5,7)}/${+d.slice(8,10)}` : "–";
+const ymd = d => d ? `${d.slice(2,4)}/${+d.slice(5,7)}/${+d.slice(8,10)}` : "–";
+const addDays = (d, n) => { const t = new Date(d + "T00:00:00Z"); t.setUTCDate(t.getUTCDate() + n); return t.toISOString().slice(0, 10); };
 const addBiz = (d, n) => { const t = new Date(d + "T00:00:00Z"); while (n > 0) { t.setUTCDate(t.getUTCDate() + 1); const w = t.getUTCDay(); if (w && w < 6) n--; } return t.toISOString().slice(0, 10); };
-const fmt = (v, dp) => v == null ? "–" : (dp == null ? v.toLocaleString() : v.toFixed(dp));
+const fmt = v => v == null ? "–" : v.toLocaleString();
 const pct = v => v == null ? "–" : (+v).toFixed(2).replace(/\.?0+$/, "") + "%";
+const avg = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
+const AUC = c => c.method === "競價拍賣";
 
-let cases = [], mode = "詢價圈購", q = "", limit = 60, sortKey = "start", sortDir = -1;
+// 由檔名決定顯示哪個子頁（build_site.py 會把 cb.html 複製成各子頁檔名）
+const PAGES = {"cb-active.html":"active", "cb-bb.html":"bb", "cb-auction.html":"auction", "cb-listed.html":"listed"};
+const VIEW = PAGES[location.pathname.split("/").pop()] || new URLSearchParams(location.search).get("v") || "overview";
+
+const INFO = {
+  overview: ["可轉債從圈購到掛牌", "把每檔可轉債（CB／EB）的詢圈、訂價、繳款與掛牌日排在同一條時間軸上。"],
+  active:   ["進行中的案件", "還沒掛牌的案子，依目前進度分組；灰色斜體日期是依慣例推估。"],
+  bb:       ["詢價圈購", "承銷商先公告溢價率區間，向投資人詢問願意接受的溢價率，再與發行公司議定。落點＝議定溢價率在區間中的位置，越靠左代表越接近下緣（對投資人越有利、需求越熱）。"],
+  auction:  ["競價拍賣", "投資人以價格投標（以百元計），由高價往下得標，承銷價＝得標加權平均價。轉換溢價率在開標前就已定好。得標溢價＝加權得標價 − 最低承銷價，越高代表搶得越兇。"],
+  listed:   ["已掛牌", "近兩年已上櫃掛牌的 CB／EB，含櫃買中心的債券代號與發行時轉換價。"],
+};
+
+let cases = [];
 
 function stage(c){
-  const lst = c.list_date || c.list_expected;
-  const auc = c.method === "競價拍賣";
+  const lst = c.list_date || c.list_expected, auc = AUC(c);
   if (c.list_date && c.list_date <= TODAY) return ["done", "已掛牌"];
   const last = [c.bb_end, c.done_date, c.price_base_date, c.pay_date, c.list_expected, c.issue_date].filter(Boolean).sort().pop();
   if (!last || last < addDays(TODAY, -40)) return ["done", "已結束"];
   if (c.bb_start && c.bb_start > TODAY) return ["soon", auc ? "即將競拍" : "即將詢圈"];
   if (c.bb_start && c.bb_end && c.bb_end >= TODAY) return ["bb", auc ? "競拍中" : "詢圈中"];
-  if (!lst && c.bb_end && c.bb_end < addDays(TODAY, -40)) return ["done", "已結束"];
   if (lst && lst <= TODAY) return ["done", "已掛牌"];
-  if (c.conv_price == null) return ["price", "待訂價"];
+  if (c.conv_price == null || (auc && c.issue_pct == null)) return ["price", auc ? "待開標" : "待訂價"];
   if (c.pay_date && c.pay_date >= TODAY) return ["pay", "待繳款"];
   return ["list", "待掛牌"];
 }
-function addDays(d, n){ const t = new Date(d + "T00:00:00Z"); t.setUTCDate(t.getUTCDate() + n); return t.toISOString().slice(0, 10); }
+const listed = c => c._st[1] === "已掛牌";
+const listDay = c => c.list_date || c.list_expected || c.issue_date || "";
 
-// 五個節點：開始、截止、訂價、繳款、掛牌（沒公告的用推估）
 function steps(c){
   const base = c.price_base_date || (c.bb_end ? addBiz(c.bb_end, 2) : null);
   const list = c.list_date || c.list_expected || (base ? addBiz(base, 7) : null);
-  return [
+  return AUC(c) ? [
+    ["投標", c.bb_start, false],
+    ["截止", c.bb_end && c.bb_end !== c.bb_start ? addDays(c.bb_end, 0) : c.bb_end, false],
+    ["開標", c.done_date || (c.bb_end ? addBiz(c.bb_end, 1) : null), !c.done_date],
+    ["繳款", c.pay_date || (c.bb_end ? addBiz(c.bb_end, 3) : null), !c.pay_date],
+    ["掛牌", list, !(c.list_date || c.list_expected)],
+  ] : [
     ["開始", c.bb_start, false],
     ["截止", c.bb_end, false],
     ["訂價", base, !c.price_base_date],
@@ -214,13 +274,25 @@ function steps(c){
     ["掛牌", list, !(c.list_date || c.list_expected)],
   ];
 }
-const label = c => `${esc(c.short || c.company)}${c.code ? ` <span class="mono">${esc(c.code)}</span>` : ""}`;
+const nameOf = c => esc(c.short || c.company);
+const label = c => `${nameOf(c)}${c.code ? ` <span class="mono faint">${esc(c.code)}</span>` : ""}`;
+const stageTag = c => `<span class="stage st-${c._st[0]}">${c._st[1]}</span>`;
 
-function renderAgenda(){
+function renderStats(items){
+  document.getElementById("stats").innerHTML = items.map(([k, v]) => `<div class="stat"><div class="k">${k}</div><div class="v mono">${v}</div></div>`).join("");
+}
+
+/* ---------- 總覽 ---------- */
+function viewOverview(){
+  const n = k => cases.filter(c => c._st[0] === k).length;
+  const year = TODAY.slice(0, 4);
+  renderStats([["詢圈／競拍中", n("bb")], ["即將開始", n("soon")], ["已訂價、待掛牌", n("price") + n("pay") + n("list")],
+               [`${year} 年已掛牌`, cases.filter(c => listed(c) && listDay(c).startsWith(year)).length]]);
+
   const end = addDays(TODAY, 14), days = {};
   const KIND = {start:["k-start","開始"], end:["k-end","截止"], price:["k-price","訂價"], pay:["k-pay","繳款"], list:["k-list","掛牌"]};
   for (const c of cases){
-    const ev = [["start", c.bb_start], ["end", c.bb_end], ["price", c.price_base_date], ["pay", c.pay_date], ["list", c.list_date || c.list_expected]];
+    const ev = [["start", c.bb_start], ["end", c.bb_end], [ "price", AUC(c) ? c.done_date : c.price_base_date], ["pay", c.pay_date], ["list", c.list_date || c.list_expected]];
     const seen = new Set();
     for (const [k, d] of ev){
       if (!d || d < TODAY || d > end || seen.has(k + d)) continue;
@@ -228,94 +300,195 @@ function renderAgenda(){
       (days[d] ||= []).push([k, c]);
     }
   }
+  const order = ["start","end","price","pay","list"];
   const ds = Object.keys(days).sort();
   document.getElementById("agenda").innerHTML = ds.length ? ds.map(d => {
     const w = new Date(d + "T00:00:00Z").getUTCDay();
-    const order = ["start","end","price","pay","list"];
     const evs = days[d].sort((a, b) => order.indexOf(a[0]) - order.indexOf(b[0]));
     return `<div class="day${d === TODAY ? " today" : ""}"><div class="d"><b class="mono">${md(d)}</b>週${WD[w]}${d === TODAY ? "・今天" : ""}</div>
-      <div class="ev">${evs.map(([k, c]) => `<span class="tag ${KIND[k][0]}" data-id="${esc(c.id)}"><i>${KIND[k][1]}</i>${label(c)}${c.method === "競價拍賣" ? '<span class="faint">競拍</span>' : ""}</span>`).join("")}</div></div>`;
+      <div class="ev">${evs.map(([k, c]) => `<a class="tag ${KIND[k][0]}" href="cb-active.html#c-${esc(c.id)}" style="text-decoration:none"><i>${AUC(c) && k === "price" ? "開標" : KIND[k][1]}</i>${label(c)}${AUC(c) ? '<span class="faint">競拍</span>' : ""}</a>`).join("")}</div></div>`;
   }).join("") : `<div class="empty">未來兩週沒有已公告的詢圈、訂價或掛牌。</div>`;
-  document.querySelectorAll("#agenda .tag").forEach(t => t.onclick = () => {
-    const el = document.getElementById("c-" + t.dataset.id);
-    if (el){ el.scrollIntoView({behavior:"smooth", block:"center"}); el.classList.add("hl"); setTimeout(() => el.classList.remove("hl"), 1800); }
+
+  const recent = cases.filter(c => c.conv_price != null && (c.price_base_date || c.done_date))
+    .sort((a, b) => (b.done_date || b.price_base_date).localeCompare(a.done_date || a.price_base_date)).slice(0, 10);
+  const cols = [["公司"], ["方式"], ["完成日"], ["溢價率", "num"], ["轉換價", "num"], ["發行價", "num"], ["張數", "num"], ["掛牌", ""]];
+  document.getElementById("recent-head").innerHTML = cols.map(([n, cl]) => `<th class="${cl || ""}" style="cursor:default">${n}</th>`).join("");
+  document.getElementById("recent").innerHTML = recent.map(c => `<tr>
+    <td>${label(c)}</td><td>${AUC(c) ? "競拍" : "詢圈"}</td><td class="mono">${md(c.done_date || c.price_base_date)}</td>
+    <td class="num mono">${pct(c.premium)}</td><td class="num mono">${fmt(c.conv_price)}</td><td class="num mono">${fmt(c.issue_pct)}</td>
+    <td class="num mono">${fmt(c.units)}</td><td class="mono">${c.list_date ? md(c.list_date) : `<span class="faint">${md(c.list_expected)}</span>`}</td></tr>`).join("");
+}
+
+/* ---------- 進行中 ---------- */
+function card(c){
+  const st = steps(c);
+  let cur = st.findIndex(s => !s[1] || s[1] > TODAY);
+  if (cur < 0) cur = st.length;
+  const auc = AUC(c);
+  const kv = auc ? [
+    ["最低承銷價", c.min_price != null ? fmt(c.min_price) : "–"],
+    [c.issue_pct != null ? "得標加權價" : "轉換溢價率", c.issue_pct != null ? fmt(c.issue_pct) : pct(c.premium)],
+    ["張數（競拍）", `${fmt(c.units)}${c.bb_units ? `<span class="faint" style="font-size:12px">（${fmt(c.bb_units)}）</span>` : ""}`],
+  ] : [
+    [c.premium != null ? "議定溢價率" : "溢價區間", c.premium != null ? pct(c.premium) : (c.premium_lo != null ? `${pct(c.premium_lo)}~${pct(c.premium_hi)}` : "–")],
+    ["轉換價", c.conv_price != null ? fmt(c.conv_price) : "–"],
+    ["張數（圈購）", `${fmt(c.units)}${c.bb_units ? `<span class="faint" style="font-size:12px">（${fmt(c.bb_units)}）</span>` : ""}`],
+  ];
+  return `<article class="card" id="c-${esc(c.id)}">
+    <div class="card-top"><div><div class="nm">${nameOf(c)}${c.code ? `<span class="mono">${esc(c.code)}</span>` : ""}</div>
+      <div class="sub">${c.series ? `第 ${c.series} 次・` : ""}${esc((c.type || "").replace("轉換公司債", "CB").replace("交換公司債", "EB"))}・${auc ? "競價拍賣" : "詢價圈購"}・${esc(c.lead || "")}</div></div>
+      ${stageTag(c)}</div>
+    <div class="steps">${st.map(([n, d, est], i) => `<div class="step ${i < cur ? "done" : i === cur ? "now" : ""}"><div class="dot"></div>${n}<span class="dt${est ? " est" : ""}">${d ? md(d) : "–"}</span></div>`).join("")}</div>
+    <div class="kv">${kv.map(([k, v]) => `<div>${k}<b>${v}</b></div>`).join("")}</div></article>`;
+}
+
+function viewActive(){
+  const act = cases.filter(c => c._st[0] !== "done");
+  const G = [["bb", "詢圈／競拍中"], ["price", "截止、等訂價／開標"], ["pay", "已訂價、待繳款"], ["list", "已繳款、待掛牌"], ["soon", "即將開始"]];
+  const by = k => act.filter(c => c._st[0] === k).sort((a, b) => (a.bb_end || a.list_expected || "").localeCompare(b.bb_end || b.list_expected || ""));
+  renderStats(G.slice(0, 4).map(([k, n]) => [n, by(k).length]));
+  document.getElementById("groups").innerHTML = act.length ? G.filter(([k]) => by(k).length).map(([k, n]) =>
+    `<div class="group"><h3><span class="stage st-${k}">${n}</span><span class="c">${by(k).length} 檔</span></h3>
+      <div class="cards">${by(k).map(card).join("")}</div></div>`).join("")
+    : `<div class="empty">目前沒有進行中的案件。</div>`;
+  const id = location.hash.slice(1);
+  const el = id && document.getElementById(id);
+  if (el){ setTimeout(() => el.scrollIntoView({block:"center"}), 50); el.classList.add("hl"); }
+}
+
+/* ---------- 共用表格 ---------- */
+let year = "", q = "", limit = 80, sortKey, sortDir = -1, COLS, LIST;
+
+const C = {
+  name:  ["公司", c => label(c), c => c.short || c.company || ""],
+  series:["次", c => c.series ?? "–", c => c.series ?? 0, "num hide-m"],
+  stage: ["進度", stageTag, c => c._st[1]],
+  lead:  ["主辦", c => esc(c.lead || "–"), c => c.lead || "", "hide-m"],
+  units: ["張數", c => fmt(c.units), c => c.units ?? 0, "num"],
+  bbu:   ["圈購張數", c => fmt(c.bb_units), c => c.bb_units ?? 0, "num hide-m"],
+  auu:   ["競拍張數", c => fmt(c.bb_units), c => c.bb_units ?? 0, "num hide-m"],
+  period:["期間", c => c.bb_start ? `${md(c.bb_start)}~${md(c.bb_end)}` : "–", c => c.bb_start || c.done_date || "", "mono"],
+  range: ["溢價區間", c => c.premium_lo != null ? `${pct(c.premium_lo)}~${pct(c.premium_hi)}` : "–", c => c.premium_lo ?? 0, "num hide-m"],
+  prem:  ["溢價率", c => pct(c.premium), c => c.premium ?? 0, "num"],
+  spot:  ["落點", c => {
+            if (c.premium == null || c.premium_lo == null || c.premium_hi == null || c.premium_hi <= c.premium_lo) return "–";
+            const p = Math.max(0, Math.min(1, (c.premium - c.premium_lo) / (c.premium_hi - c.premium_lo)));
+            return `<span class="range" title="${pct(c.premium_lo)} ~ ${pct(c.premium_hi)}"><i style="left:${(p * 100).toFixed(0)}%"></i></span><span class="mono faint">${(p * 100).toFixed(0)}%</span>`;
+          }, c => (c.premium != null && c.premium_hi > c.premium_lo) ? (c.premium - c.premium_lo) / (c.premium_hi - c.premium_lo) : -1, "hide-m"],
+  base:  ["訂價基準日", c => md(c.price_base_date), c => c.price_base_date || "", "mono hide-m"],
+  open:  ["開標", c => md(c.done_date), c => c.done_date || "", "mono hide-m"],
+  minp:  ["最低承銷價", c => fmt(c.min_price), c => c.min_price ?? 0, "num"],
+  wavg:  ["得標加權價", c => fmt(c.issue_pct), c => c.issue_pct ?? 0, "num"],
+  over:  ["得標溢價", c => c.issue_pct != null && c.min_price != null ? (c.issue_pct - c.min_price).toFixed(2) : "–", c => c.issue_pct != null && c.min_price != null ? c.issue_pct - c.min_price : -99, "num"],
+  conv:  ["轉換價", c => fmt(c.conv_price), c => c.conv_price ?? 0, "num"],
+  issue: ["發行價", c => fmt(c.issue_pct), c => c.issue_pct ?? 0, "num hide-m"],
+  pay:   ["繳款", c => md(c.pay_date), c => c.pay_date || "", "mono hide-m"],
+  list:  ["掛牌", c => c.list_date ? md(c.list_date) : c.list_expected ? `<span class="faint">${md(c.list_expected)}</span>` : "–", c => listDay(c), "mono"],
+  ldate: ["掛牌日", c => ymd(listDay(c)), c => listDay(c), "mono"],
+  bond:  ["債券代號", c => c.bond_code ? `<span class="mono">${esc(c.bond_code)}</span>` : "–", c => c.bond_code || ""],
+  short: ["債券簡稱", c => esc(c.short || "–"), c => c.short || ""],
+  co:    ["公司", c => `${esc((c.company || "").replace(/-?KY$/, ""))}${c.code ? ` <span class="mono faint">${esc(c.code)}</span>` : ""}`, c => c.company || "", "hide-m"],
+  meth:  ["方式", c => c.method ? (AUC(c) ? "競拍" : "詢圈") : "–", c => c.method || ""],
+  type:  ["擔保", c => (c.type || "").includes("有擔保") ? "有" : (c.type || "").includes("無擔保") ? "無" : "–", c => c.type || "", "hide-m"],
+};
+
+function setupTable(cols, list, key, title){
+  COLS = cols.map(k => [k, ...C[k]]); LIST = list; sortKey = key; sortDir = -1;
+  document.getElementById("tbl-title").textContent = title;
+  const ys = [...new Set(list.map(c => (c.bb_start || listDay(c) || c.done_date || "").slice(0, 4)).filter(Boolean))].sort().reverse();
+  document.getElementById("years").innerHTML = ["", ...ys].map(y => `<button data-y="${y}" aria-pressed="${y === year}">${y || "全部"}</button>`).join(" ");
+  document.querySelectorAll("#years button").forEach(b => b.onclick = () => {
+    year = b.dataset.y; limit = 80;
+    document.querySelectorAll("#years button").forEach(x => x.setAttribute("aria-pressed", x === b));
+    renderTable();
   });
+  document.getElementById("q").oninput = e => { q = e.target.value; limit = 80; renderTable(); };
+  document.getElementById("more").onclick = () => { limit += 160; renderTable(); };
+  renderTable();
 }
-
-function renderCards(){
-  const act = cases.filter(c => c._st[0] !== "done").sort((a, b) => (a.bb_start || a.done_date || "9").localeCompare(b.bb_start || b.done_date || "9"));
-  document.getElementById("active-hint").textContent = `${act.length} 檔`;
-  document.getElementById("cards").innerHTML = act.length ? act.map(c => {
-    const st = steps(c);
-    let cur = st.findIndex(s => !s[1] || s[1] > TODAY);
-    if (cur < 0) cur = st.length;
-    const prem = c.premium != null ? pct(c.premium) : (c.premium_lo != null ? `${pct(c.premium_lo)}~${pct(c.premium_hi)}` : "–");
-    return `<article class="card" id="c-${esc(c.id)}">
-      <div class="card-top"><div><div class="nm">${esc(c.short || c.company)}${c.code ? `<span class="mono">${esc(c.code)}</span>` : ""}</div>
-        <div class="sub">${c.series ? `第 ${c.series} 次・` : ""}${esc((c.type || "").replace("轉換公司債", "CB").replace("交換公司債", "EB"))}・${esc(c.method || "")}・${esc(c.lead || "")}</div></div>
-        <span class="stage st-${c._st[0]}">${c._st[1]}</span></div>
-      <div class="steps">${st.map(([n, d, est], i) => `<div class="step ${i < cur ? "done" : i === cur ? "now" : ""}"><div class="dot"></div>${n}<span class="dt${est ? " est" : ""}">${d ? md(d) : "–"}</span></div>`).join("")}</div>
-      <div class="kv">
-        <div>${c.premium != null ? "議定溢價率" : "溢價區間"}<b>${prem}</b></div>
-        <div>轉換價<b>${c.conv_price != null ? fmt(c.conv_price) : "–"}</b></div>
-        <div>張數${c.bb_units ? "（圈購）" : ""}<b>${fmt(c.units)}${c.bb_units ? `<span class="faint" style="font-size:12px">（${fmt(c.bb_units)}）</span>` : ""}</b></div>
-      </div></article>`;
-  }).join("") : `<div class="empty">目前沒有進行中的案件。</div>`;
-}
-
-const COLS = [
-  ["name", "公司", c => `${label(c)}`, c => c.short || c.company || ""],
-  ["series", "次", c => c.series ?? "–", c => c.series ?? 0, "num hide-m"],
-  ["stage", "進度", c => `<span class="stage st-${c._st[0]}">${c._st[1]}</span>`, c => c._st[1]],
-  ["lead", "主辦", c => esc(c.lead || "–"), c => c.lead || "", "hide-m"],
-  ["units", "張數", c => fmt(c.units), c => c.units ?? 0, "num"],
-  ["start", "詢圈／競拍期間", c => c.bb_start ? `${md(c.bb_start)}~${md(c.bb_end)}` : "–", c => c.bb_start || c.done_date || c.issue_date || "", "mono"],
-  ["range", "溢價區間", c => c.premium_lo != null ? `${pct(c.premium_lo)}~${pct(c.premium_hi)}` : "–", c => c.premium_lo ?? 0, "num hide-m"],
-  ["base", "訂價基準日", c => md(c.price_base_date), c => c.price_base_date || "", "mono hide-m"],
-  ["conv", "轉換價", c => c.conv_price != null ? fmt(c.conv_price) : "–", c => c.conv_price ?? 0, "num"],
-  ["prem", "溢價率", c => pct(c.premium), c => c.premium ?? 0, "num"],
-  ["issue", "發行價", c => c.issue_pct != null ? fmt(c.issue_pct) : "–", c => c.issue_pct ?? 0, "num hide-m"],
-  ["pay", "繳款", c => md(c.pay_date), c => c.pay_date || "", "mono hide-m"],
-  ["list", "掛牌", c => c.list_date ? md(c.list_date) : c.list_expected ? `<span class="faint">${md(c.list_expected)}</span>` : "–", c => c.list_date || c.list_expected || "", "mono"],
-];
 
 function renderTable(){
-  document.getElementById("thead").innerHTML = COLS.map(([k, n, , , cls]) => `<th data-k="${k}" class="${cls || ""}${k === sortKey ? " sorted" : ""}">${n}${k === sortKey ? (sortDir > 0 ? " ↑" : " ↓") : ""}</th>`).join("");
+  document.getElementById("thead").innerHTML = COLS.map(([k, n, , , cls]) =>
+    `<th data-k="${k}" class="${cls || ""}${k === sortKey ? " sorted" : ""}">${n}${k === sortKey ? (sortDir > 0 ? " ↑" : " ↓") : ""}</th>`).join("");
   document.querySelectorAll("#thead th").forEach(th => th.onclick = () => {
-    sortDir = th.dataset.k === sortKey ? -sortDir : (["name","lead","stage"].includes(th.dataset.k) ? 1 : -1);
+    sortDir = th.dataset.k === sortKey ? -sortDir : (["name","lead","stage","co","short","meth"].includes(th.dataset.k) ? 1 : -1);
     sortKey = th.dataset.k; renderTable();
   });
   const col = COLS.find(c => c[0] === sortKey);
   const ql = q.trim().toLowerCase();
-  const list = cases.filter(c => (!mode || c.method === mode) &&
+  const list = LIST.filter(c => (!year || (c.bb_start || listDay(c) || c.done_date || "").startsWith(year)) &&
       (!ql || [c.company, c.short, c.code, c.lead, c.bond_code].some(x => (x || "").toLowerCase().includes(ql))))
     .sort((a, b) => { const x = col[3](a), y = col[3](b); return (x > y ? 1 : x < y ? -1 : 0) * sortDir; });
-  document.getElementById("rows").innerHTML = list.slice(0, limit).map(c => `<tr>${COLS.map(([k, , f, , cls]) => `<td class="${cls || ""}">${f(c)}</td>`).join("")}</tr>`).join("")
+  document.getElementById("rows").innerHTML = list.slice(0, limit).map(c =>
+    `<tr>${COLS.map(([k, , f, , cls]) => `<td class="${cls || ""}">${f(c)}</td>`).join("")}</tr>`).join("")
     || `<tr><td colspan="${COLS.length}" class="faint" style="padding:24px 12px">沒有符合的案件</td></tr>`;
   const more = document.getElementById("more");
   more.hidden = list.length <= limit;
   more.textContent = `顯示更多（共 ${list.length} 檔）`;
 }
 
-document.querySelectorAll(".toolbar button").forEach(b => b.onclick = () => {
-  mode = b.dataset.m; limit = 60;
-  document.querySelectorAll(".toolbar button").forEach(x => x.setAttribute("aria-pressed", x === b));
-  renderTable();
-});
-document.getElementById("q").oninput = e => { q = e.target.value; limit = 60; renderTable(); };
-document.getElementById("more").onclick = () => { limit += 120; renderTable(); };
+function median(a){ if (!a.length) return null; const s = [...a].sort((x, y) => x - y), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; }
+
+function viewBB(){
+  const list = cases.filter(c => c.method === "詢價圈購" || (!c.method && c.bb_sn));
+  const yr = list.filter(c => (c.bb_start || "").startsWith(TODAY.slice(0, 4)));
+  const pr = yr.filter(c => c.premium != null);
+  const spots = yr.filter(c => c.premium != null && c.premium_hi > c.premium_lo).map(c => (c.premium - c.premium_lo) / (c.premium_hi - c.premium_lo));
+  renderStats([[`${TODAY.slice(0, 4)} 年詢圈`, `${yr.length}<span class="faint" style="font-size:14px"> 檔</span>`],
+               ["議定溢價率中位數", pct(median(pr.map(c => c.premium)))],
+               ["議定在區間下緣（落點 ≤10%）", spots.length ? Math.round(spots.filter(p => p <= 0.1).length / spots.length * 100) + "%" : "–"],
+               ["發行價中位數", fmt(median(pr.map(c => c.issue_pct).filter(v => v != null)))]]);
+  setupTable(["name","series","stage","lead","units","bbu","period","range","prem","spot","conv","issue","base","pay","list"], list, "period", "詢價圈購案件");
+}
+
+function viewAuction(){
+  const list = cases.filter(c => AUC(c));
+  const yr = list.filter(c => (c.bb_start || listDay(c)).startsWith(TODAY.slice(0, 4)));
+  const ov = yr.filter(c => c.issue_pct != null && c.min_price != null).map(c => c.issue_pct - c.min_price);
+  renderStats([[`${TODAY.slice(0, 4)} 年競拍`, `${yr.length}<span class="faint" style="font-size:14px"> 檔</span>`],
+               ["得標加權價中位數", fmt(median(yr.map(c => c.issue_pct).filter(v => v != null)))],
+               ["得標溢價中位數", ov.length ? median(ov).toFixed(2) : "–"],
+               ["轉換溢價率中位數", pct(median(yr.map(c => c.premium).filter(v => v != null)))]]);
+  setupTable(["name","series","stage","lead","units","auu","period","open","minp","wavg","over","prem","conv","pay","list"], list, "period", "競價拍賣案件");
+}
+
+function viewListed(){
+  const list = cases.filter(listed);
+  const year = TODAY.slice(0, 4), m0 = TODAY.slice(0, 7);
+  const ytd = list.filter(c => listDay(c).startsWith(year));
+  const amt = ytd.reduce((s, c) => s + (c.units || 0), 0) / 1000;  // 1 張面額 10 萬 → 1,000 張 = 1 億
+  renderStats([[`${year} 年掛牌`, `${ytd.length}<span class="faint" style="font-size:14px"> 檔</span>`],
+               ["其中詢圈／競拍", `${ytd.filter(c => c.method === "詢價圈購").length}／${ytd.filter(AUC).length}`],
+               ["募集面額合計", `${fmt(Math.round(amt))}<span class="faint" style="font-size:14px"> 億</span>`],
+               ["本月掛牌", list.filter(c => listDay(c).startsWith(m0)).length]]);
+  const months = [];
+  for (let i = 11; i >= 0; i--){ const d = new Date(TODAY.slice(0, 7) + "-01T00:00:00Z"); d.setUTCMonth(d.getUTCMonth() - i); months.push(d.toISOString().slice(0, 7)); }
+  const cnt = months.map(m => list.filter(c => listDay(c).startsWith(m)).length), mx = Math.max(1, ...cnt);
+  document.getElementById("monthly-wrap").hidden = false;
+  document.getElementById("months").innerHTML = months.map((m, i) =>
+    `<div class="mbar${m === m0 ? " cur" : ""}"><b>${cnt[i]}</b><i style="height:${(cnt[i] / mx * 90).toFixed(0)}px"></i><span>${+m.slice(5)}月</span></div>`).join("");
+  setupTable(["ldate","bond","short","co","meth","type","units","issue","conv","prem","lead"], list, "ldate", "已掛牌債券");
+}
+
+/* ---------- 啟動 ---------- */
+document.querySelectorAll(".subtabs a").forEach(a => { if (a.dataset.tab === VIEW) a.setAttribute("aria-current", "page"); });
+document.querySelectorAll("[data-view]").forEach(el => el.classList.toggle("on", el.dataset.view.split(" ").includes(VIEW)));
+document.getElementById("title").textContent = INFO[VIEW][0];
+document.title = `${VIEW === "overview" ? "CB詢圈" : INFO[VIEW][0] + "｜CB詢圈"}｜潮汐`;
+document.getElementById("note").innerHTML = `流程：董事會決議 → 金管會申報生效 → <b>詢價圈購</b>（議定溢價率）或 <b>競價拍賣</b>（以價格得標）→ <b>訂價／開標</b> → <b>繳款</b> → <b>上櫃掛牌</b>。<br>
+  斜體灰字日期是還沒公告時依慣例推估（訂價基準日 ≈ 圈購截止後 2 個營業日、掛牌 ≈ 訂價後 7 個營業日），以正式公告為準。<br>
+  來源：證券商業同業公會承銷公告（詢圈公告、競拍公告、承銷公告 PDF）、櫃買中心轉(交)換公司債發行資料。平日 08:00、18:00 左右更新。`;
 
 fetch("data/cb/cb.json", {cache:"no-cache"}).then(r => r.json()).then(d => {
   cases = d.rows.map(r => Object.fromEntries(d.cols.map((k, i) => [k, r[i]])));
   cases.forEach(c => c._st = stage(c));
-  const n = k => cases.filter(c => c._st[0] === k).length;
-  document.getElementById("s-bb").textContent = n("bb");
-  document.getElementById("s-soon").textContent = n("soon");
-  document.getElementById("s-wait").textContent = n("price") + n("pay") + n("list");
-  document.getElementById("s-done").textContent = cases.filter(c => c._st[0] === "done" && (c.list_date || "").slice(0, 4) === TODAY.slice(0, 4)).length;
-  document.getElementById("sub").textContent = `今天 ${TODAY}・共 ${cases.length} 檔 CB／EB 案件${d.generated ? `・資料更新 ${d.generated}` : ""}。把每檔可轉債的詢圈期間、訂價基準日、轉換價、繳款與掛牌日排在同一條時間軸上。`;
-  renderAgenda(); renderCards(); renderTable();
-}).catch(() => { document.getElementById("sub").textContent = "CB 資料載入失敗"; });
+  document.getElementById("sub").textContent = `${INFO[VIEW][1]}${d.generated ? `（資料更新 ${d.generated}）` : ""}`;
+  document.getElementById("n-active").textContent = cases.filter(c => c._st[0] !== "done").length;
+  document.getElementById("n-bb").textContent = cases.filter(c => c.method === "詢價圈購").length;
+  document.getElementById("n-auction").textContent = cases.filter(AUC).length;
+  document.getElementById("n-listed").textContent = cases.filter(listed).length;
+  ({overview: viewOverview, active: viewActive, bb: viewBB, auction: viewAuction, listed: viewListed})[VIEW]();
+}).catch(e => { console.error(e); document.getElementById("sub").textContent = "CB 資料載入失敗"; });
 </script>
 <script>(function(){var a=document.querySelector('nav.links a[aria-current="page"]');if(a&&a.parentNode.scrollWidth>a.parentNode.clientWidth){a.parentNode.scrollLeft=a.offsetLeft-a.parentNode.offsetLeft-16;}})();</script>
 </body>

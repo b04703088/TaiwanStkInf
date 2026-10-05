@@ -5,10 +5,11 @@ import json
 from pathlib import Path
 
 COLS = ["id", "code", "company", "short", "series", "bond_code", "type", "method", "lead",
-        "units", "bb_units", "bb_start", "bb_end", "premium_lo", "premium_hi", "done_date",
+        "units", "bb_units", "bb_start", "bb_end", "premium_lo", "premium_hi", "min_price", "done_date",
         "price_base_date", "conv_price", "premium", "issue_pct", "pay_date", "list_expected",
         "issue_date", "list_date"]
-NUMS = {"series", "units", "bb_units", "premium_lo", "premium_hi", "conv_price", "premium", "issue_pct"}
+SUBPAGES = ["cb-active.html", "cb-bb.html", "cb-auction.html", "cb-listed.html"]
+NUMS = {"series", "units", "bb_units", "premium_lo", "premium_hi", "min_price", "conv_price", "premium", "issue_pct"}
 
 
 def _v(k, v):

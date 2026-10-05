@@ -46,13 +46,13 @@ RB = "ctl00$cphMain$rblReportType"
 REPORTS = {"UnderwritingNotice": 0, "Auction": 1, "BookBuilding": 2}
 
 BB_COLS = ["sn", "company", "lead", "type", "units", "bb_units", "bb_start", "bb_end", "premium_lo", "premium_hi"]
-AU_COLS = ["sn", "company", "lead", "type", "units", "au_units", "bid_start", "bid_end", "open_date", "raw"]
+AU_COLS = ["sn", "company", "lead", "type", "units", "au_units", "bid_start", "bid_end", "open_date", "min_price", "raw"]
 NT_COLS = ["sn", "filed", "lead", "company", "type", "method", "status", "series", "issue_pct", "total_units",
            "done_date", "price_base_date", "conv_price", "premium", "pay_date", "list_expected", "parsed"]
 IS_COLS = ["code", "name", "bond_code", "short", "series", "issue_date", "list_date", "maturity", "amount",
            "conv_price", "underwriter", "secured"]
 CASE_COLS = ["id", "code", "company", "short", "series", "bond_code", "type", "method", "lead",
-             "units", "bb_units", "bb_start", "bb_end", "premium_lo", "premium_hi", "done_date",
+             "units", "bb_units", "bb_start", "bb_end", "premium_lo", "premium_hi", "min_price", "done_date",
              "price_base_date", "conv_price", "premium", "issue_pct", "pay_date", "list_expected",
              "issue_date", "list_date", "bb_sn", "au_sn", "nt_sn"]
 
@@ -225,7 +225,7 @@ def parse_auction(head, rows):
     """競價拍賣清單 → AU_COLS（欄位依表頭名稱對應；只留公司債）。"""
     ix = {"company": _col(head, "發行公司"), "lead": _col(head, "主辦"), "type": _col(head, "性質"),
           "units": _col(head, "承銷股數"), "au_units": _col(head, "競拍股數") or _col(head, "拍賣"),
-          "bid": _col(head, "投標"), "open": _col(head, "開標")}
+          "bid": _col(head, "投標"), "open": _col(head, "開標日"), "min": _col(head, "最低")}
     out = []
     for tds, _ in rows:
         raw = "|".join(tds)
@@ -239,7 +239,8 @@ def parse_auction(head, rows):
         out.append({"sn": tds[0], "company": norm_company(g("company")), "lead": g("lead"), "type": g("type"),
                     "units": _int(g("units")), "au_units": _int(g("au_units")),
                     "bid_start": ad(period[0]) if period else "", "bid_end": ad(period[-1]) if period else "",
-                    "open_date": ad(g("open")) or next_biz(ad(period[-1]) if period else ""), "raw": raw})
+                    "open_date": ad(g("open")) or next_biz(ad(period[-1]) if period else ""),
+                    "min_price": (re.findall(r"[\d.]+", g("min").replace(",", "")) or [""])[0], "raw": raw})
     return out
 
 
@@ -427,7 +428,7 @@ def merge(bb, au, notices, issued, code_of):
         end = a["open_date"] or a["bid_end"]
         c = new_case(company=a["company"], code=code_of(a["company"]), type=a["type"], method="競價拍賣",
                      lead=a["lead"], units=a["units"], bb_units=a["au_units"], bb_start=a["bid_start"],
-                     bb_end=end, au_sn=a["sn"])
+                     bb_end=end, min_price=a.get("min_price", ""), au_sn=a["sn"])
         n = find_notice(a["company"], a["bid_start"], end)
         if n:
             attach_notice(c, n)
