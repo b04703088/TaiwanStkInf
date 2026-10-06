@@ -50,6 +50,11 @@ jobs:
           python fetch_tip_schedule.py
           python fetch_msci.py
 
+      - name: Detect rebalances
+        if: always()
+        continue-on-error: true  # 用每日持股偵測新的換股事件（不連外，幾秒鐘）
+        run: python fetch_etf_rebalance.py --analyze-only
+
       - name: Commit data
         if: always()  # 部分 ETF 失敗，抓到的也要存
         run: |

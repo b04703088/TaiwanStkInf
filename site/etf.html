@@ -222,7 +222,14 @@
   }
 
   /* ---------- 子頁分頁 ---------- */
-  .tabs{display:flex; gap:28px; border-bottom:1px solid var(--line-strong); margin-top:36px;}
+  .tabs{display:flex; gap:28px; border-bottom:1px solid var(--line-strong); margin-top:36px; overflow-x:auto; scrollbar-width:none;}
+  .tabs a{white-space:nowrap;}
+  .rb-idx{display:block; max-width:15em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--text-muted); font-size:12.5px;}
+  .rb-evs{padding:6px 16px 14px; background:var(--panel); white-space:normal;}
+  .rb-ev{display:grid; grid-template-columns:200px 70px 210px 1fr; gap:12px; padding:9px 0; border-bottom:1px solid var(--line); font-size:13px; text-align:left;}
+  .rb-ev:last-child{border-bottom:none;}
+  .rb-ev .who{line-height:1.7;}
+  @media (max-width:860px){ .tabs{gap:20px;} .rb-ev{grid-template-columns:1fr 1fr; gap:4px 10px;} .rb-ev .who{grid-column:1 / -1;} }
   .tabs a{
     text-decoration:none; color:var(--text-muted); font-size:15px; padding:10px 0 12px;
     border-bottom:2px solid transparent; margin-bottom:-1px;
@@ -378,6 +385,7 @@
         <a href="#active" id="tab-active" role="tab" aria-selected="false" aria-controls="panel-active">主動式買賣超</a>
         <a href="#aum" id="tab-aum" role="tab" aria-selected="false" aria-controls="panel-aum">AUM 排行</a>
         <a href="#calendar" id="tab-calendar" role="tab" aria-selected="false" aria-controls="panel-calendar">指數調整行事曆</a>
+        <a href="#rebal" id="tab-rebal" role="tab" aria-selected="false" aria-controls="panel-rebal">調整時長</a>
       </div>
     </div>
   </section>
@@ -564,6 +572,37 @@
       <div id="tipList"><p class="empty">載入中…</p></div>
     </div>
   </section>
+  <section class="panel" id="panel-rebal" role="tabpanel" aria-labelledby="tab-rebal" hidden>
+    <div class="wrap">
+      <p class="panel-note">被動式 ETF 每次指數調整（換股）從開始到大致完成花了幾個交易日。由歷史持股的股數推算（扣掉申購贖回造成的整體增減）：
+        刪除股開始減少、或新增股第一次出現＝開始；每檔都完成 85% 以上、整體完成 97% 以上＝完成（零星殘股不算）。
+        「期間」是相對指數生效日的交易日差，例如「−1 ～ +6」＝生效日前 1 天開始、生效後第 6 天完成。
+        只異動 1～2 檔的臨時調整（下市、合併等）另外標示，不算進「通常時長」。富邦、凱基等投信只提供最新持股，無法回推，從 2026/9/24 起逐日累積。點一列看每次明細。</p>
+      <div class="stats" id="rbStats"></div>
+      <div class="toolbar">
+        <div class="seg" id="rbSeg" role="group" aria-label="篩選">
+          <button type="button" data-v="has" aria-pressed="true">有紀錄</button>
+          <button type="button" data-v="all" aria-pressed="false">全部被動式</button>
+        </div>
+        <input class="search" id="rbSearch" type="search" autocomplete="off" placeholder="搜尋代號或名稱" aria-label="搜尋 ETF">
+      </div>
+      <div class="table-wrap">
+        <table class="rank" id="rbTable">
+          <thead>
+            <tr>
+              <th class="l" data-sort="name" data-dir="asc"><button type="button">ETF</button></th>
+              <th class="l col-hide" data-sort="index" data-dir="asc"><button type="button">追蹤指數</button></th>
+              <th class="col-hide" data-sort="n"><button type="button">定期調整</button></th>
+              <th data-sort="days"><button type="button">通常時長</button></th>
+              <th data-sort="start" data-dir="asc"><button type="button">通常期間</button></th>
+              <th class="l" data-sort="last"><button type="button">最近一次</button></th>
+            </tr>
+          </thead>
+          <tbody id="rbRows"><tr><td colspan="6" class="empty">載入中…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
 </main>
 
 <footer class="site">
@@ -643,12 +682,14 @@ function applySort(tableId, list, getters) {
 }
 
 /* ---------- 子頁切換 ---------- */
-const TABS = ["holders", "changes", "active", "aum", "calendar"];
+const TABS = ["holders", "changes", "active", "aum", "calendar", "rebal"];
 function showTab(name) {
   for (const t of TABS) {
     $("tab-" + t).setAttribute("aria-selected", t === name);
     $("panel-" + t).hidden = t !== name;
   }
+  const tab = $("tab-" + name), bar = tab.parentNode;
+  if (bar.scrollWidth > bar.clientWidth) bar.scrollLeft = tab.offsetLeft - bar.offsetLeft - 16;
 }
 const route = () => { const h = location.hash.replace("#", ""); showTab(TABS.includes(h) ? h : "holders"); };
 function setParam(k, v) {
@@ -1114,6 +1155,60 @@ for (const [id, key] of [["tipWhen", "when"], ["tipEtf", "etf"], ["tipProv", "pr
   });
 }
 $("tipSearch").addEventListener("input", e => { tip.q = e.target.value; renderTip(); });
+/* ---------- 調整時長 ---------- */
+const rb = { data: null, mode: "has", q: "", open: null };
+const offTxt = v => v == null ? "?" : v === 0 ? "生效日" : (v > 0 ? "+" : "−") + Math.abs(v);
+const rangeTxt = (a, b) => a == null ? "—" : `${offTxt(a)} ～ ${offTxt(b)}`;
+const mdTxt = d => d ? `${+d.slice(5, 7)}/${+d.slice(8, 10)}` : "—";
+const RB_GET = {
+  name: x => x.etf, index: x => x.index || null, n: x => x.n || null, days: x => x.days,
+  start: x => x.start, last: x => (rbLast(x) || [null])[0],
+};
+const rbLast = x => [...x.events].reverse().find(e => e[8] === "regular") || x.events[x.events.length - 1];
+function rbEventRow(e, names) {
+  const [s, en, days, eff, so, eo, na, nd, kind, adds, dels] = e;
+  const nm = cs => cs.map(c => `${esc(names[c] || c)}<span class="mono" style="color:var(--text-faint);font-size:11px"> ${esc(c)}</span>`).join("、") || "—";
+  return `<div class="rb-ev"><div class="mono">${s.slice(0, 4)}/${mdTxt(s)} ～ ${mdTxt(en)}</div>
+    <div class="mono">${days} 天</div><div class="mono">${eff ? `生效 ${mdTxt(eff)}（${rangeTxt(so, eo)}）` : '<span style="color:var(--text-faint)">生效日未收錄</span>'}</div>
+    <div class="who">${kind === "adhoc" ? '<span class="kind">臨時</span> ' : ""}<span class="up">納入 ${na}</span>：${nm(adds)}<br><span class="down">刪除 ${nd}</span>：${nm(dels)}</div></div>`;
+}
+function renderRebal() {
+  const D = rb.data; if (!D) return;
+  const q = rb.q.trim().toLowerCase();
+  let list = D.etfs.filter(x => (rb.mode === "all" || x.events.length) && (!q || x.etf.toLowerCase().includes(q) || x.name.toLowerCase().includes(q)));
+  const withReg = D.etfs.filter(x => x.n);
+  const med = a => { const v = [...a].sort((x, y) => x - y); return v.length ? v[v.length >> 1] : null; };
+  $("rbStats").innerHTML = `
+    <div class="stat"><span>有換股紀錄的 ETF</span><b class="mono">${D.etfs.filter(x => x.events.length).length}</b><small>/ ${D.etfs.length} 檔被動式</small></div>
+    <div class="stat"><span>定期調整次數</span><b class="mono">${withReg.reduce((s, x) => s + x.n, 0)}</b><small>次</small></div>
+    <div class="stat"><span>通常時長（中位數）</span><b class="mono">${med(withReg.map(x => x.days)) ?? "—"}</b><small>個交易日</small></div>
+    <div class="stat"><span>通常開始</span><b class="mono">${offTxt(med(withReg.filter(x => x.start != null).map(x => x.start)))}</b><small>相對生效日</small></div>`;
+  list = applySort("rbTable", list, RB_GET);
+  $("rbRows").innerHTML = list.length ? list.map(x => {
+    const last = rbLast(x);
+    const open = rb.open === x.etf;
+    return `<tr class="clickable" data-rb="${esc(x.etf)}">
+      <td class="l"><span class="stock-name">${esc(x.name)}</span><span class="stock-code mono">${esc(x.etf)}</span>${x.hist ? "" : '<span class="kind" title="投信只提供最新持股，從 9/24 起累積">累積中</span>'}</td>
+      <td class="l col-hide"><span class="rb-idx" title="${esc(x.index || "")}">${esc(x.index || "—")}</span></td>
+      <td class="mono col-hide">${x.n || "—"}</td>
+      <td class="mono">${x.days == null ? "—" : x.days + " 天"}</td>
+      <td class="mono">${rangeTxt(x.start, x.end)}</td>
+      <td class="l mono" style="font-size:12.5px">${last ? `${mdTxt(last[0])}～${mdTxt(last[1])}・${last[2]} 天・${last[6]} 進 ${last[7]} 出` : '<span style="color:var(--text-faint)">尚無紀錄</span>'}</td>
+    </tr>${open ? `<tr><td colspan="6" class="rb-evs">${[...x.events].reverse().map(e => rbEventRow(e, D.names)).join("")}</td></tr>` : ""}`;
+  }).join("") : `<tr><td colspan="6" class="empty">沒有符合條件的 ETF</td></tr>`;
+  document.querySelectorAll("#rbRows tr[data-rb]").forEach(tr => tr.onclick = () => { rb.open = rb.open === tr.dataset.rb ? null : tr.dataset.rb; renderRebal(); });
+}
+$("rbSeg").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  rb.mode = b.dataset.v;
+  $("rbSeg").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  renderRebal();
+});
+$("rbSearch").addEventListener("input", e => { rb.q = e.target.value; renderRebal(); });
+sortable("rbTable", { key: "days", dir: -1 }, renderRebal);
+fetch("data/etf/rebalance.json", { cache: "no-cache" }).then(r => r.json()).then(d => { rb.data = d; renderRebal(); })
+  .catch(e => { console.error(e); $("rbRows").innerHTML = `<tr><td colspan="6" class="empty">讀取調整時長失敗</td></tr>`; });
+
 loadTip().then(renderTip).catch(e => {
   console.error(e);
   $("tipList").innerHTML = `<p class="empty">讀取行事曆失敗，請重新整理頁面。</p>`;

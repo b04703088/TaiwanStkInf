@@ -1,0 +1,52 @@
+name: Fetch ETF rebalance history
+
+on:
+  schedule:
+    # 每週六台北 11:13（UTC 03:13）：補查歷史持股（只查還沒查過的日期），重算換股時長
+    - cron: "13 3 * * 6"
+  workflow_dispatch:
+    inputs:
+      etfs:
+        description: "只查指定 ETF，空白分隔（留空 = 全部可回推的被動式 ETF）"
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fetch-etf
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Fetch
+        env:
+          IN_ETFS: ${{ inputs.etfs }}
+        run: |
+          if [ -n "$IN_ETFS" ]; then python fetch_etf_rebalance.py --max-minutes 50 --etfs $IN_ETFS; else python fetch_etf_rebalance.py --max-minutes 50; fi
+
+      - name: Commit data
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/etf/rebalance
+          if git diff --cached --quiet; then
+            echo "No changes"
+            exit 0
+          fi
+          git commit -m "data: ETF rebalance history $(TZ=Asia/Taipei date +%F)"
+          for i in 1 2 3; do
+            git pull --rebase -q && git push && exit 0
+            sleep 10
+          done
+          exit 1

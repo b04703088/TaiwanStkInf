@@ -50,6 +50,16 @@ python fetch_etf.py --issuer ctbc    # 某家投信
 - 網站 ETF持股 →「指數調整行事曆」：即將公告／已公告、只看有 ETF 追蹤的指數、30 天內審核，可用個股代號或名稱搜尋
 - 比對不到的（多半是上櫃 ETF）可在 `config/tip_index_etf.csv` 手動補一行 `指數名稱,ETF代號`
 
+### 指數調整（換股）時長
+
+`fetch_etf_rebalance.py`（`.github/workflows/rebalance.yml` 每週六補查；`etf.yml` 每天只做偵測）用歷史持股算出被動式 ETF 每次換股從開始到完成花了幾個交易日，網頁在 ETF持股 →「調整時長」（`etf.html#rebal`）。
+
+- 可回推歷史持股：元大、國泰、群益、復華、中信、統一、野村、大華、第一金、安聯、玉山（投信網站可帶日期查）；富邦、凱基等只有最新持股，從每日排程累積
+- 做法：每 5 個工作天粗掃 → 成分股有變的區間逐日補齊 → 用股數（除以延續成分股股數變化的中位數，扣掉申購贖回）算進度：
+  刪除股減少 5% 以上或新增股出現＝開始；每檔完成 85% 以上且平均 97% 以上＝完成。個股短暫漏列（30 天內以相近股數再出現）會補回
+- 有指數生效日（臺灣指數公司、MSCI）時，另算開始／結束相對生效日差幾個交易日
+- 輸出 `data/etf/rebalance/events.csv`（每次換股）、`holdings/<ETF>.csv`（回推的歷史持股）、`asked.json`（查過的日期）
+
 ### MSCI 臺灣指數季度審核
 
 `fetch_msci.py` 讀 MSCI 官網公開的「Global Standard Indexes List of Additions/Deletions」PDF，取 MSCI TAIWAN INDEX 段（2023 年起），

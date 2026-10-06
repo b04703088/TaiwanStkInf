@@ -31,6 +31,7 @@ import broker_site  # noqa: E402
 import cb_site  # noqa: E402
 import industry_site  # noqa: E402
 import flow_site  # noqa: E402
+import rebalance_site  # noqa: E402
 
 
 def build(out: Path, days: int) -> list[str]:
@@ -64,6 +65,7 @@ def build(out: Path, days: int) -> list[str]:
     cb_site.write_cb(ROOT / "data", out / "data" / "cb" / "cb.json")
     industry_site.write_industry(ROOT / "data", out / "data" / "industry" / "industry.json")
     flow_site.write_flow(ROOT / "data", out / "data" / "flow.json")
+    rebalance_site.write_rebalance(ROOT, out / "data" / "etf" / "rebalance.json")
     for page in cb_site.SUBPAGES:  # CB詢圈子頁共用同一個 HTML，由檔名決定顯示哪一頁
         shutil.copy(out / "cb.html", out / page)
     (out / "data" / "health.json").write_text(
