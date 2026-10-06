@@ -151,6 +151,11 @@
   .node-bar b{color:var(--brass); font-weight:500;}
   .node-bar .x{margin-left:auto; background:none; border:1px solid var(--line-strong); color:var(--text-muted); border-radius:3px; padding:3px 10px; cursor:pointer; font:inherit; font-size:12.5px;}
   .node-bar .x:hover{color:var(--text);}
+  .subtabs{display:flex; gap:6px; margin-top:28px; border-bottom:1px solid var(--line);}
+  .subtabs a{padding:10px 16px; font-size:14px; color:var(--text-muted); text-decoration:none; border-bottom:2px solid transparent; margin-bottom:-1px;}
+  .subtabs a:hover{color:var(--text);}
+  .subtabs a[aria-current="page"]{color:var(--brass); border-bottom-color:var(--brass);}
+  .date-bar{margin-top:24px;}
   .toolbar{
     display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;
     margin:44px 0 18px;
@@ -258,6 +263,10 @@
         </div>
         <p class="desc">依當日成交金額排序上市、上櫃個股與 ETF。成交金額集中在哪幾檔，往往比漲跌幅更早說明市場的注意力在哪裡。</p>
       </div>
+      <nav class="subtabs" aria-label="成交排行子頁">
+        <a href="ranking.html" aria-current="page">個股排行</a>
+        <a href="flow.html">族群資金流向</a>
+      </nav>
 
       <div class="date-bar">
         <div class="date-picker" id="datePicker">

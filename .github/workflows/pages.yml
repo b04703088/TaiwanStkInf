@@ -17,6 +17,7 @@ on:
       - "scripts/broker_site.py"
       - "scripts/cb_site.py"
       - "scripts/industry_site.py"
+      - "scripts/flow_site.py"
       - ".github/workflows/pages.yml"
   workflow_dispatch: {}
 

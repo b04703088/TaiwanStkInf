@@ -156,6 +156,14 @@ python -m unittest discover tests                       # 測試
 - 輸出 `data/industry/chain.csv`（`code, name, industry_id, industry, stream, node_id, node, sub_id, sub`）、`data/industry/official.csv`。
 - 網頁：查個股所屬細類、今日細產業強弱排行（等權平均漲跌，3 檔以上）、依產業瀏覽各細類成分股與漲跌。
 
+### 族群資金流向
+
+`scripts/flow_site.py` 在建網站時把最近 45 個交易日的個股成交金額（只含上市櫃普通股）和族群名單寫成 `data/flow.json`，網頁 `flow.html`（成交排行 → 族群資金流向）計算：
+
+- 成交佔比＝族群成交金額 ÷ 全部個股成交金額；佔比變化＝今日 − 近 5／20 日平均（百分點）
+- 增減金額＝今日成交金額 − 近 5／20 日平均成交金額；熱度＝今日佔比 ÷ 近 N 日平均佔比
+- 族群：產業價值鏈細類、產業、官方產業別三種層級；近 N 日平均成交不到 2 億的族群不列入
+
 ## 資料健檢
 
 `scripts/health.py` 檢查資料有沒有漏抓或抓錯，結果在網站的 `health.html`（ETF持股、成交排行頁尾有連結）。
