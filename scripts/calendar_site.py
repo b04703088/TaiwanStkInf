@@ -9,7 +9,9 @@
   holidays {日期: 名稱}、hol_until（休市日已知到哪一年）、tdays（交易日序列，過去＝實際有行情的日子，未來＝平日扣休市）
   只放規模 MIN_AUM 億以上的 ETF（小型 ETF 換股對市場影響小）
   etfs {代號: [名稱, 規模(億), 通常開始差, 通常結束差, 定期調整次數]}
-  reviews [[指數, 提供者, 公告日, 生效日, [ETF], est, 納入[[代號,名稱]], 刪除[[代號,名稱]]]]
+  reviews [[指數, 提供者, 公告日, 生效日, [ETF], est, 納入[[代號,名稱]], 刪除[[代號,名稱]],
+            資料截止起, 資料截止迄, 截止規則說明, glob（全球指數：不管有沒有 ETF 都顯示）]]
+  資料截止日規則見 scripts/index_rules.py；公告日不固定的（00891）公告日留空
   actual [[ETF, 開始, 結束, 生效日]]
 """
 import csv
@@ -20,6 +22,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import etf_site  # noqa: E402
+import index_rules as IR  # noqa: E402
 import rebalance_site  # noqa: E402
 
 HORIZON = 200  # 往後推估幾天內的審核
@@ -88,9 +91,50 @@ def project(reviews, holidays, today, horizon=HORIZON):
             e2 = a2
             for _ in range(gap):
                 e2 = next_trading(e2 + timedelta(1), holidays)
-            out.append([r[0], prov, a2.isoformat(), e2.isoformat(), r[4], True, [], []])
+            out.append([r[0], prov, a2.isoformat(), e2.isoformat(), r[4], True, [], []] + r[8:9])
             anns.append(a2)
     return out
+
+
+MSCI_TW = "MSCI 臺灣指數"
+MSCI_CUSTOM = [("00878", "MSCI臺灣ESG永續高股息精選30指數"), ("00922", "MSCI台灣領袖50精選指數")]
+ICE_NAME = "NYSE FactSet 臺灣ESG永續關鍵半導體指數"
+
+
+def extra_reviews(reviews, cal, today):
+    """臺灣指數公司日程表沒有的審核：MSCI 客製指數（跟 5/11 月半年度審核）、00891（ICE）、富時全球"""
+    out = []
+    for r in reviews:
+        if r[1] == "MSCI" and r[0].startswith(MSCI_TW) and r[2] and int(r[2][5:7]) in (5, 11):
+            for etf, name in MSCI_CUSTOM:
+                out.append([name, "MSCI", r[2], r[3], [etf], r[5], [], []])
+    for eff in IR.ice_reviews(cal, today - timedelta(400), today + timedelta(HORIZON)):
+        out.append([ICE_NAME, "ICE", "", eff.isoformat(), ["00891"], eff > today, [], []])
+    for rv, cut, ann, eff, est in IR.FTSE_GEIS:
+        out.append([IR.GEIS_NAME, "FTSE", ann, eff, [], est, [], [], cut])
+    return out
+
+
+def add_cutoffs(reviews, cal):
+    from fetch_tip_schedule import index_key
+    ftse = {index_key(x) for x in IR.FTSE_TWSE_INDEXES}
+    for r in reviews:
+        fixed = r[8] if len(r) > 8 else None
+        del r[8:]
+        rule = next((IR.RULES[c] for c in r[4] if c in IR.RULES), None)
+        if rule is None and r[1] == "FTSE" and index_key(r[0]) in ftse:
+            rule = IR.FTSE_TWSE
+        if rule is None and r[0].startswith(MSCI_TW):
+            rule = IR.RULES["0057"]
+        cut = None
+        if fixed:
+            cut, note = (fixed, fixed), IR.GEIS_NOTE
+        elif rule:
+            c = IR.cutoff(rule, r[2], r[3], cal)
+            cut = (c[0].isoformat(), c[1].isoformat()) if c else None
+            note = rule["note"]
+        r += [cut[0], cut[1], note] if cut else ["", "", ""]
+        r.append(r[0] == IR.GEIS_NAME or r[0].startswith(MSCI_TW))
 
 
 def build(data_dir, root, today=None):
@@ -108,8 +152,13 @@ def build(data_dir, root, today=None):
             continue
         reviews.append([r["index"], r["prov"], r["ann"], r["eff"] or "", r["etfs"], False,
                         [a[:2] for a in (r["add"] or [])], [a[:2] for a in (r["del"] or [])]])
+    past = [f"{f.stem[:4]}-{f.stem[4:6]}-{f.stem[6:]}" for f in data_dir.glob("[0-9][0-9][0-9][0-9]/[0-9]*.csv")
+            if len(f.stem) == 8]
+    cal = IR.TradingCalendar(past, holidays)
+    reviews += extra_reviews(reviews, cal, today)
     reviews += project(reviews, holidays, today)
-    reviews.sort(key=lambda r: (r[2], r[0]))
+    reviews.sort(key=lambda r: (r[2] or r[3], r[0]))
+    add_cutoffs(reviews, cal)
 
     reb = rebalance_site.build(root) or {"etfs": []}
     aum = etf_site.build_aum(data_dir) if hasattr(etf_site, "build_aum") else None
