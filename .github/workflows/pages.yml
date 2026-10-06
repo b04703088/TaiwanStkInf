@@ -19,6 +19,7 @@ on:
       - "scripts/industry_site.py"
       - "scripts/flow_site.py"
       - "scripts/rebalance_site.py"
+      - "scripts/calendar_site.py"
       - ".github/workflows/pages.yml"
   workflow_dispatch: {}
 

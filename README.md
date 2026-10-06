@@ -60,6 +60,15 @@ python fetch_etf.py --issuer ctbc    # 某家投信
 - 有指數生效日（臺灣指數公司、MSCI）時，另算開始／結束相對生效日差幾個交易日
 - 輸出 `data/etf/rebalance/events.csv`（每次換股）、`holdings/<ETF>.csv`（回推的歷史持股）、`asked.json`（查過的日期）
 
+### 指數行事曆（月曆）
+
+`calendar.html`（`scripts/calendar_site.py` → `data/calendar.json`）把指數審核與 ETF 換股放在同一張月曆：
+
+- 公告日／生效日：臺灣指數公司日程表與定審結果、富時合編指數、MSCI 臺灣指數（同 ETF持股 → 指數調整行事曆）
+- 預估審核：日程表還沒公布的，用去年同期 +52 週（同星期幾）推估，公告到生效隔幾個交易日照去年；正式日程出來就取代
+- ETF 換股期間：已發生的用「調整時長」實際偵測；未來的用該 ETF 通常的相對生效日期間推估（不早於公告隔天）
+- 交易日：證交所休市日 `fetch_holidays.py` → `data/calendar/holidays.csv`（`etf.yml` 每天更新；隔年日程證交所約 12 月公布）
+
 ### MSCI 臺灣指數季度審核
 
 `fetch_msci.py` 讀 MSCI 官網公開的「Global Standard Indexes List of Additions/Deletions」PDF，取 MSCI TAIWAN INDEX 段（2023 年起），

@@ -8,6 +8,7 @@
   data/etf/aum.json                  全體 ETF 規模排行（fetch_etf_aum.py 的最新一天）
   data/etf/tip.json                  臺灣指數公司定期審核行事曆（見 fetch_tip_schedule.py）
   data/etf/active.json               主動式 ETF 每次持股變化（台股，含扣除申贖的增減）
+  data/calendar.json                 指數調整行事曆：審核日、預估審核、ETF 換股期間（見 scripts/calendar_site.py）
   data/health.json                   資料健檢結果（見 scripts/health.py）
   data/broker/days.json, <日期>.json  券商分點前 15 大（見 scripts/broker_site.py）
   data/broker/watch.json             重點分點（config/broker_watch.csv）近 60 個交易日
@@ -32,6 +33,7 @@ import cb_site  # noqa: E402
 import industry_site  # noqa: E402
 import flow_site  # noqa: E402
 import rebalance_site  # noqa: E402
+import calendar_site  # noqa: E402
 
 
 def build(out: Path, days: int) -> list[str]:
@@ -66,6 +68,7 @@ def build(out: Path, days: int) -> list[str]:
     industry_site.write_industry(ROOT / "data", out / "data" / "industry" / "industry.json")
     flow_site.write_flow(ROOT / "data", out / "data" / "flow.json")
     rebalance_site.write_rebalance(ROOT, out / "data" / "etf" / "rebalance.json")
+    calendar_site.write_calendar(ROOT / "data", ROOT, out / "data" / "calendar.json")
     for page in cb_site.SUBPAGES:  # CB詢圈子頁共用同一個 HTML，由檔名決定顯示哪一頁
         shutil.copy(out / "cb.html", out / page)
     (out / "data" / "health.json").write_text(
