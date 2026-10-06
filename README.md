@@ -62,7 +62,7 @@ python fetch_etf.py --issuer ctbc    # 某家投信
 
 ### 指數行事曆（月曆）
 
-`calendar.html`（`scripts/calendar_site.py` → `data/calendar.json`）把指數審核與 ETF 換股放在同一張月曆：
+ETF持股的子頁「指數行事曆」`calendar.html`（`scripts/calendar_site.py` → `data/calendar.json`）把指數審核與 ETF 換股放在同一張月曆，只放規模 300 億以上的 ETF（`MIN_AUM`）：
 
 - 公告日／生效日：臺灣指數公司日程表與定審結果、富時合編指數、MSCI 臺灣指數（同 ETF持股 → 指數調整行事曆）
 - 預估審核：日程表還沒公布的，用去年同期 +52 週（同星期幾）推估，公告到生效隔幾個交易日照去年；正式日程出來就取代

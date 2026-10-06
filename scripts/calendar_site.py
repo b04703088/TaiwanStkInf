@@ -7,6 +7,7 @@
 
 輸出：
   holidays {日期: 名稱}、hol_until（休市日已知到哪一年）、tdays（交易日序列，過去＝實際有行情的日子，未來＝平日扣休市）
+  只放規模 MIN_AUM 億以上的 ETF（小型 ETF 換股對市場影響小）
   etfs {代號: [名稱, 規模(億), 通常開始差, 通常結束差, 定期調整次數]}
   reviews [[指數, 提供者, 公告日, 生效日, [ETF], est, 納入[[代號,名稱]], 刪除[[代號,名稱]]]]
   actual [[ETF, 開始, 結束, 生效日]]
@@ -22,6 +23,7 @@ import etf_site  # noqa: E402
 import rebalance_site  # noqa: E402
 
 HORIZON = 200  # 往後推估幾天內的審核
+MIN_AUM = 300  # 只放規模（億）達到這個門檻的 ETF；查不到規模的也不放
 
 
 def _d(s):
@@ -119,6 +121,8 @@ def build(data_dir, root, today=None):
             if r.get("aum"):
                 size[r["etf"]] = round(r["aum"] / 1e8)
     typ = {x["etf"]: x for x in reb["etfs"]}
+    for r in reviews:
+        r[4] = [c for c in r[4] if (size.get(c) or 0) >= MIN_AUM]
     used = sorted({c for r in reviews for c in r[4]})
     etfs = {}
     for c in used:
@@ -130,7 +134,9 @@ def build(data_dir, root, today=None):
             if e[8] == "regular":
                 actual.append([x["etf"], e[0], e[1], e[3] or ""])
     hol_until = max((d[:4] for d in holidays), default="")
-    return {"today": today.isoformat(), "updated": tip["updated"], "holidays": holidays, "hol_until": hol_until,
+    keep = set(used)
+    actual = [a for a in actual if a[0] in keep]
+    return {"min_aum": MIN_AUM, "today": today.isoformat(), "updated": tip["updated"], "holidays": holidays, "hol_until": hol_until,
             "tdays": trading_days(data_dir, holidays, today), "etfs": etfs, "reviews": reviews, "actual": actual}
 
 

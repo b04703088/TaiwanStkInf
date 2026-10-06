@@ -60,6 +60,11 @@
   .sw.ann{background:var(--brass);} .sw.eff{background:var(--rise);} .sw.trade{background:var(--sky);}
   .sw.est{background:none; border:1px dashed var(--text-muted);}
 
+  .tabs{display:flex; gap:28px; border-bottom:1px solid var(--line-strong); margin-top:36px; overflow-x:auto; scrollbar-width:none;}
+  .tabs a{white-space:nowrap; text-decoration:none; color:var(--text-muted); font-size:15px; padding:10px 0 12px; border-bottom:2px solid transparent; margin-bottom:-1px;}
+  .tabs a:hover{color:var(--text);}
+  .tabs a[aria-selected="true"]{color:var(--text); border-bottom-color:var(--brass); font-weight:500;}
+  @media (max-width:860px){ .tabs{gap:20px;} }
   /* 月曆 */
   :root{--sky:#5FA8D3; --sky-soft:rgba(95,168,211,.14); --rise-soft:rgba(225,89,79,.13);}
   .cal{display:grid; grid-template-columns:repeat(5,minmax(0,1fr)) minmax(0,.42fr) minmax(0,.42fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden;}
@@ -148,8 +153,7 @@
       <a href="ranking.html">成交排行</a>
       <a href="industry.html">產業分類</a>
       <a href="broker.html">分點籌碼</a>
-      <a href="etf.html">ETF持股</a>
-      <a href="calendar.html" aria-current="page">指數行事曆</a>
+      <a href="etf.html" aria-current="page">ETF持股</a>
       <a href="cb.html">CB詢圈</a>
       <a href="index.html#quant">量化策略</a>
       <a href="health.html">資料健檢</a>
@@ -161,11 +165,20 @@
   <section class="page-head">
     <div class="feature-head">
       <div>
-        <div class="eyebrow">ETF持股・指數行事曆</div>
-        <h1>哪天公告、哪天生效、ETF 哪幾天換股</h1>
+        <div class="eyebrow">ETF持股</div>
+        <h1>ETF 怎麼換股，資金就怎麼流</h1>
       </div>
-      <p class="desc">臺灣指數公司、富時合編（臺灣50、高股息…）與 MSCI 臺灣指數的審核公告日、生效日，
-        加上追蹤 ETF 的換股期間：過去是從持股實際偵測到的，未來依該 ETF 過去通常的節奏推估。</p>
+      <p class="desc">指數行事曆：臺灣指數公司、富時合編（臺灣50、高股息…）與 MSCI 臺灣指數的審核公告日、生效日，
+        加上規模 300 億以上 ETF 的換股期間——已發生的取自持股實際偵測，未來的依該 ETF 過去的節奏推估。</p>
+    </div>
+    <div class="tabs" role="tablist">
+      <a href="etf.html#holders" role="tab" aria-selected="false">個股持有查詢</a>
+      <a href="etf.html#changes" role="tab" aria-selected="false">每日持股變化</a>
+      <a href="etf.html#active" role="tab" aria-selected="false">主動式買賣超</a>
+      <a href="etf.html#aum" role="tab" aria-selected="false">AUM 排行</a>
+      <a href="calendar.html" role="tab" aria-selected="true">指數行事曆</a>
+      <a href="etf.html#calendar" role="tab" aria-selected="false">審核公告清單</a>
+      <a href="etf.html#rebal" role="tab" aria-selected="false">調整時長</a>
     </div>
     <div class="stats" id="stats"></div>
   </section>
@@ -194,6 +207,7 @@
     <span><i class="sw eff"></i>生效日</span>
     <span><i class="sw trade"></i>ETF 換股期間</span>
     <span><i class="sw est"></i>虛線＝預估</span>
+    <span class="faint" id="minAum"></span>
   </div>
   <div class="cal" id="cal" role="grid" aria-label="指數調整月曆"></div>
   <section class="detail" id="detail" aria-live="polite"></section>
@@ -206,6 +220,7 @@
   <p class="note" id="note">
     公告日：臺灣指數公司與富時合編指數為收盤後公告；MSCI 為美東時間公布，約台灣隔天清晨。
     「預估」審核：指數公司日程表還沒公布的，用去年同期（同一個星期幾）推估，正式日程出來後自動換掉。
+    只列規模 300 億以上的 ETF，較小的 ETF 不顯示；指數沒有符合的 ETF 時，切到「全部指數」仍看得到審核日期。
     ETF 換股期間：已發生的取自 ETF持股 →「調整時長」的實際偵測；未來的依該 ETF 過去「相對生效日」的通常期間推估，沒有足夠紀錄的不推估。
   </p>
 </main>
@@ -430,6 +445,7 @@ fetch("data/calendar.json", { cache: "no-cache" }).then(r => { if (!r.ok) throw 
   for (const a of D.actual) (D.actualBy[a[0]] ||= []).push(a);
   D.reviews = D.reviews.map(([index, prov, ann, eff, etfs, est, add, del]) => ({ index, prov, ann, eff, etfs, est, add, del }));
   S.D = D;
+  if (D.min_aum) $("minAum").textContent = `只顯示規模 ${D.min_aum} 億以上的 ETF`;
   for (const r of D.reviews) r.wins = windowsFor(r);
   const y = TODAY.slice(0, 4);
   if (D.hol_until && D.hol_until < String(+y + 1) && TODAY.slice(5) >= "10-01")
@@ -442,6 +458,6 @@ fetch("data/calendar.json", { cache: "no-cache" }).then(r => { if (!r.ok) throw 
   $("cal").innerHTML = `<p class="empty" style="grid-column:1/-1;padding:20px">讀取行事曆失敗</p>`;
 });
 </script>
-<script>(function(){var a=document.querySelector('nav.links a[aria-current="page"]');if(a&&a.parentNode.scrollWidth>a.parentNode.clientWidth){a.parentNode.scrollLeft=a.offsetLeft-a.parentNode.offsetLeft-16;}})();</script>
+<script>(function(){var t=document.querySelector('.tabs a[aria-selected="true"]');if(t)t.parentNode.scrollLeft=t.offsetLeft-t.parentNode.offsetLeft-16;var a=document.querySelector('nav.links a[aria-current="page"]');if(a&&a.parentNode.scrollWidth>a.parentNode.clientWidth){a.parentNode.scrollLeft=a.offsetLeft-a.parentNode.offsetLeft-16;}})();</script>
 </body>
 </html>
