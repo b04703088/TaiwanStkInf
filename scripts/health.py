@@ -237,6 +237,21 @@ def check(data_dir=ROOT / "data", now=None):
             msg += f"，錯誤：{errs[0]}"
         add("cb", "cb-pre", "CB 董事會／送件", level, gen, msg, rows=len(sfb))
 
+    # ---------- 產業分類 ----------
+    ind_src = data_dir / "industry" / "sources.json"
+    if ind_src.exists():
+        src = json.loads(ind_src.read_text(encoding="utf-8"))
+        gen = (src.get("generated") or "")[:10] or None
+        age = (now.date() - datetime.strptime(gen, "%Y-%m-%d").date()).days if gen else 99
+        errs = src.get("errors") or []
+        level = "warn" if age > 14 or errs else "ok"
+        msg = f"{len(src.get('industries') or {})} 個產業、{src.get('chain_stocks', 0)} 檔有細分類"
+        if age > 14:
+            msg += f"，已 {age} 天沒更新（每週六更新）"
+        if errs:
+            msg += f"，錯誤：{errs[0]}"
+        add("industry", "industry", "產業分類", level, gen, msg, rows=src.get("chain_rows"))
+
     # ---------- ETF 規模 ----------
     aum_files = sorted((etf_dir / "aum").glob("[0-9]*.csv"))
     if not aum_files:

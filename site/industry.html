@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>產業分類｜潮汐</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0E1620; --panel:#141F2B; --panel-2:#182531;
+    --line:rgba(232,237,242,0.09); --line-strong:rgba(232,237,242,0.16);
+    --text:#E8EDF2; --text-muted:#8B99A6; --text-faint:#5C6B79;
+    --brass:#C6A15B; --brass-soft:rgba(198,161,91,0.14); --rise:#E1594F; --fall:#3FAE72;
+    --radius-s:3px; --radius-m:6px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--ink); color:var(--text);
+    font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
+  h1,h2{font-family:'Noto Serif TC',serif; margin:0; font-weight:700;}
+  h2{font-size:20px;}
+  .mono{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+  a{color:inherit;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
+  header.site{position:sticky; top:0; z-index:40; background:rgba(14,22,32,0.88); backdrop-filter:blur(10px); border-bottom:1px solid var(--line);}
+  .nav-row{display:flex; align-items:center; justify-content:space-between; padding:16px 28px;}
+  .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
+  .brand-mark{font-family:'Noto Serif TC',serif; font-size:22px; font-weight:700;}
+  .brand-sub{font-size:12px; color:var(--text-faint);}
+  nav.links{display:flex; gap:26px; font-size:14px;}
+  nav.links a{text-decoration:none; color:var(--text-muted);}
+  nav.links a:hover{color:var(--brass);}
+  nav.links a[aria-current="page"]{color:var(--brass);}
+  .nav-cta{font-size:13px; color:var(--ink); background:var(--brass); padding:8px 16px; border-radius:var(--radius-s); text-decoration:none; font-weight:500;}
+  .page-head{padding:56px 0 8px;}
+  .eyebrow{font-size:13px; color:var(--brass); margin-bottom:10px;}
+  h1{font-size:32px;}
+  .desc{color:var(--text-muted); font-size:14.5px; margin:12px 0 0; max-width:50em;}
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden; margin-top:28px;}
+  .stat{background:var(--panel); padding:16px 20px;}
+  .stat .k{font-size:12.5px; color:var(--text-muted);}
+  .stat .v{font-size:26px; margin-top:2px;}
+  section.block{margin-top:48px;}
+  .block-head{display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin-bottom:14px; flex-wrap:wrap;}
+  .hint{font-size:12.5px; color:var(--text-faint);}
+  .up{color:var(--rise);} .down{color:var(--fall);} .flat{color:var(--text-muted);}
+  .faint{color:var(--text-faint);}
+
+  /* 查個股 */
+  .search{position:relative; max-width:460px;}
+  .search input{width:100%; background:var(--panel); border:1px solid var(--line-strong); color:var(--text); padding:11px 14px; border-radius:var(--radius-m); font:inherit; font-size:15px;}
+  .search input:focus{outline:none; border-color:var(--brass);}
+  .sugg{position:absolute; left:0; right:0; top:calc(100% + 4px); background:var(--panel-2); border:1px solid var(--line-strong); border-radius:var(--radius-m); z-index:10; overflow:hidden;}
+  .sugg div{padding:8px 14px; cursor:pointer; font-size:14px;}
+  .sugg div:hover, .sugg div.on{background:var(--brass-soft);}
+  .stock{margin-top:16px; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-m); padding:18px 20px;}
+  .stock .top{display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap;}
+  .stock .nm{font-size:20px; font-weight:700;}
+  .stock .nm .mono{font-size:14px; color:var(--text-muted); margin-left:8px; font-weight:500;}
+  .stock .px{font-size:15px;}
+  .stock .off{font-size:13px; color:var(--text-muted); margin-top:2px;}
+  .paths{margin-top:14px; display:grid; gap:8px;}
+  .path{display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:13.5px;}
+  .path .ind{color:var(--brass); font-weight:500; min-width:7em;}
+  .crumb{color:var(--text-muted);}
+  .crumb b{color:var(--text); font-weight:500;}
+  .crumb + .crumb::before{content:"›"; margin-right:6px; color:var(--text-faint);}
+  .lnk{cursor:pointer; text-decoration:underline; text-decoration-color:var(--line-strong); text-underline-offset:3px;}
+  .lnk:hover{color:var(--brass);}
+
+  /* 強弱 */
+  .rank{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+  .rank h3{font-size:14px; font-weight:600; margin:0 0 8px;}
+  .rrow{display:grid; grid-template-columns:1fr 64px 120px; gap:10px; align-items:center; padding:7px 0; border-bottom:1px solid var(--line); font-size:13.5px; cursor:pointer;}
+  .rrow:hover .rn{color:var(--brass);}
+  .rn{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .rn small{color:var(--text-faint); margin-left:6px;}
+  .bar{height:8px; background:var(--line); border-radius:2px; position:relative;}
+  .bar i{position:absolute; top:0; bottom:0; border-radius:2px;}
+
+  /* 瀏覽 */
+  .chips{display:flex; flex-wrap:wrap; gap:6px;}
+  .chips button{background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:5px 11px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .chips button[aria-pressed="true"]{border-color:var(--brass); color:var(--brass);}
+  .chips button .p{font-family:'IBM Plex Mono',monospace; font-size:11.5px; margin-left:4px;}
+  .streams{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px; margin-top:20px;}
+  .stream h3{font-size:13px; color:var(--text-muted); font-weight:500; margin:0 0 8px; letter-spacing:.1em;}
+  .node{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-m); padding:12px 14px; margin-bottom:12px; scroll-margin-top:90px;}
+  .node.hl{border-color:var(--brass);}
+  .node .nh{display:flex; justify-content:space-between; gap:8px; font-weight:600; font-size:14px;}
+  .node .nh .mono{font-weight:500; font-size:12.5px;}
+  .sub{margin-top:10px; padding-top:8px; border-top:1px solid var(--line);}
+  .sub .sh{display:flex; justify-content:space-between; font-size:12.5px; color:var(--text-muted); margin-bottom:6px;}
+  .mem{display:flex; flex-wrap:wrap; gap:4px 10px; font-size:13px;}
+  .mem span{cursor:pointer; white-space:nowrap;}
+  .mem span:hover b{color:var(--brass);}
+  .mem b{font-weight:400;}
+  .mem .mono{font-size:11.5px; margin-left:3px;}
+  .empty{padding:20px 0; color:var(--text-faint); font-size:13.5px;}
+  .note{font-size:12.5px; color:var(--text-faint); margin-top:18px; line-height:1.8;}
+  footer.site{padding:48px 0; margin-top:64px; border-top:1px solid var(--line);}
+  @media (max-width:860px){
+    .nav-row{padding:14px 16px; flex-wrap:wrap; row-gap:10px;}
+    nav.links{order:3; width:100%; gap:20px; overflow-x:auto; white-space:nowrap; font-size:13.5px; scrollbar-width:none;}
+    .wrap{padding:0 16px;}
+    .stats{grid-template-columns:repeat(2,1fr);} h1{font-size:26px;}
+    .rank{grid-template-columns:1fr;}
+    .rrow{grid-template-columns:1fr 58px 70px;}
+    .path .ind{min-width:auto; width:100%;}
+  }
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="nav-row">
+    <a href="index.html" class="brand"><span class="brand-mark">潮汐</span><span class="brand-sub">籌碼觀測站</span></a>
+    <nav class="links">
+      <a href="index.html">首頁</a>
+      <a href="ranking.html">成交排行</a>
+      <a href="industry.html" aria-current="page">產業分類</a>
+      <a href="broker.html">分點籌碼</a>
+      <a href="etf.html">ETF持股</a>
+      <a href="cb.html">CB詢圈</a>
+      <a href="index.html#quant">量化策略</a>
+      <a href="health.html">資料健檢</a>
+    </nav>
+    <a href="index.html#cta" class="nav-cta">開始追蹤</a>
+  </div>
+</header>
+<main class="wrap">
+  <section class="page-head">
+    <div class="eyebrow">產業分類</div>
+    <h1>個股屬於哪些細產業</h1>
+    <p class="desc" id="sub">載入中…</p>
+    <div class="stats" id="stats"></div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>查個股</h2><span class="hint">輸入代號或名稱</span></div>
+    <div class="search">
+      <input id="q" type="search" placeholder="例：2454 或 聯發科" autocomplete="off" aria-label="查個股">
+      <div class="sugg" id="sugg" hidden></div>
+    </div>
+    <div id="stock"></div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>今日細產業強弱</h2><span class="hint" id="rank-hint"></span></div>
+    <div class="rank">
+      <div><h3 class="up">最強</h3><div id="top"></div></div>
+      <div><h3 class="down">最弱</h3><div id="bottom"></div></div>
+    </div>
+  </section>
+
+  <section class="block" id="browse">
+    <div class="block-head"><h2>瀏覽產業</h2><span class="hint">括號是該產業今日平均漲跌</span></div>
+    <div class="chips" id="inds"></div>
+    <div class="streams" id="tree"></div>
+  </section>
+
+  <p class="note">
+    細分類來源：櫃買中心「產業價值鏈資訊平台」（ic.tpex.org.tw），每週更新；同一檔股票可以屬於多個細類。平台沒有涵蓋的股票只顯示證交所／櫃買的官方產業別。<br>
+    漲跌幅＝當日漲跌 ÷ 前一日收盤，細類平均為等權平均，只計有成交的上市櫃股票；強弱排行只列 3 檔以上的細類。
+  </p>
+</main>
+<footer class="site"><div class="wrap"><p class="note" style="margin:0">資料僅供參考。</p></div></footer>
+<script>
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const cls = v => v == null ? "flat" : v > 0 ? "up" : v < 0 ? "down" : "flat";
+const pct = v => v == null ? "–" : (v > 0 ? "+" : "") + v.toFixed(2) + "%";
+let D, PX = {}, DATE = "", curInd = "";
+
+const label = i => { const n = D.nodes[i]; return n[3] || n[2]; };
+const fullPath = i => { const n = D.nodes[i]; return [n[1], n[2], n[3]].filter(Boolean); };
+const members = i => (D.members[i] || []);
+function avg(i){
+  const v = members(i).map(c => PX[c]?.p).filter(x => x != null);
+  return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+}
+
+/* 查個股 */
+function showStock(code){
+  const s = D.stocks[code];
+  if (!s){ document.getElementById("stock").innerHTML = `<div class="empty">找不到 ${esc(code)}</div>`; return; }
+  const px = PX[code];
+  const byInd = {};
+  for (const i of s[2]) (byInd[D.nodes[i][0]] ||= []).push(i);
+  document.getElementById("stock").innerHTML = `<div class="stock">
+    <div class="top"><div class="nm">${esc(s[0])}<span class="mono">${esc(code)}</span></div>
+      ${px ? `<div class="px mono ${cls(px.p)}">${px.c}　${pct(px.p)}</div>` : ""}</div>
+    <div class="off">官方產業別：${esc(s[1] || "–")}${s[2].length ? `・細類 ${s[2].length} 個` : "・產業價值鏈平台未收錄"}</div>
+    <div class="paths">${Object.entries(byInd).map(([ind, ids]) => ids.map(i => `<div class="path"><span class="ind lnk" data-ind="${esc(ind)}">${esc(ind)}</span>${
+      fullPath(i).map((p, k) => `<span class="crumb">${k === fullPath(i).length - 1 ? `<b class="lnk" data-node="${i}">${esc(p)}</b>` : esc(p)}</span>`).join("")}
+      <span class="mono ${cls(avg(i))}" style="font-size:12px">${pct(avg(i))}</span><span class="faint" style="font-size:12px">${members(i).length} 檔</span></div>`).join("")).join("")}</div></div>`;
+  document.querySelectorAll("#stock [data-ind]").forEach(el => el.onclick = () => openInd(el.dataset.ind));
+  document.querySelectorAll("#stock [data-node]").forEach(el => el.onclick = () => openNode(+el.dataset.node));
+  history.replaceState(null, "", "#s=" + code);
+}
+function setupSearch(){
+  const q = document.getElementById("q"), box = document.getElementById("sugg");
+  const list = Object.entries(D.stocks);
+  let hits = [], on = 0;
+  const draw = () => {
+    box.hidden = !hits.length;
+    box.innerHTML = hits.map(([c, s], k) => `<div data-c="${c}" class="${k === on ? "on" : ""}"><span class="mono">${c}</span>　${esc(s[0])}<span class="faint">　${esc(s[1] || "")}</span></div>`).join("");
+    box.querySelectorAll("div").forEach(el => el.onmousedown = () => pick(el.dataset.c));
+  };
+  const pick = c => { q.value = `${c} ${D.stocks[c][0]}`; hits = []; draw(); showStock(c); };
+  q.oninput = () => {
+    const t = q.value.trim().toLowerCase(); on = 0;
+    hits = !t ? [] : list.filter(([c, s]) => c.startsWith(t) || s[0].toLowerCase().includes(t))
+      .sort((a, b) => (b[0] === t) - (a[0] === t) || (PX[b[0]] ? 1 : 0) - (PX[a[0]] ? 1 : 0) || a[0].localeCompare(b[0])).slice(0, 8);
+    draw();
+  };
+  q.onkeydown = e => {
+    if (e.key === "ArrowDown"){ on = Math.min(on + 1, hits.length - 1); draw(); e.preventDefault(); }
+    else if (e.key === "ArrowUp"){ on = Math.max(on - 1, 0); draw(); e.preventDefault(); }
+    else if (e.key === "Enter" && hits.length) pick(hits[on][0]);
+  };
+  q.onblur = () => setTimeout(() => { hits = []; draw(); }, 150);
+}
+
+/* 強弱排行 */
+function renderRank(){
+  const rows = D.nodes.map((n, i) => ({i, a: avg(i), n: members(i).filter(c => PX[c]).length})).filter(r => r.a != null && r.n >= 3);
+  rows.sort((x, y) => y.a - x.a);
+  const mx = Math.max(...rows.map(r => Math.abs(r.a)), 1);
+  const row = r => `<div class="rrow" data-node="${r.i}"><div class="rn" title="${esc(D.nodes[r.i][0] + " › " + fullPath(r.i).join(" › "))}">${esc(label(r.i))}<small>${esc(D.nodes[r.i][0])}・${r.n} 檔</small></div>
+    <div class="mono ${cls(r.a)}" style="text-align:right">${pct(r.a)}</div>
+    <div class="bar"><i style="${r.a >= 0 ? "left:50%" : `right:50%`};width:${(Math.abs(r.a) / mx * 50).toFixed(1)}%;background:var(--${r.a >= 0 ? "rise" : "fall"})"></i></div></div>`;
+  document.getElementById("top").innerHTML = rows.slice(0, 12).map(row).join("");
+  document.getElementById("bottom").innerHTML = rows.slice(-12).reverse().map(row).join("");
+  document.getElementById("rank-hint").textContent = `${DATE}・${rows.length} 個細類`;
+  document.querySelectorAll(".rrow").forEach(el => el.onclick = () => openNode(+el.dataset.node));
+}
+
+/* 瀏覽 */
+function indAvg(ind){
+  const codes = new Set(D.nodes.flatMap((n, i) => n[0] === ind ? members(i) : []));
+  const v = [...codes].map(c => PX[c]?.p).filter(x => x != null);
+  return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+}
+function renderChips(){
+  document.getElementById("inds").innerHTML = D.industries.map(ind => { const a = indAvg(ind);
+    return `<button data-ind="${esc(ind)}" aria-pressed="${ind === curInd}">${esc(ind)}<span class="p ${cls(a)}">${a == null ? "" : pct(a)}</span></button>`; }).join("");
+  document.querySelectorAll("#inds button").forEach(b => b.onclick = () => openInd(b.dataset.ind, false));
+}
+function memChips(codes){
+  return `<div class="mem">${codes.map(c => ({c, p: PX[c]?.p})).sort((a, b) => (b.p ?? -99) - (a.p ?? -99)).map(({c, p}) =>
+    `<span data-c="${c}" title="${c}"><b>${esc(D.stocks[c]?.[0] || c)}</b><span class="mono ${cls(p)}">${p == null ? "" : pct(p)}</span></span>`).join("")}</div>`;
+}
+function openInd(ind, scroll = true){
+  curInd = ind; renderChips();
+  const ids = D.nodes.map((n, i) => i).filter(i => D.nodes[i][0] === ind);
+  const streams = [...new Set(ids.map(i => D.nodes[i][1]))];
+  const order = ["上游", "中游", "下游"];
+  streams.sort((a, b) => (order.indexOf(a) + 1 || 9) - (order.indexOf(b) + 1 || 9));
+  document.getElementById("tree").innerHTML = streams.map(st => {
+    const nodes = [...new Set(ids.filter(i => D.nodes[i][1] === st).map(i => D.nodes[i][2]))];
+    return `<div class="stream"><h3>${esc(st || ind)}</h3>${nodes.map(nd => {
+      const sub = ids.filter(i => D.nodes[i][1] === st && D.nodes[i][2] === nd);
+      const all = [...new Set(sub.flatMap(members))];
+      const v = all.map(c => PX[c]?.p).filter(x => x != null), a = v.length ? v.reduce((x, y) => x + y, 0) / v.length : null;
+      const full = D.nodes[sub[0]][4];
+      return `<div class="node" ${sub.map(i => `data-n${i}`).join(" ")} id="n-${sub[0]}"><div class="nh"><span title="${esc(full || nd)}">${esc(nd)}</span><span class="mono ${cls(a)}">${pct(a)}・${all.length}</span></div>${
+        sub.map(i => D.nodes[i][3] ? `<div class="sub" id="n-${i}"><div class="sh"><span>${esc(D.nodes[i][3])}</span><span class="mono ${cls(avg(i))}">${pct(avg(i))}・${members(i).length}</span></div>${memChips(members(i))}</div>` : `<div class="sub" id="n-${i}" style="border-top:none;margin-top:6px;padding-top:0">${memChips(members(i))}</div>`).join("")}</div>`;
+    }).join("")}</div>`;
+  }).join("");
+  document.querySelectorAll("#tree .mem span[data-c]").forEach(el => el.onclick = () => {
+    document.getElementById("q").value = `${el.dataset.c} ${D.stocks[el.dataset.c]?.[0] || ""}`; showStock(el.dataset.c);
+    document.getElementById("q").scrollIntoView({behavior:"smooth", block:"center"});
+  });
+  if (scroll) document.getElementById("browse").scrollIntoView({behavior:"smooth"});
+  history.replaceState(null, "", "#i=" + encodeURIComponent(ind));
+}
+function openNode(i){
+  openInd(D.nodes[i][0], false);
+  const el = document.getElementById("n-" + i);
+  const card = el?.closest(".node");
+  if (card){ card.classList.add("hl"); setTimeout(() => card.classList.remove("hl"), 2000); el.scrollIntoView({behavior:"smooth", block:"center"}); }
+}
+
+Promise.all([
+  fetch("data/industry/industry.json", {cache:"no-cache"}).then(r => r.json()),
+  fetch("data/days.json", {cache:"no-cache"}).then(r => r.json()).then(days => {
+    DATE = days[days.length - 1];
+    return fetch(`data/daily/${DATE}.json`, {cache:"no-cache"}).then(r => r.json());
+  }),
+]).then(([d, px]) => {
+  D = d;
+  D.members = {};
+  for (const [c, s] of Object.entries(D.stocks)) for (const i of s[2]) (D.members[i] ||= []).push(c);
+  const ci = Object.fromEntries(px.columns.map((k, i) => [k, i]));
+  for (const r of px.rows){
+    const close = +r[ci.close], ch = +r[ci.change];
+    if (close && isFinite(ch) && close - ch > 0) PX[r[ci.code]] = {c: close, p: ch / (close - ch) * 100};
+  }
+  const covered = Object.values(D.stocks).filter(s => s[2].length).length;
+  document.getElementById("sub").textContent = `${D.industries.length} 個產業、${D.nodes.length} 個細類，分上中下游。股價資料日 ${DATE}${D.generated ? `；分類更新 ${D.generated.slice(0, 10)}` : ""}。`;
+  document.getElementById("stats").innerHTML = [["產業", D.industries.length], ["細類", D.nodes.length], ["有細分類的個股", covered.toLocaleString()],
+    ["今日上漲細類", D.nodes.filter((n, i) => (avg(i) ?? 0) > 0).length + "／" + D.nodes.filter((n, i) => avg(i) != null).length]]
+    .map(([k, v]) => `<div class="stat"><div class="k">${k}</div><div class="v mono">${v}</div></div>`).join("");
+  setupSearch(); renderRank();
+  const h = new URLSearchParams(location.hash.slice(1));
+  openInd(h.get("i") || D.industries[0], false);
+  const s = h.get("s");
+  if (s && D.stocks[s]){ document.getElementById("q").value = `${s} ${D.stocks[s][0]}`; showStock(s); }
+}).catch(e => { console.error(e); document.getElementById("sub").textContent = "產業資料載入失敗"; });
+</script>
+<script>(function(){var a=document.querySelector('nav.links a[aria-current="page"]');if(a&&a.parentNode.scrollWidth>a.parentNode.clientWidth){a.parentNode.scrollLeft=a.offsetLeft-a.parentNode.offsetLeft-16;}})();</script>
+</body>
+</html>

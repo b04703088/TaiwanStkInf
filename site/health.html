@@ -74,6 +74,7 @@
     <nav class="links">
       <a href="index.html">首頁</a>
       <a href="ranking.html">成交排行</a>
+      <a href="industry.html">產業分類</a>
       <a href="broker.html">分點籌碼</a>
       <a href="etf.html">ETF持股</a>
       <a href="cb.html">CB詢圈</a>
@@ -114,7 +115,7 @@
 </main>
 <footer class="site"><div class="wrap"><p class="note" style="margin:0">本頁於每次網站重建時產生。</p></div></footer>
 <script>
-const LABEL = {price:"股價", etf:"ETF", aum:"規模", broker:"分點", watch:"重點分點", tip:"行事曆", msci:"MSCI", cb:"CB詢圈"};
+const LABEL = {price:"股價", etf:"ETF", aum:"規模", broker:"分點", watch:"重點分點", tip:"行事曆", msci:"MSCI", cb:"CB詢圈", industry:"產業分類"};
 const TXT = {ok:"正常", warn:"留意", error:"異常"};
 let data, mode = "issue";
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));

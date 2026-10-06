@@ -144,6 +144,18 @@ python -m unittest discover tests                       # 測試
 - 重訊第一次會從 2025-01-01 逐日回補，每次最多 20 分鐘，進度記在 `data/cb/mops_days.txt`；之後每次只重抓最近 7 天。
 - 董事會通過超過一年仍未送件的不列入。
 
+## 產業分類
+
+`fetch_industry.py`（`.github/workflows/industry.yml`，每週六台北 09:13）整理每檔股票的產業細分類，網頁在 `industry.html`。
+
+| 來源 | 拿到什麼 |
+|---|---|
+| 櫃買中心「產業價值鏈資訊平台」（ic.tpex.org.tw，47 個產業） | 產業 › 上中下游 › 類別 › 細類，各類別的上市／上櫃／興櫃公司；一檔股票可屬於多個細類 |
+| 證交所／櫃買 OpenAPI 公司基本資料 | 官方「產業別」代碼（平台沒收錄的股票用這個） |
+
+- 輸出 `data/industry/chain.csv`（`code, name, industry_id, industry, stream, node_id, node, sub_id, sub`）、`data/industry/official.csv`。
+- 網頁：查個股所屬細類、今日細產業強弱排行（等權平均漲跌，3 檔以上）、依產業瀏覽各細類成分股與漲跌。
+
 ## 資料健檢
 
 `scripts/health.py` 檢查資料有沒有漏抓或抓錯，結果在網站的 `health.html`（ETF持股、成交排行頁尾有連結）。
