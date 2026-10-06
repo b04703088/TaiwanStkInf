@@ -200,7 +200,17 @@ def change_intervals(hist, tdays):
     return out
 
 
+def clean(hist):
+    """成分股數不到平常（中位數）70% 的那天視為資料不完整，略過"""
+    counts = sorted(len(_members(v)) for v in hist.values())
+    if not counts:
+        return hist
+    med = counts[len(counts) // 2]
+    return {d: v for d, v in hist.items() if len(_members(v)) >= 0.7 * med}
+
+
 def detect_events(hist, tdays, eff_dates):
+    hist = clean(hist)
     ds = sorted(d for d in hist if d in tdays)
     if len(ds) < 2:
         return []
@@ -232,6 +242,10 @@ def detect_events(hist, tdays, eff_dates):
         adds = sorted(_members(Q) - _members(P))
         dels = sorted(_members(P) - _members(Q))
         if not adds and not dels:
+            continue
+        # 只有單邊大量增減（例如某天持股檔少抓一半）不是換股
+        if (not dels and len(adds) > 10) or (not adds and len(dels) > 10) \
+                or len(adds) + len(dels) > 0.6 * max(len(_members(Q)), 1):
             continue
         window = [d for d in ds if pre <= d <= post]
         starts, ends = [], []
@@ -291,7 +305,7 @@ def run_etf(code, name, issuer, a, deadline, asked, tdays):
     for d in cal[::a.step] + cal[-1:]:  # 粗掃
         fetch(d)
     for _ in range(4):  # 有變動的區間逐日補齊（最多細化 4 輪）
-        iv = change_intervals(hist, tdays)
+        iv = change_intervals(clean(hist), tdays)
         if not iv or time.time() > deadline:
             break
         for x, y in iv:
