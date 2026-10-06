@@ -399,6 +399,7 @@
 </footer>
 
 <script type="module">
+import { loadIndustry, indTag } from "./industry-tags.js";
 const PAGE_SIZE = 50;
 const state = { days: [], idx: -1, date: null, W: null, on: new Set(), period: 1, side: "buy", q: "", shown: PAGE_SIZE, sort: null };
 const $ = id => document.getElementById(id);
@@ -473,7 +474,7 @@ function renderTable(stocks) {
       ${on.map(i => th(String(i), esc(W.branches[i].label), "br")).join("")}</tr></thead>
     <tbody>${list.slice(0, state.shown).map((s, i) => `<tr class="${i < 3 ? "top3" : ""}">
       <td class="l rank-no mono">${i + 1}</td>
-      <td class="l name-cell"><a class="link" href="broker.html?s=${encodeURIComponent(s.code)}&date=${state.date}" style="text-decoration:none"><span class="stock-name">${esc(s.name)}</span></a><span class="stock-code mono">${esc(s.code)}</span></td>
+      <td class="l name-cell"><a class="link" href="broker.html?s=${encodeURIComponent(s.code)}&date=${state.date}" style="text-decoration:none"><span class="stock-name">${esc(s.name)}</span></a><span class="stock-code mono">${esc(s.code)}</span>${indTag(s.code)}</td>
       <td class="mono ${cls(s.amt)}">${wanS(s.amt)}</td>
       <td class="mono cnt"><em class="up">${s.nb}</em> 買・<em class="down">${s.ns}</em> 賣</td>
       ${on.map(b => { const v = s.by.get(b); return `<td class="mono br ${v ? cls(v) : "zero"}">${v ? wanS(v) : "·"}</td>`; }).join("")}
@@ -549,6 +550,7 @@ try {
   }
   const i = p.get("date") ? state.days.indexOf(p.get("date")) : -1;
   showDay(i >= 0 ? i : state.days.length - 1);
+  loadIndustry().then(() => render());
 } catch (e) {
   console.error(e);
   showError("還沒有重點分點資料，或讀取失敗。");

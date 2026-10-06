@@ -363,6 +363,7 @@
 </footer>
 
 <script type="module">
+import { loadIndustry, indTag } from "./industry-tags.js";
 const PAGE_SIZE = 50;
 const state = { days: [], idx: -1, date: null, d: null, view: { t: "rank" }, side: "buy", market: "all", shown: PAGE_SIZE };
 const $ = id => document.getElementById(id);
@@ -434,7 +435,7 @@ function rankList() {
 }
 
 function stockCell(s) {
-  return `<button class="link" data-s="${esc(s.code)}"><span class="stock-name">${esc(s.name || s.code)}</span></button><span class="stock-code mono">${esc(s.code)}</span>`;
+  return `<button class="link" data-s="${esc(s.code)}"><span class="stock-name">${esc(s.name || s.code)}</span></button><span class="stock-code mono">${esc(s.code)}</span>${indTag(s.code)}`;
 }
 function brokerCell(b) { return `<button class="link" data-b="${esc(b.id)}">${esc(b.name)}</button>`; }
 
@@ -504,7 +505,7 @@ function renderStock(code) {
     <div class="stat"><span>主力買賣超</span><b class="mono ${cls(s.net)}">${fmtS(s.net)}</b><small>張</small></div>
     <div class="stat"><span>集中度</span><b class="mono ${cls(s.conc)}">${s.conc == null ? "—" : s.conc.toFixed(1) + "%"}</b><small class="mono">量 ${fmt(s.vol)} 張</small></div>
     <div class="stat"><span>平均買超 / 賣超成本</span><b class="mono">${fmtP(s.bc)}</b><small class="mono">/ ${fmtP(s.sc)}</small></div>`;
-  $("crumb").innerHTML = crumb(`${s.name} ${s.code}`, `前 15 大買超合計 ${fmt(s.bt)} 張・賣超合計 ${fmt(s.st)} 張`);
+  $("crumb").innerHTML = crumb(`${s.name} ${s.code}`, `前 15 大買超合計 ${fmt(s.bt)} 張・賣超合計 ${fmt(s.st)} 張`, indTag(s.code));
   $("view").innerHTML = `
     <div class="pair">
       <div><h3>買超分點<small>前 15 大</small></h3>${sideTable(s.B, "買超")}</div>
@@ -548,9 +549,9 @@ function renderBroker(id) {
     </div>`;
 }
 
-function crumb(title, sub) {
+function crumb(title, sub, extra = "") {
   return `<div class="crumb"><button class="back" id="backBtn" type="button">← 主力排行</button>
-    <h2>${esc(title)}</h2><span class="sub">${esc(sub)}</span></div>`;
+    <h2>${esc(title)}</h2>${extra}<span class="sub">${esc(sub)}</span></div>`;
 }
 
 function render() {
@@ -681,6 +682,7 @@ try {
   else if (p.get("b")) state.view = { t: "broker", k: p.get("b") };
   const i = p.get("date") ? state.days.indexOf(p.get("date")) : -1;
   await showDay(i >= 0 ? i : state.days.length - 1);
+  loadIndustry().then(() => render());
 } catch (e) {
   console.error(e);
   showError("還沒有分點資料，或讀取失敗。");

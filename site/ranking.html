@@ -147,6 +147,10 @@
   .breadth i{display:block; height:100%;}
 
   /* ---------- 篩選列 ---------- */
+  .node-bar{display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin:0 0 12px; padding:10px 14px; border:1px solid var(--brass); border-radius:6px; font-size:13.5px; background:rgba(198,161,91,0.08);}
+  .node-bar b{color:var(--brass); font-weight:500;}
+  .node-bar .x{margin-left:auto; background:none; border:1px solid var(--line-strong); color:var(--text-muted); border-radius:3px; padding:3px 10px; cursor:pointer; font:inherit; font-size:12.5px;}
+  .node-bar .x:hover{color:var(--text);}
   .toolbar{
     display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;
     margin:44px 0 18px;
@@ -300,6 +304,7 @@
         <input class="search" id="search" type="search" placeholder="搜尋代號或名稱" aria-label="搜尋代號或名稱">
       </div>
 
+      <div class="node-bar" id="nodeBar" hidden></div>
       <div class="table-wrap">
         <table class="rank">
           <thead>
@@ -328,10 +333,11 @@
 </footer>
 
 <script type="module">
+import { loadIndustry, indTag, nodeMembers, nodePath } from "./industry-tags.js";
 /* 資料：GitHub Actions 每個交易日收盤後重建網站，
  * data/days.json 是可用日期（由舊到新），data/daily/<日期>.json 是當日全市場資料。 */
 const PAGE_SIZE = 50;
-const state = { market: "all", kind: "all", q: "", shown: PAGE_SIZE, rows: [], meta: null, date: null, days: [], idx: -1 };
+const state = { market: "all", kind: "all", q: "", node: null, shown: PAGE_SIZE, rows: [], meta: null, date: null, days: [], idx: -1 };
 
 const $ = id => document.getElementById(id);
 
@@ -417,18 +423,34 @@ function filtered() {
   return state.rows.filter(r =>
     (state.market === "all" || r.market === state.market) &&
     (state.kind === "all" || (state.kind === "etf") === isEtf(r.code)) &&
+    (state.node == null || nodeMembers(state.node).has(r.code)) &&
     (!q || r.code.toLowerCase().includes(q) || r.name.toLowerCase().includes(q)));
+}
+
+function renderNodeBar(list) {
+  const bar = $("nodeBar");
+  if (state.node == null) { bar.hidden = true; return; }
+  const v = list.reduce((s, r) => s + r.value, 0);
+  const ps = list.map(r => r.pct).filter(x => x != null);
+  const avg = ps.length ? ps.reduce((a, b) => a + b, 0) / ps.length : null;
+  bar.hidden = false;
+  bar.innerHTML = `<span>細類：<b>${esc(nodePath(state.node))}</b></span>
+    <span class="mono">${list.length} 檔・成交 ${fmtYi(v)} 億・平均 <span class="${avg > 0 ? "up" : avg < 0 ? "down" : "flat"}">${avg == null ? "—" : (avg > 0 ? "+" : "") + avg.toFixed(2) + "%"}</span></span>
+    <a href="industry.html#i=${encodeURIComponent(nodePath(state.node).split(" › ")[0])}" style="font-size:12.5px;color:var(--text-muted)">看整個產業 →</a>
+    <button class="x" type="button" id="nodeClear">清除 ✕</button>`;
+  $("nodeClear").onclick = () => { state.node = null; state.shown = PAGE_SIZE; renderTable(); };
 }
 
 function renderTable() {
   const total = state.meta.total.TWSE + state.meta.total.TPEx;
   const list = filtered();
+  renderNodeBar(list);
   const maxV = list[0]?.value || 1;
   const page = list.slice(0, state.shown);
   $("rows").innerHTML = page.length ? page.map((r, i) => `
     <tr class="${i < 3 ? "top3" : ""}">
       <td class="l rank-no mono">${i + 1}</td>
-      <td class="l"><span class="stock-name">${esc(r.name)}</span><span class="stock-code mono">${esc(r.code)}</span><span class="mkt">${r.market === "TWSE" ? "市" : "櫃"}</span></td>
+      <td class="l"><span class="stock-name">${esc(r.name)}</span><span class="stock-code mono">${esc(r.code)}</span><span class="mkt">${r.market === "TWSE" ? "市" : "櫃"}</span>${indTag(r.code, { filter: true })}</td>
       <td class="mono">${fmtPrice(r.close)}</td>
       <td class="mono ${cls(r.change)}">${r.pct == null ? "—" : (r.pct > 0 ? "+" : "") + r.pct.toFixed(2) + "%"}</td>
       <td><div class="value-cell"><span class="mono">${fmtYi(r.value)}</span><div class="bar-track"><div class="bar-fill" style="width:${(r.value / maxV * 100).toFixed(1)}%"></div></div></div></td>
@@ -464,6 +486,11 @@ document.querySelectorAll(".seg").forEach(seg => {
 });
 $("search").addEventListener("input", e => { state.q = e.target.value; state.shown = PAGE_SIZE; renderTable(); });
 $("moreBtn").addEventListener("click", () => { state.shown += PAGE_SIZE; renderTable(); });
+$("rows").addEventListener("click", e => {
+  const t = e.target.closest(".ind-tag[data-node]"); if (!t) return;
+  state.node = +t.dataset.node; state.shown = PAGE_SIZE; renderTable();
+  $("nodeBar").scrollIntoView({ behavior: "smooth", block: "center" });
+});
 $("prevDay").addEventListener("click", () => showDay(state.idx - 1));
 $("nextDay").addEventListener("click", () => showDay(state.idx + 1));
 
@@ -531,6 +558,7 @@ try {
   const want = new URLSearchParams(location.search).get("date");
   const i = want ? state.days.indexOf(want) : -1;
   await showDay(i >= 0 ? i : state.days.length - 1);
+  loadIndustry().then(() => { if (state.meta) renderTable(); });
 } catch (e) {
   console.error(e);
   showError("讀取資料失敗，請重新整理頁面。");
