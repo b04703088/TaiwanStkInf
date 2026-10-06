@@ -1,0 +1,187 @@
+V1.5.0
+臺灣指數公司特選臺灣上市上櫃 FactSet 創新科技 50 指數
+壹、前言
+臺灣指數公司特選臺灣上市上櫃 FactSet 創新科技 50 指數(簡稱「臺灣創新
+科技 50 指數」)以臺灣上市上櫃普通股為母體，運用 FactSet 的 Revere
+Business Industry Classification System (RBICS)產業分類，選取營收符合核心
+科技概念，通過流動性檢驗、規模及資訊揭露等標準，再經研發創新、股價
+動能及獲利能力等指標篩選合格，依照發行市值擇優選取 50 檔股票，以表
+彰持續創新之科技類股的投資組合績效表現。
+貳、計算與管理
+一、 臺灣創新科技 50指數分「價格指數」 (Price Index)、「報酬指數」 (Total
+Return Index)，由臺灣指數公司負責編製，委請臺灣證券交易所計算及
+即時資訊傳輸。
+二、 臺灣指數公司依指數編製規則進行成分股定期審核。
+三、 臺灣指數公司將保存所有成分股的收盤市值紀錄。
+四、 指數編製、維護及管理等原則，參閱「臺灣指數公司有價證券指數通則」。
+參、成分股的選股原則
+一、採樣母體：
+1. 指數母體：臺灣證券交易所上市與中華民國證券櫃檯買賣中心上櫃
+普通股股票；非屬管理股票、興櫃股票及經公告為變更交易方法或
+停止買賣股票者；但因減資或轉換為控股公司、新設公司或變更面
+額等原因換發新股票而停止買賣者仍可列入母體。
+2. 採樣範圍：營業收入屬附錄一所列之 RBICS Level 6 Sub-
+industry1(以下簡稱：L6)範圍，且非屬創新板之股票。
+二、成分股篩選標準：
+1. 流動性檢驗：
+最近3 個月之日平均成交金額達新臺幣 1,500萬元以上。
+1 所列L6名單每年檢視評估，因應RBICS分類的修改或產業發展而調整。
+1
+2. 指標篩選：
+通過流動性檢驗之股票需符合下列階段每一指標。
+a. 第一階段：
+i. 核心科技：屬附錄一所列L6範圍內之營業收入合計占該
+公司營業收入達50%以上。
+ii. 市值規模：發行市值達新臺幣 50億元以上。
+iii. 資訊揭露：依據臺灣證券交易所「上市公司編製與申報永
+續報告書作業辦法」及中華民國證券櫃檯買賣中心「上櫃
+公司編製與申報永續報告書作業辦法」，編製最近年度永
+續報告書，並上傳至公開資訊觀測站。
+b. 第二階段：符合第一階段指標篩選者，則進入第二階段篩選。
+i. 研發創新：研發費用占營收比例屬前 75%高或占比達 2%
+以上。
+ii. 股價動能：最近 1 週還原收盤價占最近 52 週還原收盤價
+最高點之比例屬前90%高。
+iii. 獲利能力：最近4季營業利益合計為正值。
+3. 排序方式：
+依照發行市值遞減排序，擇優選取50檔股票2為成分股。
+三、權重計算：
+1. 自由流通市值加權。
+2. 依自由流通市值作為計算標準，個別成分股權重不得超過 30%，且
+前五大成分股權重總和不得超過 65%。
+肆、指數計算方法
+一、 指數計算頻率：
+1. 臺灣創新科技 50指數自2023 年7月3日起，於臺灣證券交易所與
+中華民國證券櫃檯買賣中心交易時間內，每隔五秒以成分股最新成
+交價格計算及公布即時指數一次，並於每日收盤後計算一次收盤指
+2 若通過指標篩選股票不足50檔時，逐步放寬股價動能篩選指標，直至通過篩選股票達50檔
+以上。
+2
+數。
+2. 臺灣指數公司另編製臺灣創新科技 50 報酬指數，就臺灣創新科技
+50 指數考量現金股利因素後加以調整，用以反映包含現金股利之
+報酬。臺灣創新科技 50 報酬指數自 2025 年 7 月 21 日起，於臺灣
+證券交易所與中華民國證券櫃檯買賣中心交易時間內，每隔五秒以
+成分股最新成交價格計算及公布即時指數一次，並於每日收盤後計
+算一次收盤指數。
+二、 計算公式：
+1. 臺灣創新科技 50指數為「價格指數」：
+指數市值
+指數 = ×基準指數
+指數除數
+∑𝑛 𝑐𝑝 ×𝑠 ×𝑝
+𝑖=1 𝑖,𝑡 𝑖,𝑡 𝑖,𝑡
+𝐼𝑛𝑑𝑒𝑥 = ×5000
+𝑡 𝐷𝑖𝑣𝑖𝑠𝑜𝑟
+𝑡
+𝑐𝑝 ×𝑠 ×𝑝 = 成分股i 在 t 日的指數成分股市值
+𝑖,𝑡 𝑖,𝑡 𝑖,𝑡
+𝑛 = 指數成分股檔數
+𝑝 =成分股i 在t 日的價格
+𝑖,𝑡
+𝑠 =成分股 i 在t 日的發行股數
+𝑖,𝑡
+𝑐𝑝 =成分股i 在t 日的係數乘積；使用之係數依本公司「TIP 指
+𝑖,𝑡
+數系列企業活動處理通則」市值投資型指數所定
+𝐷𝑖𝑣𝑖𝑠𝑜𝑟 = 「價格指數」之指數除數；收盤後成分股依本公司
+「TIP 指數系列企業活動處理通則」市值投資型指數調整指數除
+數以維持指數連續性，調整方式如下：
+指數除數 = 前1日指數除數
+前1日收盤之指數市值±異動指數市值
+×( )
+前1日收盤之指數市值
+註1：基期設定為2023年5月 26日，基準指數設定為 5000點。
+註2：在基期之指數除數即為當時指數市值
+∑𝑛 𝑐𝑝 ×𝑠 ×𝑝 ，launch = 基期。
+𝑖=1 𝑖,𝑙𝑎𝑢𝑛𝑐ℎ 𝑖,𝑙𝑎𝑢𝑛𝑐ℎ 𝑖,𝑙𝑎𝑢𝑛𝑐ℎ
+2. 臺灣創新科技 50報酬指數為「報酬指數」：
+3
+指數市值
+指數 = ×基準指數
+指數除數
+∑𝑛 𝑐𝑝 ×𝑠 ×𝑝
+𝑖=1 𝑖,𝑡 𝑖,𝑡 𝑖,𝑡
+𝐼𝑛𝑑𝑒𝑥 = ×5000
+𝑡 𝐷𝑖𝑣𝑖𝑠𝑜𝑟𝑇𝑅
+𝑡
+𝐷𝑖𝑣𝑖𝑠𝑜𝑟𝑇𝑅 = 「報酬指數」之指數除數；收盤後成分股依本公司
+「TIP 指數系列企業活動處理通則」市值投資型指數調整指數除
+數以維持指數連續性，調整方式如下：
+指數除數 = 前1日指數除數
+前1日收盤之指數市值±異動指數市值
+×( )
+前1日收盤之指數市值
+伍、指數成分股調整及指數維護作業
+一、成分股定期審核調整：
+1. 每年進行 2次成分股定期審核，以4、10月的第7個交易日為審核
+基準日，審核資料截至前一個月最後一個交易日。每次定期審核後
+選取固定的成分股檔數50檔。
+2. 成分股調整之緩衝區：排名在第 40 名以內之股票即納入成為指數
+成分股，既有成分股若排名在第60名之後則從指數成分股中刪除；
+處理後，將排名第51至60名視為候選成分股，以既有成分股優先，
+按排名挑選成分股。
+3. 成分股定期審核結果，於審核基準日之後，間隔5個交易日後生效。
+4. 指數除數維護方式，採成分股定期審核生效日前一交易日收盤資料，
+計算新成分股組合與原成分股組合之指數市値差異作為異動指數
+市值。
+5. 控股公司或新設公司定期審核使用之成分股篩選資料期間不足者，
+如轉換股份之代表公司符合採樣母體資格，得合併採用該代表公司
+或股票之資料。
+二、臺灣創新科技 50 指數為市值投資型指數，成分股不定期調整、係數乘
+積、發行股數、指數除數等維護，依本公司「TIP 指數系列企業活動處
+理通則」辦理；成分股若因此刪除，則不予遞補。
+三、自由流通量係數處理原則：
+4
+1. 自由流通量係數若低於 10%，則不納入成分股採樣。
+2. 配合成分股定期審核生效日，更新自由流通量係數。
+3. 自由流通量係數依據臺灣指數公司「自由流通量係數編製規則」產
+製之最近期數據更新。
+附錄一、本指數選用之 RBICS Level 6 Sub-industry(L6)名單
+RBICS L6
+3D Printing Services Other Memory Semiconductors
+A.I./Data Center/Large Scale Processing GPU Other Optoelectronics Discrete Semiconductors
+Artificial Intelligence Data Centers Other Passive Capacitor Electronic Components
+Artificial Intelligence Development Software Other Passive Electronic Components
+Assembly Equipment Manufacturing Other Power Analog and Mixed Signal Semiconductors
+Cable Interconnect Components Other Processor Semiconductors
+Carrier Edge Network Management Equipment Other Programmable Logic and ASIC Semiconductors
+Computer Aided Design (CAD) Software Other Specialized Semiconductors
+Computer/Gaming Graphics Accelerator/Controller Other Test and Measurement Equipment
+Data Storage Drives and Peripherals Other Wide Area Networking (WAN) Equipment
+Data Storage Infrastructure Software Peer-to-Peer Lodging
+Disk Storage Systems Peripheral Semiconductors
+Diversified Hosting Services Peripheral and Other Commerce Equipment Makers
+Diversified Semiconductor Capital Equipment Makers Photolithography Equipment Manufacturing
+Diversified Semiconductors Photovoltaic Power Module/Subassembly Components
+Electronic Interconnect Components Photovoltaic Wafers
+Enterprise Security Management Software Point-of-Sale (POS) Terminal Manufacturing
+Fixed Microwave Systems Equipment Power Module and Subassembly Electronic Components
+Flash Memory Semiconductors Power, Control and Mixed Signal Semiconductors
+Flat Panel Display-Specific Equipment Makers Printed Circuit Board/Wiring Board Manufacturing
+Flexible Circuit Manufacturing Quantum Computing Software
+General Analog and Mixed Signal Semiconductors Quantum Processor Semiconductors
+General Carrier Edge (Access) Equipment RF Analog and Mixed Signal Semiconductors
+General Communications Equipment Radio Frequency/Microwave Passive Electronic Parts
+General Graphics Accelerator/Controller Security and Identification Semiconductors
+Handheld Graphics Accelerator/Controller Security and Management Consulting
+Handheld and Smart Phone Games Software Semiconductor Assembly and Packaging Services
+Image Sensor and Image Capture Semiconductors Semiconductor Capital Equipment/Parts Distribution
+5
+Light Emitting Diode Discrete Semiconductors Semiconductor Components / Subsystems Manufacturing
+Magnetic Passive Electronic Components Semiconductor Foundry Services
+Microprocessor (MPU) Semiconductors Semiconductor Packaging and Testing Services
+Mobile Platform Applications Software Semiconductor Process Analysis Tool Manufacturing
+Multi-Process Assembly Services Semiconductor Testing Services
+Multi-Type Games Software Semiconductors Distributors
+Multimedia Semiconductors Smart Device Electronics Manufacturing
+Networking Semiconductors Smart Phone Manufacturing
+Neural Processor (NPU) Semiconductors Specialty Analog and Mixed Signal Semiconductors
+Online Game Websites and Software Test, Measurement and Metrology Equipment Makers
+Optoelectronics Electronic Components Turnkey Assembly Manufacturing Services
+Oscillator and Piezoelectric Passive Components Volatile Memory Semiconductors
+Other Discrete Semiconductors Wafer Blank Makers and Equipment Manufacturing
+Other Front End Processing Equipment Makers Wireless and Wi-Fi Equipment
+Other Interconnect Components Wireline Equipment
+Other Interconnect Fabrication Services
+6

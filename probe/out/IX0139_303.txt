@@ -1,0 +1,174 @@
+V1.4.2
+臺灣指數公司特選臺灣上市上櫃 FactSet 科技龍頭通訊指數
+壹、前言
+臺灣指數公司特選臺灣上市上櫃 FactSet 科技龍頭通訊指數 (簡稱「臺灣科
+技龍頭通訊指數」)係運用 FactSet 的 RBICS 產業分類，篩選通訊科技產業
+鏈中符合流動性標準及獲利條件之自由流通市值前 30 大個股，採用自由流
+通市值加權方法計算指數，表彰通訊科技產業鏈中臺灣上市上櫃龍頭股票組
+合之投資績效表現。
+貳、計算與管理
+一、 臺灣科技龍頭通訊指數分「價格指數」 (Price Index)、「報酬指數」 (Total
+Return Index)，由臺灣指數公司負責編製，委請臺灣證券交易所計算及
+即時資訊傳輸。
+二、 臺灣指數公司依指數編製規則進行成分股定期審核。
+三、 臺灣指數公司將保存所有成分股的收盤市值紀錄。
+四、 指數編製、維護及管理等原則，參閱「臺灣指數公司有價證券指數通則」。
+參、成分股的選股原則
+一、採樣母體：
+1. 指數母體：臺灣證券交易所上市與中華民國證券櫃檯買賣中心上櫃
+普通股股票；非屬管理股票、興櫃股票及經公告為變更交易方法或
+停止買賣股票者；但因減資或轉換為控股公司、新設公司或變更面
+額等原因換發新股票而停止買賣者仍可列入母體。
+2. 採樣範圍：指數母體中非屬創新板之股票，並依 FactSet 的 Revere
+Business Industry Classification System (RBICS)產業分類，屬附錄一
+所列 RBICS Level 6 Sub-industry 者1，且其營業收入占該上市上櫃
+公司比率超過 50%者。
+二、成分股篩選標準：
+1. 流動性檢驗：
+1 所列RBICS Level 6 Sub-industry名單每年檢視評估，因應RBICS分類的修改或新世代通訊產
+業的發展而調整。
+1
+最近三個月日平均成交金額達 5,000萬元。
+2. 指標篩選：
+近四季每股盈餘總和>0。
+3. 排序方式：
+通過流動性檢驗與指標篩選後，以自由流通市值遞減排序並選取前
+30名之股票。
+自由流通市值=自由流通量係數×發行股數×收盤價。
+三、權重計算：
+1. 自由流通市值加權。
+2. 依股票自由流通市值作為計算標準，個別成分股權重不得超過
+30%，且前五大成分股權重總和不得超過 65%；其中，若成分股於
+發行量加權股價指數之權重超過 30%，則以占發行量加權股價指數
+之權重設為其權重上限。
+肆、指數計算方法
+一、 指數計算頻率：
+1. 臺灣科技龍頭通訊指數自 2020 年 10 月 12 日起，於臺灣證券交易
+所與中華民國證券櫃檯買賣中心交易時間內，每隔五秒以成分股最
+新成交價格計算及公布即時指數一次，並於每日收盤後計算一次收
+盤指數。
+2. 臺灣指數公司另編製臺灣科技龍頭通訊報酬指數，就臺灣科技龍頭
+通訊指數考量現金股利因素後加以調整，用以反映包含現金股利之
+報酬。臺灣科技龍頭通訊報酬指數自 2025年7月21 日起，於臺灣
+證券交易所與中華民國證券櫃檯買賣中心交易時間內，每隔五秒以
+成分股最新成交價格計算及公布即時指數一次，並於每日收盤後計
+算一次收盤指數。
+二、 計算公式：
+1. 臺灣科技龍頭通訊指數為「價格指數」：
+指數市值
+指數 = ×基準指數
+指數除數
+2
+∑𝑛 𝑐𝑝 ×𝑠 ×𝑝
+𝑖=1 𝑖,𝑡 𝑖,𝑡 𝑖,𝑡
+𝐼𝑛𝑑𝑒𝑥 = ×5000
+𝑡 𝐷𝑖𝑣𝑖𝑠𝑜𝑟
+𝑡
+𝑐𝑝 ×𝑠 ×𝑝 = 成分股i 在 t 日的指數成分股市值
+𝑖,𝑡 𝑖,𝑡 𝑖,𝑡
+𝑛 = 指數成分股檔數
+𝑝 =成分股i 在t 日的價格
+𝑖,𝑡
+𝑠 =成分股i 在t 日的發行股數
+𝑖,𝑡
+𝑐𝑝 =成分股i 在t 日的係數乘積；使用之係數依本公司「TIP 指
+𝑖,𝑡
+數系列企業活動處理通則」市值投資型指數所定
+𝐷𝑖𝑣𝑖𝑠𝑜𝑟 = 「價格指數」之指數除數；收盤後成分股依本公司
+「TIP 指數系列企業活動處理通則」市值投資型指數調整指數除
+數以維持指數連續性，調整方式如下：
+指數除數 = 前1日指數除數
+前1日收盤之指數市值±異動指數市值
+×( )
+前1日收盤之指數市值
+註1：基期設定為2020年8月 14日，基準指數設定為 5000點。
+註2：在基期之指數除數即為當時指數市值
+∑𝑛 𝑐𝑝 ×𝑠 ×𝑝 ，launch = 基期。
+𝑖=1 𝑖,𝑙𝑎𝑢𝑛𝑐ℎ 𝑖,𝑙𝑎𝑢𝑛𝑐ℎ 𝑖,𝑙𝑎𝑢𝑛𝑐ℎ
+2. 臺灣科技龍頭通訊報酬指數為「報酬指數」：
+指數市值
+指數 = ×基準指數
+指數除數
+∑𝑛 𝑐𝑝 ×𝑠 ×𝑝
+𝑖=1 𝑖,𝑡 𝑖,𝑡 𝑖,𝑡
+𝐼𝑛𝑑𝑒𝑥 = ×5000
+𝑡 𝐷𝑖𝑣𝑖𝑠𝑜𝑟𝑇𝑅
+𝑡
+𝐷𝑖𝑣𝑖𝑠𝑜𝑟𝑇𝑅 = 「報酬指數」之指數除數；收盤後成分股依本公司
+「TIP 指數系列企業活動處理通則」市值投資型指數調整指數除
+數以維持指數連續性，調整方式如下：
+指數除數 = 前1日指數除數
+前1日收盤之指數市值±異動指數市值
+×( )
+前1日收盤之指數市值
+3
+伍、指數成分股調整及指數維護作業
+一、成分股定期審核調整：
+1. 每年 2 次進行成分股定期審核，以 4 月及 10 月的第 7 個交易日為
+審核基準日，審核資料截至 3 月及9月最後1個交易日。每次定期
+審核後選取固定的成分股檔數 30檔。
+2. 成分股定期審核結果，於審核基準日之後，間隔 5 個交易日後生
+效。
+3. 指數除數維護方式，採成分股定期審核生效日前一交易日收盤資料，
+計算新成分股組合與原成分股組合之指數市値差異作為異動指數
+市值。
+4. 控股公司或新設公司定期審核使用之成分股篩選資料期間不足者，
+如轉換股份之代表公司符合採樣母體資格，得合併採用該代表公司
+或股票之資料。
+二、臺灣科技龍頭通訊指數為市值投資型指數，成分股不定期調整、係數乘
+積、發行股數、指數除數等維護，依本公司「TIP 指數系列企業活動處
+理通則」辦理；成分股若因此刪除，則不予遞補。
+三、自由流通量係數處理原則：
+1. 自由流通量係數若低於 10%，則不納入成分股採樣。
+2. 配合成分股定期審核生效日，更新自由流通量係數。
+3. 自由流通量係數依據臺灣指數公司「自由流通量係數編製規則」產
+製之最近期數據更新。
+附錄一、本指數選用之 RBICS Level 6 Sub-industry 名稱
+RBICS Level 6 Sub-industry
+Asia Excluding China Wireless Telecom Cable Interconnect Components
+Services
+Cellular Site Equipment Colocation and Data Center Services
+Electronic Materials Manufacturing Fixed Microwave Systems Equipment
+Flexible Circuit Manufacturing General Carrier Edge (Access)
+Equipment
+General Communications Equipment General Metal Parts and Components
+Makers
+4
+Lasers and Optical Instrument Magnetic Passive Electronic
+Manufacturing Components
+Mixed International Multimedia Semiconductors
+Telecommunications Services
+Multi-Process Assembly Services Optoelectronics Electronic Components
+Oscillator and Piezoelectric Passive Other Communications Semiconductors
+Components
+Other Front End Processing Equipment Other Interconnect Components
+Makers
+Other Interconnect Fabrication Services Other Passive Capacitor Electronic
+Components
+Other Passive Electronic Components Other Power Analog and Mixed Signal
+Semiconductors
+Other Specialized Semiconductors Other Test and Measurement Equipment
+Other Wide Area Networking (WAN) Power Module and Subassembly
+Equipment Electronic Components
+Printed Circuit Board/Wiring Board Programmable Logic Device
+Manufacturing Semiconductors
+Radio Frequency/Microwave Passive RF Analog and Mixed Signal
+Electronic Parts Semiconductors
+Security and Identification Semiconductor Assembly and Packaging
+Semiconductors Services
+Semiconductor Components / Semiconductor Foundry Services
+Subsystems Manufacturing
+Semiconductor Packaging and Testing Semiconductor Testing Services
+Services
+Semiconductors Distributors Smart Phone Manufacturing
+Test and Measurement Communications Turnkey Assembly Manufacturing
+Equipment Services
+Wireless and Wi-Fi Equipment Wireless Infrastructure Services
+Wireline Equipment General Graphics Accelerator/Controller
+A.I./Data Center/Large Scale Computer/Gaming Graphics
+Processing GPU Accelerator/Controller
+Artificial Intelligence Data Centers Handheld Graphics
+Accelerator/Controller
+Artificial Intelligence Development Quantum Computing Software
+Software
+5

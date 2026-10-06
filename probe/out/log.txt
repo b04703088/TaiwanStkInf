@@ -1,0 +1,56 @@
+LIST IX0239 查看詳情
+LIST IX0238 查看詳情
+LIST IX0237 查看詳情
+LIST IX0236 查看詳情
+LIST IX0231 臺灣璞玉指數
+LIST IX0237 特選臺灣璞玉精選收益指數
+LIST IX0238 臺灣璞玉中小優選100指數
+LIST IX0239 臺灣璞玉永續指數
+LIST IX0235 查看詳情
+LIST IX0232 查看詳情
+LIST IX0231 查看詳情
+LIST IX0230 查看詳情
+LIST IX0231 臺灣璞玉指數
+LIST IX0237 特選臺灣璞玉精選收益指數
+LIST IX0238 臺灣璞玉中小優選100指數
+LIST IX0239 臺灣璞玉永續指數
+LIST IX0229 查看詳情
+LIST IX0228 查看詳情
+LIST IX0227 查看詳情
+LIST IX0226 查看詳情
+LIST IX0224 查看詳情
+LIST IX0225 查看詳情
+LIST IX0223 查看詳情
+LIST IX0222 查看詳情
+LIST IX0231 臺灣璞玉指數
+LIST IX0237 特選臺灣璞玉精選收益指數
+LIST IX0238 臺灣璞玉中小優選100指數
+LIST IX0239 臺灣璞玉永續指數
+PAGE IX0170 files ['797', '786']
+  797 methodology 1591 chars
+  786 methodology 3320 chars
+PAGE IX0230 files ['974', '938']
+  974 methodology 1395 chars
+  938 methodology 2440 chars
+PAGE IX0139 files ['303', '914']
+  303 methodology 4649 chars
+  914 methodology 1710 chars
+PAGE IX0172 files ['615', '592']
+  615 methodology 1599 chars
+  592 methodology 2685 chars
+PAGE IX0179 files ['676', '634']
+  676 methodology 1693 chars
+  634 methodology 3508 chars
+PAGE IX0208 files ['782', '754']
+  782 methodology 1648 chars
+  754 methodology 3666 chars
+PAGE IX0181 files ['708', '646']
+  708 methodology 1621 chars
+  646 methodology 2671 chars
+PAGE IX0194 files ['696', '909']
+  696 methodology 6280 chars
+  909 methodology 1737 chars
+PAGE IX0178 files ['920', '919', '632']
+  920 methodology 1727 chars
+  919 methodology 2403 chars
+  632 methodology 3493 chars
