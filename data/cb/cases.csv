@@ -1,4 +1,5 @@
 id,code,company,short,series,bond_code,type,method,lead,units,bb_units,bb_start,bb_end,premium_lo,premium_hi,min_price,done_date,price_base_date,conv_price,premium,issue_pct,pay_date,list_expected,issue_date,list_date,bb_sn,au_sn,nt_sn,board_date,board_amount,board_method,filed_date,eff_date,sfb_status,stop_date,sfb_amount,wd_date
+b3147-2026-10-06-1,3147,大綜,,1,,無擔保轉換公司債,詢價圈購,富邦綜合證券股份有限公司,12000,,,,,,,,,,,,,,,,,,,2026-10-06,1200000000,詢價圈購,,,,,,
 au115075,8996,高力熱處理工業股份有限公司,,,,無擔保轉換公司債,競價拍賣,富邦綜合證券股份有限公司,15000,12769,2026-10-06,2026-10-09,,,105.00,,,,,,,,,,,115075,,2026-08-11,2500000000,,,,,,,
 au115076,2316,楠梓電子股份有限公司,,,,無擔保轉換公司債,競價拍賣,富邦綜合證券股份有限公司,35000,29800,2026-10-05,2026-10-08,,,103.00,,,,,,,,,,,115076,,2026-06-26,3500000000,競價拍賣,,,,,,
 au115072,4198,欣大健康投資控股股份有限公司,,,,有擔保轉換公司債,競價拍賣,統一綜合證券股份有限公司,3000,2650,2026-10-05,2026-10-08,,,102.00,,,,,,,,,,,115072,,2026-07-29,300000000,競價拍賣,,,,,,
