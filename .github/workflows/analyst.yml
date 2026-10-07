@@ -1,0 +1,69 @@
+name: Fetch analyst reports
+
+on:
+  schedule:
+    # 台北 08:23、13:53、21:23（UTC 00:23、05:53、13:23），每天都跑（週末也有新聞）
+    - cron: "23 0 * * *"
+    - cron: "53 5 * * *"
+    - cron: "23 13 * * *"
+  workflow_dispatch:
+    inputs:
+      start:
+        description: "回補起日 YYYY-MM-DD（空白 = 最近 3 天）"
+        required: false
+        default: ""
+      end:
+        description: "回補迄日 YYYY-MM-DD（空白 = 今天）"
+        required: false
+        default: ""
+      max_minutes:
+        description: "最多跑幾分鐘（回補分次跑會接續）"
+        required: false
+        default: "50"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fetch-analyst
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Fetch
+        env:
+          START: ${{ github.event.inputs.start }}
+          END: ${{ github.event.inputs.end }}
+          MAXMIN: ${{ github.event.inputs.max_minutes || '50' }}
+        run: |
+          if [ -n "$START" ]; then
+            python fetch_analyst.py --start "$START" ${END:+--end "$END"} --max-minutes "$MAXMIN"
+          else
+            python fetch_analyst.py --days 3
+          fi
+
+      - name: Commit data
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/analyst
+          if git diff --cached --quiet; then
+            echo "No changes"
+            exit 0
+          fi
+          git commit -m "data: analyst reports $(TZ=Asia/Taipei date +%F)"
+          for i in 1 2 3; do
+            git pull --rebase -q && git push && exit 0
+            sleep 10
+          done
+          exit 1

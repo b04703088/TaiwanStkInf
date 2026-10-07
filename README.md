@@ -187,6 +187,30 @@ python -m unittest discover tests                       # 測試
 - 增減金額＝今日成交金額 − 近 5／20 日平均成交金額；熱度＝今日佔比 ÷ 近 N 日平均佔比
 - 族群：產業價值鏈細類、產業、官方產業別三種層級；近 N 日平均成交不到 2 億的族群不列入
 
+## 外資報告與市場共識
+
+`fetch_analyst.py`（`.github/workflows/analyst.yml`，每天台北 08:23、13:53、21:23）從鉅亨網新聞整理外資對台股的評等、目標價，以及 FactSet 市場共識。
+
+| 來源 | 拿到什麼 |
+|---|---|
+| 鉅亨網新聞 API（`api.cnyes.com/media/api/v1/newslist/category/tw_stock`、`tw_quo`，公開免登入） | 台股新聞全文，一天約 100～300 則 |
+
+- **外資個股報告** `data/analyst/reports_<YYYY>.csv`：`date, time, news_id, broker, code, name, action(up/down/maintain/initiate), rating, target, prev_target, title, url`
+  - 同一句提到券商（高盛、大摩、小摩、美銀、花旗、瑞銀、野村、麥格理…，或「美系外資」等）又有**新台幣**目標價或投資評等才收；不具名的「外資」一定要有目標價
+  - 評等統一成 買進／加碼／中立／減碼／賣出（優於大盤、增持、Overweight → 加碼）；外資買賣超（加碼 N 張）不會被當成評等
+  - 鉅亨網對外資個股報告的報導不算多（大型權值股為主），只是新聞轉述，不是報告原文
+- **FactSet 市場共識** `data/analyst/consensus_<YYYY>.csv`：鉅亨網「Factset 最新調查」自動快訊，一天約 5～10 則
+  - `kind=eps`：分析師人數、預估年度、EPS 中位數前值→新值、最高／最低、共識目標價
+  - `kind=tp`：目標價中位數前值→新值、調整幅度、最高／最低、看多／中立／看空家數、當日收盤
+- 只存標題、連結與數字，不存新聞內文
+- API 一次查詢最多翻約 1,000 則，所以按「一天」查；可回查好幾年。今天、昨天每次重抓，更早的抓完記在 `data/analyst/days.txt` 不再重抓
+- 回補：Actions → Fetch analyst reports → Run workflow，填起訖日；一年約 1 小時，超過 `max_minutes` 會停，再按一次會接著抓
+
+```bash
+python fetch_analyst.py                                   # 最近 3 天
+python fetch_analyst.py --start 2025-10-01 --end 2026-09-30 --max-minutes 50
+```
+
 ## 資料健檢
 
 `scripts/health.py` 檢查資料有沒有漏抓或抓錯，結果在網站的 `health.html`（ETF持股、成交排行頁尾有連結）。
