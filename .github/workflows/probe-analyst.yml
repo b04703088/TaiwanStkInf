@@ -1,0 +1,32 @@
+name: probe analyst sources
+on:
+  push:
+    branches: [probe-analyst]
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dump
+        run: |
+          mkdir -p probe_out
+          python3 - <<'PY'
+          import json, re, etf_common as C, fetch_analyst as A
+          out = {}
+          for i in [6532284, 6525646, 6545955, 6422903, 6225388, 6532794, 6193906, 6176201, 6537278, 6620346]:
+              try:
+                  d = C.http(f"https://api.cnyes.com/media/api/v1/news/{i}")
+                  it = d.get("items") or d.get("data") or d
+                  out[i] = it
+              except Exception as e:
+                  out[i] = {"err": str(e)}
+          json.dump(out, open("probe_out/news.json", "w"), ensure_ascii=False)
+          PY
+      - name: Commit
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f probe_out && git commit -qm "probe [skip ci]" && git push origin HEAD:probe-analyst -f
