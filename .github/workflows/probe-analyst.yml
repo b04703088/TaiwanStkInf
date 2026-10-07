@@ -14,14 +14,14 @@ jobs:
           mkdir -p probe_out
           python3 - <<'PY'
           import json, re, etf_common as C, fetch_analyst as A
+          from datetime import date
+          ids = {6532284, 6525646, 6545955, 6422903, 6225388, 6532794, 6193906, 6176201, 6537278, 6282518, 6298301, 6188420}
           out = {}
-          for i in [6532284, 6525646, 6545955, 6422903, 6225388, 6532794, 6193906, 6176201, 6537278, 6620346]:
-              try:
-                  d = C.http(f"https://api.cnyes.com/media/api/v1/news/{i}")
-                  it = d.get("items") or d.get("data") or d
-                  out[i] = it
-              except Exception as e:
-                  out[i] = {"err": str(e)}
+          for ds in ["2026-07-13", "2026-07-07", "2026-07-26", "2026-04-17", "2025-11-07", "2025-10-16", "2025-10-02", "2026-07-16", "2025-12-19", "2026-01-05", "2025-10-13"]:
+              for cat in A.CATEGORIES:
+                  for it in A.fetch_day(date.fromisoformat(ds), cat):
+                      if it["newsId"] in ids:
+                          out[it["newsId"]] = it
           json.dump(out, open("probe_out/news.json", "w"), ensure_ascii=False)
           PY
       - name: Commit
