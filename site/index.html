@@ -272,6 +272,27 @@
   .wk-res .muted, .wk-empty{color:var(--text-faint);}
   .wk-empty{padding:22px 0; font-size:14px;}
   @media (max-width: 860px){ .wk-item{grid-template-columns:1fr; gap:6px;} }
+  /* CB 詢圈 */
+  .cb-grid{display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); gap:40px; margin-top:4px;}
+  .cb-grid h3{font-size:14px; font-weight:500; color:var(--text-muted); margin:14px 0 4px; display:flex; align-items:baseline; gap:8px;}
+  .cb-grid h3 small{font-size:12px; color:var(--text-faint); font-weight:400;}
+  .cb-case{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:4px 14px; padding:13px 0; border-bottom:1px solid var(--line); text-decoration:none; color:inherit;}
+  .cb-case:hover .cb-name{color:var(--brass);}
+  .cb-name{font-size:14.5px;} .cb-name b{font-family:'IBM Plex Mono',monospace; font-weight:500; font-size:12.5px; color:var(--text-faint); margin-left:6px;}
+  .cb-meta{grid-column:1/-1; font-size:12.5px; color:var(--text-muted);}
+  .cb-meta .mono{font-family:'IBM Plex Mono',monospace;}
+  .cb-st{font-size:11.5px; padding:1px 8px; border-radius:2px; border:1px solid var(--line-strong); color:var(--text-muted); white-space:nowrap; align-self:center;}
+  .cb-st.live{background:var(--brass); color:var(--ink); border-color:var(--brass);}
+  .cb-st.soon{border-color:var(--brass-dim); color:var(--brass);}
+  .cb-st.end{border-color:var(--rise); color:var(--rise);}
+  .cb-new{display:grid; grid-template-columns:52px 84px minmax(0,1fr); gap:10px; padding:10px 0; border-bottom:1px solid var(--line); font-size:13.5px; align-items:baseline; text-decoration:none; color:inherit;}
+  .cb-new:hover .cb-nm{color:var(--brass);}
+  .cb-nm b{font-family:'IBM Plex Mono',monospace; font-weight:500; font-size:12.5px; color:var(--text-faint); margin-left:6px;}
+  .cb-new .d{font-family:'IBM Plex Mono',monospace; color:var(--text-muted); font-size:13px;}
+  .cb-new .k{font-size:12px; color:var(--text-faint);}
+  .cb-new .k.board{color:#C3B1F0;} .cb-new .k.filed{color:#9CCBE8;} .cb-new .k.eff{color:#7FD0A0;} .cb-new .k.bb{color:var(--brass);}
+  .cb-new small{display:block; color:var(--text-faint); font-size:12px;}
+  @media (max-width: 860px){ .cb-grid{grid-template-columns:1fr; gap:8px;} .cb-new{grid-template-columns:44px 76px minmax(0,1fr);} }
   @media (max-width: 860px){
     .home{padding:48px 0 24px;}
     .home h1{font-size:28px;}
@@ -310,10 +331,22 @@
       <div class="block">
         <div class="block-head">
           <h2>未來一週 ETF 指數調整</h2>
-          <a href="etf.html#calendar">完整行事曆 →</a>
+          <a href="calendar.html">完整行事曆 →</a>
         </div>
         <p class="block-note" id="weekNote">載入中…</p>
         <div id="weekList"></div>
+      </div>
+
+      <div class="block" style="margin-top:56px">
+        <div class="block-head">
+          <h2>可轉債 CB 動態</h2>
+          <a href="cb-active.html">所有進行中案件 →</a>
+        </div>
+        <p class="block-note" id="cbNote">載入中…</p>
+        <div class="cb-grid">
+          <div><h3>詢圈／競拍<small id="cbLiveN"></small></h3><div id="cbLive"></div></div>
+          <div><h3>近 7 天新公告<small>董事會、送件、生效、開始詢圈／競拍</small></h3><div id="cbNew"></div></div>
+        </div>
       </div>
 
       <div class="block-head" style="margin-top:56px"><h2>資料頁</h2></div>
@@ -381,6 +414,61 @@
   } catch (e) {
     console.error(e);
     $("weekNote").textContent = "讀取行事曆失敗，請重新整理頁面。";
+  }
+})();
+</script>
+<script>
+(async function () {
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const today = new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);
+  const plus = n => new Date(Date.parse(today + "T00:00:00Z") + n * 864e5).toISOString().slice(0, 10);
+  const wk = d => "日一二三四五六"[new Date(d + "T00:00:00+08:00").getDay()];
+  const md = d => `${+d.slice(5, 7)}/${+d.slice(8, 10)}`;
+  const yi = v => v == null ? "" : (v >= 1e8 ? (v / 1e8).toLocaleString("zh-TW", { maximumFractionDigits: 1 }) + " 億" : (v / 1e4).toLocaleString("zh-TW", { maximumFractionDigits: 0 }) + " 萬");
+  try {
+    const r = await fetch("data/cb/cb.json", { cache: "no-cache" });
+    const d = await r.json();
+    const cs = d.rows.map(x => Object.fromEntries(d.cols.map((c, i) => [c, x[i]])));
+    const auc = c => /競價|競拍/.test(c.method || "");
+    const amt = c => c.units ? c.units * 1e5 : (c.sfb_amount || c.board_amount);
+    const name = c => `${esc(c.short || c.company)}<b>${esc(c.code)}</b>`;
+
+    // 進行中：今天在詢圈／競拍期間，或 7 天內要開始
+    const live = cs.filter(c => c.bb_start && c.bb_end && c.bb_end >= today && c.bb_start <= plus(7))
+      .sort((a, b) => a.bb_end.localeCompare(b.bb_end));
+    const nLive = live.filter(c => c.bb_start <= today).length;
+    $("cbLiveN").textContent = `進行中 ${nLive} 件・即將開始 ${live.length - nLive} 件`;
+    $("cbLive").innerHTML = live.length ? live.map(c => {
+      const going = c.bb_start <= today, last = c.bb_end === today;
+      const st = !going ? `<span class="cb-st soon">${md(c.bb_start)} 開始</span>` : last ? '<span class="cb-st end">今天截止</span>' : `<span class="cb-st live">${auc(c) ? "競拍中" : "詢圈中"}</span>`;
+      const price = auc(c) ? (c.min_price != null ? `最低承銷價 <span class="mono">${c.min_price}</span>` : "")
+        : (c.premium_lo != null ? `溢價率 <span class="mono">${c.premium_lo}～${c.premium_hi}%</span>` : "");
+      return `<a class="cb-case" href="cb-active.html">
+        <span class="cb-name">${name(c)}</span>${st}
+        <span class="cb-meta">${auc(c) ? "競價拍賣" : "詢價圈購"}・<span class="mono">${md(c.bb_start)}（${wk(c.bb_start)}）～${md(c.bb_end)}（${wk(c.bb_end)}）</span>・${yi(amt(c))}${price ? "・" + price : ""}${c.lead ? `・${esc(c.lead)}` : ""}</span>
+      </a>`;
+    }).join("") : '<p class="wk-empty">目前沒有進行中或 7 天內要開始的詢圈／競拍。</p>';
+
+    // 近 7 天新公告
+    const from = plus(-7), ev = [];
+    for (const c of cs) {
+      if (c.board_date >= from && c.board_date <= today) ev.push([c.board_date, "board", "董事會通過", c, `${yi(c.board_amount)}${c.board_method ? "・" + esc(c.board_method) : ""}`]);
+      if (c.filed_date >= from && c.filed_date <= today) ev.push([c.filed_date, "filed", "送件申報", c, yi(c.sfb_amount)]);
+      if (c.eff_date >= from && c.eff_date <= today) ev.push([c.eff_date, "eff", "申報生效", c, yi(c.sfb_amount)]);
+      if (c.bb_start >= from && c.bb_start <= plus(7) && c.bb_start) ev.push([c.bb_start, "bb", auc(c) ? "開始競拍" : "開始詢圈", c, `${md(c.bb_start)}～${md(c.bb_end || c.bb_start)}・${yi(amt(c))}`]);
+    }
+    // 排序：日期新到舊
+    ev.sort((a, b) => b[0].localeCompare(a[0]));
+    const shown = ev.filter(e => e[1] !== "bb" || e[0] <= today).slice(0, 14);
+    $("cbNew").innerHTML = shown.length ? shown.map(([dt, k, lbl, c, sub]) => `<a class="cb-new" href="${k === "bb" ? "cb-active.html" : "cb-pipeline.html"}">
+        <span class="d">${md(dt)}</span><span class="k ${k}">${lbl}</span>
+        <span><span class="cb-nm">${name(c)}</span><small>${sub || ""}</small></span></a>`).join("")
+      : '<p class="wk-empty">近 7 天沒有新的可轉債公告。</p>';
+    $("cbNote").textContent = `資料更新 ${d.generated ? md(String(d.generated).slice(0, 10)) : "—"}。金額以發行張數 × 10 萬元計；董事會與送件階段為決議或申報金額。點案件看完整時間軸。`;
+  } catch (e) {
+    console.error(e);
+    $("cbNote").textContent = "讀取 CB 資料失敗，請重新整理頁面。";
   }
 })();
 </script>
