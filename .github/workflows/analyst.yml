@@ -16,6 +16,11 @@ on:
         description: "回補迄日 YYYY-MM-DD（空白 = 今天）"
         required: false
         default: ""
+      force:
+        description: "已抓過的日期也重抓（解析規則改了要重整時用）"
+        type: boolean
+        required: false
+        default: false
       max_minutes:
         description: "最多跑幾分鐘（回補分次跑會接續）"
         required: false
@@ -44,9 +49,10 @@ jobs:
           START: ${{ github.event.inputs.start }}
           END: ${{ github.event.inputs.end }}
           MAXMIN: ${{ github.event.inputs.max_minutes || '50' }}
+          FORCE: ${{ github.event.inputs.force == 'true' && '--force' || '' }}
         run: |
           if [ -n "$START" ]; then
-            python fetch_analyst.py --start "$START" ${END:+--end "$END"} --max-minutes "$MAXMIN"
+            python fetch_analyst.py --start "$START" ${END:+--end "$END"} --max-minutes "$MAXMIN" $FORCE
           else
             python fetch_analyst.py --days 3
           fi

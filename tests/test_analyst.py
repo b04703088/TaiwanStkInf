@@ -9,7 +9,7 @@ sys.path.insert(0, str(ROOT))
 import fetch_analyst as A  # noqa: E402
 
 FIX = Path(__file__).parent / "fixtures" / "analyst"
-NAMES = {"台積電": "2330", "台光電": "2383", "台燿": "6274", "南亞": "1303", "友達": "2409", "聯電": "2303",
+NAMES = {"台積電": "2330", "台塑": "1301", "國巨": "2327", "聯亞": "3081", "前鼎": "4908", "台達電": "2308", "台光電": "2383", "台燿": "6274", "南亞": "1303", "友達": "2409", "聯電": "2303",
          "緯創": "3231", "鴻海": "2317", "仁寶": "2324", "華通": "2313", "台化": "1326", "世界": "5347",
          "兆豐金": "2886", "新興": "2605", "群創": "3481", "台塑化": "6505", "頎邦": "6147", "臻鼎-KY": "4958"}
 
@@ -48,6 +48,27 @@ class ReportTest(Fixture, unittest.TestCase):
         self.assertEqual(self.reports(6620238), [])   # 高盛是 ETF 成分股（公司債發行人）
         self.assertEqual(self.reports(6623451), [])   # 花旗建議買三星（韓股）
         self.assertEqual(self.reports(6622587), [])   # 大摩「增持」輝達（美股）
+
+    def test_group_targets_paired_by_name(self):
+        # 「目標價定為台塑 60 元、台化 60 元、台塑化 65 元、南亞 200 元」，標題「小摩調升」
+        self.assertEqual(sorted(self.reports(6532284)), [
+            ("摩根大通", "1301", "up", "加碼", 60.0, None), ("摩根大通", "1303", "up", "加碼", 200.0, None),
+            ("摩根大通", "1326", "up", "加碼", 60.0, None), ("摩根大通", "6505", "up", "加碼", 65.0, None)])
+
+    def test_stock_price_after_target_is_not_target(self):
+        # 「外資調高目標價至 3,165 元激勵下…股價觸及 2,600 元新天價，也領前鼎…」
+        self.assertEqual(self.reports(6422903), [("外資", "3081", "up", "", 3165.0, None)])
+
+    def test_broker_summary_article(self):
+        self.assertEqual(sorted(self.reports(6537278)), [("美銀", "2330", "up", "買進", 3100.0, None),
+                                                         ("花旗", "2330", "up", "", 3800.0, 2875.0)])
+
+    def test_vague_scenario_and_columns(self):
+        self.assertEqual(self.reports(6193906), [])   # 八大外資「目標價最高喊到 1800 元」
+        self.assertEqual(self.reports(6532794), [])   # 【量大強漲股整理】專欄
+        self.assertEqual(self.reports(6225388), [])   # 專家觀點
+        # 「最樂觀情境下目標價上看 2075 元，維持優於大盤」：只留評等
+        self.assertEqual(self.reports(6545955), [("美系外資", "2327", "maintain", "加碼", None, None)])
 
     def test_factset_excluded_from_reports(self):
         self.assertEqual(self.reports(6623548), [])
@@ -95,9 +116,26 @@ class HelperTest(unittest.TestCase):
         self.assertEqual(A.find_rating("給予 Overweight 評級"), "加碼")
 
     def test_targets(self):
-        self.assertEqual(A.find_targets("目標價由新台幣3,100元上調至3,300元"), (3100.0, [3300.0]))
-        self.assertEqual(A.find_targets("目標價350美元"), (None, []))
-        self.assertEqual(A.find_targets("EPS 20元，目標價上看800元"), (None, [800.0]))
+        tp = lambda s: (lambda p, v: (p, [x for _, x in v]))(*A.find_targets(s))
+        self.assertEqual(tp("目標價由新台幣3,100元上調至3,300元"), (3100.0, [3300.0]))
+        self.assertEqual(tp("目標價350美元"), (None, []))
+        self.assertEqual(tp("EPS 20元，目標價上看800元"), (None, [800.0]))
+        self.assertEqual(tp("目標價調高至3,165元激勵下，今日股價觸及2,600元新天價"), (None, [3165.0]))
+        self.assertEqual(tp("目標價定為台塑 60 元、 台化 60 元、台塑化 65 元、南亞 200 元"), (None, [60.0, 60.0, 65.0, 200.0]))
+
+    def test_pairing_by_nearest_name(self):
+        s = "小摩目標價定為台塑 60 元、 台化 60 元、台塑化 65 元、南亞 200 元"
+        st = A.find_stocks(s, set(), {"台塑": "1301", "台化": "1326", "台塑化": "6505", "南亞": "1303"})
+        prev, vals = A.find_targets(s)
+        got = {x[1]: v for x, v in A.pair_targets(st, vals, s, prev)}
+        self.assertEqual(got, {"1301": 60.0, "1326": 60.0, "6505": 65.0, "1303": 200.0})
+
+    def test_multi_broker_sentence(self):
+        it = {"newsId": 1, "publishAt": 1791000000, "title": "測試", "market": [{"code": "2330", "symbol": "TWS:2330:STOCK"}],
+              "content": "<p>花旗證券及大摩將台積電目標價從1388元上調到1588元，甚至高盛證券將目標價從1370元調高到1600元。</p>"
+                         "<p>包括摩根士丹利、瑞銀等外資全數喊買台積電，目標價最高喊到1800元。</p>"}
+        got = sorted((r["broker"], r["target"], r["prev_target"], r["action"]) for r in A.parse_reports(it, NAMES))
+        self.assertEqual(got, [("摩根士丹利", 1588.0, 1388.0, "up"), ("花旗", 1588.0, 1388.0, "up"), ("高盛", 1600.0, 1370.0, "up")])
 
     def test_two_char_name_boundary(self):
         self.assertEqual([c for _, c, _ in A.find_stocks("布局東南亞，外資目標價350元", set(), NAMES)], [])

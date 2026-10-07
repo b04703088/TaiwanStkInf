@@ -61,7 +61,7 @@ BROKERS = [
     ("瑞銀", ["瑞銀", "UBS"]),
     ("野村", ["野村證券", "野村"]),
     ("麥格理", ["麥格理", "Macquarie"]),
-    ("匯豐", ["匯豐", "HSBC"]),
+    ("匯豐", ["匯豐", "滙豐", "HSBC"]),
     ("里昂", ["里昂", "CLSA"]),
     ("德意志", ["德意志", "德銀", "Deutsche"]),
     ("巴克萊", ["巴克萊", "Barclays"]),
@@ -97,7 +97,8 @@ _RATING_ALT = "|".join(re.escape(w) for _, ws in RATINGS for w in sorted(ws, key
 RATING_RE = re.compile(
     rf"[「『“\"]\s*({_RATING_ALT})\s*[」』”\"]\s*(?:投資)?(?:評等|評級|建議)"
     rf"|(?:評等|評級|建議)\s*(?:為|至|調升至|調降至|上調至|下調至|升至|降至|維持)?\s*[「『“\"]?\s*({_RATING_ALT})"
-    rf"|({_RATING_ALT})\s*(?:投資)?(?:評等|評級)", re.I)
+    rf"|({_RATING_ALT})\s*(?:投資)?(?:評等|評級)"
+    rf"|(?:維持|重申|給予|評為|調升至|調降至|上調至|下調至|升至|降至)\s*[「『“\"]\s*({_RATING_ALT})\s*[」』”\"]", re.I)
 
 UP = re.compile(r"調升|上調|調高|上修|提高|拉高|升至|喊高|大升")
 DOWN = re.compile(r"調降|下調|調低|下修|降低|砍|降至")
@@ -198,8 +199,8 @@ def _pct(a, b):
 
 # ---------- 外資個股報告 ----------
 
-def find_brokers(s):
-    """句子裡的券商（標準名稱，依出現位置排序）。"""
+def broker_hits(s):
+    """句子裡的券商 → [(位置, 標準名稱)]，依位置排序；「美系外資高盛」只算高盛。"""
     s = NOT_BROKER.sub(lambda m: "□" * len(m.group(0)), s)
     hits = []
     for std, words in BROKERS:
@@ -209,12 +210,15 @@ def find_brokers(s):
                 if any(a <= m.start() < b for a, b, _ in hits):
                     continue
                 hits.append((m.start(), m.end(), std))
-    named = {h[2] for h in hits if h[2] not in GENERIC | REGIONAL}
-    # 「美系外資高盛」這種同句有具名券商時，不另外記「外資」「美系外資」
+    named = any(h[2] not in GENERIC | REGIONAL for h in hits)
+    regional = any(h[2] in REGIONAL for h in hits)
+    return [(a, std) for a, _, std in sorted(hits)
+            if not ((std in GENERIC and (named or regional)) or (std in REGIONAL and named))]
+
+
+def find_brokers(s):
     out = []
-    for a, b, std in sorted(hits):
-        if (std in GENERIC and (named or any(h[2] in REGIONAL for h in hits))) or (std in REGIONAL and named):
-            continue
+    for _, std in broker_hits(s):
         if std not in out:
             out.append(std)
     return out
@@ -231,32 +235,44 @@ def find_rating(s):
     return ""
 
 
+# 目標價後面的子句出現這些字就停（「收在 2,440 元」「股價觸及 2,600 元」不是目標價）
+_STOP = re.compile(r"股價|收在|收盤|盤中|觸及|天價|漲停|跌停|市值|營收|EPS|每股盈餘|本益比|毛利率|億|美元|ADR|港元|港幣|日圓|人民幣")
+SCENARIO = re.compile(r"樂觀情境|悲觀情境|牛市情境|熊市情境|最樂觀|最悲觀|情境下")
+VAGUE = re.compile(r"最高|最低|多家|各家|十大|紛紛|各大|平均|普遍|等投資機構|已經超過|以上")
+
+
 def find_targets(s):
-    """句子裡「目標價」之後的新台幣價格 → (前次, [新值…])。美元、港幣等跳過。"""
-    i = s.find("目標價")
-    if i < 0:
-        return None, []
-    tail = s[i:]
-    tail = re.split(r"(?:EPS|每股盈餘|營收|毛利率)", tail)[0]
-    vals = []
-    for m in re.finditer(NUM + r"\s*(?:元|塊)", tail):
-        before = tail[max(0, m.start() - 4):m.start()]
-        after = tail[m.end():m.end() + 1]
-        if re.search(r"美|港|日|人民幣|歐", tail[max(0, m.start() - 6):m.start()]) or after in ("美",):
-            continue
-        if "美元" in tail[m.start():m.end() + 2]:
-            continue
-        v = num(m.group(1))
-        if v and v > 0:
-            vals.append((m.start(), v, before))
-    if not vals:
-        return None, []
-    prev = None
-    m = re.search(r"(?:由|從)\s*(?:新台幣)?\s*" + NUM + r"\s*元?\s*(?:新台幣)?\s*(?:\S{0,6}?)(?:至|到|→|->)", tail)
-    if m and len(vals) >= 2:
-        prev = num(m.group(1))
-        vals = [v for v in vals if not (v[1] == prev and v is vals[0])]
-    return prev, [v[1] for v in vals]
+    """句子裡「目標價」之後的新台幣價格 → (前次, [(位置, 價格)…])，位置是在 s 裡的位置。
+    從「目標價」所在子句往後讀，碰到股價、營收、美元等字眼的子句就停。"""
+    prev, vals = None, []
+    for mt in re.finditer(r"目標價", s):
+        i = mt.start()
+        # 往後讀到下一個「目標價」為止，每個子句檢查
+        nxt = s.find("目標價", i + 3)
+        tail = s[i:nxt if nxt > 0 else len(s)]
+        clauses = re.split(r"(?<=[，；;])|(?<=,)(?!\d{3})", tail)
+        kept, off = [], i
+        for k, c in enumerate(clauses):
+            if k > 0 and (_STOP.search(c) or not re.search(NUM + r"\s*元", c)):
+                break
+            stop = _STOP.search(c) if k == 0 else None
+            kept.append((off, c[:stop.start()] if stop else c))
+            off += len(c)
+        for o, c in kept:
+            for m in re.finditer(NUM + r"\s*(?:元|塊)", c):
+                if c[m.end():m.end() + 1] == "美" or re.search(r"(?:美|港|日|人民幣|歐)$", c[max(0, m.start() - 3):m.start()]):
+                    continue
+                v = num(m.group(1))
+                if v and v > 0:
+                    vals.append((o + m.start(), v))
+        if vals:
+            m = re.search(r"(?:由|從)\s*(?:原本的\s*)?(?:新台幣)?\s*" + NUM + r"\s*元?\s*(?:新台幣)?\s*\S{0,8}?(?:至|到|→|->)",
+                          "".join(c for _, c in kept))
+            if m and len(vals) >= 2:
+                prev = num(m.group(1))
+                vals = vals[1:] if vals[0][1] == prev else vals
+            break
+    return prev, vals
 
 
 def find_stocks(s, item_codes, names):
@@ -272,6 +288,8 @@ def find_stocks(s, item_codes, names):
             continue
         for m in re.finditer(re.escape(name), s):
             j = m.start()
+            if name in COMMON_NAMES and code not in item_codes:
+                break
             if len(name) == 2 and code not in item_codes:
                 # 2 字的名稱要前後都是斷詞處（「台光電與台燿「買進」」可以，「東南亞」裡的「南亞」不行）
                 pre, post = s[j - 1:j], s[j + 2:j + 3]
@@ -289,6 +307,9 @@ def find_stocks(s, item_codes, names):
     return keep
 
 
+# 股名剛好是常用詞：一定要這篇新聞有標記這檔（或寫了代號）才算
+COMMON_NAMES = {"大量", "世界", "中華", "統一", "精英", "新興", "大同", "全新", "先進", "創意", "國產", "聯合", "環球",
+                "華新", "遠東", "大成", "中興", "台灣", "光環", "上品", "大眾", "長興", "東元", "致伸", "力麗"}
 _EDGE = set("、與和及跟對將把給予持升降並也為是的「」『』（）()，,。目評股今在近仍")
 
 
@@ -305,65 +326,117 @@ def item_codes(item, text):
     return {c for c in codes if c}
 
 
+SKIP_TITLE = re.compile(r"量大強漲股整理|壓箱寶|神奇寶貝|免費索取|選股密碼")
+SKIP_CATEGORY = {"專家觀點"}  # 專欄、投顧文章，多半是重複引用舊報告
+
+
+def pair_targets(stocks, vals, s, prev):
+    """股票與目標價配對 → [((pos, code, name), 價格或 None)]。
+    多檔時優先看「價格前面最近的股名」（「台塑 60 元、台化 60 元、南亞 200 元」）；
+    對不起來而檔數＝價格數時依出現順序配；只有一檔時：有「由 A 調至 B」取 B，否則取第一個價格。"""
+    if not vals:
+        return [(st, None) for st in stocks]
+    if len(stocks) == 1:
+        return [(stocks[0], vals[-1][1] if prev else vals[0][1])]
+    got, last = {}, None
+    for pos, v in vals:
+        best = None
+        for st in stocks:
+            for m in re.finditer(re.escape(st[2]), s[:pos]):
+                if last is None or m.start() >= last:
+                    # 越靠近價格越優先；同一位置（「台塑」與「台塑化」）取長的
+                    if best is None or m.start() > best[0] or (m.start() == best[0] and len(st[2]) > len(best[1][2])):
+                        best = (m.start(), st)
+        if best is None or best[1][1] in got:
+            got = None
+            break
+        got[best[1][1]] = (best[1], v)
+        last = pos
+    if got and len(got) == len(vals):
+        return list(got.values())
+    if len(vals) == len(stocks):
+        return list(zip(stocks, [v for _, v in vals]))
+    return []
+
+
 def parse_reports(item, names):
     """一篇新聞 → 外資報告列（同篇同股同券商只留一列，資訊合併）。"""
     if is_factset(item):
         return []
     title = re.sub(r"<[^>]+>", "", item.get("title", ""))
+    if SKIP_TITLE.search(title) or item.get("categoryName") in SKIP_CATEGORY:
+        return []
     text = text_of(item)
     if not re.search(r"目標價|評等|評級", title + text):
         return []
     codes = item_codes(item, text)
     d, hm = when(item)
     rows = {}
+
+    def add(broker, st, tp, prev, rating, action):
+        _, code, name = st
+        r = rows.setdefault((code, broker), {
+            "date": d, "time": hm, "news_id": item["newsId"], "broker": broker, "code": code, "name": name,
+            "action": "", "rating": "", "target": None, "prev_target": None,
+            "title": title, "url": NEWS_URL.format(id=item["newsId"])})
+        r["target"] = r["target"] or tp
+        r["prev_target"] = r["prev_target"] or (prev if tp else None)
+        r["rating"] = r["rating"] or rating
+        r["action"] = r["action"] or action
+
     for s in [title] + sentences(text):
-        brokers = find_brokers(s)
-        if not brokers:
+        hits = broker_hits(s)
+        if not hits:
             continue
-        prev, tps = find_targets(s)
-        rating = find_rating(s)
-        if not tps and not rating:
-            continue
-        if all(b in GENERIC for b in brokers) and not tps:
+        if not find_targets(s)[1] and not find_rating(s):
             continue
         stocks = find_stocks(s, codes, names)
-        if not stocks:
+        if not stocks and len(codes) == 1:
             # 句子沒寫股名：整篇只講一檔台股時歸給它
-            if len(codes) == 1:
-                c = next(iter(codes))
-                nm = next((n for n, cc in names.items() if cc == c), "")
-                stocks = [(0, c, nm)]
-            else:
-                continue
+            c = next(iter(codes))
+            stocks = [(0, c, next((n for n, cc in names.items() if cc == c), ""))]
         stocks = [x for x in stocks if re.fullmatch(r"\d{4}", x[1])]  # 只要個股，不要 ETF
         if not stocks:
             continue
-        # 目標價對應：幾檔股票就幾個價格時依序配對；只有一檔時取最後一個價格
-        if len(stocks) > 1 and len(tps) == len(stocks):
-            pairs = list(zip(stocks, tps))
-        elif len(stocks) == 1:
-            # 「由 3100 元調升至 3300 元」取後者；沒有前值時取第一個（後面的價格多半是別檔或情境價）
-            pairs = [(stocks[0], (tps[-1] if prev else tps[0]) if tps else None)]
-        else:
-            pairs = [(st, None) for st in stocks] if rating and not tps else []
-        action = ("initiate" if INIT.search(s) else "up" if UP.search(s) and tps else
-                  "down" if DOWN.search(s) and tps else "maintain" if KEEP.search(s) else "")
-        if prev and tps and not action:
-            action = "up" if tps[-1] > prev else "down" if tps[-1] < prev else "maintain"
-        if action in ("up", "down") and prev and tps and len(pairs) == 1:
-            action = "up" if pairs[0][1] > prev else "down" if pairs[0][1] < prev else "maintain"
-        for b in brokers:
-            for (_, code, name), tp in pairs:
-                key = (code, b)
-                r = rows.setdefault(key, {
-                    "date": d, "time": hm, "news_id": item["newsId"], "broker": b, "code": code, "name": name,
-                    "action": "", "rating": "", "target": None, "prev_target": None,
-                    "title": title, "url": NEWS_URL.format(id=item["newsId"])})
-                r["target"] = r["target"] or tp
-                r["prev_target"] = r["prev_target"] or (prev if len(pairs) == 1 else None)
-                r["rating"] = r["rating"] or rating
-                r["action"] = r["action"] or action
+        # 一句裡有好幾家券商：從每家券商的位置切段，各段自己的目標價／評等；
+        # 沒有自己數字的段（「花旗及大摩將目標價從 A 調到 B」的花旗）沿用下一段
+        cuts = [p for p, _ in hits] + [len(s)]
+        parsed = []
+        for k in range(len(hits)):
+            # 第一段含券商前面的文字（「台積電目標價由 A 調至 B，高盛指出…」）；檢查情境價等字眼只看券商自己那段
+            seg, off = (s[:cuts[1]], 0) if k == 0 else (s[cuts[k]:cuts[k + 1]], cuts[k])
+            prev, vals = find_targets(seg)
+            parsed.append([hits[k][1], seg, off, prev, vals, find_rating(seg), s[cuts[k]:cuts[k + 1]]])
+        for k in range(len(parsed) - 2, -1, -1):
+            if not parsed[k][4] and not parsed[k][5] and (parsed[k + 1][4] or parsed[k + 1][5]):
+                parsed[k][1:] = parsed[k + 1][1:]
+        for broker, seg, off, prev, vals, rating, own in parsed:
+            if not vals and not rating:
+                continue
+            if vals and (SCENARIO.search(own) or VAGUE.search(own)):
+                # 情境價、「多家外資最高喊到 X 元」不是某家券商的目標價
+                vals, prev = [], None
+                if not rating:
+                    continue
+            if broker in GENERIC and not vals:
+                continue
+            vals = [(off + p, v) for p, v in vals]
+            pairs = pair_targets(stocks, vals, s, prev)
+            if not pairs:
+                continue
+            for st, tp in pairs:
+                action = ("initiate" if INIT.search(seg) else
+                          "up" if tp and prev and tp > prev else "down" if tp and prev and tp < prev else
+                          "up" if tp and UP.search(seg) else "down" if tp and DOWN.search(seg) else
+                          "maintain" if KEEP.search(seg) else "")
+                add(broker, st, tp, prev, rating, action)
     out = [r for r in rows.values() if r["target"] or r["rating"]]
+    # 標題寫「小摩調升台塑集團目標價」而內文只寫「維持正向展望、目標價定為…」：以標題的方向為準
+    tb = set(find_brokers(title))
+    if "目標價" in title:
+        for r in out:
+            if r["broker"] in tb and r["target"] and r["action"] in ("", "maintain"):
+                r["action"] = "up" if UP.search(title) else "down" if DOWN.search(title) else r["action"]
     # 同篇同股：有具名券商的話，不具名「外資」那列拿掉
     named = {r["code"] for r in out if r["broker"] not in GENERIC}
     return [r for r in out if not (r["broker"] in GENERIC and r["code"] in named)]
