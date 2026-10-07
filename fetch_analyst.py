@@ -326,7 +326,8 @@ def item_codes(item, text):
     return {c for c in codes if c}
 
 
-SKIP_TITLE = re.compile(r"量大強漲股整理|壓箱寶|神奇寶貝|免費索取|選股密碼")
+# 專欄、以及把多則標題串在一起的盤前／盤後要聞（標題之間沒有標點，會把不同新聞的股票和價格混在一起）
+SKIP_TITLE = re.compile(r"量大強漲股整理|壓箱寶|神奇寶貝|免費索取|選股密碼|盤前要聞|盤後要聞|重點新聞摘要|早報|晚報")
 SKIP_CATEGORY = {"專家觀點"}  # 專欄、投顧文章，多半是重複引用舊報告
 
 
@@ -486,15 +487,20 @@ def _fmt(v):
     return v
 
 
-def merge(kind, cols, new_rows, keyf):
+def merge(kind, cols, new_rows, keyf, fetched_days=()):
+    """新結果寫進 <kind>_<年>.csv。這次重抓過的日期以新結果為準（就算那天變成 0 筆，舊列也拿掉）。"""
     by_year = {}
     for r in new_rows:
         by_year.setdefault(r["date"][:4], []).append(r)
+    for d in fetched_days:
+        by_year.setdefault(d[:4], [])
     added = 0
     for yr, rows in by_year.items():
         path = OUT / f"{kind}_{yr}.csv"
+        if not rows and not path.exists():
+            continue
         old = load_csv(path)
-        days = {r["date"] for r in rows}
+        days = {r["date"] for r in rows} | {d for d in fetched_days if d[:4] == yr}
         ids = {str(r["news_id"]) for r in rows}
         # 重抓的日期：以新結果為準（新聞被刪或解析規則改了都會反映）
         keep = [r for r in old if r["date"] not in days and str(r["news_id"]) not in ids]
@@ -569,8 +575,8 @@ def main():
         finished.append(day.isoformat())
         print(f"  {day}：新聞 {len(items)} 則，外資報告 {nr} 列，FactSet {nc} 則")
 
-    ra = merge("reports", REPORT_COLS, reports, lambda r: (str(r["news_id"]), r["code"], r["broker"]))
-    ca = merge("consensus", CONS_COLS, cons, lambda r: (str(r["news_id"]),))
+    ra = merge("reports", REPORT_COLS, reports, lambda r: (str(r["news_id"]), r["code"], r["broker"]), finished)
+    ca = merge("consensus", CONS_COLS, cons, lambda r: (str(r["news_id"]),), finished)
     done |= {x for x in finished if x < (today - timedelta(days=1)).isoformat()}
     OUT.mkdir(parents=True, exist_ok=True)
     days_file.write_text("\n".join(sorted(done)) + "\n")

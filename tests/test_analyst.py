@@ -154,6 +154,9 @@ class MergeTest(unittest.TestCase):
                 rows = A.load_csv(Path(d) / "reports_2026.csv")
                 self.assertEqual(len(rows), 1)
                 self.assertEqual(rows[0]["target"], "3300")
+                # 重抓同一天、這次沒有任何一列（例如規則改了被排除）→ 舊列要拿掉
+                A.merge("reports", A.REPORT_COLS, [], lambda r: (str(r["news_id"]), r["code"], r["broker"]), ["2026-10-06"])
+                self.assertEqual(A.load_csv(Path(d) / "reports_2026.csv"), [])
             finally:
                 A.OUT = old
 
