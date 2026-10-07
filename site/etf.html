@@ -304,6 +304,11 @@
   .chip-group{margin-top:40px;}
   .cat{font-size:11.5px; color:var(--text-muted); white-space:nowrap;}
   #aumTable .bar-track{width:90px;}
+  .aum-v{display:inline-flex; flex-direction:column; align-items:flex-end; line-height:1.25; min-width:6.5em;}
+  .aum-v b{font-weight:600; font-size:14.5px; color:var(--text);}
+  .aum-v b small{font-family:'Noto Sans TC',sans-serif; font-weight:400; font-size:11.5px; color:var(--text-muted); margin-left:3px;}
+  .aum-v > small{font-size:11px; color:var(--text-faint);}
+  @media (max-width:860px){ .aum-v{min-width:0;} .aum-v b{font-size:13.5px;} }
   .seg.wrap-seg{flex-wrap:wrap;}
   .chip-group + .chip-group{margin-top:28px;}
 
@@ -515,7 +520,7 @@
   <section class="panel" id="panel-aum" role="tabpanel" aria-labelledby="tab-aum" hidden>
     <div class="wrap">
       <p class="panel-note" id="aumNote">全體上市櫃 ETF 的基金規模（AUM）= 已發行受益單位數 × 前一營業日單位淨值。
-        資金流入 = 受益單位增減 × 單位淨值，也就是申購減掉贖回的金額。資料來源為證交所 ETF 淨值揭露，每個交易日更新。</p>
+        資金流入 = 受益單位增減 × 單位淨值，也就是申購減掉贖回的金額。資料來源為證交所 ETF 淨值揭露，每個交易日更新。「基金規模」欄單位為新台幣（滿 1 兆以「兆」表示），下方小字是佔全體（或所選類型）ETF 總規模的比重。</p>
       <div class="stats" id="aumStats"></div>
       <div class="toolbar">
         <div class="seg wrap-seg" data-filter="cat" role="group" aria-label="ETF 類型" id="catSeg"></div>
@@ -528,7 +533,7 @@
               <th class="l" data-sort="rank" data-dir="asc" title="目前類型內的規模名次"><button type="button">#</button></th>
               <th class="l" data-sort="name" data-dir="asc"><button type="button">ETF</button></th>
               <th class="l col-hide" data-sort="cat" data-dir="asc"><button type="button">類型</button></th>
-              <th data-sort="aum"><button type="button">規模（億）</button></th>
+              <th data-sort="aum" title="基金規模 AUM＝受益單位數 × 單位淨值"><button type="button">基金規模</button></th>
               <th class="col-hide" data-sort="nav"><button type="button">淨值</button></th>
               <th class="col-hide" data-sort="units"><button type="button">受益單位（億）</button></th>
               <th data-sort="flow"><button type="button">當日流入（億）</button></th>
@@ -622,6 +627,8 @@ const fmtN = (v, d = 0) => v == null ? "—" : v.toLocaleString("zh-TW", { maxim
 const fmtLots = (sh, code) => { const v = lots(sh, code); return v == null ? "—" : fmtN(v, Math.abs(v) < 10 && v % 1 ? 1 : 0); };
 const fmtSigned = (sh, code) => sh == null ? "—" : (sh > 0 ? "+" : "") + fmtLots(sh, code);
 const fmtYi = v => v == null ? "—" : fmtN(v / 1e8, Math.abs(v) >= 1e9 ? 1 : 2);
+// 基金規模：滿 1 兆寫「兆」，其餘寫「億」（皆為新台幣）
+const fmtAum = v => v >= 1e12 ? `${fmtN(v / 1e12, 2)}<small>兆</small>` : v >= 1e10 ? `${fmtN(v / 1e8, 0)}<small>億</small>` : `${fmtN(v / 1e8, 1)}<small>億</small>`;
 const fmtYiSigned = v => v == null ? "—" : (v > 0 ? "+" : "") + fmtYi(v);
 const fmtDate = d => d ? d.slice(5).replace("-", "/") : "—";
 const CLS = { new: "新增", add: "增加", cut: "減少", removed: "剔除", same: "不變", nw: "僅公布權重" };
@@ -944,7 +951,7 @@ function renderAum() {
       <td class="l rank-no mono">${x.rank}</td>
       <td class="l"><span class="stock-name">${esc(x.name)}</span><span class="stock-code mono">${esc(x.etf)}</span>${x.tracked ? '<span class="kind active" title="有追蹤每日持股">持股</span>' : ""}</td>
       <td class="l col-hide"><span class="cat">${esc(x.cat)}</span></td>
-      <td><div class="value-cell"><span class="mono">${fmtN(x.aum / 1e8, 0)}</span><div class="bar-track"><div class="bar-fill" style="width:${(x.aum / maxAum * 100).toFixed(1)}%"></div></div></div></td>
+      <td><div class="value-cell"><span class="aum-v mono" title="${fmtN(x.aum / 1e8, 2)} 億元"><b>${fmtAum(x.aum)}</b><small>佔${aum.cat === "全部" ? "全體" : "此類"} ${fmtN(x.aum / total * 100, x.aum / total >= 0.1 ? 1 : 2)}%</small></span><div class="bar-track"><div class="bar-fill" style="width:${(x.aum / maxAum * 100).toFixed(1)}%"></div></div></div></td>
       <td class="mono col-hide flat">${fmtN(x.nav, 2)}</td>
       <td class="mono col-hide flat">${fmtN(x.units / 1e8, 2)}</td>
       <td class="mono ${cls(x.flow)}">${x.flow ? fmtYiSigned(x.flow) : '<span class="flat">0</span>'}</td>
