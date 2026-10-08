@@ -1,4 +1,6 @@
 date,time,news_id,code,name,kind,year,analysts,prev,value,chg_pct,high,low,target,bull,neutral,bear,close,url
+2026-10-08,16:10,6624867,3653,健策,eps,2026,8,69.76,69.26,-0.72,71.65,58.7,8800,,,,,https://news.cnyes.com/news/id/6624867
+2026-10-08,16:10,6624866,3653,健策,tp,,7,7500,8800,17.33,10000,6800,8800,8,0,0,7165,https://news.cnyes.com/news/id/6624866
 2026-10-08,12:10,6624695,2379,瑞昱,eps,2026,15,31.91,31.73,-0.56,37.49,27.66,740,,,,,https://news.cnyes.com/news/id/6624695
 2026-10-08,12:10,6624694,3189,景碩,eps,2026,10,11.42,11.36,-0.53,14.82,8.52,1057,,,,,https://news.cnyes.com/news/id/6624694
 2026-10-08,12:10,6624693,6274,台燿,eps,2026,13,37.3,37.64,0.91,40.35,31.88,2170,,,,,https://news.cnyes.com/news/id/6624693
