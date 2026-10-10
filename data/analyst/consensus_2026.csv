@@ -1,4 +1,5 @@
 date,time,news_id,code,name,kind,year,analysts,prev,value,chg_pct,high,low,target,bull,neutral,bear,close,url
+2026-10-10,08:10,6627159,3037,欣興,eps,2026,19,20.95,21.18,1.1,24.84,14.66,1262.5,,,,,https://news.cnyes.com/news/id/6627159
 2026-10-09,12:10,6626715,2618,長榮航,eps,2026,7,4.22,4.15,-1.66,4.82,3.17,47.75,,,,,https://news.cnyes.com/news/id/6626715
 2026-10-09,12:10,6626714,3105,穩懋,eps,2026,13,7.54,7.8,3.45,8.63,4.94,440,,,,,https://news.cnyes.com/news/id/6626714
 2026-10-09,12:10,6626713,6187,萬潤,eps,2026,7,28.01,28.94,3.32,30.89,20.62,1500,,,,,https://news.cnyes.com/news/id/6626713
