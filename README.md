@@ -206,6 +206,9 @@ python -m unittest discover tests                       # 測試
 - API 一次查詢最多翻約 1,000 則，所以按「一天」查；可回查好幾年。今天、昨天每次重抓，更早的抓完記在 `data/analyst/days.txt` 不再重抓
 - 回補：Actions → Fetch analyst reports → Run workflow，填起訖日；一年約 1 小時，超過 `max_minutes` 會停，再按一次會接著抓
 
+網頁 `analyst.html`（導覽列「外資報告」，`scripts/analyst_site.py` → `data/analyst/analyst.json`）：
+查個股（共識目標價、潛在空間、看多／中立／看空、EPS 預估與歷次紀錄）、共識目標價 vs 現價排行、最新動態（可篩外資報告／共識目標價／共識 EPS、上修／下修、期間）。
+
 ```bash
 python fetch_analyst.py                                   # 最近 3 天
 python fetch_analyst.py --start 2025-10-01 --end 2026-09-30 --max-minutes 50

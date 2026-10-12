@@ -12,6 +12,7 @@
   data/health.json                   資料健檢結果（見 scripts/health.py）
   data/broker/days.json, <日期>.json  券商分點前 15 大（見 scripts/broker_site.py）
   data/broker/watch.json             重點分點（config/broker_watch.csv）近 60 個交易日
+  data/analyst/analyst.json          FactSet 共識與外資報告（見 scripts/analyst_site.py）
 
 用法：python scripts/build_site.py [--days 120] [--out _site]
 """
@@ -34,6 +35,7 @@ import industry_site  # noqa: E402
 import flow_site  # noqa: E402
 import rebalance_site  # noqa: E402
 import calendar_site  # noqa: E402
+import analyst_site  # noqa: E402
 
 
 def build(out: Path, days: int) -> list[str]:
@@ -69,6 +71,7 @@ def build(out: Path, days: int) -> list[str]:
     flow_site.write_flow(ROOT / "data", out / "data" / "flow.json")
     rebalance_site.write_rebalance(ROOT, out / "data" / "etf" / "rebalance.json")
     calendar_site.write_calendar(ROOT / "data", ROOT, out / "data" / "calendar.json")
+    analyst_site.write_analyst(ROOT / "data", out / "data" / "analyst" / "analyst.json")
     for page in cb_site.SUBPAGES:  # CB詢圈子頁共用同一個 HTML，由檔名決定顯示哪一頁
         shutil.copy(out / "cb.html", out / page)
     (out / "data" / "health.json").write_text(
