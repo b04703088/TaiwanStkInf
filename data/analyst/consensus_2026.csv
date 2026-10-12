@@ -1,4 +1,6 @@
 date,time,news_id,code,name,kind,year,analysts,prev,value,chg_pct,high,low,target,bull,neutral,bear,close,url
+2026-10-12,22:11,6628850,4938,和碩,eps,2026,8,5.68,5.75,1.23,6.48,5.39,95.5,,,,,https://news.cnyes.com/news/id/6628850
+2026-10-12,22:10,6628849,6147,頎邦,tp,,5,270,280,3.7,365,230,280,5,1,0,229,https://news.cnyes.com/news/id/6628849
 2026-10-12,18:11,6628305,3406,玉晶光,eps,2026,7,37.54,38.27,1.94,44.35,34.87,910,,,,,https://news.cnyes.com/news/id/6628305
 2026-10-12,18:10,6628304,3406,玉晶光,tp,,7,700,910,30,1415,410,910,4,1,2,1070,https://news.cnyes.com/news/id/6628304
 2026-10-12,16:10,6628122,2603,長榮,eps,2026,10,38.26,39.33,2.8,50.42,21.05,253,,,,,https://news.cnyes.com/news/id/6628122
