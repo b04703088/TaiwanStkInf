@@ -23,6 +23,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from fetch_broker import MIN_VALUE as BROKER_MIN_VALUE  # noqa: E402  分點全市場只抓成交金額 ≥ 這個數字的股票
 TPE = timezone(timedelta(hours=8))
 
 # 門檻
@@ -143,7 +145,9 @@ def check(data_dir=ROOT / "data", now=None):
         tot = _read(f)
         with_data = sum(1 for r in tot if r["buy_total"])
         pf = data_dir / d[:4] / f"{d.replace('-', '')}.csv"
-        n_stocks = sum(1 for r in _read(pf) if (_num(r.get("volume")) or 0) > 0) if pf.exists() else None
+        # 應抓檔數：跟 fetch_broker.py 同一個門檻（有成交、成交金額 ≥ MIN_VALUE）
+        n_stocks = sum(1 for r in _read(pf) if (_num(r.get("volume")) or 0) > 0
+                       and (_num(r.get("value")) or 0) >= BROKER_MIN_VALUE) if pf.exists() else None
         lg = lag(d)
         errs, warns = [], []
         if lg is not None and lg >= BROKER_LAG_ERROR:

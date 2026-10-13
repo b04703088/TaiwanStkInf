@@ -1,3 +1,4 @@
+from datetime import date
 """fetch_etf 各投信 adapter 的離線測試（用假的 HTTP 回應，格式取自 2026-09-29 實際回應）。"""
 import csv
 import sys
@@ -99,7 +100,13 @@ class AdapterTest(unittest.TestCase):
                     {"ftype": "期貨", "stockid": "TXF", "stockname": "期貨", "qshare": "1", "prate_addaccint": "3%"}]}]}
             return {"result": [{"dDate": None, "detail": []}]}
         C.http = fake_http([("fundList", {"result": [{"etf002": "00929", "fundID": "ETF21"}]}), ("api/assets", assets)])
-        d, rows, _ = A.fuhhwa("00929")
+        # 固定「今天」為 2026-09-26，避免日子一久 09/24 超出往回 10 個工作天的範圍
+        orig = C.recent_days
+        C.recent_days = lambda n, start=None: orig(n, start or date(2026, 9, 26))
+        try:
+            d, rows, _ = A.fuhhwa("00929")
+        finally:
+            C.recent_days = orig
         self.assertEqual(d, "2026-09-24")
         self.assertEqual(rows, [{"code": "2357", "name": "華碩電腦", "shares": 6445000, "weight": 3.954}])
 
