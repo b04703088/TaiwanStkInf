@@ -1,0 +1,46 @@
+name: Cleanup branches
+
+# 手動執行：刪除名稱以指定前綴開頭的分支（預設刪掉測試用的 probe 分支）。
+# 預設分支永遠不會被刪。先用 dry_run 看會刪哪些，確認後再實際刪除。
+on:
+  workflow_dispatch:
+    inputs:
+      prefix:
+        description: "要刪除的分支名稱前綴"
+        required: true
+        default: "probe"
+      dry_run:
+        description: "只列出、不刪除"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Delete branches
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PREFIX: ${{ inputs.prefix }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          DEFAULT: ${{ github.event.repository.default_branch }}
+        run: |
+          if [ -z "$PREFIX" ]; then echo "前綴不能是空白"; exit 1; fi
+          branches=$(gh api "repos/$REPO/branches" --paginate --jq '.[].name' | grep "^$PREFIX" | grep -vx "$DEFAULT" || true)
+          if [ -z "$branches" ]; then echo "沒有以「$PREFIX」開頭的分支"; exit 0; fi
+          echo "符合的分支："; echo "$branches"; echo
+          if [ "$DRY_RUN" = "true" ]; then echo "（dry run，沒有刪除）"; exit 0; fi
+          fail=0
+          for b in $branches; do
+            if out=$(gh api -X DELETE "repos/$REPO/git/refs/heads/$b" 2>&1); then
+              echo "已刪除  $b"
+            else
+              echo "刪除失敗 $b：$out"; fail=1
+            fi
+          done
+          exit $fail
