@@ -57,6 +57,7 @@
   .tag i{font-style:normal; font-size:11.5px; padding:0 5px; border-radius:2px; color:var(--ink);}
   .k-start i{background:var(--sky);} .k-end i{background:var(--brass);} .k-price i{background:var(--warn);}
   .k-pay i{background:#B48EAD;} .k-eff i{background:#8FB86A;} .k-list i{background:var(--fall);}
+  .k-board i{background:#9AA5B1;} .k-filed i{background:#7FB3A8;}
   .empty{padding:24px 16px; color:var(--text-faint); font-size:13.5px;}
 
   /* 進行中卡片 */
@@ -140,6 +141,52 @@
   .mbar i{display:block; width:70%; max-width:34px; background:var(--brass); border-radius:2px 2px 0 0; min-height:2px;}
   .mbar span{padding:6px 0 8px;}
   .mbar.cur i{background:var(--brass); opacity:.55;}
+  /* 月曆 */
+  .cal-bar{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:12px;}
+  .cal-nav{display:flex; align-items:center; gap:6px;}
+  .cal-nav h2{min-width:7.5em; text-align:center;}
+  .cal-nav button,.kinds button{background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:5px 11px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .cal-nav button:hover{color:var(--text);}
+  .kinds{display:flex; flex-wrap:wrap; gap:6px;}
+  .kinds button{display:inline-flex; align-items:center; gap:6px; padding:4px 9px; font-size:12.5px;}
+  .kinds button i{width:8px; height:8px; border-radius:2px; background:var(--c);}
+  .kinds button[aria-pressed="false"]{opacity:.4;}
+  .kinds button[aria-pressed="false"] i{background:none; outline:1px solid var(--c);}
+  .cal{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden; background:var(--line); gap:1px;}
+  .cal .wd{background:var(--panel); font-size:12px; color:var(--text-muted); text-align:center; padding:6px 0;}
+  .cal .wd.we{color:var(--text-faint);}
+  .cell{background:var(--ink); min-height:112px; padding:6px 6px 8px; cursor:pointer; display:flex; flex-direction:column; gap:3px; min-width:0;}
+  .cell:hover{background:var(--panel);}
+  .cell.out{background:#0B121A;} .cell.out .dn{color:var(--text-faint); opacity:.5;}
+  .cell.we{background:#101921;}
+  .cell.sel{box-shadow:inset 0 0 0 1px var(--brass);}
+  .cell .dn{font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--text-muted); display:flex; justify-content:space-between;}
+  .cell.today .dn b{color:var(--ink); background:var(--brass); border-radius:3px; padding:0 5px;}
+  .cell .dn b{font-weight:600;}
+  .ce{display:flex; align-items:center; gap:4px; font-size:12px; line-height:1.35; padding:1px 5px 1px 0; border-left:3px solid var(--c); background:var(--panel-2); border-radius:0 2px 2px 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0;}
+  .ce em{font-style:normal; color:var(--c); padding-left:4px; flex:none;}
+  .ce span{overflow:hidden; text-overflow:ellipsis;}
+  .ce.est{border-left-style:dashed; background:none; color:var(--text-muted);}
+  .ce.hot{background:rgba(217,164,65,0.16); font-weight:500;}
+  .cell .plus{font-size:11.5px; color:var(--text-faint); padding-left:4px;}
+  .cal-detail{margin-top:16px; border:1px solid var(--line); border-radius:var(--radius-m); background:var(--panel);}
+  .cal-detail h3{font-size:15px; font-weight:600; margin:0; padding:12px 16px; border-bottom:1px solid var(--line);}
+  .erow{display:grid; grid-template-columns:auto 1fr; gap:4px 12px; align-items:center; padding:10px 16px; border-bottom:1px solid var(--line); text-decoration:none;}
+  .erow:last-child{border-bottom:none;}
+  .erow:hover{background:var(--panel-2);}
+  .erow .tag{cursor:inherit;}
+  .erow .x{font-size:12.5px; color:var(--text-muted);}
+  .erow .x .mono{color:var(--text);}
+  .erow.est .tag{border-style:dashed; background:none;}
+  .cal-list{display:none;}
+  @media (max-width:860px){
+    .cal,.cal-detail{display:none;}
+    .cal-list{display:block;}
+    .cal-list .day{grid-template-columns:64px 1fr;}
+    .cal-list .ev{display:block; padding:0;}
+    .cal-list .erow{padding:8px 10px; grid-template-columns:1fr; justify-items:start;}
+    .cal-nav h2{min-width:6em; font-size:18px;}
+  }
   @media (max-width:860px){
     .subtabs a{padding:10px 12px;}
     .range{width:56px;}
@@ -173,6 +220,7 @@
     <p class="desc" id="sub">載入中…</p>
     <nav class="subtabs" aria-label="CB詢圈子頁">
       <a href="cb.html" data-tab="overview">總覽</a>
+      <a href="cb-calendar.html" data-tab="calendar">行事曆</a>
       <a href="cb-pipeline.html" data-tab="pipeline">籌備中<span class="n" id="n-pipeline"></span></a>
       <a href="cb-active.html" data-tab="active">進行中<span class="n" id="n-active"></span></a>
       <a href="cb-bb.html" data-tab="bb">詢價圈購<span class="n" id="n-bb"></span></a>
@@ -185,12 +233,25 @@
   <!-- 總覽 -->
   <div data-view="overview">
     <section class="block">
-      <div class="block-head"><h2>接下來兩週</h2><span class="hint">點名稱看該案進度</span></div>
+      <div class="block-head"><h2>接下來兩週</h2><a class="hint" href="cb-calendar.html">點名稱看該案進度・看整月行事曆 →</a></div>
       <div class="agenda" id="agenda"></div>
     </section>
     <section class="block">
       <div class="block-head"><h2>最近訂價</h2><a class="hint" href="cb-listed.html">看全部已掛牌 →</a></div>
       <div class="tbl"><table><thead><tr id="recent-head"></tr></thead><tbody id="recent"></tbody></table></div>
+    </section>
+  </div>
+
+  <!-- 行事曆 -->
+  <div data-view="calendar">
+    <section class="block">
+      <div class="cal-bar">
+        <div class="cal-nav"><button id="cal-prev" aria-label="上個月">‹</button><h2 id="cal-title"></h2><button id="cal-next" aria-label="下個月">›</button><button id="cal-today">本月</button></div>
+        <div class="kinds" id="kinds" role="group" aria-label="事件類型"></div>
+      </div>
+      <div class="cal" id="cal"></div>
+      <div class="cal-detail" id="cal-detail"></div>
+      <div class="cal-list" id="cal-list"></div>
     </section>
   </div>
 
@@ -239,11 +300,12 @@ const avg = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
 const AUC = c => c.method === "競價拍賣";
 
 // 由檔名決定顯示哪個子頁（build_site.py 會把 cb.html 複製成各子頁檔名）
-const PAGES = {"cb-pipeline.html":"pipeline", "cb-active.html":"active", "cb-bb.html":"bb", "cb-auction.html":"auction", "cb-listed.html":"listed"};
+const PAGES = {"cb-calendar.html":"calendar", "cb-pipeline.html":"pipeline", "cb-active.html":"active", "cb-bb.html":"bb", "cb-auction.html":"auction", "cb-listed.html":"listed"};
 const VIEW = PAGES[location.pathname.split("/").pop()] || new URLSearchParams(location.search).get("v") || "overview";
 
 const INFO = {
   overview: ["可轉債從圈購到掛牌", "把每檔可轉債（CB／EB）的詢圈、訂價、繳款與掛牌日排在同一條時間軸上。"],
+  calendar: ["CB 行事曆", "把每檔 CB／EB 的董事會、送件、生效、詢圈／競拍、訂價／開標、繳款與掛牌日排進月曆。虛線是還沒公告、依慣例推估的日期。"],
   pipeline: ["籌備中的案件", "還沒開始詢圈／競拍的案子：董事會已決議、已送件給金管會審查、或已申報生效等待承銷。送件與生效日來自證期局申報案件彙總表，董事會決議來自公開資訊觀測站重大訊息。"],
   active:   ["進行中的案件", "還沒掛牌的案子，依目前進度分組；灰色斜體日期是依慣例推估。"],
   bb:       ["詢價圈購", "承銷商先公告溢價率區間，向投資人詢問願意接受的溢價率，再與發行公司議定。落點＝議定溢價率在區間中的位置，越靠左代表越接近下緣（對投資人越有利、需求越熱）。"],
@@ -343,6 +405,115 @@ function viewOverview(){
     <td>${label(c)}</td><td>${AUC(c) ? "競拍" : "詢圈"}</td><td class="mono">${md(c.done_date || c.price_base_date)}</td>
     <td class="num mono">${pct(c.premium)}</td><td class="num mono">${fmt(c.conv_price)}</td><td class="num mono">${fmt(c.issue_pct)}</td>
     <td class="num mono">${fmt(c.units)}</td><td class="mono">${c.list_date ? md(c.list_date) : `<span class="faint">${md(c.list_expected)}</span>`}</td></tr>`).join("");
+}
+
+/* ---------- 行事曆 ---------- */
+const EK = {  // 事件類型：[標籤, 顏色]
+  board:["董事會", "#9AA5B1"], filed:["送件", "#7FB3A8"], eff:["生效", "#8FB86A"], start:["開始", "var(--sky)"],
+  end:["截止", "var(--brass)"], price:["訂價", "var(--warn)"], pay:["繳款", "#B48EAD"], list:["掛牌", "var(--fall)"],
+};
+const EORDER = Object.keys(EK);
+const ekLabel = (k, c) => AUC(c) ? ({start:"競拍", price:"開標"})[k] || EK[k][0] : k === "start" ? "詢圈" : EK[k][0];
+let calOn = new Set(EORDER), calMonth, calSel, calIdx;
+
+function calEvents(){
+  const by = {};
+  const add = (d, k, c, est) => { if (d) (by[d] ||= []).push({k, c, est}); };
+  for (const c of cases){
+    const act = !["done", "wd"].includes(c._st[0]) && !isPre(c);
+    const st = act ? steps(c) : null;  // 進行中的案子才補推估日期：訂價、繳款、掛牌
+    add(c.board_date, "board", c);
+    add(c.filed_date, "filed", c);
+    if (c.eff_date && !c.stop_date && !c.wd_date) add(c.eff_date, "eff", c, c.eff_date > TODAY);
+    add(c.bb_start, "start", c);
+    if (c.bb_end && c.bb_end !== c.bb_start || !AUC(c)) add(c.bb_end, "end", c);
+    const pd = AUC(c) ? c.done_date : c.price_base_date;
+    pd ? add(pd, "price", c) : st && add(st[2][1], "price", c, true);
+    c.pay_date ? add(c.pay_date, "pay", c) : st && add(st[3][1], "pay", c, true);
+    c.list_date ? add(c.list_date, "list", c) : c.list_expected ? add(c.list_expected, "list", c, c.list_expected > TODAY) : st && add(st[4][1], "list", c, true);
+  }
+  for (const d in by) by[d].sort((a, b) => EORDER.indexOf(a.k) - EORDER.indexOf(b.k) || (a.est - b.est));
+  return by;
+}
+
+function evDetail(e){
+  const c = e.c, k = e.k, x = [];
+  if (k === "price"){
+    if (AUC(c)){ if (c.issue_pct != null) x.push(`得標加權價 <span class="mono">${fmt(c.issue_pct)}</span>`); if (c.min_price != null) x.push(`最低承銷價 <span class="mono">${fmt(c.min_price)}</span>`); }
+    else if (c.premium != null) x.push(`溢價率 <span class="mono">${pct(c.premium)}</span>`);
+    else if (c.premium_lo != null) x.push(`溢價區間 <span class="mono">${pct(c.premium_lo)}~${pct(c.premium_hi)}</span>`);
+    if (c.conv_price != null) x.push(`轉換價 <span class="mono">${fmt(c.conv_price)}</span>`);
+  } else if (k === "start" || k === "end"){
+    if (c.bb_start) x.push(`期間 <span class="mono">${md(c.bb_start)}~${md(c.bb_end)}</span>`);
+    if (!AUC(c) && c.premium_lo != null) x.push(`溢價區間 <span class="mono">${pct(c.premium_lo)}~${pct(c.premium_hi)}</span>`);
+    if (AUC(c) && c.min_price != null) x.push(`最低承銷價 <span class="mono">${fmt(c.min_price)}</span>`);
+  } else if (k === "list"){
+    if (c.bond_code) x.push(`債券代號 <span class="mono">${esc(c.bond_code)}</span>`);
+    if (c.conv_price != null) x.push(`轉換價 <span class="mono">${fmt(c.conv_price)}</span>`);
+  } else if (k === "board" || k === "filed" || k === "eff"){
+    const a = yi(c.sfb_amount || c.board_amount); if (a !== "–") x.push(`額度 <span class="mono">${a}</span>`);
+  }
+  if (c.units && ["start", "price", "pay", "list"].includes(k)) x.push(`<span class="mono">${fmt(c.units)}</span> 張`);
+  if (e.est) x.push(k === "list" && c.list_expected ? "預計" : "推估");
+  x.push(stageTag(c));
+  const href = isPre(c) ? `cb-pipeline.html#c-${esc(c.id)}` : listed(c) || c._st[0] === "done" ? `cb-listed.html` : `cb-active.html#c-${esc(c.id)}`;
+  return `<a class="erow${e.est ? " est" : ""}" href="${href}"><span class="tag k-${k}"><i>${ekLabel(k, c)}</i>${label(c)}</span><span class="x">${x.join("・")}</span></a>`;
+}
+
+function viewCalendar(){
+  calIdx = calEvents();
+  const h = location.hash.slice(1);
+  calMonth = /^\d{4}-\d{2}$/.test(h) ? h : TODAY.slice(0, 7);
+  calSel = calMonth === TODAY.slice(0, 7) ? TODAY : null;
+  document.getElementById("kinds").innerHTML = EORDER.map(k => `<button data-k="${k}" style="--c:${EK[k][1]}" aria-pressed="true"><i></i>${k === "start" ? "詢圈／競拍" : k === "price" ? "訂價／開標" : EK[k][0]}</button>`).join("");
+  document.querySelectorAll("#kinds button").forEach(b => b.onclick = () => {
+    const k = b.dataset.k; calOn.has(k) ? calOn.delete(k) : calOn.add(k);
+    b.setAttribute("aria-pressed", calOn.has(k)); renderCal();
+  });
+  const shift = n => { const d = new Date(calMonth + "-01T00:00:00Z"); d.setUTCMonth(d.getUTCMonth() + n); calMonth = d.toISOString().slice(0, 7); calSel = null; renderCal(); };
+  document.getElementById("cal-prev").onclick = () => shift(-1);
+  document.getElementById("cal-next").onclick = () => shift(1);
+  document.getElementById("cal-today").onclick = () => { calMonth = TODAY.slice(0, 7); calSel = TODAY; renderCal(); };
+  renderCal();
+}
+
+function renderCal(){
+  history.replaceState(null, "", calMonth === TODAY.slice(0, 7) ? location.pathname + location.search : `#${calMonth}`);
+  const evs = d => (calIdx[d] || []).filter(e => calOn.has(e.k));
+  const [y, m] = calMonth.split("-").map(Number);
+  document.getElementById("cal-title").textContent = `${y} 年 ${m} 月`;
+  const mon = Object.keys(calIdx).filter(d => d.startsWith(calMonth));
+  const cnt = k => mon.reduce((s, d) => s + calIdx[d].filter(e => e.k === k).length, 0);
+  renderStats([["本月詢圈／競拍開始", cnt("start")], ["本月訂價／開標", cnt("price")], ["本月掛牌", cnt("list")], ["本月董事會／送件", `${cnt("board")}／${cnt("filed")}`]]);
+
+  // 月曆格：週日開始，補滿前後週
+  const first = calMonth + "-01", start = addDays(first, -new Date(first + "T00:00:00Z").getUTCDay());
+  const last = addDays(new Date(Date.UTC(y, m, 1)).toISOString().slice(0, 10), -1);
+  const cells = [];
+  for (let d = start; d <= last || cells.length % 7; d = addDays(d, 1)) cells.push(d);
+  const MAX = 4;
+  document.getElementById("cal").innerHTML = [...WD].map((w, i) => `<div class="wd${i % 6 ? "" : " we"}">${w}</div>`).join("") + cells.map(d => {
+    const e = evs(d), w = new Date(d + "T00:00:00Z").getUTCDay();
+    const cls = [d.slice(0, 7) !== calMonth && "out", (w === 0 || w === 6) && "we", d === TODAY && "today", d === calSel && "sel"].filter(Boolean).join(" ");
+    return `<div class="cell ${cls}" data-d="${d}"><div class="dn"><b>${+d.slice(8)}</b></div>${e.slice(0, e.length > MAX ? MAX - 1 : MAX).map(x =>
+      `<div class="ce${x.est ? " est" : x.k === "price" ? " hot" : ""}" style="--c:${EK[x.k][1]}" title="${ekLabel(x.k, x.c)} ${esc(x.c.short || x.c.company)}${x.est ? "（推估）" : ""}"><em>${ekLabel(x.k, x.c)}</em><span>${nameOf(x.c)}</span></div>`).join("")}${e.length > MAX ? `<div class="plus">還有 ${e.length - MAX + 1} 件</div>` : ""}</div>`;
+  }).join("");
+  document.querySelectorAll("#cal .cell").forEach(el => el.onclick = () => { calSel = el.dataset.d; renderCal(); });
+
+  const det = document.getElementById("cal-detail");
+  if (calSel){
+    const e = evs(calSel), w = new Date(calSel + "T00:00:00Z").getUTCDay();
+    det.hidden = false;
+    det.innerHTML = `<h3>${md(calSel)} 週${WD[w]}${calSel === TODAY ? "・今天" : ""}<span class="faint" style="font-weight:400;font-size:13px;margin-left:8px">${e.length} 件</span></h3>` +
+      (e.length ? e.map(evDetail).join("") : `<div class="empty">這天沒有事件。</div>`);
+  } else det.hidden = true;
+
+  // 手機：當月清單
+  const ds = mon.filter(d => evs(d).length).sort();
+  document.getElementById("cal-list").innerHTML = ds.length ? `<div class="agenda">${ds.map(d => {
+    const w = new Date(d + "T00:00:00Z").getUTCDay();
+    return `<div class="day${d === TODAY ? " today" : ""}"><div class="d"><b class="mono">${md(d)}</b>週${WD[w]}</div><div class="ev">${evs(d).map(evDetail).join("")}</div></div>`;
+  }).join("")}</div>` : `<div class="empty">這個月沒有符合的事件。</div>`;
 }
 
 /* ---------- 籌備中 ---------- */
@@ -565,7 +736,7 @@ fetch("data/cb/cb.json", {cache:"no-cache"}).then(r => r.json()).then(d => {
   document.getElementById("n-bb").textContent = cases.filter(c => c.method === "詢價圈購" && inUW(c)).length;
   document.getElementById("n-auction").textContent = cases.filter(c => AUC(c) && inUW(c)).length;
   document.getElementById("n-listed").textContent = cases.filter(listed).length;
-  ({overview: viewOverview, pipeline: viewPipeline, active: viewActive, bb: viewBB, auction: viewAuction, listed: viewListed})[VIEW]();
+  ({overview: viewOverview, calendar: viewCalendar, pipeline: viewPipeline, active: viewActive, bb: viewBB, auction: viewAuction, listed: viewListed})[VIEW]();
 }).catch(e => { console.error(e); document.getElementById("sub").textContent = "CB 資料載入失敗"; });
 </script>
 <script>(function(){var a=document.querySelector('nav.links a[aria-current="page"]');if(a&&a.parentNode.scrollWidth>a.parentNode.clientWidth){a.parentNode.scrollLeft=a.offsetLeft-a.parentNode.offsetLeft-16;}})();</script>
