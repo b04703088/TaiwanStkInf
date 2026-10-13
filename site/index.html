@@ -314,7 +314,11 @@
   .cb-res .pm{font-family:'IBM Plex Mono',monospace; font-size:15px; text-align:right;}
   .cb-res .pm small{display:block; font-family:'Noto Sans TC',sans-serif; font-size:12px; color:var(--text-muted);}
   .cb-res .pm small b{font-family:'IBM Plex Mono',monospace; font-weight:500; font-size:13px; color:var(--text);}
-  .cb-res .sub{font-size:12px; color:var(--text-faint);}
+  .cb-res .sub{grid-column:1/-1; font-size:12px; color:var(--text-faint);}
+  .cb-date .gap{display:inline-block; width:18px;}
+  .cb-res .pm{grid-row:span 2; align-self:start;}
+  .cb-res .cb-date{grid-column:1;}
+  .cb-date .dg{white-space:nowrap;}
   .rng{display:inline-block; position:relative; width:64px; height:5px; background:var(--panel-2); border-radius:3px; vertical-align:middle; margin:0 6px;}
   .rng i{position:absolute; top:-2px; width:3px; height:9px; background:var(--brass); border-radius:1px;}
   .cb-new{display:grid; grid-template-columns:96px 40px minmax(0,1fr); gap:10px; padding:10px 0; border-bottom:1px solid var(--line); font-size:13.5px; align-items:baseline; text-decoration:none; color:inherit;}
@@ -569,11 +573,14 @@
     $("cbNew").innerHTML = done.length ? done.map(c => {
       const span = c.premium_hi - c.premium_lo, pos = span > 0 ? Math.max(0, Math.min(1, (c.premium - c.premium_lo) / span)) : 0;
       const lst = c.list_date || c.list_expected;
+      const dt = d => `${md(d)}（${wk(d)}）`;
+      const dates = [c.price_base_date && `<span class="dg"><small>訂價</small>${dt(c.price_base_date)}</span>`,
+                     lst && `<span class="dg"><small>${lst > today ? "預計掛牌" : "掛牌"}</small>${dt(lst)}</span>`].filter(Boolean);
       return `<a class="cb-res" href="cb-bb.html">
-        <span><span class="cb-nm">${name(c)}</span>
-          <span class="sub" style="display:block">區間 ${c.premium_lo}%<span class="rng" title="議定溢價率在區間中的位置（越左越接近下緣，需求越熱）"><i style="left:calc(${(pos * 100).toFixed(0)}% - 1px)"></i></span>${c.premium_hi}%
-          ・轉換價 <span class="mono">${c.conv_price ?? "—"}</span>${lst ? `・${lst > today ? "預計" : ""}掛牌 ${md(lst)}` : ""}</span></span>
-        <span class="pm">${(+c.premium).toFixed(2).replace(/\.?0+$/, "")}%<small>${c.price_base_date ? `<b>${md(c.price_base_date)}（${wk(c.price_base_date)}）</b> 訂價` : "議定溢價率"}</small></span>
+        <span class="cb-nm">${name(c)}</span>
+        <span class="pm">${(+c.premium).toFixed(2).replace(/\.?0+$/, "")}%<small>議定溢價率</small></span>
+        ${dates.length ? `<span class="cb-date">${dates.join('<span class="gap"></span>')}</span>` : ""}
+        <span class="sub">區間 ${c.premium_lo}%<span class="rng" title="議定溢價率在區間中的位置（越左越接近下緣，需求越熱）"><i style="left:calc(${(pos * 100).toFixed(0)}% - 1px)"></i></span>${c.premium_hi}%・轉換價 <span class="mono">${c.conv_price ?? "—"}</span></span>
       </a>`;
     }).join("") : '<p class="wk-empty">近 14 天沒有完成訂價的詢圈。</p>';
     $("cbNote").textContent = `資料更新 ${d.generated ? md(String(d.generated).slice(0, 10)) : "—"}。進行中與結果只列詢價圈購（不含競價拍賣），董事會剛通過的兩種都列。金額＝發行張數 × 10 萬元；落點越靠左代表議定溢價率越接近區間下緣、需求越熱。`;
