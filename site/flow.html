@@ -75,6 +75,14 @@
   .dbar{width:52px; height:8px; background:var(--line); border-radius:2px; position:relative;}
   .dbar i{position:absolute; top:0; bottom:0; border-radius:2px;}
   svg.spark{display:block;}
+  .streak{font-size:12px; white-space:nowrap;}
+  .trend-chart{margin:12px 0 14px;}
+  .trend-chart .hd{display:flex; gap:16px; flex-wrap:wrap; align-items:baseline; font-size:12.5px; color:var(--text-muted); margin-bottom:6px;}
+  .trend-chart .hd b{color:var(--text); font-weight:500;}
+  .trend-chart .key{display:inline-flex; align-items:center; gap:5px;}
+  .trend-chart .key i{display:inline-block; width:14px; height:2px; border-radius:1px;}
+  .trend-chart svg{display:block; width:100%; height:auto; overflow:visible;}
+  .trend-chart text{font-family:'IBM Plex Mono',monospace; font-size:10px; fill:var(--text-faint);}
   tr.detail td{background:var(--panel); padding:0 10px 14px; text-align:left; white-space:normal;}
   .mem{width:100%; font-size:12.5px;}
   .mem th, tr.detail .mem td{padding:6px 8px; border-bottom:1px solid var(--line); cursor:default; text-align:right;}
@@ -95,6 +103,10 @@
     .hide-s{display:none;}
     .dbar{display:none;}
     .gpath, .gname{max-width:11em;}
+  }
+  @media (max-width:480px){
+    .gpath, .gname{max-width:7.5em;}
+    .trend-chart .hd{gap:4px 12px;}
   }
 </style>
 </head>
@@ -146,7 +158,7 @@
     <span class="lab">比較</span>
     <div class="seg" data-k="base"><button data-v="5" aria-pressed="true">近 5 日</button><button data-v="20" aria-pressed="false">近 20 日</button></div>
     <span class="lab">排序</span>
-    <div class="seg" data-k="sort"><button data-v="dshare" aria-pressed="true">佔比變化</button><button data-v="dv" aria-pressed="false">增減金額</button></div>
+    <div class="seg" data-k="sort"><button data-v="dshare" aria-pressed="true">佔比變化</button><button data-v="dv" aria-pressed="false">增減金額</button><button data-v="trend" aria-pressed="false">趨勢</button></div>
     <span class="lab">方向</span>
     <div class="seg" data-k="dir"><button data-v="in" aria-pressed="true">流入</button><button data-v="out" aria-pressed="false">流出</button></div>
     <input id="q" type="search" placeholder="搜尋族群或個股" aria-label="搜尋">
@@ -154,13 +166,14 @@
   <div class="tbl">
     <table>
       <thead><tr id="thead"></tr></thead>
-      <tbody id="rows"><tr><td class="empty" colspan="9">載入中…</td></tr></tbody>
+      <tbody id="rows"><tr><td class="empty" colspan="11">載入中…</td></tr></tbody>
     </table>
   </div>
   <button class="more" id="more" hidden>顯示更多</button>
   <p class="note">
     成交佔比＝族群內個股成交金額合計 ÷ 上市櫃全部個股成交金額（不含 ETF、權證）。佔比變化＝今日佔比 − 近 N 日平均佔比（百分點）；熱度＝今日佔比 ÷ 近 N 日平均佔比；增減金額＝今日成交金額 − 近 N 日平均成交金額。<br>
     大盤整體量增時多數族群的增減金額都會是正的，比較族群之間的輪動以「佔比變化」為準。近 N 日平均成交不到 2 億的族群不列入，避免小族群一筆大單就排到最前面。<br>
+    趨勢＝近 5 日平均佔比 − 近 20 日平均佔比（百分點），正的代表資金這一週持續往這個族群集中，不是只有今天一天；連續＝佔比連續幾天高於自己前 20 日平均（↑ 流入、↓ 流出）。點一列可看佔比走勢圖（含 5 日、20 日均線）。<br>
     族群分類來自櫃買中心產業價值鏈平台（同一檔股票可能屬於多個細類）與證交所／櫃買官方產業別；點一列可看成分股。
   </p>
 </main>
@@ -188,6 +201,23 @@ function groupSeries(level){
   return G[level];
 }
 
+// 佔比序列與均線（每個族群算一次，換日期不用重算）
+function shareOf(g){
+  if (g.s) return g;
+  const n = F.days.length;
+  g.s = g.v.map((x, k) => MKT[k] ? x / MKT[k] * 100 : 0);
+  const ma = w => g.s.map((_, k) => k + 1 < w ? null : g.s.slice(k + 1 - w, k + 1).reduce((a, b) => a + b, 0) / w);
+  g.ma5 = ma(5); g.ma20 = ma(20);
+  // 連續天數：佔比高於（或低於）前 20 日平均，正數＝連續流入、負數＝連續流出
+  g.run = new Array(n).fill(null);
+  for (let k = 20; k < n; k++){
+    const d = g.s[k] - g.ma20[k - 1];
+    const p = g.run[k - 1] || 0;
+    g.run[k] = d > 0 ? (p > 0 ? p + 1 : 1) : d < 0 ? (p < 0 ? p - 1 : -1) : 0;
+  }
+  return g;
+}
+
 function compute(){
   const t = st.t, B = st.base;
   const rows = [];
@@ -200,15 +230,19 @@ function compute(){
     const share = g.v[t] / MKT[t] * 100;
     const baseShare = win.reduce((s, k) => s + g.v[k] / MKT[k], 0) / B * 100;
     const ps = g.codes.map(c => PX[c]).filter(x => x != null);
+    shareOf(g);
+    const trend = g.ma5[t] != null && g.ma20[t] != null ? g.ma5[t] - g.ma20[t] : null;
     rows.push({g, v: g.v[t], share, dshare: share - baseShare, heat: baseShare ? share / baseShare : null,
-               dv: g.v[t] - baseV, pct: ps.length ? ps.reduce((a, b) => a + b, 0) / ps.length : null, n: g.codes.length});
+               dv: g.v[t] - baseV, pct: ps.length ? ps.reduce((a, b) => a + b, 0) / ps.length : null, n: g.codes.length,
+               trend, run: g.run[t]});
   }
   return rows;
 }
 
 const COLS = [
   ["#", "l hide-s", null], ["族群", "l", null], ["成交（億）", "hide-s", "v"], ["佔比", "hide-m", "share"],
-  ["佔比變化", "", "dshare"], ["熱度", "hide-m", "heat"], ["增減金額（億）", "", "dv"], ["平均漲跌", "hide-s", "pct"], ["佔比走勢", "hide-m", null],
+  ["佔比變化", "", "dshare"], ["熱度", "hide-m", "heat"], ["增減金額（億）", "", "dv"], ["趨勢", "", "trend"], ["連續", "hide-s", "run"],
+  ["平均漲跌", "hide-s", "pct"], ["佔比走勢", "hide-m", null],
 ];
 
 function spark(g){
@@ -219,6 +253,34 @@ function spark(g){
   const ti = st.t - from, cx = (ti / (ys.length - 1) * W).toFixed(1), cy = (H - 2 - (ys[ti] - mn) / rng * (H - 4)).toFixed(1);
   return `<svg class="spark" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" aria-hidden="true"><polyline points="${pts.join(" ")}" fill="none" stroke="var(--text-muted)" stroke-width="1.2"/><circle cx="${cx}" cy="${cy}" r="2.6" fill="var(--brass)"/></svg>`;
 }
+
+function trendChart(r){
+  const g = r.g, n = F.days.length, t = st.t;
+  const narrow = matchMedia("(max-width:600px)").matches;
+  const W = narrow ? 360 : 900, H = narrow ? 170 : 180, L = 34, R = 8, T = 8, Bm = 18;
+  const all = [...g.s, ...g.ma5, ...g.ma20].filter(x => x != null);
+  let mx = Math.max(...all), mn = Math.min(...all);
+  const pad = (mx - mn) * 0.08 || mx * 0.1 || 0.1; mx += pad; mn = Math.max(0, mn - pad);
+  const X = k => L + k / (n - 1) * (W - L - R), Y = y => T + (1 - (y - mn) / (mx - mn)) * (H - T - Bm);
+  const line = (ys, color, w) => {
+    const pts = ys.map((y, k) => y == null ? null : `${X(k).toFixed(1)},${Y(y).toFixed(1)}`).filter(Boolean);
+    return `<polyline points="${pts.join(" ")}" fill="none" stroke="${color}" stroke-width="${w}" stroke-linejoin="round"/>`;
+  };
+  const ticks = [mn, (mn + mx) / 2, mx].map(y => `<line x1="${L}" x2="${W - R}" y1="${Y(y).toFixed(1)}" y2="${Y(y).toFixed(1)}" stroke="var(--line)"/><text x="${L - 4}" y="${(Y(y) + 3).toFixed(1)}" text-anchor="end">${y.toFixed(y >= 10 ? 1 : 2)}</text>`).join("");
+  const md = s => s.slice(5).replace("-", "/");
+  const xl = [0, Math.round((n - 1) / 2), n - 1].map((k, i) => `<text x="${X(k).toFixed(1)}" y="${H - 4}" text-anchor="${["start", "middle", "end"][i]}">${md(F.days[k])}</text>`).join("");
+  const run = r.run, runTxt = run == null || run === 0 ? "" : run > 0 ? `・連續 ${run} 天高於 20 日均` : `・連續 ${-run} 天低於 20 日均`;
+  return `<div class="trend-chart"><div class="hd"><span>佔比走勢（%）</span>
+      <span>當日 <b class="mono">${g.s[t].toFixed(2)}%</b></span>
+      <span>趨勢 <b class="mono ${cls(r.trend)}">${sgn(r.trend, v => v.toFixed(2))}</b> 百分點${runTxt}</span>
+      <span class="key"><i style="background:var(--text-muted)"></i>每日</span><span class="key"><i style="background:var(--brass)"></i>5 日均</span><span class="key"><i style="background:#5B8DB8"></i>20 日均</span></div>
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(g.name)} 成交佔比走勢">${ticks}
+      <line x1="${X(t).toFixed(1)}" x2="${X(t).toFixed(1)}" y1="${T}" y2="${H - Bm}" stroke="var(--line-strong)" stroke-dasharray="2 3"/>
+      ${line(g.s, "var(--text-muted)", 1)}${line(g.ma20, "#5B8DB8", 1.6)}${line(g.ma5, "var(--brass)", 1.8)}
+      <circle cx="${X(t).toFixed(1)}" cy="${Y(g.s[t]).toFixed(1)}" r="3" fill="var(--brass)"/>${xl}</svg></div>`;
+}
+
+const runCell = v => v == null || v === 0 ? `<span class="faint">–</span>` : `<span class="streak ${v > 0 ? "up" : "down"}">${v > 0 ? "↑" : "↓"} ${Math.abs(v)} 天</span>`;
 
 function memberTable(r){
   const t = st.t, B = st.base;
@@ -278,9 +340,11 @@ function render(){
       <td><span class="delta"><span class="mono ${cls(r.dshare)}">${sgn(r.dshare, v => v.toFixed(2))}</span>${bar(r.dshare, mxD)}</span></td>
       <td class="mono hide-m ${r.heat >= 1 ? "up" : "down"}">${r.heat == null ? "–" : r.heat.toFixed(2) + "×"}</td>
       <td><span class="delta"><span class="mono ${cls(r.dv)}">${sgn(r.dv, yi)}</span>${bar(r.dv, mxV)}</span></td>
+      <td class="mono ${cls(r.trend)}">${sgn(r.trend, v => v.toFixed(2))}</td>
+      <td class="mono hide-s">${runCell(r.run)}</td>
       <td class="mono hide-s ${cls(r.pct)}">${sgn(r.pct, v => v.toFixed(2) + "%")}</td>
-      <td class="hide-m">${spark(r.g)}</td></tr>${st.open === id ? `<tr class="detail"><td colspan="9">${memberTable(r)}</td></tr>` : ""}`;
-  }).join("") || `<tr><td class="empty" colspan="9">沒有符合的族群</td></tr>`;
+      <td class="hide-m">${spark(r.g)}</td></tr>${st.open === id ? `<tr class="detail"><td colspan="11">${trendChart(r)}${memberTable(r)}</td></tr>` : ""}`;
+  }).join("") || `<tr><td class="empty" colspan="11">沒有符合的族群</td></tr>`;
   document.querySelectorAll("#rows tr.g").forEach(tr => tr.onclick = () => { st.open = st.open === tr.dataset.id ? null : tr.dataset.id; render(); });
   $("more").hidden = list.length <= st.shown;
   $("more").textContent = `顯示更多（共 ${list.length} 個族群）`;
@@ -335,7 +399,7 @@ try {
   await showDay();
 } catch (e) {
   console.error(e);
-  $("rows").innerHTML = `<tr><td class="empty" colspan="9">資料載入失敗</td></tr>`;
+  $("rows").innerHTML = `<tr><td class="empty" colspan="11">資料載入失敗</td></tr>`;
 }
 </script>
 <script>(function(){var a=document.querySelector('nav.links a[aria-current="page"]');if(a&&a.parentNode.scrollWidth>a.parentNode.clientWidth){a.parentNode.scrollLeft=a.offsetLeft-a.parentNode.offsetLeft-16;}})();</script>

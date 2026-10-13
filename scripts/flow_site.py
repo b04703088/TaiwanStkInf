@@ -15,7 +15,7 @@ from pathlib import Path
 
 import industry_site
 
-DAYS = 45
+DAYS = 60
 STOCK = re.compile(r"^[1-9]\d{3}$")
 
 
