@@ -42,7 +42,8 @@ class BrokerParseTest(unittest.TestCase):
             F.DATA, F.OUT = Path(d), Path(d) / "broker"
             (Path(d) / "2026").mkdir()
             (Path(d) / "2026" / "20260930.csv").write_text(
-                "date,code,volume\n2026-09-30,2330,100\n2026-09-30,6488,50\n2026-09-30,9999,0\n", encoding="utf-8")
+                "date,code,volume,value\n2026-09-30,6488,50,500000000\n2026-09-30,2330,100,900000000\n"
+                "2026-09-30,1234,10,1000000\n2026-09-30,9999,0,0\n", encoding="utf-8")
             calls = []
 
             def fake(code, date):
@@ -52,7 +53,8 @@ class BrokerParseTest(unittest.TestCase):
             try:
                 F.DELAY = 0
                 self.assertEqual(F.main(["--date", "2026-09-30"]), 0)
-                self.assertEqual(calls, ["2330", "2330", "6488"])  # 探測 + 兩檔；成交量 0 的略過
+                # 探測 + 兩檔（依成交金額大到小）；成交金額低於門檻的 1234、成交量 0 的 9999 略過
+                self.assertEqual(calls, ["2330", "2330", "6488"])
                 calls.clear()
                 self.assertEqual(F.main(["--date", "2026-09-30"]), 0)
                 self.assertEqual(calls, [])

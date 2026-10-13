@@ -21,6 +21,7 @@ on:
 
 permissions:
   contents: write
+  actions: write  # 有新資料時觸發網站部署
 
 concurrency:
   group: fetch-daily
@@ -55,6 +56,8 @@ jobs:
 
       - name: Commit data
         if: always()  # 就算部分日期失敗，已抓到的資料也要存
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -65,7 +68,7 @@ jobs:
             echo "No new data"
           else
             git commit -m "data: daily prices $(TZ=Asia/Taipei date +%F)"
-            git push
+            git push && { gh workflow run pages.yml --ref "$GITHUB_REF_NAME" || echo "觸發部署失敗（不影響資料）"; }
           fi
 
       - name: Upload to Firestore

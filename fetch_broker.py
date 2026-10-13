@@ -13,7 +13,9 @@
       date, code, buy_total, sell_total, buy_cost, sell_cost
       前 15 大合計買超／賣超張數與平均成本；查詢過但當天沒有資料的股票四欄留空
 
-股票清單取自同一天的收盤行情檔（data/<YYYY>/<YYYYMMDD>.csv，成交量 > 0）。
+股票清單取自同一天的收盤行情檔（data/<YYYY>/<YYYYMMDD>.csv），只抓成交金額 ≥ --min-value
+（預設 3000 萬元，約 900 檔、涵蓋當天 99% 以上成交金額）；--min-value 0 = 有成交的全部（約 2,400 檔）。
+門檻是為了省 GitHub Actions 分鐘數（私人 repo 免費方案每月 2,000 分鐘）。
 已抓過的股票會略過，中途中斷或部分失敗時，重跑只補沒抓到的。
 資料還沒出來（收盤後要一段時間）時直接結束、不算失敗，下一次排程再抓。
 
@@ -21,6 +23,7 @@
   python fetch_broker.py                 最新一個有收盤行情的交易日
   python fetch_broker.py --date 2026-09-30
   python fetch_broker.py --codes 2330 2454   只抓這幾檔（測試用）
+  python fetch_broker.py --min-value 0       有成交的全部都抓
 """
 import argparse
 import csv
@@ -116,9 +119,16 @@ def latest_trading_day():
     return f"{s[:4]}-{s[4:6]}-{s[6:8]}"
 
 
-def stock_list(date):
+MIN_VALUE = 30_000_000  # 成交金額門檻（元）
+
+
+def stock_list(date, min_value=MIN_VALUE):
+    """當天有成交、且成交金額 ≥ min_value 的股票（依成交金額大到小，時間不夠時先抓大的）。"""
     with price_file(date).open(encoding="utf-8") as fp:
-        return [r["code"] for r in csv.DictReader(fp) if (C.num(r.get("volume")) or 0) > 0]
+        rows = [r for r in csv.DictReader(fp) if (C.num(r.get("volume")) or 0) > 0
+                and (C.num(r.get("value")) or 0) >= min_value]
+    rows.sort(key=lambda r: -(C.num(r.get("value")) or 0))
+    return [r["code"] for r in rows]
 
 
 def out_paths(date):
@@ -155,13 +165,15 @@ def main(argv=None):
     ap.add_argument("--date", help="交易日 YYYY-MM-DD（預設：最新收盤行情的日期）")
     ap.add_argument("--codes", nargs="*", help="只抓這些股票")
     ap.add_argument("--max-minutes", type=float, default=100, help="最多跑幾分鐘，時間到先存檔（預設 100）")
+    ap.add_argument("--min-value", type=float, default=MIN_VALUE,
+                    help="只抓成交金額 ≥ 這個數字（元）的股票；0 = 全部（預設 3000 萬）")
     a = ap.parse_args(argv)
 
     date = a.date or latest_trading_day()
     if not price_file(date).exists():
         print(f"{date} 沒有收盤行情檔，無法決定股票清單（非交易日或股價還沒抓）")
         return 0
-    codes = a.codes or stock_list(date)
+    codes = a.codes or stock_list(date, a.min_value)
     rp, tp = out_paths(date)
     rows, totals = _read(rp), _read(tp)
     done = {t["code"] for t in totals}
