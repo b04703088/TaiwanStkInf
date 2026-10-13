@@ -292,14 +292,14 @@
   .cb-res .sub{font-size:12px; color:var(--text-faint);}
   .rng{display:inline-block; position:relative; width:64px; height:5px; background:var(--panel-2); border-radius:3px; vertical-align:middle; margin:0 6px;}
   .rng i{position:absolute; top:-2px; width:3px; height:9px; background:var(--brass); border-radius:1px;}
-  .cb-new{display:grid; grid-template-columns:52px 84px minmax(0,1fr); gap:10px; padding:10px 0; border-bottom:1px solid var(--line); font-size:13.5px; align-items:baseline; text-decoration:none; color:inherit;}
+  .cb-new{display:grid; grid-template-columns:82px 40px minmax(0,1fr); gap:10px; padding:10px 0; border-bottom:1px solid var(--line); font-size:13.5px; align-items:baseline; text-decoration:none; color:inherit;}
   .cb-new:hover .cb-nm{color:var(--brass);}
   .cb-nm b{font-family:'IBM Plex Mono',monospace; font-weight:500; font-size:12.5px; color:var(--text-faint); margin-left:6px;}
   .cb-new .d{font-family:'IBM Plex Mono',monospace; color:var(--text-muted); font-size:13px;}
   .cb-new .k{font-size:12px; color:var(--text-faint);}
   .cb-new .k.board{color:#C3B1F0;} .cb-new .k.filed{color:#9CCBE8;} .cb-new .k.eff{color:#7FD0A0;} .cb-new .k.bb{color:var(--brass);}
   .cb-new small{display:block; color:var(--text-faint); font-size:12px;}
-  @media (max-width: 860px){ .cb-grid{grid-template-columns:1fr; gap:8px;} .cb-new{grid-template-columns:44px 76px minmax(0,1fr);} }
+  @media (max-width: 860px){ .cb-grid{grid-template-columns:1fr; gap:8px;} .cb-new{grid-template-columns:78px 38px minmax(0,1fr);} }
   @media (max-width: 860px){
     .home{padding:48px 0 24px;}
     .home h1{font-size:28px;}
@@ -352,7 +352,8 @@
         </div>
         <p class="block-note" id="cbNote">載入中…</p>
         <div class="cb-grid">
-          <div><h3>進行中<small id="cbLiveN"></small></h3><div id="cbLive"></div></div>
+          <div><h3>進行中<small id="cbLiveN"></small></h3><div id="cbLive"></div>
+            <h3 style="margin-top:28px">董事會剛通過<small id="cbBoardN">近 7 天</small></h3><div id="cbBoard"></div></div>
           <div><h3>近期詢圈結果<small>近 14 天訂價</small></h3><div id="cbNew"></div></div>
         </div>
       </div>
@@ -460,6 +461,22 @@
       </a>`;
     }).join("") : '<p class="wk-empty">目前沒有進行中或 7 天內要開始的詢圈。</p>';
 
+    // 董事會剛通過（近 7 天）：詢圈、競拍都列，方式標在旁邊；已撤回的不列
+    const boards = cs.filter(c => c.board_date && c.board_date >= plus(-7) && c.board_date <= today && !c.wd_date)
+      .sort((a, b) => b.board_date.localeCompare(a.board_date) || (b.board_amount || 0) - (a.board_amount || 0));
+    const meth = c => { const m = c.board_method || c.method; return m ? (/競/.test(m) ? "競拍" : "詢圈") : "方式未定"; };
+    const lead = c => (c.lead || "").replace(/股份有限公司|綜合證券|證券/g, "");
+    $("cbBoardN").textContent = `近 7 天 ${boards.length} 檔`;
+    $("cbBoard").innerHTML = boards.length ? boards.map(c => {
+      const m = meth(c), sec = /有擔保/.test(c.type || "") ? "有擔保" : "無擔保";
+      return `<a class="cb-new" href="cb-pipeline.html#c-${esc(c.id)}">
+        <span class="d">${md(c.board_date)}（${wk(c.board_date)}）</span>
+        <span class="k ${m === "詢圈" ? "bb" : "board"}">${m}</span>
+        <span><span class="cb-nm">${name(c)}</span>
+          <small>${c.series ? `第 ${c.series} 次` : ""}${sec}・上限 ${yi(c.board_amount || amt(c)) || "—"}${lead(c) && !/授權/.test(lead(c)) ? `・${esc(lead(c))}` : ""}</small></span>
+      </a>`;
+    }).join("") : '<p class="wk-empty">近 7 天沒有董事會決議發行 CB。</p>';
+
     // 近期詢圈結果：議定溢價率與在區間中的落點
     const done = bb.filter(c => c.premium != null && (c.price_base_date || c.done_date || c.bb_end) >= plus(-14))
       .sort((a, b) => (b.price_base_date || b.bb_end).localeCompare(a.price_base_date || a.bb_end)).slice(0, 8);
@@ -473,7 +490,7 @@
         <span class="pm">${(+c.premium).toFixed(2).replace(/\.?0+$/, "")}%<small>${c.price_base_date ? md(c.price_base_date) + " 訂價" : "議定溢價率"}</small></span>
       </a>`;
     }).join("") : '<p class="wk-empty">近 14 天沒有完成訂價的詢圈。</p>';
-    $("cbNote").textContent = `資料更新 ${d.generated ? md(String(d.generated).slice(0, 10)) : "—"}。只列詢價圈購（不含競價拍賣）。金額＝發行張數 × 10 萬元；落點越靠左代表議定溢價率越接近區間下緣、需求越熱。`;
+    $("cbNote").textContent = `資料更新 ${d.generated ? md(String(d.generated).slice(0, 10)) : "—"}。進行中與結果只列詢價圈購（不含競價拍賣），董事會剛通過的兩種都列。金額＝發行張數 × 10 萬元；落點越靠左代表議定溢價率越接近區間下緣、需求越熱。`;
   } catch (e) {
     console.error(e);
     $("cbNote").textContent = "讀取 CB 資料失敗，請重新整理頁面。";
