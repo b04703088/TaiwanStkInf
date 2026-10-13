@@ -186,10 +186,21 @@ def fetch_sfb(years):
     page = C.http(SFB_PAGE, as_json=False)
     links = re.findall(r'href="(https://www\.fsc\.gov\.tw/userfiles/file/[^"]+?\.(?:ods|xlsx))"', page)
     out, got = [], []
+
+    def fname(u):
+        return urllib.parse.unquote(u.rsplit("/", 1)[-1])
+
+    def ver(u):  # 「1151012申報v2.xlsx」→ 2；沒有版本號 → 0
+        m = re.search(r"v(\d+)\.\w+$", fname(u), re.I)
+        return int(m.group(1)) if m else 0
+
     for y in years:
-        cands = [u for u in links if urllib.parse.unquote(u.rsplit("/", 1)[-1]).startswith(str(y))
-                 and "申報案件彙總表" in urllib.parse.unquote(u) and "無償" not in urllib.parse.unquote(u)]
-        cands.sort(key=lambda u: not u.endswith(".ods"))
+        # 檔名會變：114 年是「1141231626申報案件彙總表.ods」，115 年改成「1151012申報v2.xlsx」。
+        # 所以只認「民國年開頭＋含『申報』」，再排除同頁其他也以年份開頭的申報類檔案。
+        cands = [u for u in links if fname(u).startswith(str(y)) and "申報" in fname(u)
+                 and not re.search(r"無償|停止|退件|承銷商輔導|ETN|基金|全權委託", fname(u))]
+        # ODS 和 Excel 版本號可能不同（v1 / v2）：新版優先，同版本才 ODS 優先
+        cands.sort(key=lambda u: (-ver(u), not u.endswith(".ods")))
         for u in cands:
             try:
                 b = C.http(u, raw=True)
@@ -321,6 +332,10 @@ def main(argv=None):
             errors.append("證期局申報案件：沒有抓到資料")
         log["sfb"] = got
         print(f"證期局申報案件 {len(rows)} 筆（{'、'.join(got)}）")
+        # 今年度的檔案一定要有；對不到通常是證期局又改了檔名
+        this_year = str(today.year - 1911)
+        if not any(g.startswith(this_year + ":") for g in got):
+            errors.append(f"證期局申報案件：找不到 {this_year} 年度彙總表（可能改了檔名）")
     except C.AdapterError as e:
         errors.append(f"證期局申報案件：{e}")
 
