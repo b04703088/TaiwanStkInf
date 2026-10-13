@@ -152,6 +152,21 @@ python -m unittest discover tests                       # 測試
 - 輸出 `data/broker/score/branches.csv`（每個分點的分數）、`signals.csv`（最新一天高手／反指標／隔日沖各買賣了哪些股票，pct 為佔成交量 %）
 - 前 15 大資料從 2026-09-30 才開始，要累積 2～3 個月分數才有意義；可用 `backfill_broker.py --start 2026-07-01` 在自己電腦回補（一天約 30 分鐘，不佔 Actions 分鐘數）
 
+## 內部人持股異動
+
+`fetch_insider.py`：董監事、經理人、10% 大股東的買賣。
+
+- **月報（事後申報）**：每月 15 日前申報上個月，證交所約 22 日公布全市場「股權異動彙總表」（IRB110）。
+  先用彙總表篩出內部人持股有增加的公司（約 350 家），再逐家查觀測站「內部人持股異動事後申報表」（query6_1，一家約 4 秒，約 25 分鐘），
+  分出 **集中市場買進／賣出**（`buy_mkt`、`sell_mkt`）與 其他原因（贈與、信託、繼承、員工認股…）
+  - `.github/workflows/insider.yml`：每月 18～28 日台北 19:07 檢查；已抓過幾秒就結束；超過 35 分鐘會存進度，隔天接著查
+  - 輸出 `data/insider/trades/<YYYYMM>.csv`：`month, market, code, company, role, name, held_prev, buy_mkt, buy_other, sell_mkt, sell_other, held_now, pledged, note, dup`
+    （同一人兼多個身分只列一次；夫妻都是內部人時「甲的配偶」那列＝乙本人，`dup` 填乙，加總要略過）
+  - `data/insider/irb110/<YYYYMM>_<sii|otc>.csv`：每家公司董監增減、董監／經理人／大股東持股合計
+  - 只賣不買的公司不查（賣出看下面的事前申報）
+- **事前申報（每天）**：內部人要在市場上賣、贈與、信託前要先申報，OpenAPI 只給最新一天，跟著 `broker.yml` 每天抓、累積到 `data/insider/transfer/<YYYY>.csv`
+  （`date, market, code, company, role, name, method, shares, held, after, daily_max, transferee, period`）
+
 ## 可轉債詢圈（CB）
 
 `fetch_cb.py`（`.github/workflows/cb.yml`，平日台北 08:13、18:13）把每檔 CB 從圈購到掛牌的時間點整理成 `data/cb/cases.csv`，網頁在 `cb.html`。
