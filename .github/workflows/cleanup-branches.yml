@@ -3,6 +3,9 @@ name: Cleanup branches
 # 手動執行：刪除名稱以指定前綴開頭的分支（預設刪掉測試用的 probe 分支）。
 # 預設分支永遠不會被刪。先用 dry_run 看會刪哪些，確認後再實際刪除。
 on:
+  # 這個檔案本身被推上主分支時也會自動跑一次（用預設前綴 probe）
+  push:
+    paths: [".github/workflows/cleanup-branches.yml"]
   workflow_dispatch:
     inputs:
       prefix:
@@ -26,8 +29,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
-          PREFIX: ${{ inputs.prefix }}
-          DRY_RUN: ${{ inputs.dry_run }}
+          PREFIX: ${{ inputs.prefix || 'probe' }}
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}
           DEFAULT: ${{ github.event.repository.default_branch }}
         run: |
           if [ -z "$PREFIX" ]; then echo "前綴不能是空白"; exit 1; fi
