@@ -49,6 +49,10 @@ jobs:
         if: always()
         run: python fetch_broker_watch.py --days 20
 
+      - name: Score branches
+        if: always()
+        run: python broker_score.py
+
       - name: Commit data
         if: always()  # 部分失敗也要存已抓到的
         env:

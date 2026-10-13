@@ -139,6 +139,18 @@ python -m unittest discover tests                       # 測試
 - 輸出 `data/broker/watch/<YYYY>/<YYYYMMDD>.csv`：`date, bid, branch, code, name, buy_amt, sell_amt, net_amt, buy_sh, sell_sh, net_sh`
 - 網站 `watch.html`（分點籌碼 → 重點分點）：選取分點的買賣超金額加總排行，可選當日／近 5、10、20 日，可只看部分分點
 
+### 分點評分與分類（波段高手／隔日沖／反指標）
+
+`broker_score.py`（不連網，`broker.yml` 抓完分點後接著跑，約 5 秒）用前 15 大分點＋重點分點資料，替每個分點打分數：
+
+- 事件：買超或賣超 ≥ 當天成交量 1% 且 ≥ 500 萬元（只算 4 位數代號的一般股票）
+- 報酬：隔天開盤買進、持有 1／5／20 個交易日，扣掉全市場等權平均；同一分點同一檔 h 天內只算第一次
+- 分數 z：買超後的超額報酬與賣超後的負超額報酬合計 ÷（全體標準差 × √次數）
+- 分類：隔日沖（買超隔天賣掉 ≥ 50%，或 ≥ 35% 且買在當天大漲 3% 以上）→ 樣本不足（5 日事件 < 10 次或 < 10 個交易日）→ 波段高手 z ≥ 2 → 反指標 z ≤ −2 → 一般
+- 只用評分日以前已實現的報酬；`--as-of YYYY-MM-DD` 可模擬過去某天的評分（回測用）
+- 輸出 `data/broker/score/branches.csv`（每個分點的分數）、`signals.csv`（最新一天高手／反指標／隔日沖各買賣了哪些股票，pct 為佔成交量 %）
+- 前 15 大資料從 2026-09-30 才開始，要累積 2～3 個月分數才有意義；可用 `backfill_broker.py --start 2026-07-01` 在自己電腦回補（一天約 30 分鐘，不佔 Actions 分鐘數）
+
 ## 可轉債詢圈（CB）
 
 `fetch_cb.py`（`.github/workflows/cb.yml`，平日台北 08:13、18:13）把每檔 CB 從圈購到掛牌的時間點整理成 `data/cb/cases.csv`，網頁在 `cb.html`。
