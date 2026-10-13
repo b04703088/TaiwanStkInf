@@ -1,4 +1,5 @@
 date,time,news_id,code,name,kind,year,analysts,prev,value,chg_pct,high,low,target,bull,neutral,bear,close,url
+2026-10-13,22:10,6629722,6505,台塑化,tp,,7,108,115,6.48,125,62,115,7,0,0,119,https://news.cnyes.com/news/id/6629722
 2026-10-13,20:11,6629643,6505,台塑化,eps,2026,7,8.22,9.01,9.61,10.04,5.91,110,,,,,https://news.cnyes.com/news/id/6629643
 2026-10-13,18:11,6629542,6223,旺矽,eps,2026,13,64.33,64.86,0.82,76.28,59.69,8415,,,,,https://news.cnyes.com/news/id/6629542
 2026-10-13,18:11,6629541,2408,南亞科,eps,2026,13,74.69,76.14,1.94,80.53,55.98,681.4,,,,,https://news.cnyes.com/news/id/6629541
