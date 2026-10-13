@@ -9,7 +9,7 @@ COLS = ["id", "code", "company", "short", "series", "bond_code", "type", "method
         "price_base_date", "conv_price", "premium", "issue_pct", "pay_date", "list_expected",
         "issue_date", "list_date",
         "board_date", "board_amount", "board_method", "filed_date", "eff_date", "sfb_status", "stop_date", "wd_date", "sfb_amount"]
-SUBPAGES = ["cb-pipeline.html", "cb-active.html", "cb-bb.html", "cb-auction.html", "cb-listed.html"]
+SUBPAGES = ["cb-calendar.html", "cb-pipeline.html", "cb-active.html", "cb-bb.html", "cb-auction.html", "cb-listed.html"]
 NUMS = {"series", "units", "bb_units", "premium_lo", "premium_hi", "min_price", "conv_price", "premium", "issue_pct", "board_amount", "sfb_amount"}
 
 
