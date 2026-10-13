@@ -60,7 +60,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           # 第一次部署時自動建立專案（已存在就略過）
-          preCommands: wrangler pages project create ${{ vars.CF_PAGES_PROJECT || 'tide-chips' }} --production-branch=main || true
+          preCommands: npx wrangler pages project create ${{ vars.CF_PAGES_PROJECT || 'tide-chips' }} --production-branch=main || true
           command: pages deploy _site --project-name=${{ vars.CF_PAGES_PROJECT || 'tide-chips' }} --branch=main --commit-dirty=true
 
   deploy:
