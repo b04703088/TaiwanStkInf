@@ -34,7 +34,7 @@ jobs:
   # 部署目標由 repo variable DEPLOY_TARGET 決定：
   #   cloudflare → Cloudflare Pages（私人網站，用 Cloudflare Access 限定自己的 email）
   #               需要 secrets：CLOUDFLARE_API_TOKEN、CLOUDFLARE_ACCOUNT_ID
-  #               專案名稱可用 variable CF_PAGES_PROJECT 改，預設 tide-chips
+  #               專案名稱可用 variable CF_PAGES_PROJECT 改，預設 tide-stk-infs
   #   其他／沒設 → GitHub Pages（公開）
   # 分成兩個 job：私人 repo 在免費方案不能用 deployment environment，Cloudflare 那條不綁 environment。
   cloudflare:
@@ -60,8 +60,8 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           # 第一次部署時自動建立專案（已存在就略過）
-          preCommands: npx wrangler pages project create ${{ vars.CF_PAGES_PROJECT || 'tide-chips' }} --production-branch=main || true
-          command: pages deploy _site --project-name=${{ vars.CF_PAGES_PROJECT || 'tide-chips' }} --branch=main --commit-dirty=true
+          preCommands: npx wrangler pages project create ${{ vars.CF_PAGES_PROJECT || 'tide-stk-infs' }} --production-branch=main || true
+          command: pages deploy _site --project-name=${{ vars.CF_PAGES_PROJECT || 'tide-stk-infs' }} --branch=main --commit-dirty=true
 
   deploy:
     if: vars.DEPLOY_TARGET != 'cloudflare'

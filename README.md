@@ -83,14 +83,15 @@ ETF持股的子頁「指數行事曆」`calendar.html`（`scripts/calendar_site.
 - 輸出 `data/etf/msci/results.csv`、`schedule.csv`；生效日 = MSCI「as of the close of」的下一個交易日
 - 富時合編指數（臺灣50、中型100、高股息等）的審核結果由臺灣指數公司轉公告，已含在 TIP 定審結果中
 
-## 網站（GitHub Pages）
+## 網站（Cloudflare Pages）
 
-網址：https://b04703088.github.io/TaiwanStkInf/ （成交排行：`ranking.html`）
+網址：https://tide-stk-infs.pages.dev/ （成交排行：`ranking.html`）
 
 - `site/`：網頁原始檔（首頁 `index.html`、成交金額排行 `ranking.html`、ETF持股 `etf.html`：個股持有查詢／每日持股變化／AUM 排行）
 - `scripts/etf_site.py`：整理 ETF 最新持股與前一份的原始股數差異（含申購贖回）→ `data/etf/latest.json`
 - `scripts/build_site.py`：把最近 120 個交易日的 CSV 轉成 `data/daily/<日期>.json` 給網頁讀
-- `.github/workflows/pages.yml`：每日抓完股價或 ETF 持股、或改了 `site/` 後自動重建部署
+- `.github/workflows/pages.yml`：抓資料的 workflow 有新 commit、或改了 `site/` 後自動重建部署
+  - repo variable `DEPLOY_TARGET=cloudflare` 時部署到 Cloudflare Pages（需要 secrets `CLOUDFLARE_API_TOKEN`、`CLOUDFLARE_ACCOUNT_ID`；專案名稱預設 `tide-stk-infs`，可用 variable `CF_PAGES_PROJECT` 改）；沒設時部署到 GitHub Pages
 
 ## 同步到 Firebase（Firestore）
 
