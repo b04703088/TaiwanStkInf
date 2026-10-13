@@ -272,17 +272,27 @@
   .wk-res .muted, .wk-empty{color:var(--text-faint);}
   .wk-empty{padding:22px 0; font-size:14px;}
   @media (max-width: 860px){ .wk-item{grid-template-columns:1fr; gap:6px;} }
-  /* 標題下方：追蹤分點大額進出摘要 */
-  .bw-lead{font-size:14.5px; line-height:2; color:var(--text-muted); margin:14px 0 0; max-width:none;}
-  .bw-lead:empty{display:none;}
-  .bw-lead .lbl{color:var(--text); font-weight:500; margin-right:4px;}
-  .bw-lead .lbl.buy{color:var(--rise);} .bw-lead .lbl.sell{color:var(--fall);}
-  .bw-lead a{color:var(--text); text-decoration:none; white-space:nowrap;}
-  .bw-lead a:hover{color:var(--brass);}
-  .bw-lead .n{font-family:'IBM Plex Mono',monospace; font-size:13px; margin-left:3px;}
-  .bw-lead .n.buy{color:var(--rise);} .bw-lead .n.sell{color:var(--fall);}
-  .bw-lead .sep{color:var(--text-faint); margin:0 6px;}
-  .bw-lead small{display:block; font-size:12px; color:var(--text-faint); line-height:1.6; margin-top:2px;}
+  /* 標題下方：追蹤分點大額進出（表格） */
+  .bw{margin-top:18px;}
+  .bw-head{font-size:15px; margin:0 0 6px; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
+  .bw-head b{font-weight:500;}
+  .bw-head span{font-size:12.5px; color:var(--text-faint);}
+  .bw-grid{display:grid; grid-template-columns:1fr 1fr; gap:32px; align-items:start;}
+  table.bw-t{width:100%; border-collapse:collapse; font-size:13.5px;}
+  table.bw-t caption{text-align:left; font-size:13px; font-weight:500; padding:4px 0 6px; border-bottom:1px solid var(--line-strong);}
+  table.bw-t caption.buy{color:var(--rise);} table.bw-t caption.sell{color:var(--fall);}
+  table.bw-t caption small{color:var(--text-faint); font-weight:400; margin-left:8px;}
+  table.bw-t th{font-size:11.5px; font-weight:400; color:var(--text-faint); text-align:left; padding:6px 8px 4px 0; border-bottom:1px solid var(--line);}
+  table.bw-t td{padding:7px 8px 7px 0; border-bottom:1px solid var(--line); vertical-align:baseline;}
+  table.bw-t .num{text-align:right; font-family:'IBM Plex Mono',monospace; white-space:nowrap;}
+  table.bw-t td.num.buy{color:var(--rise);} table.bw-t td.num.sell{color:var(--fall);}
+  table.bw-t td.who{font-size:12px; color:var(--text-muted); padding-left:14px;}
+  table.bw-t th.who{padding-left:14px;}
+  table.bw-t td a{color:var(--text); text-decoration:none;} table.bw-t td a:hover{color:var(--brass);}
+  table.bw-t td a b{font-family:'IBM Plex Mono',monospace; font-weight:400; font-size:12px; color:var(--text-faint); margin-left:5px;}
+  table.bw-t td.empty{color:var(--text-faint); padding:14px 0;}
+  .bw-foot{font-size:12px; color:var(--text-faint); margin:8px 0 0;}
+  @media (max-width: 860px){ .bw-grid{grid-template-columns:1fr; gap:18px;} table.bw-t td.who{font-size:11.5px;} table.bw-t td a{white-space:nowrap;} table.bw-t td a b{display:block; margin-left:0; font-size:11px;} }
   /* CB 詢圈 */
   .cb-grid{display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); gap:40px; margin-top:4px;}
   .cb-grid h3{font-size:14px; font-weight:500; color:var(--text-muted); margin:14px 0 4px; display:flex; align-items:baseline; gap:8px;}
@@ -347,7 +357,16 @@
       <div class="eyebrow">潮汐 · 籌碼觀測站</div>
       <h1>今天要先看的重點</h1>
 
-      <p class="bw-lead" id="bwLead"></p>
+      <div class="bw" id="bw" hidden>
+        <p class="bw-head"><b>追蹤分點大額進出</b><span id="bwSub"></span></p>
+        <div class="bw-grid">
+          <table class="bw-t"><caption class="buy" id="bwBuyCap">買超</caption>
+            <thead><tr><th>個股</th><th class="num">淨買超</th><th class="who">主要分點</th></tr></thead><tbody id="bwBuy"></tbody></table>
+          <table class="bw-t"><caption class="sell" id="bwSellCap">賣超</caption>
+            <thead><tr><th>個股</th><th class="num">淨賣超</th><th class="who">主要分點</th></tr></thead><tbody id="bwSell"></tbody></table>
+        </div>
+        <p class="bw-foot" id="bwFoot"></p>
+      </div>
 
       <div class="block">
         <div class="block-head">
@@ -401,15 +420,16 @@
 
 <script>(function(){var a=document.querySelector('nav.links a[aria-current="page"]');if(a&&a.parentNode.scrollWidth>a.parentNode.clientWidth){a.parentNode.scrollLeft=a.offsetLeft-a.parentNode.offsetLeft-16;}})();</script>
 <script>
-// 標題下方摘要：最新交易日，config/broker_watch.csv 裡所有分點加總後，淨買超或淨賣超 ≥ 5000 萬的個股
+// 標題下方：最新交易日，config/broker_watch.csv 裡所有分點加總後，淨買超或淨賣超 ≥ 5000 萬的個股（不含 ETF）
 (async function () {
   const LIMIT = 50000;  // 仟元 = 5000 萬
-  const el = document.getElementById("bwLead");
+  const isETF = code => /^00/.test(code);  // 台股 ETF 代號都是 00 開頭
+  const $ = id => document.getElementById(id);
   const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const today = new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);
   const md = d => `${+d.slice(5, 7)}/${+d.slice(8, 10)}`;
   const wk = d => "日一二三四五六"[new Date(d + "T00:00:00+08:00").getDay()];
-  const amt = k => { const v = Math.abs(k) * 1e3; return v >= 1e8 ? (v / 1e8).toFixed(2) + "億" : Math.round(v / 1e4).toLocaleString("zh-TW") + "萬"; };
+  const amt = k => { const v = Math.abs(k) * 1e3; return v >= 1e8 ? (v / 1e8).toFixed(2) + " 億" : Math.round(v / 1e4).toLocaleString("zh-TW") + " 萬"; };
   try {
     const r = await fetch("data/broker/watch.json", { cache: "no-cache" });
     if (!r.ok) throw new Error("HTTP " + r.status);
@@ -418,31 +438,32 @@
     const C = Object.fromEntries(W.cols.map((c, i) => [c, i]));
     const by = {};
     for (const x of W.rows) {
-      if (x[C.d] !== day) continue;
+      if (x[C.d] !== day || isETF(x[C.code])) continue;
       const n = (x[C.ba] || 0) - (x[C.sa] || 0);
       const o = by[x[C.code]] ||= { net: 0, br: {} };
       o.net += n;
       o.br[x[C.b]] = (o.br[x[C.b]] || 0) + n;
     }
     const hits = Object.entries(by).filter(([, o]) => Math.abs(o.net) >= LIMIT);
-    // 滑鼠移上去顯示同方向貢獻最大的分點
-    const tip = o => Object.entries(o.br).filter(([, n]) => Math.sign(n) === Math.sign(o.net) && Math.abs(n) >= 1000)
-      .sort((a, b) => Math.abs(b[1]) - Math.abs(a[1])).slice(0, 3).map(([b, n]) => `${W.branches[b].label} ${amt(n)}`).join("、");
-    const item = ([code, o]) => {
-      const side = o.net > 0 ? "buy" : "sell";
-      return `<a href="watch.html?date=${date}&p=1" title="${esc(tip(o))}">${esc(W.names[code] || code)}<span class="n ${side}">${o.net > 0 ? "+" : "−"}${amt(o.net)}</span></a>`;
-    };
+    // 同方向貢獻最大的 2 個分點
+    const who = o => Object.entries(o.br).filter(([, n]) => Math.sign(n) === Math.sign(o.net) && Math.abs(n) >= 1000)
+      .sort((a, b) => Math.abs(b[1]) - Math.abs(a[1])).slice(0, 2).map(([b, n]) => `${esc(W.branches[b].label)} ${amt(n)}`).join("、");
+    const tr = ([code, o]) => `<tr>
+      <td><a href="watch.html?date=${date}&p=1">${esc(W.names[code] || code)}<b>${esc(code)}</b></a></td>
+      <td class="num ${o.net > 0 ? "buy" : "sell"}">${o.net > 0 ? "+" : "−"}${amt(o.net)}</td>
+      <td class="who">${who(o) || "—"}</td></tr>`;
     const buy = hits.filter(([, o]) => o.net > 0).sort((a, b) => b[1].net - a[1].net);
     const sell = hits.filter(([, o]) => o.net < 0).sort((a, b) => a[1].net - b[1].net);
-    const line = (cls, lbl, list) => list.length
-      ? `<span class="lbl ${cls}">${lbl} ${list.length} 檔</span>${list.map(item).join('<span class="sep">·</span>')}` : "";
-    const body = [line("buy", "買超", buy), line("sell", "賣超", sell)].filter(Boolean).join("<br>");
-    el.innerHTML = `<span class="lbl">追蹤分點大額進出</span><span style="color:var(--text-faint);font-size:13px">${md(date)}（${wk(date)}）・加總淨額 ≥ 5000 萬</span><br>` +
-      (body || '<span style="color:var(--text-faint)">沒有個股超過 5000 萬。</span>') +
-      `<small>${W.branches.length} 個追蹤分點加總${date === today ? "" : "・今天的分點資料收盤後才公布，這是最新一個交易日"}・滑鼠移到個股上可看主要分點</small>`;
+    const sum = l => amt(l.reduce((s, [, o]) => s + o.net, 0));
+    $("bwBuyCap").innerHTML = `買超 ${buy.length} 檔${buy.length ? `<small>合計 ${sum(buy)}</small>` : ""}`;
+    $("bwSellCap").innerHTML = `賣超 ${sell.length} 檔${sell.length ? `<small>合計 ${sum(sell)}</small>` : ""}`;
+    $("bwBuy").innerHTML = buy.map(tr).join("") || '<tr><td class="empty" colspan="3">沒有個股淨買超達 5000 萬</td></tr>';
+    $("bwSell").innerHTML = sell.map(tr).join("") || '<tr><td class="empty" colspan="3">沒有個股淨賣超達 5000 萬</td></tr>';
+    $("bwSub").textContent = `${md(date)}（${wk(date)}）・${W.branches.length} 個追蹤分點加總淨額 ≥ 5000 萬・不含 ETF`;
+    $("bwFoot").textContent = date === today ? "" : "今天的分點資料收盤後才公布，這是最新一個交易日。";
+    $("bw").hidden = false;
   } catch (e) {
     console.error(e);
-    el.textContent = "";
   }
 })();
 </script>
