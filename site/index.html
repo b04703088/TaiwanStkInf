@@ -302,6 +302,9 @@
   .cb-name{font-size:14.5px;} .cb-name b{font-family:'IBM Plex Mono',monospace; font-weight:500; font-size:12.5px; color:var(--text-faint); margin-left:6px;}
   .cb-meta{grid-column:1/-1; font-size:12.5px; color:var(--text-muted);}
   .cb-meta .mono{font-family:'IBM Plex Mono',monospace;}
+  /* 詢圈期間：放大、獨立一行 */
+  .cb-date{grid-column:1/-1; font-family:'IBM Plex Mono',monospace; font-size:15.5px; font-weight:500; color:var(--brass); letter-spacing:.01em;}
+  .cb-date small{font-family:'Noto Sans TC',sans-serif; font-size:12px; font-weight:400; color:var(--text-muted); margin-right:6px;}
   .cb-st{font-size:11.5px; padding:1px 8px; border-radius:2px; border:1px solid var(--line-strong); color:var(--text-muted); white-space:nowrap; align-self:center;}
   .cb-st.live{background:var(--brass); color:var(--ink); border-color:var(--brass);}
   .cb-st.soon{border-color:var(--brass-dim); color:var(--brass);}
@@ -309,18 +312,20 @@
   .cb-res{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:2px 12px; padding:11px 0; border-bottom:1px solid var(--line); text-decoration:none; color:inherit; font-size:13.5px;}
   .cb-res:hover .cb-nm{color:var(--brass);}
   .cb-res .pm{font-family:'IBM Plex Mono',monospace; font-size:15px; text-align:right;}
-  .cb-res .pm small{display:block; font-family:'Noto Sans TC',sans-serif; font-size:11px; color:var(--text-faint);}
+  .cb-res .pm small{display:block; font-family:'Noto Sans TC',sans-serif; font-size:12px; color:var(--text-muted);}
+  .cb-res .pm small b{font-family:'IBM Plex Mono',monospace; font-weight:500; font-size:13px; color:var(--text);}
   .cb-res .sub{font-size:12px; color:var(--text-faint);}
   .rng{display:inline-block; position:relative; width:64px; height:5px; background:var(--panel-2); border-radius:3px; vertical-align:middle; margin:0 6px;}
   .rng i{position:absolute; top:-2px; width:3px; height:9px; background:var(--brass); border-radius:1px;}
-  .cb-new{display:grid; grid-template-columns:82px 40px minmax(0,1fr); gap:10px; padding:10px 0; border-bottom:1px solid var(--line); font-size:13.5px; align-items:baseline; text-decoration:none; color:inherit;}
+  .cb-new{display:grid; grid-template-columns:96px 40px minmax(0,1fr); gap:10px; padding:10px 0; border-bottom:1px solid var(--line); font-size:13.5px; align-items:baseline; text-decoration:none; color:inherit;}
   .cb-new:hover .cb-nm{color:var(--brass);}
   .cb-nm b{font-family:'IBM Plex Mono',monospace; font-weight:500; font-size:12.5px; color:var(--text-faint); margin-left:6px;}
-  .cb-new .d{font-family:'IBM Plex Mono',monospace; color:var(--text-muted); font-size:13px;}
+  .cb-new .d{font-family:'IBM Plex Mono',monospace; color:var(--text); font-size:14.5px; font-weight:500;}
+  .cb-new .d.recent{color:var(--brass);}
   .cb-new .k{font-size:12px; color:var(--text-faint);}
   .cb-new .k.board{color:#C3B1F0;} .cb-new .k.filed{color:#9CCBE8;} .cb-new .k.eff{color:#7FD0A0;} .cb-new .k.bb{color:var(--brass);}
   .cb-new small{display:block; color:var(--text-faint); font-size:12px;}
-  @media (max-width: 860px){ .cb-grid{grid-template-columns:1fr; gap:8px;} .cb-new{grid-template-columns:78px 38px minmax(0,1fr);} }
+  @media (max-width: 860px){ .cb-grid{grid-template-columns:1fr; gap:8px;} .cb-new{grid-template-columns:92px 38px minmax(0,1fr);} }
   @media (max-width: 860px){
     .home{padding:48px 0 24px;}
     .home h1{font-size:28px;}
@@ -537,7 +542,8 @@
       const [k, t] = stOf(c);
       return `<a class="cb-case" href="cb-bb.html">
         <span class="cb-name">${name(c)}</span><span class="cb-st ${k}">${t}</span>
-        <span class="cb-meta"><span class="mono">${md(c.bb_start)}（${wk(c.bb_start)}）～${md(c.bb_end)}（${wk(c.bb_end)}）</span>・${yi(amt(c))}${c.premium_lo != null ? `・溢價率區間 <span class="mono">${c.premium_lo}%～${c.premium_hi}%</span>` : ""}${c.lead ? `・${esc(c.lead)}` : ""}</span>
+        <span class="cb-date"><small>詢圈</small>${md(c.bb_start)}（${wk(c.bb_start)}）～ ${md(c.bb_end)}（${wk(c.bb_end)}）</span>
+        <span class="cb-meta">${yi(amt(c))}${c.premium_lo != null ? `・溢價率區間 <span class="mono">${c.premium_lo}%～${c.premium_hi}%</span>` : ""}${c.lead ? `・${esc(c.lead)}` : ""}</span>
       </a>`;
     }).join("") : '<p class="wk-empty">目前沒有進行中或 7 天內要開始的詢圈。</p>';
 
@@ -550,7 +556,7 @@
     $("cbBoard").innerHTML = boards.length ? boards.map(c => {
       const m = meth(c), sec = /有擔保/.test(c.type || "") ? "有擔保" : "無擔保";
       return `<a class="cb-new" href="cb-pipeline.html#c-${esc(c.id)}">
-        <span class="d">${md(c.board_date)}（${wk(c.board_date)}）</span>
+        <span class="d${c.board_date >= plus(-2) ? " recent" : ""}">${md(c.board_date)}（${wk(c.board_date)}）</span>
         <span class="k ${m === "詢圈" ? "bb" : "board"}">${m}</span>
         <span><span class="cb-nm">${name(c)}</span>
           <small>${c.series ? `第 ${c.series} 次` : ""}${sec}・上限 ${yi(c.board_amount || amt(c)) || "—"}${lead(c) && !/授權/.test(lead(c)) ? `・${esc(lead(c))}` : ""}</small></span>
@@ -567,7 +573,7 @@
         <span><span class="cb-nm">${name(c)}</span>
           <span class="sub" style="display:block">區間 ${c.premium_lo}%<span class="rng" title="議定溢價率在區間中的位置（越左越接近下緣，需求越熱）"><i style="left:calc(${(pos * 100).toFixed(0)}% - 1px)"></i></span>${c.premium_hi}%
           ・轉換價 <span class="mono">${c.conv_price ?? "—"}</span>${lst ? `・${lst > today ? "預計" : ""}掛牌 ${md(lst)}` : ""}</span></span>
-        <span class="pm">${(+c.premium).toFixed(2).replace(/\.?0+$/, "")}%<small>${c.price_base_date ? md(c.price_base_date) + " 訂價" : "議定溢價率"}</small></span>
+        <span class="pm">${(+c.premium).toFixed(2).replace(/\.?0+$/, "")}%<small>${c.price_base_date ? `<b>${md(c.price_base_date)}（${wk(c.price_base_date)}）</b> 訂價` : "議定溢價率"}</small></span>
       </a>`;
     }).join("") : '<p class="wk-empty">近 14 天沒有完成訂價的詢圈。</p>';
     $("cbNote").textContent = `資料更新 ${d.generated ? md(String(d.generated).slice(0, 10)) : "—"}。進行中與結果只列詢價圈購（不含競價拍賣），董事會剛通過的兩種都列。金額＝發行張數 × 10 萬元；落點越靠左代表議定溢價率越接近區間下緣、需求越熱。`;
