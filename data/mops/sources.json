@@ -1,26 +1,29 @@
 {
- "generated": "2026-10-14 23:01",
- "fetched_days": 21,
- "left_days": 13,
- "news": 2945,
+ "generated": "2026-10-15 03:06",
+ "fetched_days": 14,
+ "left_days": 0,
+ "news": 2309,
  "cats": {
-  "other": 690,
-  "ma": 426,
-  "fin": 230,
-  "legal": 31,
-  "board": 68,
-  "capital": 414,
-  "clarify": 42,
-  "hr": 291,
-  "shm": 100,
-  "call": 395,
-  "div": 111,
-  "attn": 73,
-  "buyback": 74
+  "hr": 183,
+  "other": 505,
+  "ma": 248,
+  "fin": 294,
+  "capital": 291,
+  "shm": 81,
+  "call": 314,
+  "legal": 26,
+  "board": 84,
+  "clarify": 30,
+  "div": 134,
+  "attn": 60,
+  "buyback": 59
  },
  "exright": 125,
  "calls": 115,
- "events": 227,
- "unparsed": [],
+ "events": 251,
+ "unparsed": [
+  "1609大亞 2026-08-25",
+  "3040遠見 2026-08-21"
+ ],
  "errors": []
 }
