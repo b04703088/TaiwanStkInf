@@ -154,9 +154,10 @@
   </section>
 
   <section class="block" id="near">
-    <div class="block-head"><h2>瀕臨處置</h2><span class="hint" id="near-hint"></span></div>
+    <div class="block-head"><h2>明天可能處置</h2><span class="hint" id="near-hint"></span></div>
+    <p class="desc" style="margin:0 0 12px; font-size:13.5px">下一個交易日只要再被列一次注意（款次符合「明天被列」欄），就會被公布處置、再隔一天開始處置。依交易所處置標準由注意紀錄推算，並對照交易所公布的「注意累計次數異常」名單。</p>
     <div class="tbl-wrap"><table>
-      <thead><tr><th>股票</th><th>注意累計情形</th><th class="n">近 10 日注意</th><th class="n">近 30 日注意</th></tr></thead>
+      <thead><tr><th>股票</th><th>差一次就達到</th><th>明天被列</th><th class="n">連續</th><th class="n">近 10 日</th><th class="n">近 30 日</th><th class="hide-s">交易所名單</th></tr></thead>
       <tbody id="near-body"></tbody>
     </table></div>
   </section>
@@ -210,7 +211,7 @@
   <p class="note">
     資料來源：臺灣證券交易所「公布處置有價證券」「公布注意有價證券」「注意累計次數異常」，證券櫃檯買賣中心「處置有價證券」「公布注意有價證券」「注意累計次數異常」，每個交易日盤後更新。只列股票與 ETF，不含權證、可轉債。<br>
     「撮合」是處置期間人工撮合的間隔（約每 N 分鐘一次）；第一次處置多為 2–5 分鐘，第二次（再次）處置多為 20–25 分鐘並需預收款券。「狀態」以台北今天日期判斷，剩餘天數只扣週末、不含國定假日。<br>
-    「瀕臨處置」是交易所公布的注意累計次數異常名單：再被列一次注意就可能進入處置。「連續」「近 10／30 日」是本站依注意公告日數（以有公告的交易日計）算出的次數，僅供參考，實際是否處置以交易所公告為準。資料僅供參考，不構成投資建議。
+    「明天可能處置」依證交所、櫃買中心處置標準推算：連續 3 個營業日第一款，或連續 5 個營業日、最近 10 個營業日內 6 日、最近 30 個營業日內 12 日達第一至八款注意，就會被處置（上次處置公布前的注意不再計算）。用 2025 年起的資料回測，這套算法與實際處置公告完全吻合；名單上的股票隔天不一定會再被列注意，所以不一定會處置。「連續」「近 10／30 日」是本站依注意公告日數（以有公告的交易日計）算出的次數，僅供參考，實際是否處置以交易所公告為準。資料僅供參考，不構成投資建議。
   </p>
 </main>
 <footer class="site"><div class="wrap"><p class="note" style="margin:0">資料僅供參考。</p></div></footer>
@@ -222,7 +223,7 @@ const md = d => d ? (d.slice(0, 4) === TODAY.slice(0, 4) ? d.slice(5).replace("-
 const addDays = (d, n) => { const t = new Date(d + "T00:00:00Z"); t.setUTCDate(t.getUTCDate() + n); return t.toISOString().slice(0, 10); };
 const objs = t => t.rows.map(r => Object.fromEntries(t.cols.map((k, i) => [k, r[i]])));
 
-let D, DISP = [], ATT = [], NEAR = [], HIT = {}, DAYIDX = {};
+let D, DISP = [], ATT = [], NEAR = [], CAND = [], HIT = {}, DAYIDX = {};
 const name = c => D.names[c] || c;
 const A = {day: "", min: 1, n: 60}, H = {days: 30, mk: "", n: 60};
 
@@ -259,8 +260,8 @@ function renderStats(){
   const c30 = new Set(DISP.filter(r => r.ann_date >= addDays(D.generated, -30)).map(r => r.code)).size;
   document.getElementById("stats").innerHTML = [
     ["處置中", live.length, `上市 ${live.filter(r => r.market === "上市").length}・上櫃 ${live.filter(r => r.market === "上櫃").length}`],
-    ["即將處置", soon.length, soon.length ? "下個交易日起" : "目前沒有"],
-    ["瀕臨處置", NEAR.length, D.near.date ? `${md(D.near.date)} 公告` : "–"],
+    ["已公布、即將處置", soon.length, soon.length ? "下個交易日起" : "盤後公布後才會有"],
+    ["明天可能處置", CAND.length, `差一次注意就處置・${md(D.cand?.date)}`],
     ["最新注意股", today.length, `${md(last)}・近 30 天處置 ${c30} 檔`],
   ].map(([k, v, s]) => `<div class="stat"><div class="k">${k}</div><div class="v mono">${v}</div><div class="s">${s}</div></div>`).join("");
 }
@@ -276,14 +277,20 @@ function renderNow(){
   bindRows("#now-body");
 }
 
+const RULE = {s1: "連續 3 日第一款", s8: "連續 5 日", n10: "10 日內 6 次", n30: "30 日內 12 次"};
 function renderNear(){
-  const last = D.days.at(-1);
-  const rows = NEAR.map(r => ({...r, n10: recent(r.code, last, 10), n30: recent(r.code, last, 30)})).sort((a, b) => b.n10 - a.n10 || b.n30 - a.n30);
-  document.getElementById("near-hint").textContent = D.near.date ? `${rows.length} 檔・${md(D.near.date)} 公告` : "";
+  const off = Object.fromEntries(NEAR.map(r => [r.market + r.code, r]));
+  const rows = CAND.map(r => ({...r, off: off[r.market + r.code]}));
+  for (const r of NEAR) if (!CAND.some(c => c.market === r.market && c.code === r.code)) rows.push({market: r.market, code: r.code, rules: "", off: r});
+  const rate = D.cand.total ? Math.round(D.cand.hit / D.cand.total * 100) : null;
+  document.getElementById("near-hint").textContent = `${rows.length} 檔・${md(D.cand.date)} 收盤後${rate != null ? `・過去 ${D.cand.total} 次名單中 ${rate}% 隔天被處置` : ""}`;
   document.getElementById("near-body").innerHTML = rows.map(r => `<tr class="click" data-c="${r.code}">
-    <td>${stockCell(r.code, r.market)}</td><td class="wrap-cell reason">${esc(r.situation)}</td>
-    <td class="n">${cnt(r.n10, 4, 5)}</td><td class="n">${cnt(r.n30, 9, 11)}</td></tr>`).join("")
-    || `<tr><td colspan="4" class="empty">目前沒有注意累計次數異常的股票</td></tr>`;
+    <td>${stockCell(r.code, r.market)}</td>
+    <td>${r.rules ? r.rules.split(";").map(k => `<span class="tag soon">${RULE[k]}</span>`).join("") : `<span class="faint">–</span>`}</td>
+    <td>${r.need === "1" ? "第一款（漲跌幅）" : r.need ? "第一至八款任一" : `<span class="faint">–</span>`}</td>
+    <td class="n">${r.s8 != null ? cnt(r.s8, 2, 4) : "–"}</td><td class="n">${r.n10 != null ? cnt(r.n10, 4, 5) : "–"}</td><td class="n">${r.n30 != null ? cnt(r.n30, 9, 11) : "–"}</td>
+    <td class="hide-s reason">${r.off ? esc(r.off.situation) : ""}</td></tr>`).join("")
+    || `<tr><td colspan="7" class="empty">目前沒有差一次注意就會處置的股票</td></tr>`;
   bindRows("#near-body");
 }
 
@@ -324,7 +331,7 @@ function showStock(code){
   const cur = ds.find(r => r.end >= TODAY);
   document.getElementById("stock").innerHTML = `<div class="stock">
     <div class="top"><div class="nm">${esc(name(code))}<span class="mono">${esc(code)}</span></div>
-      <div>${cur ? `<span class="tag ${status(cur).k}">${status(cur).t}</span>` : ""}${nr ? `<span class="tag soon">瀕臨處置</span>` : ""}</div></div>
+      <div>${cur ? `<span class="tag ${status(cur).k}">${status(cur).t}</span>` : ""}${nr || CAND.some(r => r.code === code) ? `<span class="tag soon">明天可能處置</span>` : ""}</div></div>
     <div class="kpis">
       <div class="kpi"><div class="k">連續注意</div><div class="v mono">${streak(code, last)}</div><div class="s">至 ${md(last)}</div></div>
       <div class="kpi"><div class="k">近 10 日注意</div><div class="v mono">${recent(code, last, 10)}</div><div class="s">交易日</div></div>
@@ -377,13 +384,13 @@ function chips(id, obj, key, render, parse = v => v){
 }
 
 fetch("data/alert/alert.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
-  D = d; DISP = objs(D.disp); ATT = objs(D.att); NEAR = objs(D.near);
+  D = d; DISP = objs(D.disp); ATT = objs(D.att); NEAR = objs(D.near); CAND = D.cand ? objs(D.cand) : [];
   D.days.forEach((x, i) => DAYIDX[x] = i);
   for (const r of ATT) (HIT[r.code] ||= new Set()).add(r.date);
   A.day = D.days.at(-1);
   document.getElementById("att-day").innerHTML = D.days.slice(-5).reverse()
     .map(x => `<button data-v="${x}" aria-pressed="${x === A.day}">${md(x)}</button>`).join("");
-  document.getElementById("sub").textContent = `上市櫃處置股、注意股與瀕臨處置名單，資料更新至 ${md(D.generated)}。點任一列可看該股的處置與注意紀錄。`;
+  document.getElementById("sub").textContent = `上市櫃處置股、注意股與明天可能處置的股票，資料更新至 ${md(D.generated)}。點任一列可看該股的處置與注意紀錄。`;
   renderStats(); renderNow(); renderNear(); renderAtt(); renderHist(); setupSearch();
   chips("att-day", A, "day", renderAtt);
   chips("att-min", A, "min", renderAtt, Number);

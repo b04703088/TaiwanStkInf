@@ -253,7 +253,7 @@ python fetch_analyst.py --start 2025-10-01 --end 2026-09-30 --max-minutes 50
 - **注意累計次數異常**（瀕臨處置）`near.csv`：`date, market, code, name, situation`；官方只提供當天名單，每天抓一次累積
 - 每次抓最近 10 天，與舊資料合併；含權證、可轉債，網頁才濾成股票與 ETF。回補：Actions → Fetch disposal & attention stocks → Run workflow 填起日（已回補到 2025-01-01）
 
-網頁 `alert.html`（導覽列「處置注意」，`scripts/alert_site.py` → `data/alert/alert.json`）：處置中與即將處置（剩幾天、撮合間隔）、瀕臨處置、注意股（可選日期，含連續天數與近 10／30 日次數）、查個股、處置紀錄。
+網頁 `alert.html`（導覽列「處置注意」，`scripts/alert_site.py` → `data/alert/alert.json`）：處置中與即將處置（剩幾天、撮合間隔）、明天可能處置（依處置標準由注意紀錄推算，2025 年起回測與實際公告完全吻合，附名單命中率）、注意股（可選日期，含連續天數與近 10／30 日次數）、查個股、處置紀錄。
 
 ```bash
 python fetch_alert.py                      # 最近 10 天
