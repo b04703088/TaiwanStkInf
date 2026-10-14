@@ -1,0 +1,58 @@
+name: Fetch treasury stock
+
+on:
+  schedule:
+    # 台北 08:37、19:37（UTC 00:37、11:37），週一至週五。
+    # 觀測站彙總表在公司申報後更新；董事會多在下午或晚上決議，晚上那次抓當天的新計畫。
+    - cron: "37 0 * * 1-5"
+    - cron: "37 11 * * 1-5"
+  workflow_dispatch:
+    inputs:
+      since:
+        description: "董事會決議日起日 YYYY-MM-DD（留空 = 前年 1 月 1 日起）"
+        required: false
+
+permissions:
+  contents: write
+  actions: write  # 有新資料時觸發網站部署
+
+concurrency:
+  group: fetch-treasury
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Fetch
+        env:
+          IN_SINCE: ${{ inputs.since }}
+        run: |
+          if [ -n "$IN_SINCE" ]; then python fetch_treasury.py --since "$IN_SINCE"; else python fetch_treasury.py; fi
+
+      - name: Commit data
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/treasury
+          # 只有 sources.json 的時間戳變了就不算新資料
+          if git diff --cached --quiet -- data/treasury ':!data/treasury/sources.json'; then
+            echo "No new data"
+            exit 0
+          fi
+          git commit -m "data: treasury stock $(TZ=Asia/Taipei date +%F)"
+          for i in 1 2 3; do
+            git pull --rebase -q && git push && { gh workflow run pages.yml --ref "$GITHUB_REF_NAME" || echo "觸發部署失敗（不影響資料）"; exit 0; }
+            sleep 10
+          done
+          exit 1

@@ -241,6 +241,25 @@ def check(data_dir=ROOT / "data", now=None):
             msg += f"，錯誤：{errs[0]}"
         add("cb", "cb-pre", "CB 董事會／送件", level, gen, msg, rows=len(sfb))
 
+    # ---------- 重大訊息 ----------
+    mops_src = data_dir / "mops" / "sources.json"
+    if mops_src.exists():
+        src = json.loads(mops_src.read_text(encoding="utf-8"))
+        gen = (src.get("generated") or "")[:10] or None
+        stale = gen and (now.date() - datetime.strptime(gen, "%Y-%m-%d").date()).days > 3
+        errs, left, miss = src.get("errors") or [], src.get("left_days") or 0, src.get("unparsed") or []
+        level = "error" if stale else "warn" if errs or left > 3 or miss else "ok"
+        msg = f"本次 {src.get('fetched_days', 0)} 天、{src.get('news', 0)} 則；股東會／法說會 {src.get('events', 0)} 則"
+        if left > 3:
+            msg += f"，回補中（還剩 {left} 天）"
+        if miss:
+            msg += "，開會日期沒解析到：" + "、".join(miss[:3])
+        if stale:
+            msg += "，超過 3 天沒更新"
+        if errs:
+            msg += f"，錯誤：{errs[0]}"
+        add("mops", "mops", "重大訊息", level, gen, msg, rows=src.get("news"))
+
     # ---------- 產業分類 ----------
     ind_src = data_dir / "industry" / "sources.json"
     if ind_src.exists():

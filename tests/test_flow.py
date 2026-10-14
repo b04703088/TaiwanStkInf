@@ -24,7 +24,7 @@ class FlowTest(unittest.TestCase):
             cols = ["date", "market", "code", "name", "close", "change", "value"]
             for day, v in (("20261001", 1e9), ("20261002", 3e9)):
                 write(d / "2026" / f"{day}.csv", cols, [
-                    {"date": f"{day[:4]}-{day[4:6]}-{day[6:]}", "market": "TWSE", "code": "2330", "name": "台積電", "close": 1, "change": 0, "value": v},
+                    {"date": f"{day[:4]}-{day[4:6]}-{day[6:]}", "market": "TWSE", "code": "2330", "name": "台積電", "close": 103 if v > 1e9 else 1, "change": 3 if v > 1e9 else 0, "value": v},
                     {"date": f"{day[:4]}-{day[4:6]}-{day[6:]}", "market": "TWSE", "code": "0050", "name": "元大台灣50", "close": 1, "change": 0, "value": 5e9},
                     {"date": f"{day[:4]}-{day[4:6]}-{day[6:]}", "market": "TWSE", "code": "2303", "name": "聯電", "close": 1, "change": 0, "value": 2e8}])
             write(d / "industry" / "chain.csv", ["code", "name", "industry_id", "industry", "stream", "node_id", "node", "sub_id", "sub"], [
@@ -36,6 +36,8 @@ class FlowTest(unittest.TestCase):
         self.assertEqual(p["days"], ["2026-10-01", "2026-10-02"])
         self.assertNotIn("0050", p["vals"])                 # ETF 不算
         self.assertEqual(p["vals"]["2330"], [1000, 3000])  # 百萬元
+        self.assertEqual(p["pct"]["2330"], [0, 300])       # 萬分之一：+3%
+        self.assertNotIn("2303", p["pct"])                 # 全期平盤不用放
         sub = p["groups"]["sub"][0]
         self.assertEqual((sub[0], sub[1], sub[2]), ("晶圓製造", "半導體 › 中游 › IC/晶圓製造", ["2303", "2330"]))
         self.assertEqual(p["groups"]["ind"][0][2], ["2303", "2330"])

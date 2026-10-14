@@ -81,6 +81,38 @@ class SiteTest(unittest.TestCase):
             self.assertEqual(p["near"]["date"], "2026-10-12")
             self.assertEqual(p["names"]["6708"], "天擎")
 
+    def test_candidates(self):
+        days = [f"2026-09-{d:02d}" for d in range(1, 31)] + ["2026-10-01", "2026-10-02"]
+        att = [{"market": "上市", "code": "1111", "date": days[-2], "clauses": "1"},
+               {"market": "上市", "code": "1111", "date": days[-1], "clauses": "1;4"},  # 連續 2 日第一款
+               {"market": "上市", "code": "2222", "date": days[-2], "clauses": "4"},
+               {"market": "上市", "code": "2222", "date": days[-1], "clauses": "9"},   # 第九款不算
+               {"market": "上櫃", "code": "3333", "date": days[-1], "clauses": "1"}]
+        att += [{"market": "上櫃", "code": "3333", "date": d, "clauses": "3"} for d in days[-9:-4]]  # 10 日內已 6 次
+        disp = [{"market": "上櫃", "code": "3333", "ann_date": days[-12]}]
+        c = {x["code"]: x for x in S.candidates(att, disp, days)}
+        self.assertEqual(set(c), {"1111"})  # 3333 今天已達 10 日 6 次 → 今天就該公布，不列
+        self.assertEqual((c["1111"]["rules"], c["1111"]["need"]), (["s1"], "1"))
+        att = [a for a in att if a["date"] != days[-1] or a["code"] != "3333"]
+        c = {x["code"]: x for x in S.candidates(att, disp, days)}
+        self.assertEqual((c["3333"]["rules"], c["3333"]["need"]), (["n10"], "1-8"))
+        disp.append({"market": "上櫃", "code": "3333", "ann_date": days[-3]})  # 處置公布後重新計算
+        self.assertNotIn("3333", {x["code"] for x in S.candidates(att, disp, days)})
+
+    def test_exit_and_prices(self):
+        self.assertEqual(S.next_open("2026-10-16", set()), "2026-10-19")  # 週五 → 週一
+        self.assertEqual(S.next_open("2026-10-08", {"2026-10-09"}), "2026-10-12")  # 國慶連假
+        with tempfile.TemporaryDirectory() as d:
+            y = Path(d) / "2026"
+            y.mkdir()
+            for day, px in (("20261007", "10"), ("20261008", "11"), ("20261012", "12.5")):
+                (y / f"{day}.csv").write_text(f"date,market,code,name,close\n2026-10-{day[-2:]},TWSE,1709,和益,{px}\n", encoding="utf-8")
+            disp = [{"code": "1709", "start": "2026-10-08", "end": "2026-10-15"},
+                    {"code": "1709", "start": "2026-09-01", "end": "2026-09-05"}]
+            S.add_prices(disp, d, "2026-10-01")
+            self.assertEqual((disp[0]["pre_close"], disp[0]["close"]), ("10", "12.5"))
+            self.assertNotIn("pre_close", disp[1])  # 太舊不算
+
     def test_is_stock(self):
         for c in ("2330", "0050", "00878", "00631L", "9103"):
             self.assertTrue(S.is_stock(c), c)

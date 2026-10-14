@@ -253,12 +253,51 @@ python fetch_analyst.py --start 2025-10-01 --end 2026-09-30 --max-minutes 50
 - **注意累計次數異常**（瀕臨處置）`near.csv`：`date, market, code, name, situation`；官方只提供當天名單，每天抓一次累積
 - 每次抓最近 10 天，與舊資料合併；含權證、可轉債，網頁才濾成股票與 ETF。回補：Actions → Fetch disposal & attention stocks → Run workflow 填起日（已回補到 2025-01-01）
 
-網頁 `alert.html`（導覽列「處置注意」，`scripts/alert_site.py` → `data/alert/alert.json`）：處置中與即將處置（剩幾天、撮合間隔）、瀕臨處置、注意股（可選日期，含連續天數與近 10／30 日次數）、查個股、處置紀錄。
+網頁 `alert.html`（導覽列「處置注意」，`scripts/alert_site.py` → `data/alert/alert.json`）：即將出關（出關日、還剩幾天、處置期間漲跌）、處置中與即將處置（剩幾天、撮合間隔）、明天可能處置（依處置標準由注意紀錄推算，2025 年起回測與實際公告完全吻合，附名單命中率）、注意股（可選日期，含連續天數與近 10／30 日次數）、查個股、處置紀錄。
 
 ```bash
 python fetch_alert.py                      # 最近 10 天
 python fetch_alert.py --start 2025-01-01   # 回補
+## 重大訊息（董事會、股東會、法說會、除權息）
+
+`fetch_mops_news.py`（`.github/workflows/mops.yml`，週一至週五台北 08:37、17:37、22:37，週六 09:37）從公開資訊觀測站抓上市、上櫃每天所有重大訊息（不含興櫃）。
+
+- 資料來源：觀測站新版 API `t05st02`（某天所有重訊主旨）、`t05st02_detail`（單則內容），跟 `fetch_cb_pre.py` 同一組
+- `data/mops/news/<YYYY-MM>.csv`：`date, time, code, name, market, cat, sub, subject, enter_date, serial, ev_kind, ev_date, ev_note, summary`
+  - `cat` 依主旨關鍵字分類：股東會、法說會、董事會決議、股利、財報營收、注意處置、訴訟調查、人事異動、庫藏股、增減資籌資、取得處分併購、澄清報導、其他；`sub=1` 是代子公司公告
+  - 「董事會決議召開股東會」與法說會公告會再讀內容，`ev_date` 是開會日期（`ev_kind`＝常會／臨時會／法說會）
+  - 董事會決議、股利、股東會決議、庫藏股、增減資、併購、人事異動也會讀內容，`summary` 是一行重點；除權息公告另填 `ev_kind`＝除權／除息／除權息、`ev_date`＝除權息交易日
+- `data/mops/exright.csv`：證交所 `TWT48U_ALL`、櫃買 `tpex_exright_prepost` 除權除息預告表（`stock` 是每股配股換算成元，配股率 × 10）
+- `data/mops/calls.csv`：觀測站法說會一覽表（`mopsov.twse.com.tw/mops/web/ajax_t100sb02_1`，本月＋下月），`file` 是中文簡報檔名（`https://mopsov.twse.com.tw/nas/STR/<file>`），`video` 是影音連結
+- 今天、昨天每次重抓；更早的抓完記在 `data/mops/days.txt`。預設回補 60 天，要更早：Actions → Fetch MOPS news → Run workflow 填 `since`（股東會旺季一天要讀上百則內容，約 3～4 分鐘）
+- 董事會開會日期多半不會事先發重訊，所以只看得到董事會「決議」
+
+網頁 `news.html`（導覽列「重大訊息」，`scripts/mops_site.py` → `data/mops/mops.json`）：
+- 查個股：輸入代號看完整時間軸（重訊、股東會、法說會、除權息，加上外資報告、CB、處置注意頁的資料），網址 `news.html#s=2330` 可直接分享
+- 關注清單：個股旁的 ☆ 加入，存在這台瀏覽器（localStorage `tide.watch`）；行事曆與重訊都可以「只看關注」
+- 股東會・法說會・除權息行事曆：依日期分組，可篩種類、即將舉行／近 30 天；法說會有簡報連結
+- 最近 30 天重訊列表：分類、關鍵字、是否含代子公司公告、內容摘要
+
+```bash
+python fetch_mops_news.py                                  # 今天、昨天＋回補 60 天內還沒抓過的
+python fetch_mops_news.py --since 2026-01-01 --max-minutes 50
 ```
+
+## 庫藏股
+
+`fetch_treasury.py`（`.github/workflows/treasury.yml`，週一至週五台北 08:37、19:37）整理上市櫃公司買回自家股份的計畫與結果。
+
+| 來源 | 拿到什麼 |
+|---|---|
+| 公開資訊觀測站「庫藏股統計彙總表」（`mopsov.twse.com.tw/mops/web/ajax_t35sc09`，上市、上櫃各查一次，依董事會決議日） | 決議日、目的、預定股數、價格區間、預定期間；結束後的實際股數、金額、均價、佔股本 |
+| 觀測站「買回達一定標準」（`ajax_t35sb01`，只查執行中的計畫） | 每買回達已發行股數 2% 或 3 億元的申報，當作執行中進度 |
+
+- `data/treasury/programs.csv`：每次買回計畫一列，每次重抓前年 1 月 1 日起的計畫，更早的保留不動
+- `data/treasury/progress.csv`：執行中計畫的達標申報
+- 回補：Actions → Fetch treasury stock → Run workflow，填 `since`
+
+網頁 `treasury.html`（導覽列「庫藏股」，`scripts/treasury_site.py` → `data/treasury.json`）：
+執行中（價格區間、收盤是否在區間內、預定金額、期間剩幾天、已申報進度）與已結束（執行率、平均買價、收盤 vs 均價、佔股本）。
 
 ## 財報資料（月營收、季報）
 

@@ -206,8 +206,10 @@
       <a href="broker.html">分點籌碼</a>
       <a href="etf.html">ETF持股</a>
       <a href="cb.html" aria-current="page">CB詢圈</a>
+      <a href="treasury.html">庫藏股</a>
       <a href="analyst.html">外資報告</a>
       <a href="alert.html">處置注意</a>
+      <a href="news.html">重大訊息</a>
       <a href="fin.html">財報</a>
       <a href="index.html#quant">量化策略</a>
       <a href="health.html">資料健檢</a>
@@ -302,8 +304,9 @@ const avg = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
 const AUC = c => c.method === "競價拍賣";
 
 // 由檔名決定顯示哪個子頁（build_site.py 會把 cb.html 複製成各子頁檔名）
-const PAGES = {"cb-calendar.html":"calendar", "cb-pipeline.html":"pipeline", "cb-active.html":"active", "cb-bb.html":"bb", "cb-auction.html":"auction", "cb-listed.html":"listed"};
-const VIEW = PAGES[location.pathname.split("/").pop()] || new URLSearchParams(location.search).get("v") || "overview";
+// Cloudflare Pages 會把 cb-bb.html 轉址成 /cb-bb（去掉 .html），所以比對時不看副檔名
+const PAGES = {"cb-calendar":"calendar", "cb-pipeline":"pipeline", "cb-active":"active", "cb-bb":"bb", "cb-auction":"auction", "cb-listed":"listed"};
+const VIEW = PAGES[location.pathname.split("/").pop().replace(/\.html$/, "")] || new URLSearchParams(location.search).get("v") || "overview";
 
 const INFO = {
   overview: ["可轉債從圈購到掛牌", "把每檔可轉債（CB／EB）的詢圈、訂價、繳款與掛牌日排在同一條時間軸上。"],
@@ -346,6 +349,9 @@ function stage(c){
 const listed = c => c._st[1] === "已掛牌";
 const inUW = c => !isPre(c) && c._st[0] !== "wd" && !!(c.bb_start || c.done_date || c.issue_date || c.list_expected);  // 已進入承銷階段
 const listDay = c => c.list_date || c.list_expected || c.issue_date || "";
+// 訂價日（競拍＝開標日）；還沒公告就依慣例推估：詢圈截止後 2 個營業日、競拍截止後 1 個營業日
+const priceDay = c => { const d = AUC(c) ? c.done_date : c.price_base_date; return d ? [d, false] : c.bb_end ? [addBiz(c.bb_end, AUC(c) ? 1 : 2), true] : [null, false]; };
+const priceCell = c => { const [d, est] = priceDay(c); return !d ? "–" : est ? `<span class="faint" style="font-style:italic" title="尚未公告，依慣例推估">${md(d)} 推估</span>` : md(d); };
 
 function steps(c){
   const base = c.price_base_date || (c.bb_end ? addBiz(c.bb_end, 2) : null);
@@ -382,12 +388,13 @@ function viewOverview(){
   const end = addDays(TODAY, 14), days = {};
   const KIND = {eff:["k-eff","生效"], start:["k-start","開始"], end:["k-end","截止"], price:["k-price","訂價"], pay:["k-pay","繳款"], list:["k-list","掛牌"]};
   for (const c of cases){
-    const ev = [["eff", c.eff_date && !c.stop_date && !c.wd_date ? c.eff_date : null], ["start", c.bb_start], ["end", c.bb_end], [ "price", AUC(c) ? c.done_date : c.price_base_date], ["pay", c.pay_date], ["list", c.list_date || c.list_expected]];
+    const ev = [["eff", c.eff_date && !c.stop_date && !c.wd_date ? c.eff_date : null], ["start", c.bb_start], ["end", c.bb_end], ["price", ...priceDay(c)], ["pay", c.pay_date], ["list", c.list_date || c.list_expected]];
     const seen = new Set();
-    for (const [k, d] of ev){
+    for (const [k, d, est] of ev){
       if (!d || d < TODAY || d > end || seen.has(k + d)) continue;
+      if (est && ["done", "wd"].includes(c._st[0])) continue;
       seen.add(k + d);
-      (days[d] ||= []).push([k, c]);
+      (days[d] ||= []).push([k, c, est]);
     }
   }
   const order = ["eff","start","end","price","pay","list"];
@@ -396,7 +403,7 @@ function viewOverview(){
     const w = new Date(d + "T00:00:00Z").getUTCDay();
     const evs = days[d].sort((a, b) => order.indexOf(a[0]) - order.indexOf(b[0]));
     return `<div class="day${d === TODAY ? " today" : ""}"><div class="d"><b class="mono">${md(d)}</b>週${WD[w]}${d === TODAY ? "・今天" : ""}</div>
-      <div class="ev">${evs.map(([k, c]) => `<a class="tag ${KIND[k][0]}" href="${isPre(c) ? "cb-pipeline.html" : "cb-active.html"}#c-${esc(c.id)}" style="text-decoration:none"><i>${AUC(c) && k === "price" ? "開標" : KIND[k][1]}</i>${label(c)}${AUC(c) ? '<span class="faint">競拍</span>' : ""}</a>`).join("")}</div></div>`;
+      <div class="ev">${evs.map(([k, c, est]) => `<a class="tag ${KIND[k][0]}" href="${isPre(c) ? "cb-pipeline.html" : "cb-active.html"}#c-${esc(c.id)}" style="text-decoration:none${est ? ";border-style:dashed" : ""}"><i>${AUC(c) && k === "price" ? "開標" : KIND[k][1]}</i>${label(c)}${AUC(c) ? '<span class="faint">競拍</span>' : ""}${est ? '<span class="faint">推估</span>' : ""}</a>`).join("")}</div></div>`;
   }).join("") : `<div class="empty">未來兩週沒有已公告的詢圈、訂價或掛牌。</div>`;
 
   const recent = cases.filter(c => c.conv_price != null && (c.price_base_date || c.done_date))
@@ -622,7 +629,7 @@ const C = {
             const p = Math.max(0, Math.min(1, (c.premium - c.premium_lo) / (c.premium_hi - c.premium_lo)));
             return `<span class="range" title="${pct(c.premium_lo)} ~ ${pct(c.premium_hi)}"><i style="left:${(p * 100).toFixed(0)}%"></i></span><span class="mono faint">${(p * 100).toFixed(0)}%</span>`;
           }, c => (c.premium != null && c.premium_hi > c.premium_lo) ? (c.premium - c.premium_lo) / (c.premium_hi - c.premium_lo) : -1, "hide-m"],
-  base:  ["訂價基準日", c => md(c.price_base_date), c => c.price_base_date || "", "mono hide-m"],
+  base:  ["訂價日", priceCell, c => priceDay(c)[0] || "", "mono"],
   open:  ["開標", c => md(c.done_date), c => c.done_date || "", "mono hide-m"],
   minp:  ["最低承銷價", c => fmt(c.min_price), c => c.min_price ?? 0, "num"],
   wavg:  ["得標加權價", c => fmt(c.issue_pct), c => c.issue_pct ?? 0, "num"],
@@ -688,7 +695,7 @@ function viewBB(){
                ["議定溢價率中位數", pct(median(pr.map(c => c.premium)))],
                ["議定在區間下緣（落點 ≤10%）", spots.length ? Math.round(spots.filter(p => p <= 0.1).length / spots.length * 100) + "%" : "–"],
                ["發行價中位數", fmt(median(pr.map(c => c.issue_pct).filter(v => v != null)))]]);
-  setupTable(["name","series","stage","lead","units","bbu","board","filed","eff","period","range","prem","spot","conv","issue","base","pay","list"], list, "period", "詢價圈購案件");
+  setupTable(["name","series","stage","period","base","lead","units","bbu","board","filed","eff","range","prem","spot","conv","issue","pay","list"], list, "period", "詢價圈購案件");
 }
 
 function viewAuction(){
