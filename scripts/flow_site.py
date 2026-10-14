@@ -4,6 +4,7 @@
   days:   最近 DAYS 個交易日
   names:  {代號: 名稱}
   vals:   {代號: [每日成交金額（百萬元，整數）...]}   只含上市櫃普通股（不含 ETF、權證）
+  pct:    {代號: [每日漲跌幅（萬分之一，整數，-388＝-3.88%）...]}  產業熱度方塊圖、量價四象限用
   groups: {"sub": [[名稱, 路徑, [代號...]], ...],    產業價值鏈細類
            "ind": [...],                            產業價值鏈產業（47 個）
            "off": [...]}                            證交所／櫃買官方產業別
@@ -29,7 +30,7 @@ def build(data_dir, days=DAYS):
     files = _price_files(data_dir, days)
     if not ind or not files:
         return None
-    dates, vals, names = [], {}, {}
+    dates, vals, pcts, names = [], {}, {}, {}
     for k, f in enumerate(files):
         with f.open(encoding="utf-8") as fp:
             rows = list(csv.DictReader(fp))
@@ -46,8 +47,15 @@ def build(data_dir, days=DAYS):
                 v = 0.0
             names[c] = r["name"]
             vals.setdefault(c, [0] * len(files))[k] = int(round(v / 1e6))
+            try:
+                close, ch = float(r["close"]), float(r["change"])
+                prev = close - ch
+                pcts.setdefault(c, [0] * len(files))[k] = int(round(ch / prev * 1e4)) if close and prev > 0 else 0
+            except (KeyError, TypeError, ValueError):
+                pass
     n = len(dates)
     vals = {c: v[:n] for c, v in vals.items() if any(v[:n])}
+    pcts = {c: v[:n] for c, v in pcts.items() if c in vals and any(v[:n])}
 
     def keep(codes):
         return sorted({c for c in codes if c in vals})
@@ -74,7 +82,7 @@ def build(data_dir, days=DAYS):
         "ind": [[k, "產業價值鏈", keep(v)] for k, v in by_ind.items() if keep(v)],
         "off": [[k, "官方產業別", keep(v)] for k, v in by_off.items() if keep(v) and k not in ("存託憑證", "管理股票")],
     }
-    return {"days": dates, "names": {c: names[c] for c in vals}, "vals": vals, "groups": groups}
+    return {"days": dates, "names": {c: names[c] for c in vals}, "vals": vals, "pct": pcts, "groups": groups}
 
 
 def write_flow(data_dir, out_path, days=DAYS):
