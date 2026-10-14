@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>重大訊息｜潮汐</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0E1620; --panel:#141F2B; --panel-2:#182531;
+    --line:rgba(232,237,242,0.09); --line-strong:rgba(232,237,242,0.16);
+    --text:#E8EDF2; --text-muted:#8B99A6; --text-faint:#5C6B79;
+    --brass:#C6A15B; --brass-soft:rgba(198,161,91,0.14); --rise:#E1594F; --fall:#3FAE72;
+    --radius-s:3px; --radius-m:6px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--ink); color:var(--text);
+    font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
+  h1,h2{font-family:'Noto Serif TC',serif; margin:0; font-weight:700;}
+  h2{font-size:20px;}
+  .mono{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+  a{color:inherit;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
+  header.site{position:sticky; top:0; z-index:40; background:rgba(14,22,32,0.88); backdrop-filter:blur(10px); border-bottom:1px solid var(--line);}
+  .nav-row{display:flex; align-items:center; justify-content:space-between; padding:16px 28px;}
+  .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
+  .brand-mark{font-family:'Noto Serif TC',serif; font-size:22px; font-weight:700;}
+  .brand-sub{font-size:12px; color:var(--text-faint);}
+  nav.links{display:flex; gap:26px; font-size:14px;}
+  nav.links a{text-decoration:none; color:var(--text-muted);}
+  nav.links a:hover{color:var(--brass);}
+  nav.links a[aria-current="page"]{color:var(--brass);}
+  .nav-cta{font-size:13px; color:var(--ink); background:var(--brass); padding:8px 16px; border-radius:var(--radius-s); text-decoration:none; font-weight:500;}
+  .page-head{padding:56px 0 8px;}
+  .eyebrow{font-size:13px; color:var(--brass); margin-bottom:10px;}
+  h1{font-size:32px;}
+  .desc{color:var(--text-muted); font-size:14.5px; margin:12px 0 0; max-width:52em;}
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden; margin-top:28px;}
+  .stat{background:var(--panel); padding:16px 20px;}
+  .stat .k{font-size:12.5px; color:var(--text-muted);}
+  .stat .v{font-size:26px; margin-top:2px;}
+  .stat .s{font-size:12px; color:var(--text-faint);}
+  section.block{margin-top:48px;}
+  .block-head{display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin-bottom:14px; flex-wrap:wrap;}
+  .hint{font-size:12.5px; color:var(--text-faint);}
+  .up{color:var(--rise);} .down{color:var(--fall);} .flat{color:var(--text-muted);}
+  .faint{color:var(--text-faint);}
+  .muted{color:var(--text-muted);}
+
+
+  /* 表格 */
+  .tbl-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius-m);}
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  th, td{padding:9px 12px; border-bottom:1px solid var(--line); text-align:left; white-space:nowrap; vertical-align:top;}
+  th{font-size:12px; color:var(--text-muted); font-weight:500; background:var(--panel); position:sticky; top:0;}
+  tbody tr:last-child td{border-bottom:none;}
+  td.wrap-cell{white-space:normal; min-width:18em;}
+  td.click{cursor:pointer;}
+  .it[data-c]{cursor:pointer;}
+  .sname{font-weight:500;}
+  .sname .mono{font-size:11.5px; color:var(--text-faint); margin-left:6px; font-weight:500;}
+  .tag{display:inline-block; font-size:11.5px; padding:1px 7px; border-radius:var(--radius-s); border:1px solid var(--line-strong); color:var(--text-muted); white-space:nowrap;}
+  .tag.shm{border-color:var(--brass); color:var(--brass);}
+  .tag.call{border-color:#6FA8DC; color:#6FA8DC;}
+  .tag.board{border-color:rgba(232,237,242,0.35); color:var(--text);}
+  .tag.div{border-color:var(--rise); color:var(--rise);}
+  .tag.buyback{border-color:var(--fall); color:var(--fall);}
+  .tag.attn{border-color:#D9A441; color:#D9A441;}
+  .tag.legal{border-color:#B58AD6; color:#B58AD6;}
+  .subj{line-height:1.55;}
+  .tm{font-size:11.5px; color:var(--text-faint); margin-top:2px;}
+  .it.more-it{cursor:pointer; color:var(--brass); font-size:12.5px;}
+  .subj.sub{color:var(--text-muted);}
+  .evd{font-size:12px; color:var(--brass); margin-left:6px; white-space:nowrap;}
+
+  .toolbar{display:flex; flex-wrap:wrap; gap:12px 14px; align-items:center; margin-bottom:12px;}
+  .chips{display:flex; flex-wrap:wrap; gap:6px;}
+  .chips button{background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:5px 11px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .chips button[aria-pressed="true"]{border-color:var(--brass); color:var(--brass);}
+  .chips button .c{font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--text-faint); margin-left:4px;}
+  .find{background:var(--panel); border:1px solid var(--line-strong); color:var(--text); padding:7px 12px; border-radius:var(--radius-m); font:inherit; font-size:14px; width:240px; max-width:100%;}
+  .find:focus{outline:none; border-color:var(--brass);}
+  label.tog{font-size:13px; color:var(--text-muted); display:inline-flex; align-items:center; gap:6px; cursor:pointer;}
+  .more{display:block; margin:14px auto 0; background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:7px 18px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .more:hover{color:var(--brass); border-color:var(--brass);}
+  .empty{padding:20px 0; color:var(--text-faint); font-size:13.5px;}
+  .note{font-size:12.5px; color:var(--text-faint); margin-top:18px; line-height:1.8;}
+
+  /* 行事曆（依日期分組） */
+  .agenda{border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden;}
+  .day{display:grid; grid-template-columns:118px 1fr; border-bottom:1px solid var(--line);}
+  .day:last-child{border-bottom:none;}
+  .day .d{background:var(--panel); padding:12px 14px;}
+  .day .d .md{font-family:'IBM Plex Mono',monospace; font-size:17px; font-weight:600;}
+  .day .d .wd{font-size:12px; color:var(--text-muted);}
+  .day .d .rel{font-size:11.5px; color:var(--brass);}
+  .day.past .d .md{color:var(--text-muted);}
+  .day .items{padding:8px 14px; display:flex; flex-wrap:wrap; gap:6px 18px; align-content:flex-start;}
+  .it{font-size:13.5px; display:inline-flex; align-items:baseline; gap:6px; white-space:nowrap;}
+  .it .sname .mono{margin-left:4px;}
+  .it .nt{font-size:12px; color:var(--text-faint);}
+  .day.today .d{box-shadow:inset 3px 0 0 var(--brass);}
+  /* 查個股 */
+  .search{position:relative; max-width:460px;}
+  .search input{width:100%; background:var(--panel); border:1px solid var(--line-strong); color:var(--text); padding:11px 14px; border-radius:var(--radius-m); font:inherit; font-size:15px;}
+  .search input:focus{outline:none; border-color:var(--brass);}
+  .sugg{position:absolute; left:0; right:0; top:calc(100% + 4px); background:var(--panel-2); border:1px solid var(--line-strong); border-radius:var(--radius-m); z-index:10; overflow:hidden;}
+  .sugg div{padding:8px 14px; cursor:pointer; font-size:14px;}
+  .sugg div:hover, .sugg div.on{background:var(--brass-soft);}
+  .watch{display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; align-items:center; font-size:13px; color:var(--text-muted);}
+  .watch .w{display:inline-flex; align-items:center; gap:6px; border:1px solid var(--line-strong); border-radius:var(--radius-s); padding:3px 4px 3px 9px; cursor:pointer;}
+  .watch .w:hover{border-color:var(--brass);}
+  .watch .w .x{color:var(--text-faint); padding:0 5px; cursor:pointer;}
+  .watch .w .x:hover{color:var(--rise);}
+  .panel{margin-top:16px; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-m); padding:18px 20px;}
+  .panel .top{display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:12px;}
+  .panel .nm{font-size:20px; font-weight:700;}
+  .panel .nm .mono{font-size:14px; color:var(--text-muted); margin-left:8px; font-weight:500;}
+  .star{background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:6px 14px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .star.on{border-color:var(--brass); color:var(--brass);}
+  .tl{list-style:none; margin:0; padding:0;}
+  .tl li{display:grid; grid-template-columns:92px 86px 1fr; gap:10px; padding:8px 0; border-top:1px solid var(--line); font-size:13.5px; align-items:baseline;}
+  .tl li.fut .dt{color:var(--brass);}
+  .tl .dt{font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--text-muted);}
+  .tl .sec{font-size:12px; color:var(--text-faint); margin:14px 0 2px;}
+  .tl .tx .faint{font-size:12px;}
+  .tag.ana{border-color:#6FA8DC; color:#6FA8DC;} .tag.cb{border-color:var(--brass); color:var(--brass);}
+  .tag.dv{border-color:var(--rise); color:var(--rise);}
+  .wst{color:var(--brass); margin-right:4px;}
+  .sum{display:block; font-size:12px; color:var(--text-muted); margin-top:3px; white-space:normal;}
+  a.lnk{color:var(--text-faint); font-size:12px; margin-left:6px;}
+  a.lnk:hover{color:var(--brass);}
+  footer.site{padding:48px 0; margin-top:64px; border-top:1px solid var(--line);}
+  @media (max-width:860px){
+    .nav-row{padding:14px 16px; flex-wrap:wrap; row-gap:10px;}
+    nav.links{order:3; width:100%; gap:20px; overflow-x:auto; white-space:nowrap; font-size:13.5px; scrollbar-width:none;}
+    .wrap{padding:0 16px;}
+    .stats{grid-template-columns:repeat(2,1fr);} h1{font-size:26px;}
+    .hide-s{display:none;}
+    td.wrap-cell{min-width:0;}
+    th, td{padding:8px 10px;}
+    .day{grid-template-columns:84px 1fr;}
+    .day .d{padding:10px;}
+    .it{white-space:normal;}
+    .find{width:100%;}
+    .tl li{grid-template-columns:76px 1fr;}
+    .tl li .tg{grid-column:2; grid-row:1;}
+    .tl li .tx{grid-column:1 / -1;}
+    .panel{padding:14px;}
+  }
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="nav-row">
+    <a href="index.html" class="brand"><span class="brand-mark">潮汐</span><span class="brand-sub">籌碼觀測站</span></a>
+    <nav class="links">
+      <a href="index.html">首頁</a>
+      <a href="ranking.html">成交排行</a>
+      <a href="industry.html">產業分類</a>
+      <a href="broker.html">分點籌碼</a>
+      <a href="etf.html">ETF持股</a>
+      <a href="cb.html">CB詢圈</a>
+      <a href="treasury.html">庫藏股</a>
+      <a href="analyst.html">外資報告</a>
+      <a href="alert.html">處置注意</a>
+      <a href="news.html" aria-current="page">重大訊息</a>
+      <a href="index.html#quant">量化策略</a>
+      <a href="health.html">資料健檢</a>
+    </nav>
+    <a href="index.html#cta" class="nav-cta">開始追蹤</a>
+  </div>
+</header>
+<main class="wrap">
+  <section class="page-head">
+    <div class="eyebrow">重大訊息</div>
+    <h1>股東會、法說會與公司重訊</h1>
+    <p class="desc" id="sub">載入中…</p>
+    <div class="stats" id="stats"></div>
+  </section>
+
+  <section class="block" id="stock">
+    <div class="block-head"><h2>查個股・關注清單</h2><span class="hint">重訊、股東會、法說會、除權息、外資報告、CB、處置注意串成一條時間軸</span></div>
+    <div class="search">
+      <input id="s-q" type="search" placeholder="例：2330 或 台積電" autocomplete="off" aria-label="查個股">
+      <div class="sugg" id="s-sugg" hidden></div>
+    </div>
+    <div class="watch" id="watch"></div>
+    <div id="s-panel"></div>
+  </section>
+
+  <section class="block" id="cal">
+    <div class="block-head"><h2>股東會・法說會・除權息行事曆</h2><span class="hint" id="cal-hint"></span></div>
+    <div class="toolbar">
+      <div class="chips" id="c-kind">
+        <button data-v="" aria-pressed="true">全部</button>
+        <button data-v="shm" aria-pressed="false">股東會</button>
+        <button data-v="臨時會" aria-pressed="false">股東臨時會</button>
+        <button data-v="法說會" aria-pressed="false">法說會</button>
+        <button data-v="div" aria-pressed="false">除權息</button>
+      </div>
+      <label class="tog"><input type="checkbox" id="c-w">只看關注</label>
+      <label class="tog"><input type="checkbox" id="c-etf">含 ETF 配息</label>
+      <div class="chips" id="c-when">
+        <button data-v="up" aria-pressed="true">即將舉行</button>
+        <button data-v="past" aria-pressed="false">近 30 天已舉行</button>
+      </div>
+      <input class="find" id="c-q" type="search" placeholder="篩選代號或名稱" autocomplete="off" aria-label="篩選股票">
+    </div>
+    <div class="agenda" id="agenda"></div>
+    <button class="more" id="cal-more" hidden>顯示更多日期</button>
+  </section>
+
+  <section class="block" id="feed">
+    <div class="block-head"><h2>重大訊息</h2><span class="hint" id="feed-hint"></span></div>
+    <div class="toolbar">
+      <div class="chips" id="f-days">
+        <button data-v="1" aria-pressed="true">最新一天</button>
+        <button data-v="3" aria-pressed="false">3 天</button>
+        <button data-v="7" aria-pressed="false">7 天</button>
+        <button data-v="30" aria-pressed="false">30 天</button>
+      </div>
+      <input class="find" id="f-q" type="search" placeholder="代號、名稱或關鍵字" autocomplete="off" aria-label="搜尋重訊">
+      <label class="tog"><input type="checkbox" id="f-sub">含代子公司公告</label>
+      <label class="tog"><input type="checkbox" id="f-w">只看關注</label>
+    </div>
+    <div class="toolbar"><div class="chips" id="f-cat"></div></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>股票</th><th>主旨</th></tr></thead>
+      <tbody id="feed-body"></tbody>
+    </table></div>
+    <button class="more" id="feed-more" hidden>顯示更多</button>
+  </section>
+
+  <p class="note">
+    資料來源：公開資訊觀測站「每日重大訊息」（上市、上櫃；不含興櫃）。分類由主旨關鍵字自動判斷，可能有誤；「代子公司公告」多為子公司背書保證、取得設備等，預設隱藏。<br>
+    股東會日期取自「董事會決議召開股東會」公告內容，法說會日期取自法說會公告內容與觀測站「法說會一覽表」（含簡報檔）；同一場有更正公告時以最新一次為準。董事會開會日期多半不會事先發重訊，所以這裡只看得到董事會「決議」。<br>
+    除權息取自證交所、櫃買中心「除權除息預告表」，金額不足時用公司的除權息公告補上；股票股利以每股配發金額（元）表示。重訊下方的摘要由公告內容自動擷取，可能不完整。<br>
+    詳細內容請到 <a href="https://mops.twse.com.tw/mops/#/web/t05st02" target="_blank" rel="noopener">公開資訊觀測站</a> 查詢。資料僅供參考，不構成投資建議。
+  </p>
+</main>
+<footer class="site"><div class="wrap"><p class="note" style="margin:0">資料僅供參考。</p></div></footer>
+<script>
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const WD = "日一二三四五六";
+const addDays = (d, n) => { const t = new Date(d + "T00:00:00Z"); t.setUTCDate(t.getUTCDate() + n); return t.toISOString().slice(0, 10); };
+const diff = (a, b) => Math.round((new Date(a + "T00:00:00Z") - new Date(b + "T00:00:00Z")) / 864e5);
+const TODAY = new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);  // 台北日期
+const num = v => v == null ? "–" : (+v).toLocaleString("zh-TW", {maximumFractionDigits: 4});
+
+let D, NEWS = [], MEETS = [], DIVS = [], CATN = {}, DATES = [], NAMES = {};
+const OPEN = new Set(), DAYCAP = 24;  // 股東會旺季一天上百場，先只顯示前幾場
+const F = {days: 1, cat: "", q: "", sub: false, w: false, n: 100}, C = {kind: "", when: "up", q: "", w: false, etf: false, n: 21};
+const isEtf = c => /^00/.test(c);
+function objs(t){ return t ? t.rows.map(r => Object.fromEntries(t.cols.map((k, i) => [k, r[i]]))) : []; }
+const name = c => NAMES[c] || c;
+const stockCell = (c, n) => `<span class="sname">${WATCH.has(c) ? `<span class="wst" title="關注中">★</span>` : ""}${esc(n || name(c))}<span class="mono">${esc(c)}</span></span>`;
+const match = (r, q) => !q || r.code.startsWith(q) || (r.name || "").toLowerCase().includes(q) || (r.subject || "").toLowerCase().includes(q);
+
+/* 關注清單：存在這台瀏覽器（localStorage），只有自己看得到 */
+const WKEY = "tide.watch";
+const WATCH = new Set((() => { try { return JSON.parse(localStorage.getItem(WKEY) || "[]"); } catch (e) { return []; } })());
+function saveWatch(){ try { localStorage.setItem(WKEY, JSON.stringify([...WATCH])); } catch (e) { /* 無痕模式等存不了就算了 */ } }
+function toggleWatch(c){ WATCH.has(c) ? WATCH.delete(c) : WATCH.add(c); saveWatch(); renderWatch(); renderCal(); renderFeed(); if (CUR) showStock(CUR); }
+function renderWatch(){
+  const box = document.getElementById("watch");
+  box.innerHTML = WATCH.size ? `<span>關注：</span>` + [...WATCH].map(c => `<span class="w" data-c="${esc(c)}">${esc(name(c))}<span class="mono faint">${esc(c)}</span><span class="x" data-x="${esc(c)}" title="移除">×</span></span>`).join("")
+    : `<span class="faint">還沒有關注的股票：查個股後按「☆ 加入關注」，行事曆和重訊列表就能只看這些公司。清單存在這台裝置的瀏覽器。</span>`;
+  box.querySelectorAll(".w").forEach(el => el.onclick = e => { if (e.target.dataset.x) toggleWatch(e.target.dataset.x); else pickStock(el.dataset.c); });
+}
+
+/* 行事曆：股東會、法說會、除權息 */
+function calItems(){
+  const out = MEETS.map(m => ({d: m.ev_date, code: m.code, name: m.name, kind: m.ev_kind === "法說會" ? "call" : "shm",
+    label: m.ev_kind === "法說會" ? "法說" : m.ev_kind === "臨時會" ? "臨時會" : "股東會", ev: m.ev_kind, note: m.ev_note,
+    title: `${m.subject}（${m.date} 公告）${m.ev_note ? "\n" + m.ev_note : ""}`, link: m.link}));
+  for (const v of DIVS) out.push({d: v.ex_date, code: v.code, name: v.name, kind: "div", label: v.kind, ev: "div",
+    note: [v.cash ? `現金 ${num(v.cash)}` : "", v.stock ? `股票 ${num(v.stock)}` : ""].filter(Boolean).join("・"), title: `${v.kind}交易日 ${v.ex_date}`});
+  return out;
+}
+function renderCal(){
+  const q = C.q.trim().toLowerCase();
+  const rows = calItems().filter(m => (C.when === "up" ? m.d >= TODAY : m.d < TODAY && m.d >= addDays(TODAY, -30))
+    && (!C.kind || (C.kind === "shm" ? m.kind === "shm" : C.kind === "div" ? m.kind === "div" : m.ev === C.kind))
+    && (!C.w || WATCH.has(m.code)) && (C.etf || m.kind !== "div" || !isEtf(m.code) || WATCH.has(m.code))
+    && (!q || m.code.startsWith(q) || (m.name || "").toLowerCase().includes(q)));
+  const by = new Map();
+  for (const m of rows) (by.get(m.d) || by.set(m.d, []).get(m.d)).push(m);
+  let days = [...by.keys()].sort();
+  if (C.when === "past") days.reverse();
+  document.getElementById("cal-hint").textContent = `${rows.length} 項・${days.length} 天`;
+  document.getElementById("agenda").innerHTML = days.slice(0, C.n).map(d => {
+    const n = diff(d, TODAY), wd = WD[new Date(d + "T00:00:00Z").getUTCDay()];
+    const rel = n === 0 ? "今天" : n === 1 ? "明天" : n > 0 ? `${n} 天後` : `${-n} 天前`;
+    const all = by.get(d).sort((a, b) => WATCH.has(b.code) - WATCH.has(a.code)), cap = OPEN.has(d) ? all.length : DAYCAP;
+    const items = all.slice(0, cap).map(m => `<span class="it" data-c="${esc(m.code)}" title="${esc(m.title)}">
+      <span class="tag ${m.kind === "div" ? "dv" : m.kind}">${esc(m.label)}</span>
+      ${stockCell(m.code, m.name)}${m.note ? `<span class="nt">${esc(m.note.length > 20 ? m.note.slice(0, 19) + "…" : m.note)}</span>` : ""}</span>`).join("")
+      + (all.length > cap ? `<span class="it more-it" data-d="${d}">還有 ${all.length - cap} 項 ▾</span>` : "");
+    return `<div class="day${n < 0 ? " past" : ""}${n === 0 ? " today" : ""}"><div class="d"><div class="md">${d.slice(5)}</div>
+      <div class="wd">週${wd}・${all.length} 項</div><div class="rel">${rel}</div></div><div class="items">${items}</div></div>`;
+  }).join("") || `<div class="empty" style="padding:20px">沒有符合的項目</div>`;
+  document.getElementById("cal-more").hidden = days.length <= C.n;
+  document.querySelectorAll(".more-it").forEach(el => el.onclick = () => { OPEN.add(el.dataset.d); renderCal(); });
+  document.querySelectorAll("#agenda .it[data-c]").forEach(el => el.onclick = () => pickStock(el.dataset.c, true));
+}
+
+/* 重訊列表 */
+function feedRows(withCat = true){
+  const since = DATES[Math.min(F.days, DATES.length) - 1] || "";
+  const q = F.q.trim().toLowerCase();
+  return NEWS.filter(r => r.date >= since && (F.sub || !r.sub) && (!F.w || WATCH.has(r.code)) && match(r, q) && (!withCat || !F.cat || r.cat === F.cat));
+}
+function renderCats(){
+  const base = feedRows(false), cnt = {};
+  for (const r of base) cnt[r.cat] = (cnt[r.cat] || 0) + 1;
+  const box = document.getElementById("f-cat");
+  box.innerHTML = [["", "全部", base.length], ...D.cats.map(([k, n]) => [k, n, cnt[k] || 0])]
+    .map(([k, n, c]) => `<button data-v="${k}" aria-pressed="${F.cat === k}">${n}<span class="c">${c}</span></button>`).join("");
+  box.querySelectorAll("button").forEach(b => b.onclick = () => { F.cat = b.dataset.v; F.n = 100; renderFeed(); });
+}
+const evName = k => k === "常會" || k === "臨時會" ? "股東" + k : k === "除權" || k === "除息" || k === "除權息" ? k + "交易日" : k;
+const evTxt = r => r.ev_date ? `<span class="evd">→ ${evName(r.ev_kind)} ${r.ev_date}</span>` : "";
+function renderFeed(){
+  renderCats();
+  const rows = feedRows();
+  const multi = F.days > 1;
+  document.getElementById("feed-hint").textContent = `${rows.length} 則${F.days === 1 && DATES[0] ? `・${DATES[0]}` : ""}`;
+  document.getElementById("feed-body").innerHTML = rows.slice(0, F.n).map(r => `<tr>
+    <td class="click" data-c="${esc(r.code)}">${stockCell(r.code, r.name)}<div class="tm mono">${multi ? r.date.slice(5) + " " : ""}${(r.time || "").slice(0, 5)}</div></td>
+    <td class="wrap-cell"><span class="tag ${r.cat}">${esc(CATN[r.cat] || r.cat)}</span> <span class="subj${r.sub ? " sub" : ""}">${esc(r.subject)}</span>${evTxt(r)}${
+      r.summary ? `<span class="sum">${esc(r.summary)}</span>` : ""}</td></tr>`).join("")
+    || `<tr><td colspan="2" class="empty">沒有符合的重訊</td></tr>`;
+  document.getElementById("feed-more").hidden = rows.length <= F.n;
+  document.querySelectorAll("#feed-body td[data-c]").forEach(el => el.onclick = () => pickStock(el.dataset.c, true));
+}
+
+/* 個股時間軸：其他頁的 JSON 用到才載入，載不到就略過 */
+const EXTRA = {};
+const loadJSON = u => EXTRA[u] ||= fetch(u, {cache: "no-cache"}).then(r => r.ok ? r.json() : null).catch(() => null);
+let CUR = null;
+async function timeline(code){
+  const ev = [];
+  const add = (d, tag, cls, html) => d && ev.push({d, tag, cls, html});
+  for (const r of NEWS) if (r.code === code)
+    add(r.date, CATN[r.cat] || "重訊", r.cat, `${esc(r.subject)}${evTxt(r)}${r.summary ? `<span class="sum">${esc(r.summary)}</span>` : ""}`);
+  for (const m of MEETS) if (m.code === code)
+    add(m.ev_date, m.ev_kind === "法說會" ? "法說會" : "股東" + m.ev_kind, m.ev_kind === "法說會" ? "call" : "shm",
+      `${m.ev_kind === "法說會" ? "法說會" : "股東" + m.ev_kind}${m.ev_note ? `<span class="faint">　${esc(m.ev_note)}</span>` : ""}${m.link ? `<a class="lnk" href="${esc(m.link)}" target="_blank" rel="noopener">${m.link.includes("/nas/STR/") ? "簡報" : "影音"}</a>` : ""}<span class="faint">　${m.date} 公告</span>`);
+  for (const v of DIVS) if (v.code === code)
+    add(v.ex_date, v.kind, "dv", `${v.kind}交易日${v.cash ? `・現金股利 <span class="mono">${num(v.cash)}</span> 元` : ""}${v.stock ? `・股票股利 <span class="mono">${num(v.stock)}</span> 元` : ""}${v.pay_date ? `<span class="faint">　發放 ${v.pay_date}</span>` : ""}`);
+  const [an, cb, al] = await Promise.all(["data/analyst/analyst.json", "data/cb/cb.json", "data/alert/alert.json"].map(loadJSON));
+  if (an){
+    for (const r of objs(an.reps)) if (r.code === code)
+      add(r.date, "外資報告", "ana", `${esc(r.broker)} ${r.rating ? `「${esc(r.rating)}」` : ""}${r.target != null ? ` 目標價 <span class="mono">${r.prev_target != null ? num(r.prev_target) + " → " : ""}${num(r.target)}</span>` : ""}`);
+    for (const r of objs(an.cons)) if (r.code === code)
+      add(r.date, r.kind === "eps" ? "共識 EPS" : "共識目標價", "ana", `<span class="mono">${num(r.prev)} → ${num(r.value)}</span>${r.analysts ? `<span class="faint">　${r.analysts} 位分析師</span>` : ""}`);
+  }
+  if (cb){
+    for (const r of objs({cols: cb.cols, rows: cb.rows})) if (r.code === code){
+      const nm = esc(r.short || r.company || "CB") + (r.series ? ` 第 ${r.series} 次` : "");
+      add(r.board_date, "CB", "cb", `${nm} 董事會決議${r.board_amount ? `<span class="faint">　${num(r.board_amount / 1e8)} 億</span>` : ""}`);
+      add(r.filed_date, "CB", "cb", `${nm} 送件申報`);
+      add(r.eff_date, "CB", "cb", `${nm} 申報生效`);
+      add(r.bb_start, "CB", "cb", `${nm} ${r.method === "競價拍賣" ? "競拍" : "詢圈"}開始${r.bb_end ? `（至 ${r.bb_end}）` : ""}`);
+      add(r.price_base_date, "CB", "cb", `${nm} 訂價${r.conv_price ? `・轉換價 <span class="mono">${num(r.conv_price)}</span>` : ""}`);
+      add(r.list_date || r.list_expected, "CB", "cb", `${nm} 掛牌${r.list_date ? "" : "（預計）"}`);
+    }
+  }
+  if (al){
+    for (const r of objs(al.disp)) if (r.code === code)
+      add(r.start, "處置", "attn", `${esc(r.measure || "處置")} ${r.start} ～ ${r.end}${r.reason ? `<span class="faint">　${esc(r.reason)}</span>` : ""}`);
+    for (const r of objs(al.att)) if (r.code === code) add(r.date, "注意", "attn", `注意股${r.clauses ? `<span class="faint">　第 ${esc(r.clauses)} 款</span>` : ""}`);
+  }
+  return ev.sort((a, b) => b.d.localeCompare(a.d));
+}
+async function showStock(code){
+  CUR = code;
+  const box = document.getElementById("s-panel");
+  box.innerHTML = `<div class="panel"><div class="empty">載入中…</div></div>`;
+  const ev = await timeline(code);
+  if (CUR !== code) return;
+  const fut = ev.filter(e => e.d > TODAY).reverse(), past = ev.filter(e => e.d <= TODAY);
+  const li = e => `<li class="${e.d > TODAY ? "fut" : ""}"><span class="dt">${e.d}</span><span class="tg"><span class="tag ${e.cls}">${esc(e.tag)}</span></span><span class="tx">${e.html}</span></li>`;
+  const on = WATCH.has(code);
+  box.innerHTML = `<div class="panel"><div class="top"><div class="nm">${esc(name(code))}<span class="mono">${esc(code)}</span></div>
+    <button class="star${on ? " on" : ""}" id="s-star">${on ? "★ 已關注" : "☆ 加入關注"}</button></div>
+    ${ev.length ? `<ul class="tl">${fut.length ? `<li class="sec" style="display:block;border:none">接下來</li>${fut.map(li).join("")}` : ""}
+      ${past.length ? `<li class="sec" style="display:block;border:none">已發生（重訊保留 30 天）</li>${past.slice(0, 60).map(li).join("")}` : ""}</ul>`
+      : `<div class="empty">最近沒有這檔股票的資料</div>`}</div>`;
+  document.getElementById("s-star").onclick = () => toggleWatch(code);
+  try { history.replaceState(null, "", "#s=" + code); } catch (e) {}
+}
+function pickStock(c, scroll){
+  document.getElementById("s-q").value = `${c} ${name(c)}`;
+  showStock(c);
+  if (scroll) document.getElementById("stock").scrollIntoView({behavior: "smooth", block: "start"});
+}
+function setupSearch(){
+  const q = document.getElementById("s-q"), box = document.getElementById("s-sugg");
+  const list = Object.keys(NAMES).sort();
+  let hits = [], on = 0;
+  const draw = () => {
+    box.hidden = !hits.length;
+    box.innerHTML = hits.map((c, k) => `<div data-c="${c}" class="${k === on ? "on" : ""}"><span class="mono">${c}</span>　${esc(name(c))}${WATCH.has(c) ? `<span class="wst">　★</span>` : ""}</div>`).join("");
+    box.querySelectorAll("div").forEach(el => el.onmousedown = () => pick(el.dataset.c));
+  };
+  const pick = c => { hits = []; draw(); pickStock(c); };
+  q.oninput = () => {
+    const t = q.value.trim().toLowerCase(); on = 0;
+    hits = !t ? [] : list.filter(c => c.startsWith(t) || name(c).toLowerCase().includes(t))
+      .sort((a, b) => (b === t) - (a === t) || a.localeCompare(b)).slice(0, 8);
+    draw();
+  };
+  q.onkeydown = e => {
+    if (e.key === "ArrowDown"){ on = Math.min(on + 1, hits.length - 1); draw(); e.preventDefault(); }
+    else if (e.key === "ArrowUp"){ on = Math.max(on - 1, 0); draw(); e.preventDefault(); }
+    else if (e.key === "Enter" && hits.length) pick(hits[on]);
+    else if (e.key === "Enter" && /^\d{4,6}$/.test(q.value.trim())) pick(q.value.trim());
+  };
+  q.onblur = () => setTimeout(() => { hits = []; draw(); }, 150);
+}
+
+function chips(id, obj, key, render, parse = v => v){
+  const box = document.getElementById(id);
+  box.querySelectorAll("button").forEach(b => b.onclick = () => {
+    box.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+    obj[key] = parse(b.dataset.v); obj.n = obj === F ? 100 : 21; render();
+  });
+}
+
+function renderStats(){
+  const up30 = MEETS.filter(m => m.ev_date >= TODAY && m.ev_date <= addDays(TODAY, 30));
+  const dv30a = DIVS.filter(v => v.ex_date >= TODAY && v.ex_date <= addDays(TODAY, 30)), dv30 = dv30a.filter(v => !isEtf(v.code));
+  const last = NEWS.filter(r => r.date === DATES[0]);
+  document.getElementById("stats").innerHTML = [
+    ["最新一天重訊", last.length, `${DATES[0] || "–"}・不含代子公司 ${last.filter(r => !r.sub).length}`],
+    ["未來 30 天股東會", up30.filter(m => m.ev_kind !== "法說會").length, `其中臨時會 ${up30.filter(m => m.ev_kind === "臨時會").length} 場`],
+    ["未來 30 天法說會", up30.filter(m => m.ev_kind === "法說會").length, `${new Set(up30.filter(m => m.ev_kind === "法說會").map(m => m.code)).size} 家公司`],
+    ["未來 30 天除權息", dv30.length, `股票，除息 ${dv30.filter(v => v.kind !== "除權").length}・除權 ${dv30.filter(v => v.kind !== "除息").length}；另 ETF ${dv30a.length - dv30.length} 檔`],
+  ].map(([k, v, s]) => `<div class="stat"><div class="k">${k}</div><div class="v mono">${v}</div><div class="s">${s}</div></div>`).join("");
+}
+
+fetch("data/mops/mops.json", {cache: "no-cache"}).then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); }).then(d => {
+  D = d; NEWS = objs(D.news); MEETS = objs(D.meets); DIVS = objs(D.divs); CATN = Object.fromEntries(D.cats);
+  for (const r of [...DIVS, ...MEETS, ...NEWS]) if (r.name) NAMES[r.code] = r.name;  // 新的蓋舊的
+  Object.assign(NAMES, D.names || {});
+  DATES = [...new Set(NEWS.map(r => r.date))].sort().reverse();
+  document.getElementById("sub").textContent = `上市櫃公司每天在公開資訊觀測站發布的重大訊息，自動分類；股東會、法說會、除權息整理成行事曆，也可以查單一股票的時間軸。重訊列表保留最近 30 天，資料 ${D.first} 起，最新 ${D.generated}。`;
+  renderStats(); renderWatch(); setupSearch(); renderCal(); renderFeed();
+  chips("c-kind", C, "kind", renderCal);
+  chips("c-when", C, "when", renderCal);
+  chips("f-days", F, "days", renderFeed, Number);
+  document.getElementById("c-q").oninput = e => { C.q = e.target.value; C.n = 21; renderCal(); };
+  document.getElementById("f-q").oninput = e => { F.q = e.target.value; F.n = 100; renderFeed(); };
+  document.getElementById("f-sub").onchange = e => { F.sub = e.target.checked; F.n = 100; renderFeed(); };
+  document.getElementById("c-w").onchange = e => { C.w = e.target.checked; C.n = 21; renderCal(); };
+  document.getElementById("c-etf").onchange = e => { C.etf = e.target.checked; C.n = 21; renderCal(); };
+  document.getElementById("f-w").onchange = e => { F.w = e.target.checked; F.n = 100; renderFeed(); };
+  document.getElementById("cal-more").onclick = () => { C.n += 21; renderCal(); };
+  document.getElementById("feed-more").onclick = () => { F.n += 100; renderFeed(); };
+  const fromHash = scroll => { const s = new URLSearchParams(location.hash.slice(1)).get("s"); if (s && s !== CUR) pickStock(s, scroll); };
+  fromHash(false);
+  addEventListener("hashchange", () => fromHash(true));
+}).catch(e => { console.error(e); document.getElementById("sub").textContent = "資料載入失敗"; });
+</script>
+<script>(function(){var a=document.querySelector('nav.links a[aria-current="page"]');if(a&&a.parentNode.scrollWidth>a.parentNode.clientWidth){a.parentNode.scrollLeft=a.offsetLeft-a.parentNode.offsetLeft-16;}})();</script>
+</body>
+</html>
