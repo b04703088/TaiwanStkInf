@@ -260,6 +260,22 @@ python fetch_alert.py                      # 最近 10 天
 python fetch_alert.py --start 2025-01-01   # 回補
 ```
 
+## 庫藏股
+
+`fetch_treasury.py`（`.github/workflows/treasury.yml`，週一至週五台北 08:37、19:37）整理上市櫃公司買回自家股份的計畫與結果。
+
+| 來源 | 拿到什麼 |
+|---|---|
+| 公開資訊觀測站「庫藏股統計彙總表」（`mopsov.twse.com.tw/mops/web/ajax_t35sc09`，上市、上櫃各查一次，依董事會決議日） | 決議日、目的、預定股數、價格區間、預定期間；結束後的實際股數、金額、均價、佔股本 |
+| 觀測站「買回達一定標準」（`ajax_t35sb01`，只查執行中的計畫） | 每買回達已發行股數 2% 或 3 億元的申報，當作執行中進度 |
+
+- `data/treasury/programs.csv`：每次買回計畫一列，每次重抓前年 1 月 1 日起的計畫，更早的保留不動
+- `data/treasury/progress.csv`：執行中計畫的達標申報
+- 回補：Actions → Fetch treasury stock → Run workflow，填 `since`
+
+網頁 `treasury.html`（導覽列「庫藏股」，`scripts/treasury_site.py` → `data/treasury.json`）：
+執行中（價格區間、收盤是否在區間內、預定金額、期間剩幾天、已申報進度）與已結束（執行率、平均買價、收盤 vs 均價、佔股本）。
+
 ## 資料健檢
 
 `scripts/health.py` 檢查資料有沒有漏抓或抓錯，結果在網站的 `health.html`（ETF持股、成交排行頁尾有連結）。
