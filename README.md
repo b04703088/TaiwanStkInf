@@ -282,6 +282,9 @@ python fetch_alert.py --start 2025-01-01   # 回補
   要補更早的：Actions → Fetch financials → Run workflow，`since` 填 `2013-01`。只重抓某月／某季填 `only`（`2026-09` 或 `2026Q2`）
 - `data/financials/sources.json`：最近一次執行抓了哪些月份／季別、錯誤訊息
 
+網頁 `fin.html`（導覽列「財報」，`scripts/fin_site.py` → `data/fin/index.json` 與每檔 `data/fin/s/<代號>.json`）：
+查個股（近三年月營收與年增率、單季 EPS 與營益率圖，季報與月營收明細）、月營收排行（年增、創 N 個月新高、累計年增、月增，可篩上市／上櫃與營收規模）、季報排行（單季 EPS、EPS 年增、營收年增、毛利率、近四季 EPS、ROE）。
+
 ```bash
 python fetch_financials.py                        # 例行
 python fetch_financials.py --revenue 2026-09      # 某月營收
