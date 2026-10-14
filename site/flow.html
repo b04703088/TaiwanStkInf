@@ -114,6 +114,12 @@
   .ov-plot .ql{font-size:13px; font-weight:700;}
   .ov-plot .lb{font-size:12px; fill:var(--text); paint-order:stroke; stroke:var(--panel); stroke-width:3px;}
   .ov-key{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-faint); margin-top:8px; flex-wrap:wrap;}
+  .ov-plot .hm rect.c{cursor:pointer; stroke:var(--panel); stroke-width:1;}
+  .ov-plot .hm rect.c:hover{stroke:var(--brass); stroke-width:1.5;}
+  .ov-plot .hm .gl{font-size:12.5px; fill:var(--text);}
+  .ov-plot .hm .gl.top{fill:var(--brass);}
+  .ov-plot .hm .dl{font-family:'IBM Plex Mono',monospace; font-size:10.5px; fill:var(--text-faint);}
+  .ov-plot .hm .sv{font-family:'IBM Plex Mono',monospace; font-size:11.5px; font-weight:600;}
   .ov-key .ramp{width:140px; height:8px; border-radius:2px; background:linear-gradient(90deg,var(--fall),#24303D,var(--rise));}
   .trend-chart{margin:12px 0 14px;}
   .trend-chart .hd{display:flex; gap:16px; flex-wrap:wrap; align-items:baseline; font-size:12.5px; color:var(--text-muted); margin-bottom:6px;}
@@ -208,7 +214,8 @@
   <section class="ov" aria-label="產業熱度總覽">
     <div class="cmp-hd">
       <h2>產業熱度總覽</h2>
-      <div class="seg" data-k="ov"><button data-v="tm" aria-pressed="true">熱力方塊圖</button><button data-v="qd" aria-pressed="false">量價四象限</button></div>
+      <div class="seg" data-k="hw" id="hwSeg" hidden><button data-v="v" aria-pressed="true">成交額加權</button><button data-v="e" aria-pressed="false">等權</button></div>
+      <div class="seg" data-k="ov"><button data-v="tm" aria-pressed="true">熱力方塊圖</button><button data-v="hm" aria-pressed="false">資金熱力圖</button><button data-v="qd" aria-pressed="false">量價四象限</button></div>
     </div>
     <div class="ov-plot" id="ovPlot"></div>
     <div class="ov-key" id="ovKey"></div>
@@ -249,7 +256,7 @@ const MIN_BASE = 200;  // 近 N 日平均成交 ≥ 2 億（單位：百萬）
 const PAGE = 40;
 
 let F, PX = {}, MKT = [], G = {};
-const st = {t: 0, ov: "tm", level: "sub", base: 5, dir: "in", sort: "dshare", q: "", shown: PAGE, open: null, cwin: 40, csm: 5, cmode: "share", pick: null};
+const st = {t: 0, ov: "tm", hw: "v", level: "sub", base: 5, dir: "in", sort: "dshare", q: "", shown: PAGE, open: null, cwin: 40, csm: 5, cmode: "share", pick: null};
 const MAX_PICK = 8, AUTO_PICK = 4;
 const slotOf = new Map();  // 族群 id → 顏色槽（跟著族群走，不跟排名）
 
@@ -482,6 +489,23 @@ function focusGroup(id, name){
   st.q = name; $("q").value = name; st.open = id; st.shown = PAGE; render();
   document.querySelector(`#rows tr.g[data-id="${CSS.escape(id)}"]`)?.scrollIntoView({behavior: "smooth", block: "center"});
 }
+// 資金熱力圖：族群 × 日期，格子＝方向性資金比
+//   成交額加權：Σ(個股成交額 × 漲跌方向) ÷ 族群近 20 日平均成交額 × 100（%）
+//   等權：(上漲檔數 − 下跌檔數) ÷ 有成交檔數 × 100（%）
+function flowCell(g, k, mode){
+  if (mode === "e"){
+    let up = 0, dn = 0, n = 0;
+    for (const c of g.codes){ const v = F.vals[c]?.[k]; if (!v) continue; n++; const p = pctOf(c, k); if (p > 0) up++; else if (p < 0) dn++; }
+    return n ? (up - dn) / n * 100 : null;
+  }
+  let net = 0;
+  for (const c of g.codes){ const v = F.vals[c]?.[k]; if (!v) continue; const p = pctOf(c, k); net += p > 0 ? v : p < 0 ? -v : 0; }
+  const k0 = Math.max(0, k - 19); let base = 0;
+  for (let j = k0; j <= k; j++) base += g.v[j];
+  base /= (k - k0 + 1);
+  return base > 0 ? net / base * 100 : null;
+}
+
 function renderOverview(rows){
   const plot = $("ovPlot"), key = $("ovKey"), t = st.t;
   const narrow = matchMedia("(max-width:600px)").matches;
@@ -489,7 +513,48 @@ function renderOverview(rows){
   const lvlNote = st.level === "off" ? "" : "產業價值鏈分類中同一檔股票可能屬於多個族群，各族群佔比加總會超過 100%。";
   if (!top.length){ plot.innerHTML = `<div class="empty">沒有資料</div>`; key.innerHTML = ""; return; }
   let svg, tipFor;
-  if (st.ov === "tm"){
+  $("hwSeg").hidden = st.ov !== "hm";
+  if (st.ov === "hm"){
+    const D = Math.min(narrow ? 10 : 20, t + 1), N = narrow ? 20 : 30;
+    const W = narrow ? 360 : 1060, LW = narrow ? 86 : 150, SW = narrow ? 50 : 66, TH = 22, RH = narrow ? 20 : 19;
+    const ks = Array.from({length: D}, (_, i) => t - D + 1 + i);
+    const groups = [...rows].sort((a, b) => avgV(b.g, t, Math.min(20, t + 1)) - avgV(a.g, t, Math.min(20, t + 1))).slice(0, N);
+    const grid = groups.map(r => { const vals = ks.map(k => flowCell(r.g, k, st.hw)); const last5 = vals.slice(-5).filter(v => v != null);
+      return {r, vals, s5: last5.length ? last5.reduce((a, b) => a + b, 0) : null}; })
+      .sort((a, b) => (b.s5 ?? -1e9) - (a.s5 ?? -1e9));
+    // 色階上下限：所有格子的 2 個標準差，避免少數極端值把其他格子都洗淡
+    const all = grid.flatMap(g => g.vals).filter(v => v != null);
+    const sd = all.length ? Math.sqrt(all.reduce((a, v) => a + v * v, 0) / all.length) : 1;
+    const lim = Math.max(st.hw === "e" ? 20 : 10, sd * 2);
+    const lim5 = lim * 2.5;
+    const H = TH + grid.length * RH + 4, CW = (W - LW - SW - 8) / D;
+    const cells = [];
+    const md = d => `${+d.slice(5, 7)}/${+d.slice(8, 10)}`;
+    const head = ks.map((k, i) => (i % 5 === (D - 1) % 5 || i === D - 1)
+      ? `<text class="dl" x="${(LW + i * CW + CW / 2).toFixed(1)}" y="14" text-anchor="middle">${md(F.days[k])}</text>` : "").join("")
+      + `<text class="dl" x="${W - SW / 2}" y="14" text-anchor="middle">近 5 日</text>`;
+    const body = grid.map((g, ri) => {
+      const y = TH + ri * RH, nm = g.r.g.name, mx = narrow ? 6 : 10;
+      const lbl = `<text class="gl${ri < 3 ? " top" : ""}" x="${LW - 8}" y="${(y + RH * 0.7).toFixed(1)}" text-anchor="end">${esc(nm.length > mx ? nm.slice(0, mx - 1) + "…" : nm)}</text>`;
+      const row = g.vals.map((v, i) => { cells.push({g, i, v}); return `<rect class="c" data-i="${cells.length - 1}" x="${(LW + i * CW).toFixed(1)}" y="${y}" width="${CW.toFixed(1)}" height="${RH}" fill="${v == null ? "#1B2733" : heatColor(v, lim)}"/>`; }).join("");
+      cells.push({g, i: -1, v: g.s5});
+      const s5 = `<rect class="c" data-i="${cells.length - 1}" x="${W - SW}" y="${y}" width="${SW}" height="${RH}" fill="${g.s5 == null ? "#1B2733" : heatColor(g.s5, lim5)}"/>` +
+        `<text class="sv" x="${W - 6}" y="${(y + RH * 0.7).toFixed(1)}" text-anchor="end" fill="#fff">${g.s5 == null ? "–" : sgn(g.s5, v => v.toFixed(0))}</text>`;
+      return lbl + row + s5;
+    }).join("");
+    svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="族群資金熱力圖"><g class="hm">${head}${body}</g></svg>`;
+    const unit = st.hw === "e" ? "（上漲−下跌）÷ 檔數" : "淨流入 ÷ 族群日均成交額";
+    tipFor = el => { const c = cells[+el.dataset.i]; if (!c) return null;
+      if (c.i < 0) return {r: c.g.r, html: `<div class="r">近 5 日合計 <b class="${cls(c.v)}">${sgn(c.v, v => v.toFixed(1) + "%")}</b></div><div class="r faint">${unit}</div>`};
+      const k = ks[c.i], ret = groupRet(c.g.r.g, k, 1);
+      return {r: c.g.r, html: `<div class="r">${md(F.days[k])}（${"日一二三四五六"[new Date(F.days[k] + "T00:00:00+08:00").getDay()]}）</div>` +
+        `<div class="r">資金比 <b class="${cls(c.v)}">${sgn(c.v, v => v.toFixed(1) + "%")}</b></div>` +
+        `<div class="r">成交 <b>${yi(c.g.r.g.v[k])} 億</b></div><div class="r">族群漲跌 <b class="${cls(ret)}">${sgn(ret, v => v.toFixed(2) + "%")}</b></div>`}; };
+    key.innerHTML = st.hw === "e"
+      ? `<span>格子＝（上漲檔數 − 下跌檔數）÷ 有成交檔數。每檔股票權重相同，看族群裡有多少比例的股票有資金進來，不會被權值股主導。</span><span>−${lim.toFixed(0)}%</span><span class="ramp"></span><span>+${lim.toFixed(0)}%</span>`
+      : `<span>格子＝當天淨流入（收漲個股成交額 − 收跌個股成交額）÷ 族群近 20 日平均成交額。+40% 代表淨流入約是平常一天成交額的四成。</span><span>−${lim.toFixed(0)}%</span><span class="ramp"></span><span>+${lim.toFixed(0)}%</span>`;
+    key.innerHTML += `<span>近 ${Math.min(20, t + 1)} 日平均成交前 ${N} 大族群，依近 5 日合計排序（上＝流入、下＝流出）。這是用漲跌推估的方向，不是法人實際買賣。點格子看成分股。${lvlNote}</span>`;
+  } else if (st.ov === "tm"){
     const N = narrow ? 20 : 30, W = narrow ? 360 : 1060, H = narrow ? 420 : 460;
     const items = top.slice(0, N).map(r => ({r, size: r.share, ret: groupRet(r.g, t, 1)}));
     const cells = squarify(items, 0, 0, W, H);
@@ -628,7 +693,7 @@ document.querySelectorAll(".seg").forEach(seg => seg.addEventListener("click", e
   const b = e.target.closest("button"); if (!b) return;
   const k = seg.dataset.k;
   st[k] = k === "base" || k === "cwin" || k === "csm" ? +b.dataset.v : b.dataset.v;
-  if (k === "cwin" || k === "cmode" || k === "csm" || k === "ov"){ syncSeg(); render(); return; }
+  if (k === "cwin" || k === "cmode" || k === "csm" || k === "ov" || k === "hw"){ syncSeg(); render(); return; }
   if (k === "level") st.pick = null;
   st.shown = PAGE; st.open = null;
   if (k === "base") clampDay();
