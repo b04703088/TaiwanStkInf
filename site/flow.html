@@ -58,6 +58,7 @@
   .seg button{background:none; border:none; color:var(--text-muted); padding:6px 12px; cursor:pointer; font:inherit; font-size:13px;}
   .seg button + button{border-left:1px solid var(--line-strong);}
   .seg button[aria-pressed="true"]{background:var(--brass); color:var(--ink);}
+  .toolbar-tbl{margin-top:0;}
   .toolbar .lab{font-size:12px; color:var(--text-faint); margin-right:-4px;}
   .toolbar input{margin-left:auto; background:var(--panel); border:1px solid var(--line-strong); color:var(--text); padding:6px 10px; border-radius:var(--radius-s); font:inherit; font-size:13px; width:180px;}
   .tbl{overflow-x:auto; border-top:1px solid var(--line);}
@@ -206,11 +207,6 @@
     <div class="seg" data-k="level"><button data-v="sub" aria-pressed="true">細類</button><button data-v="ind" aria-pressed="false">產業</button><button data-v="off" aria-pressed="false">官方產業別</button></div>
     <span class="lab">比較</span>
     <div class="seg" data-k="base"><button data-v="5" aria-pressed="true">近 5 日</button><button data-v="20" aria-pressed="false">近 20 日</button></div>
-    <span class="lab">排序</span>
-    <div class="seg" data-k="sort"><button data-v="dshare" aria-pressed="true">佔比變化</button><button data-v="dv" aria-pressed="false">增減金額</button><button data-v="trend" aria-pressed="false">趨勢</button></div>
-    <span class="lab">方向</span>
-    <div class="seg" data-k="dir"><button data-v="in" aria-pressed="true">流入</button><button data-v="out" aria-pressed="false">流出</button></div>
-    <input id="q" type="search" placeholder="搜尋族群或個股" aria-label="搜尋">
   </div>
   <section class="ov" aria-label="產業熱度總覽">
     <div class="cmp-hd">
@@ -232,6 +228,13 @@
     <div class="cmp-plot" id="cmpPlot"></div>
     <div class="cmp-hint" id="cmpHint"></div>
   </section>
+  <div class="toolbar toolbar-tbl">
+    <span class="lab">排序</span>
+    <div class="seg" data-k="sort"><button data-v="dshare" aria-pressed="true">佔比變化</button><button data-v="dv" aria-pressed="false">增減金額</button><button data-v="trend" aria-pressed="false">趨勢</button></div>
+    <span class="lab">方向</span>
+    <div class="seg" data-k="dir"><button data-v="in" aria-pressed="true">流入</button><button data-v="out" aria-pressed="false">流出</button></div>
+    <input id="q" type="search" placeholder="搜尋族群或個股" aria-label="搜尋">
+  </div>
   <div class="tbl">
     <table>
       <thead><tr id="thead"></tr></thead>
@@ -466,7 +469,6 @@ function groupRet(g, t, n){
   }
   return den ? num / den : null;
 }
-const avgV = (g, t, n) => { let s = 0; for (let k = t - n + 1; k <= t; k++) s += g.v[k]; return s / n; };
 function squarify(items, x, y, w, h){
   const out = []; items = items.filter(d => d.size > 0);
   const total = items.reduce((s, d) => s + d.size, 0); if (!total) return out;
@@ -508,7 +510,7 @@ function flowCell(g, k, mode){
 }
 
 function renderOverview(rows){
-  const plot = $("ovPlot"), key = $("ovKey"), t = st.t;
+  const plot = $("ovPlot"), key = $("ovKey"), t = st.t, B = st.base, LIM = B >= 20 ? 10 : 5;  // 顏色飽和的漲跌幅（%）
   const narrow = matchMedia("(max-width:600px)").matches;
   const top = [...rows].sort((a, b) => b.share - a.share);
   const lvlNote = st.level === "off" ? "" : "產業價值鏈分類中同一檔股票可能屬於多個族群，各族群佔比加總會超過 100%。";
@@ -557,7 +559,7 @@ function renderOverview(rows){
     key.innerHTML += `<span>近 ${Math.min(20, t + 1)} 日平均成交前 ${N} 大族群，依近 5 日合計排序（上＝流入、下＝流出）。這是用漲跌推估的方向，不是法人實際買賣。點格子看成分股。${lvlNote}</span>`;
   } else if (st.ov === "tm"){
     const N = narrow ? 20 : 30, W = narrow ? 360 : 1060, H = narrow ? 420 : 460;
-    const items = top.slice(0, N).map(r => ({r, size: r.share, ret: groupRet(r.g, t, 1)}));
+    const items = top.slice(0, N).map(r => ({r, size: r.share, ret: groupRet(r.g, t, B)}));
     const cells = squarify(items, 0, 0, W, H);
     svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="產業熱力方塊圖"><g class="tm">${cells.map((c, i) => {
       const {r, ret} = c.d, fs = Math.max(10, Math.min(narrow ? 15 : 20, c.w / 7, c.h / 3.2));
@@ -565,21 +567,21 @@ function renderOverview(rows){
         ? `<svg x="${c.x.toFixed(1)}" y="${c.y.toFixed(1)}" width="${Math.max(0, c.w - 4).toFixed(1)}" height="${c.h.toFixed(1)}"><text x="6" y="${(fs + 4).toFixed(1)}" font-size="${fs.toFixed(0)}" font-weight="700">${esc(r.g.name.length > c.w / fs ? r.g.name.slice(0, Math.max(1, Math.floor(c.w / fs) - 1)) + "…" : r.g.name)}</text>` +
           (c.h > fs * 2 + 10 ? `<text x="6" y="${(fs * 2 + 8).toFixed(1)}" font-size="${Math.max(10, fs * 0.68).toFixed(0)}" opacity=".85">${r.share.toFixed(1)}%${c.w < fs * 6 ? "<tspan x=\"6\" dy=\"1.2em\">" : "　"}${sgn(ret, v => v.toFixed(2) + "%")}${c.w < fs * 6 ? "</tspan>" : ""}</text>` : "") + `</svg>`
         : "";
-      return `<rect data-i="${i}" x="${c.x.toFixed(1)}" y="${c.y.toFixed(1)}" width="${c.w.toFixed(1)}" height="${c.h.toFixed(1)}" fill="${ret == null ? "#24303D" : heatColor(ret, 3)}"/>${lbl}`;
+      return `<rect data-i="${i}" x="${c.x.toFixed(1)}" y="${c.y.toFixed(1)}" width="${c.w.toFixed(1)}" height="${c.h.toFixed(1)}" fill="${ret == null ? "#24303D" : heatColor(ret, LIM)}"/>${lbl}`;
     }).join("")}</g></svg>`;
-    tipFor = el => { const c = cells[+el.dataset.i]; return c && {r: c.d.r, html: `<div class="r">成交 <b>${yi(c.d.r.v)} 億</b></div><div class="r">佔大盤 <b>${c.d.r.share.toFixed(2)}%</b></div><div class="r">當日漲跌 <b class="${cls(c.d.ret)}">${sgn(c.d.ret, v => v.toFixed(2) + "%")}</b></div><div class="r">佔比變化 <b class="${cls(c.d.r.dshare)}">${sgn(c.d.r.dshare, v => v.toFixed(2))}</b></div>`}; };
-    key.innerHTML = `<span>方塊大小＝成交金額佔大盤比例（前 ${N} 大），顏色＝族群當日漲跌（成交金額加權）</span><span>−3%</span><span class="ramp"></span><span>+3%</span><span>點方塊看成分股。${lvlNote}</span>`;
+    tipFor = el => { const c = cells[+el.dataset.i]; return c && {r: c.d.r, html: `<div class="r">成交 <b>${yi(c.d.r.v)} 億</b></div><div class="r">佔大盤 <b>${c.d.r.share.toFixed(2)}%</b></div><div class="r">近 ${B} 日漲跌 <b class="${cls(c.d.ret)}">${sgn(c.d.ret, v => v.toFixed(2) + "%")}</b></div><div class="r">佔比變化 <b class="${cls(c.d.r.dshare)}">${sgn(c.d.r.dshare, v => v.toFixed(2))}</b></div>`}; };
+    key.innerHTML = `<span>方塊大小＝成交金額佔大盤比例（前 ${N} 大），顏色＝族群近 ${B} 日漲跌（成交金額加權，跟著上方「比較」切換）</span><span>−${LIM}%</span><span class="ramp"></span><span>+${LIM}%</span><span>點方塊看成分股。${lvlNote}</span>`;
   } else {
-    const N = narrow ? 12 : 20, W = narrow ? 360 : 1060, H = narrow ? 360 : 440, L = 44, R = 12, T = 12, B = 30;
-    if (t < 19){ plot.innerHTML = `<div class="empty">需要至少 20 個交易日資料</div>`; key.innerHTML = ""; return; }
+    const N = narrow ? 12 : 20, W = narrow ? 360 : 1060, H = narrow ? 360 : 440, L = 44, R = 12, T = 12, BM = 30;
+    if (t < B){ plot.innerHTML = `<div class="empty">需要至少 ${B + 1} 個交易日資料</div>`; key.innerHTML = ""; return; }
     const pts = top.slice(0, N).map(r => {
-      const a20 = avgV(r.g, t, 20);
-      return {r, x: a20 ? (avgV(r.g, t, 5) / a20 - 1) * 100 : 0, y: groupRet(r.g, t, 5)};
+      const base = r.v - r.dv;  // 近 N 日平均成交（不含今天），跟表格「增減金額」同一個基準
+      return {r, x: base ? (r.v / base - 1) * 100 : 0, y: groupRet(r.g, t, B)};
     }).filter(p => p.y != null);
     const xs = pts.map(p => p.x).concat(0), ys = pts.map(p => p.y).concat(0);
     let x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
     const px = (x1 - x0) * 0.1 || 1, py = (y1 - y0) * 0.12 || 1; x0 -= px; x1 += px * 1.6; y0 -= py; y1 += py * 1.4;
-    const X = v => L + (v - x0) / (x1 - x0) * (W - L - R), Y = v => T + (1 - (v - y0) / (y1 - y0)) * (H - T - B);
+    const X = v => L + (v - x0) / (x1 - x0) * (W - L - R), Y = v => T + (1 - (v - y0) / (y1 - y0)) * (H - T - BM);
     const cx = X(0), cy = Y(0), mxS = Math.max(...pts.map(p => p.r.share));
     const rad = p => (narrow ? 4 : 5) + Math.sqrt(p.r.share / mxS) * (narrow ? 14 : 22);
     const q = (txt, x, y, a, c) => `<text class="ql" x="${x}" y="${y}" text-anchor="${a}" fill="${c}">${txt}</text>`;
@@ -589,27 +591,27 @@ function renderOverview(rows){
       const w = name.length * 12 + 4, left = X(p.x) + 6 + w > W - R, lx = left ? X(p.x) - 6 - w : X(p.x) + 6;
       for (const dy of [0, -14, 14, -28, 28]){
         const ly = Y(p.y) + 4 + dy;
-        if (ly < T + 26 || ly > H - B - 2) continue;
+        if (ly < T + 26 || ly > H - BM - 2) continue;
         if (placed.some(o => Math.abs(o.y - ly) < 14 && lx < o.x + o.w && o.x < lx + w)) continue;
         placed.push({x: lx, y: ly, w});
         return `<text class="lb" x="${(left ? lx + w : lx).toFixed(1)}" y="${ly.toFixed(1)}"${left ? ` text-anchor="end"` : ""}>${esc(name)}</text>`;
       }
       return "";
     }).join("");
-    const tick = (v, isX) => `<text class="ax" x="${isX ? X(v).toFixed(1) : L - 6}" y="${isX ? H - B + 16 : (Y(v) + 3.5).toFixed(1)}" text-anchor="${isX ? "middle" : "end"}">${sgn(v, z => z.toFixed(0) + "%")}</text>`;
+    const tick = (v, isX) => `<text class="ax" x="${isX ? X(v).toFixed(1) : L - 6}" y="${isX ? H - BM + 16 : (Y(v) + 3.5).toFixed(1)}" text-anchor="${isX ? "middle" : "end"}">${sgn(v, z => z.toFixed(0) + "%")}</text>`;
     const nice = (a, b) => { const raw = (b - a) / 4, p = 10 ** Math.floor(Math.log10(raw)), m = raw / p, s = (m <= 1 ? 1 : m <= 2 ? 2 : m <= 5 ? 5 : 10) * p, o = []; for (let v = Math.ceil(a / s) * s; v <= b; v += s) o.push(+v.toFixed(6)); return o; };
     svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="產業量價四象限">
       <rect x="${cx}" y="${T}" width="${Math.max(0, W - R - cx)}" height="${Math.max(0, cy - T)}" fill="rgba(225,89,79,0.07)"/>
-      <rect x="${cx}" y="${cy}" width="${Math.max(0, W - R - cx)}" height="${Math.max(0, H - B - cy)}" fill="rgba(63,174,114,0.07)"/>
+      <rect x="${cx}" y="${cy}" width="${Math.max(0, W - R - cx)}" height="${Math.max(0, H - BM - cy)}" fill="rgba(63,174,114,0.07)"/>
       ${nice(x0, x1).map(v => tick(v, true)).join("")}${nice(y0, y1).map(v => tick(v, false)).join("")}
-      <line x1="${cx}" x2="${cx}" y1="${T}" y2="${H - B}" stroke="var(--line-strong)"/><line x1="${L}" x2="${W - R}" y1="${cy}" y2="${cy}" stroke="var(--line-strong)"/>
+      <line x1="${cx}" x2="${cx}" y1="${T}" y2="${H - BM}" stroke="var(--line-strong)"/><line x1="${L}" x2="${W - R}" y1="${cy}" y2="${cy}" stroke="var(--line-strong)"/>
       ${q("價漲量縮", L + 8, T + 18, "start", "var(--text-muted)")}${q("價漲量增", W - R - 8, T + 18, "end", "var(--rise)")}
-      ${q("價跌量縮", L + 8, H - B - 8, "start", "var(--text-muted)")}${q("價跌量增", W - R - 8, H - B - 8, "end", "var(--fall)")}
+      ${q("價跌量縮", L + 8, H - BM - 8, "start", "var(--text-muted)")}${q("價跌量增", W - R - 8, H - BM - 8, "end", "var(--fall)")}
       <g class="qd">${[...pts].sort((a, b) => b.r.share - a.r.share).map(p => { const i = pts.indexOf(p), c = p.y >= 0 ? "var(--rise)" : "var(--fall)";
         return `<circle class="b" data-i="${i}" cx="${X(p.x).toFixed(1)}" cy="${Y(p.y).toFixed(1)}" r="${rad(p).toFixed(1)}" fill="${c}" fill-opacity=".22" stroke="${c}"/><circle cx="${X(p.x).toFixed(1)}" cy="${Y(p.y).toFixed(1)}" r="2.5" fill="${c}" pointer-events="none"/>`; }).join("")}</g>
       ${labels}</svg>`;
-    tipFor = el => { const p = pts[+el.dataset.i]; return p && {r: p.r, html: `<div class="r">近 5 日漲跌 <b class="${cls(p.y)}">${sgn(p.y, v => v.toFixed(2) + "%")}</b></div><div class="r">成交額 5 日均 vs 20 日均 <b class="${cls(p.x)}">${sgn(p.x, v => v.toFixed(1) + "%")}</b></div><div class="r">佔大盤 <b>${p.r.share.toFixed(2)}%</b></div>`}; };
-    key.innerHTML = `<span>橫軸＝近 5 日平均成交金額比近 20 日平均多或少；縱軸＝族群近 5 日漲跌（成交金額加權）；圓圈大小＝當日成交佔比（前 ${N} 大）。右上「價漲量增」是資金帶動上漲的主流族群，右下「價跌量增」要留意出貨。點圓圈看成分股。${lvlNote}</span>`;
+    tipFor = el => { const p = pts[+el.dataset.i]; return p && {r: p.r, html: `<div class="r">近 ${B} 日漲跌 <b class="${cls(p.y)}">${sgn(p.y, v => v.toFixed(2) + "%")}</b></div><div class="r">今日成交 vs 近 ${B} 日均 <b class="${cls(p.x)}">${sgn(p.x, v => v.toFixed(1) + "%")}</b></div><div class="r">佔大盤 <b>${p.r.share.toFixed(2)}%</b></div>`}; };
+    key.innerHTML = `<span>橫軸＝今日成交金額比近 ${B} 日平均多或少；縱軸＝族群近 ${B} 日漲跌（成交金額加權）；兩軸跟著上方「比較」切換；圓圈大小＝當日成交佔比（前 ${N} 大）。右上「價漲量增」是資金帶動上漲的主流族群，右下「價跌量增」要留意出貨。點圓圈看成分股。${lvlNote}</span>`;
   }
   plot.innerHTML = svg + `<div class="tip" id="ovTip"></div>`;
   const tip = $("ovTip"), box = plot.querySelector("svg");
