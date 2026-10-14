@@ -299,6 +299,38 @@ python fetch_mops_news.py --since 2026-01-01 --max-minutes 50
 網頁 `treasury.html`（導覽列「庫藏股」，`scripts/treasury_site.py` → `data/treasury.json`）：
 執行中（價格區間、收盤是否在區間內、預定金額、期間剩幾天、已申報進度）與已結束（執行率、平均買價、收盤 vs 均價、佔股本）。
 
+## 財報資料（月營收、季報）
+
+`fetch_financials.py`（`.github/workflows/financials.yml`，每天台北 18:40）從公開資訊觀測站抓上市＋上櫃公司的月營收與每季財報重點項目，存成 CSV。金額單位一律**新台幣千元**（EPS、每股淨值是元）。
+
+| 來源（公開免登入，觀測站舊版 `mopsov.twse.com.tw`） | 拿到什麼 |
+|---|---|
+| `nas/t21/<sii\|otc>/t21sc03_<民國年>_<月>_<0\|1>.html` | 月營收彙總表（國內／外國公司），102 年起 |
+| `mops/web/ajax_t163sb04`、`ajax_t163sb05` | 綜合損益表、資產負債表彙總（全市場一次回來，一次要 1～2 分鐘） |
+
+- **月營收** `data/financials/revenue/<YYYYMM>.csv`：`ym, market, code, name, industry, revenue, prev_month, last_year, mom_pct, yoy_pct, cum, cum_last_year, cum_yoy_pct, note`
+  - 每月 10 日前公布、之後可能更正，所以最近 2 個月每次重抓；`note` 是公司對營收大幅增減的說明
+- **季報** `data/financials/quarterly/<YYYY>Q<n>.csv`：`year, season, market, code, name, type` ＋
+  - 損益（**當年累計**）：`revenue, gross_profit, operating_income, pretax_income, net_income, net_income_parent, eps`
+  - 單季（本季累計減前一季累計）：同上欄位加 `q_` 前綴；前一季沒資料就空白
+  - 資產負債（季底）：`current_assets, total_assets, current_liabilities, total_liabilities, capital, retained_earnings, equity_parent, equity, bvps`
+  - `type`：一般／銀行／金控／證券／保險／其他。觀測站對不同行業用不同格式，這裡統一欄位；銀行沒有「營業收入」，`revenue` 用淨收益（利息淨收益＋利息以外淨損益）；保險業 2026 年起適用 IFRS 17、沒有營業收入，`revenue` 空白；金融業沒有毛利、流動資產等欄位就空白
+  - 沒有子公司的公司（個體報表）不分歸屬，`net_income_parent`、`equity_parent` 等於全部
+  - 申報期間（Q1 4/1～6/15、Q2 7/1～9/15、Q3 10/1～12/15、Q4 隔年 1/1～4/15）每天重抓，期間過了就不再抓
+- 回補：例行執行也會在 40 分鐘內往回補 2019-01 之後還沒有的月份／季別（一季約 4～5 分鐘），幾天內補完；
+  要補更早的：Actions → Fetch financials → Run workflow，`since` 填 `2013-01`。只重抓某月／某季填 `only`（`2026-09` 或 `2026Q2`）
+- `data/financials/sources.json`：最近一次執行抓了哪些月份／季別、錯誤訊息
+
+網頁 `fin.html`（導覽列「財報」，`scripts/fin_site.py` → `data/fin/index.json` 與每檔 `data/fin/s/<代號>.json`）：
+查個股（近三年月營收與年增率、單季 EPS 與營益率圖，季報與月營收明細）、月營收排行（年增、創 N 個月新高、累計年增、月增，可篩上市／上櫃與營收規模）、季報排行（單季 EPS、EPS 年增、營收年增、毛利率、近四季 EPS、ROE）。
+
+```bash
+python fetch_financials.py                        # 例行
+python fetch_financials.py --revenue 2026-09      # 某月營收
+python fetch_financials.py --quarter 2026Q2       # 某季財報
+python fetch_financials.py --since 2013-01 --max-minutes 50
+```
+
 ## 資料健檢
 
 `scripts/health.py` 檢查資料有沒有漏抓或抓錯，結果在網站的 `health.html`（ETF持股、成交排行頁尾有連結）。
