@@ -382,7 +382,7 @@ async function showStock(code){
     </div>` : ""}
     ${qs.length ? `<div class="charts">
       <div><div class="sub-h">單季 EPS（元）</div>${bars(epsPts, {fmt: v => (+v).toFixed(Math.abs(v) < 10 ? 1 : 0), color: (v, i) => sign(v, i === epsPts.length - 1)})}</div>
-      <div><div class="sub-h">單季營益率（%）</div>${bars(mPts, {fmt: v => Math.round(v) + "%", color: (v, i) => sign(v, i === mPts.length - 1)})}</div>
+      ${mPts.every(p => p.v == null) ? "" : `<div><div class="sub-h">單季營益率（%）</div>${bars(mPts, {fmt: v => Math.round(v) + "%", color: (v, i) => sign(v, i === mPts.length - 1)})}</div>`}
     </div>
     <div class="sub-h">季報（單季）</div>
     <div class="tbl-wrap"><table><thead><tr><th>季別</th><th class="n">營收（億）</th><th class="n">營收年增</th><th class="n">毛利率</th><th class="n">營益率</th>
