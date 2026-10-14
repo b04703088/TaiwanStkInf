@@ -302,8 +302,9 @@ const avg = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
 const AUC = c => c.method === "競價拍賣";
 
 // 由檔名決定顯示哪個子頁（build_site.py 會把 cb.html 複製成各子頁檔名）
-const PAGES = {"cb-calendar.html":"calendar", "cb-pipeline.html":"pipeline", "cb-active.html":"active", "cb-bb.html":"bb", "cb-auction.html":"auction", "cb-listed.html":"listed"};
-const VIEW = PAGES[location.pathname.split("/").pop()] || new URLSearchParams(location.search).get("v") || "overview";
+// Cloudflare Pages 會把 cb-bb.html 轉址成 /cb-bb（去掉 .html），所以比對時不看副檔名
+const PAGES = {"cb-calendar":"calendar", "cb-pipeline":"pipeline", "cb-active":"active", "cb-bb":"bb", "cb-auction":"auction", "cb-listed":"listed"};
+const VIEW = PAGES[location.pathname.split("/").pop().replace(/\.html$/, "")] || new URLSearchParams(location.search).get("v") || "overview";
 
 const INFO = {
   overview: ["可轉債從圈購到掛牌", "把每檔可轉債（CB／EB）的詢圈、訂價、繳款與掛牌日排在同一條時間軸上。"],
