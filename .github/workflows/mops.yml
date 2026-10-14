@@ -1,0 +1,64 @@
+name: Fetch MOPS news
+
+on:
+  schedule:
+    # 台北 08:37、17:37、22:37（UTC 00:37、09:37、14:37），週一至週五；重訊多在盤後到晚上發布
+    - cron: "37 0 * * 1-5"
+    - cron: "37 9 * * 1-5"
+    - cron: "37 14 * * 1-5"
+    # 週六補抓週五深夜的重訊
+    - cron: "37 1 * * 6"
+  workflow_dispatch:
+    inputs:
+      since:
+        description: "回補起日 YYYY-MM-DD（空白 = 2026-01-01）"
+        required: false
+        default: ""
+      max_minutes:
+        description: "最多跑幾分鐘（回補分次跑會接續）"
+        required: false
+        default: "20"
+
+permissions:
+  contents: write
+  actions: write  # 有新資料時觸發網站部署
+
+concurrency:
+  group: fetch-mops
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Fetch
+        env:
+          SINCE: ${{ github.event.inputs.since }}
+          MAXMIN: ${{ github.event.inputs.max_minutes || '20' }}
+        run: python fetch_mops_news.py ${SINCE:+--since "$SINCE"} --max-minutes "$MAXMIN"
+
+      - name: Commit data
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/mops
+          if git diff --cached --quiet; then
+            echo "No changes"
+            exit 0
+          fi
+          git commit -m "data: MOPS news $(TZ=Asia/Taipei date +%F)"
+          for i in 1 2 3; do
+            git pull --rebase -q && git push && { gh workflow run pages.yml --ref "$GITHUB_REF_NAME" || echo "觸發部署失敗（不影響資料）"; exit 0; }
+            sleep 10
+          done
+          exit 1

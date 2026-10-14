@@ -18,6 +18,7 @@ on:
       - "scripts/rebalance_site.py"
       - "scripts/calendar_site.py"
       - "scripts/analyst_site.py"
+      - "scripts/mops_site.py"
       - ".github/workflows/pages.yml"
   workflow_dispatch: {}
 
