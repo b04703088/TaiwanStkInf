@@ -14,7 +14,7 @@ import re
 from datetime import date, timedelta
 from pathlib import Path
 
-DISP = ["market", "ann_date", "code", "start", "end", "reason", "measure", "interval"]
+DISP = ["market", "ann_date", "code", "start", "end", "reason", "measure", "interval", "exit", "pre_close", "close"]
 ATT = ["market", "date", "code", "clauses", "close", "pe", "info"]
 NEAR = ["market", "code", "situation"]
 CAND = ["market", "code", "rules", "need", "s1", "s8", "n10", "n30"]
@@ -100,7 +100,7 @@ def _v(k, v):
         return None
     if k == "interval":
         return int(v)
-    if k in ("close", "pe"):
+    if k in ("close", "pe", "pre_close"):
         try:
             return float(v)
         except ValueError:
@@ -146,11 +146,55 @@ def build(disp, att, near):
                      "rows": [[";".join(c[k]) if k == "rules" else c[k] for k in CAND] for c in cand]}}
 
 
+def next_open(d, holidays):
+    """d 之後第一個開盤日（平日且不在休市日）＝出關日"""
+    t = date.fromisoformat(d)
+    while True:
+        t += timedelta(days=1)
+        if t.weekday() < 5 and t.isoformat() not in holidays:
+            return t.isoformat()
+
+
+def _closes(path):
+    with open(path, encoding="utf-8") as fp:
+        return {r["code"].strip(): r["close"] for r in csv.DictReader(fp) if r.get("close")}
+
+
+def add_prices(disp, data_dir, since):
+    """處置迄日 ≥ since 的處置：補上處置前一個交易日收盤（pre_close）與最新收盤（close，處置已結束則取迄日收盤）。"""
+    files = {f"{p.stem[:4]}-{p.stem[4:6]}-{p.stem[6:8]}": p
+             for p in Path(data_dir).glob("[0-9][0-9][0-9][0-9]/[0-9]*.csv")}
+    dates, cache = sorted(files), {}
+
+    def close(day, code):
+        if day not in cache:
+            cache[day] = _closes(files[day])
+        return cache[day].get(code, "")
+    for x in disp:
+        if x["end"] < since or not dates:
+            continue
+        pre = [t for t in dates if t < x["start"]]
+        upto = [t for t in dates if t <= x["end"]]
+        if pre:
+            x["pre_close"] = close(pre[-1], x["code"])
+        if upto and upto[-1] >= x["start"]:
+            x["close"] = close(upto[-1], x["code"])
+
+
 def write_alert(data_dir, out_path):
     d = Path(data_dir) / "alert"
     if not (d / "disposal.csv").exists() and not (d / "attention.csv").exists():
         return None
-    payload = build(_read(d / "disposal.csv"), _read(d / "attention.csv"), _read(d / "near.csv"))
+    hp = Path(data_dir) / "no_trading_days.txt"
+    holidays = set(hp.read_text(encoding="utf-8").split()) if hp.exists() else set()
+    disp = [x for x in _read(d / "disposal.csv") if is_stock(x["code"])]
+    for x in disp:
+        if x.get("end"):
+            x["exit"] = next_open(x["end"], holidays)
+    add_prices(disp, data_dir, (date.today() - timedelta(days=20)).isoformat())
+    payload = build(disp, _read(d / "attention.csv"), _read(d / "near.csv"))
+    today = date.today().isoformat()
+    payload["holidays"] = sorted(h for h in holidays if h >= today)
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")

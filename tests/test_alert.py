@@ -99,6 +99,20 @@ class SiteTest(unittest.TestCase):
         disp.append({"market": "上櫃", "code": "3333", "ann_date": days[-3]})  # 處置公布後重新計算
         self.assertNotIn("3333", {x["code"] for x in S.candidates(att, disp, days)})
 
+    def test_exit_and_prices(self):
+        self.assertEqual(S.next_open("2026-10-16", set()), "2026-10-19")  # 週五 → 週一
+        self.assertEqual(S.next_open("2026-10-08", {"2026-10-09"}), "2026-10-12")  # 國慶連假
+        with tempfile.TemporaryDirectory() as d:
+            y = Path(d) / "2026"
+            y.mkdir()
+            for day, px in (("20261007", "10"), ("20261008", "11"), ("20261012", "12.5")):
+                (y / f"{day}.csv").write_text(f"date,market,code,name,close\n2026-10-{day[-2:]},TWSE,1709,和益,{px}\n", encoding="utf-8")
+            disp = [{"code": "1709", "start": "2026-10-08", "end": "2026-10-15"},
+                    {"code": "1709", "start": "2026-09-01", "end": "2026-09-05"}]
+            S.add_prices(disp, d, "2026-10-01")
+            self.assertEqual((disp[0]["pre_close"], disp[0]["close"]), ("10", "12.5"))
+            self.assertNotIn("pre_close", disp[1])  # 太舊不算
+
     def test_is_stock(self):
         for c in ("2330", "0050", "00878", "00631L", "9103"):
             self.assertTrue(S.is_stock(c), c)
