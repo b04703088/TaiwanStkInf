@@ -1,0 +1,57 @@
+name: Fetch disposal & attention stocks
+
+on:
+  schedule:
+    # 台北 18:47（處置、注意股盤後公告）與隔天 07:47 補抓（UTC 10:47 週一至五、23:47 週日至四）
+    - cron: "47 10 * * 1-5"
+    - cron: "47 23 * * 0-4"
+  workflow_dispatch:
+    inputs:
+      start:
+        description: "回補起日 YYYY-MM-DD（空白 = 最近 10 天）"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+  actions: write  # 有新資料時觸發網站部署
+
+concurrency:
+  group: fetch-alert
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Fetch
+        env:
+          START: ${{ github.event.inputs.start }}
+        run: |
+          if [ -n "$START" ]; then python fetch_alert.py --start "$START"; else python fetch_alert.py; fi
+
+      - name: Commit data
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/alert
+          if git diff --cached --quiet; then
+            echo "No new data"
+            exit 0
+          fi
+          git commit -m "data: 處置／注意股 $(TZ=Asia/Taipei date +%F)"
+          for i in 1 2 3; do
+            git pull --rebase -q && git push && { gh workflow run pages.yml --ref "$GITHUB_REF_NAME" || echo "觸發部署失敗（不影響資料）"; exit 0; }
+            sleep 10
+          done
+          exit 1

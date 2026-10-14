@@ -244,6 +244,22 @@ python fetch_analyst.py                                   # 最近 3 天
 python fetch_analyst.py --start 2025-10-01 --end 2026-09-30 --max-minutes 50
 ```
 
+## 處置股、注意股
+
+`fetch_alert.py`（`.github/workflows/alert.yml`，平日台北 18:47、隔天 07:47 補抓）抓證交所與櫃買中心的每日公告，存在 `data/alert/`：
+
+- **處置** `disposal.csv`：`market(上市/上櫃), ann_date, code, name, start, end, reason, measure(第一次／第二次／再次處置), interval(撮合間隔分鐘), detail`
+- **注意** `attention.csv`：`market, date, code, name, info, clauses(第幾款，; 分隔), close, pe`
+- **注意累計次數異常**（瀕臨處置）`near.csv`：`date, market, code, name, situation`；官方只提供當天名單，每天抓一次累積
+- 每次抓最近 10 天，與舊資料合併；含權證、可轉債，網頁才濾成股票與 ETF。回補：Actions → Fetch disposal & attention stocks → Run workflow 填起日（已回補到 2025-01-01）
+
+網頁 `alert.html`（導覽列「處置注意」，`scripts/alert_site.py` → `data/alert/alert.json`）：處置中與即將處置（剩幾天、撮合間隔）、瀕臨處置、注意股（可選日期，含連續天數與近 10／30 日次數）、查個股、處置紀錄。
+
+```bash
+python fetch_alert.py                      # 最近 10 天
+python fetch_alert.py --start 2025-01-01   # 回補
+```
+
 ## 資料健檢
 
 `scripts/health.py` 檢查資料有沒有漏抓或抓錯，結果在網站的 `health.html`（ETF持股、成交排行頁尾有連結）。

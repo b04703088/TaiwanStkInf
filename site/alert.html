@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>處置注意股｜潮汐</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0E1620; --panel:#141F2B; --panel-2:#182531;
+    --line:rgba(232,237,242,0.09); --line-strong:rgba(232,237,242,0.16);
+    --text:#E8EDF2; --text-muted:#8B99A6; --text-faint:#5C6B79;
+    --brass:#C6A15B; --brass-soft:rgba(198,161,91,0.14); --rise:#E1594F; --fall:#3FAE72;
+    --radius-s:3px; --radius-m:6px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--ink); color:var(--text);
+    font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
+  h1,h2{font-family:'Noto Serif TC',serif; margin:0; font-weight:700;}
+  h2{font-size:20px;}
+  .mono{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+  a{color:inherit;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
+  header.site{position:sticky; top:0; z-index:40; background:rgba(14,22,32,0.88); backdrop-filter:blur(10px); border-bottom:1px solid var(--line);}
+  .nav-row{display:flex; align-items:center; justify-content:space-between; padding:16px 28px;}
+  .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
+  .brand-mark{font-family:'Noto Serif TC',serif; font-size:22px; font-weight:700;}
+  .brand-sub{font-size:12px; color:var(--text-faint);}
+  nav.links{display:flex; gap:26px; font-size:14px;}
+  nav.links a{text-decoration:none; color:var(--text-muted);}
+  nav.links a:hover{color:var(--brass);}
+  nav.links a[aria-current="page"]{color:var(--brass);}
+  .nav-cta{font-size:13px; color:var(--ink); background:var(--brass); padding:8px 16px; border-radius:var(--radius-s); text-decoration:none; font-weight:500;}
+  .page-head{padding:56px 0 8px;}
+  .eyebrow{font-size:13px; color:var(--brass); margin-bottom:10px;}
+  h1{font-size:32px;}
+  .desc{color:var(--text-muted); font-size:14.5px; margin:12px 0 0; max-width:52em;}
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden; margin-top:28px;}
+  .stat{background:var(--panel); padding:16px 20px;}
+  .stat .k{font-size:12.5px; color:var(--text-muted);}
+  .stat .v{font-size:26px; margin-top:2px;}
+  .stat .s{font-size:12px; color:var(--text-faint);}
+  section.block{margin-top:48px;}
+  .block-head{display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin-bottom:14px; flex-wrap:wrap;}
+  .hint{font-size:12.5px; color:var(--text-faint);}
+  .up{color:var(--rise);} .down{color:var(--fall);} .flat{color:var(--text-muted);}
+  .faint{color:var(--text-faint);}
+  .muted{color:var(--text-muted);}
+
+  /* 查個股 */
+  .search{position:relative; max-width:460px;}
+  .search input{width:100%; background:var(--panel); border:1px solid var(--line-strong); color:var(--text); padding:11px 14px; border-radius:var(--radius-m); font:inherit; font-size:15px;}
+  .search input:focus{outline:none; border-color:var(--brass);}
+  .sugg{position:absolute; left:0; right:0; top:calc(100% + 4px); background:var(--panel-2); border:1px solid var(--line-strong); border-radius:var(--radius-m); z-index:10; overflow:hidden;}
+  .sugg div{padding:8px 14px; cursor:pointer; font-size:14px;}
+  .sugg div:hover, .sugg div.on{background:var(--brass-soft);}
+  .stock{margin-top:16px; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-m); padding:18px 20px;}
+  .stock .top{display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap;}
+  .stock .nm{font-size:20px; font-weight:700;}
+  .stock .nm .mono{font-size:14px; color:var(--text-muted); margin-left:8px; font-weight:500;}
+  .stock .px{font-size:15px;}
+  .kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-top:16px; padding-top:14px; border-top:1px solid var(--line);}
+  .kpi .k{font-size:12px; color:var(--text-muted);}
+  .kpi .v{font-size:20px; margin-top:2px;}
+  .kpi .s{font-size:12px; color:var(--text-faint); margin-top:2px;}
+  .views{display:flex; height:8px; border-radius:2px; overflow:hidden; margin-top:8px; background:var(--line);}
+  .views i{display:block; height:100%;}
+  .views .b{background:var(--rise);} .views .n{background:var(--text-faint);} .views .r{background:var(--fall);}
+
+  /* 表格 */
+  .tbl-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius-m);}
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  th, td{padding:9px 12px; border-bottom:1px solid var(--line); text-align:left; white-space:nowrap;}
+  th{font-size:12px; color:var(--text-muted); font-weight:500; background:var(--panel); position:sticky; top:0;}
+  td.n, th.n{text-align:right;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr.click{cursor:pointer;}
+  tbody tr.click:hover td{background:var(--panel);}
+  td.wrap-cell{white-space:normal; min-width:18em;}
+  .sname{font-weight:500;}
+  .sname .mono{font-size:11.5px; color:var(--text-faint); margin-left:6px; font-weight:500;}
+  .mini{display:inline-flex; width:72px; height:6px; border-radius:2px; overflow:hidden; background:var(--line); vertical-align:middle; margin-right:6px;}
+  .mini i{display:block; height:100%;}
+  .mini .b{background:var(--rise);} .mini .n{background:var(--text-faint);} .mini .r{background:var(--fall);}
+  .tag{display:inline-block; font-size:11.5px; padding:1px 7px; border-radius:var(--radius-s); border:1px solid var(--line-strong); color:var(--text-muted); margin-right:8px;}
+  .tag.rep{border-color:var(--brass); color:var(--brass);}
+  .ttl{display:block; font-size:12px; color:var(--text-faint); margin-top:2px; text-decoration:none; overflow:hidden; text-overflow:ellipsis; max-width:46em;}
+  .ttl:hover{color:var(--brass);}
+
+  .toolbar{display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin-bottom:12px;}
+  .chips{display:flex; flex-wrap:wrap; gap:6px;}
+  .chips button{background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:5px 11px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .chips button[aria-pressed="true"]{border-color:var(--brass); color:var(--brass);}
+  .more{display:block; margin:14px auto 0; background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:7px 18px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .more:hover{color:var(--brass); border-color:var(--brass);}
+  .empty{padding:20px 0; color:var(--text-faint); font-size:13.5px;}
+  .note{font-size:12.5px; color:var(--text-faint); margin-top:18px; line-height:1.8;}
+  footer.site{padding:48px 0; margin-top:64px; border-top:1px solid var(--line);}
+  @media (max-width:860px){
+    .nav-row{padding:14px 16px; flex-wrap:wrap; row-gap:10px;}
+    nav.links{order:3; width:100%; gap:20px; overflow-x:auto; white-space:nowrap; font-size:13.5px; scrollbar-width:none;}
+    .wrap{padding:0 16px;}
+    .stats, .kpis{grid-template-columns:repeat(2,1fr);} h1{font-size:26px;}
+    .hide-s{display:none;}
+    td.wrap-cell{min-width:14em;}
+  }
+  .tag.disp{border-color:var(--rise); color:var(--rise);}
+  .tag.soon{border-color:var(--brass); color:var(--brass);}
+  .tag.mk{font-size:11px; padding:0 5px; margin:0 0 0 6px;}
+  .cnt{display:inline-block; min-width:1.8em; text-align:center; border-radius:var(--radius-s);}
+  .cnt.hot{background:rgba(225,89,79,0.18); color:var(--rise);}
+  .cnt.warm{background:var(--brass-soft); color:var(--brass);}
+  .reason{font-size:12.5px; color:var(--text-muted);}
+  .sub-h{font-size:14px; color:var(--text-muted); margin:18px 0 8px; font-weight:500;}
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="nav-row">
+    <a href="index.html" class="brand"><span class="brand-mark">潮汐</span><span class="brand-sub">籌碼觀測站</span></a>
+    <nav class="links">
+      <a href="index.html">首頁</a>
+      <a href="ranking.html">成交排行</a>
+      <a href="industry.html">產業分類</a>
+      <a href="broker.html">分點籌碼</a>
+      <a href="etf.html">ETF持股</a>
+      <a href="cb.html">CB詢圈</a>
+      <a href="analyst.html">外資報告</a>
+      <a href="alert.html" aria-current="page">處置注意</a>
+      <a href="index.html#quant">量化策略</a>
+      <a href="health.html">資料健檢</a>
+    </nav>
+    <a href="index.html#cta" class="nav-cta">開始追蹤</a>
+  </div>
+</header>
+<main class="wrap">
+  <section class="page-head">
+    <div class="eyebrow">處置注意</div>
+    <h1>處置股與注意股</h1>
+    <p class="desc" id="sub">載入中…</p>
+    <div class="stats" id="stats"></div>
+  </section>
+
+  <section class="block" id="now">
+    <div class="block-head"><h2>處置中與即將處置</h2><span class="hint" id="now-hint"></span></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>股票</th><th>狀態</th><th>處置期間</th><th class="n">撮合</th><th class="hide-s">次別</th><th class="hide-s">原因</th><th class="hide-s">公布</th></tr></thead>
+      <tbody id="now-body"></tbody>
+    </table></div>
+  </section>
+
+  <section class="block" id="near">
+    <div class="block-head"><h2>瀕臨處置</h2><span class="hint" id="near-hint"></span></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>股票</th><th>注意累計情形</th><th class="n">近 10 日注意</th><th class="n">近 30 日注意</th></tr></thead>
+      <tbody id="near-body"></tbody>
+    </table></div>
+  </section>
+
+  <section class="block" id="att">
+    <div class="block-head"><h2>注意股</h2><span class="hint" id="att-hint"></span></div>
+    <div class="toolbar">
+      <div class="chips" id="att-day"></div>
+      <div class="chips" id="att-min">
+        <button data-v="1" aria-pressed="true">全部</button>
+        <button data-v="2" aria-pressed="false">連續 2 天以上</button>
+      </div>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>股票</th><th class="n">連續</th><th class="n">近 10 日</th><th class="n">近 30 日</th><th class="n hide-s">收盤</th><th>注意原因</th></tr></thead>
+      <tbody id="att-body"></tbody>
+    </table></div>
+    <button class="more" id="att-more" hidden>顯示更多</button>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>查個股</h2><span class="hint">輸入代號或名稱，列出處置與注意紀錄</span></div>
+    <div class="search">
+      <input id="q" type="search" placeholder="例：1709 或 和益" autocomplete="off" aria-label="查個股">
+      <div class="sugg" id="sugg" hidden></div>
+    </div>
+    <div id="stock"></div>
+  </section>
+
+  <section class="block" id="hist">
+    <div class="block-head"><h2>處置紀錄</h2><span class="hint" id="hist-hint"></span></div>
+    <div class="toolbar">
+      <div class="chips" id="hist-days">
+        <button data-v="30" aria-pressed="true">30 天</button>
+        <button data-v="90" aria-pressed="false">90 天</button>
+        <button data-v="365" aria-pressed="false">一年</button>
+      </div>
+      <div class="chips" id="hist-mk">
+        <button data-v="" aria-pressed="true">上市＋上櫃</button>
+        <button data-v="上市" aria-pressed="false">上市</button>
+        <button data-v="上櫃" aria-pressed="false">上櫃</button>
+      </div>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>公布</th><th>股票</th><th>處置期間</th><th class="n">撮合</th><th class="hide-s">次別</th><th class="hide-s">原因</th></tr></thead>
+      <tbody id="hist-body"></tbody>
+    </table></div>
+    <button class="more" id="hist-more" hidden>顯示更多</button>
+  </section>
+
+  <p class="note">
+    資料來源：臺灣證券交易所「公布處置有價證券」「公布注意有價證券」「注意累計次數異常」，證券櫃檯買賣中心「處置有價證券」「公布注意有價證券」「注意累計次數異常」，每個交易日盤後更新。只列股票與 ETF，不含權證、可轉債。<br>
+    「撮合」是處置期間人工撮合的間隔（約每 N 分鐘一次）；第一次處置多為 2–5 分鐘，第二次（再次）處置多為 20–25 分鐘並需預收款券。「狀態」以台北今天日期判斷，剩餘天數只扣週末、不含國定假日。<br>
+    「瀕臨處置」是交易所公布的注意累計次數異常名單：再被列一次注意就可能進入處置。「連續」「近 10／30 日」是本站依注意公告日數（以有公告的交易日計）算出的次數，僅供參考，實際是否處置以交易所公告為準。資料僅供參考，不構成投資建議。
+  </p>
+</main>
+<footer class="site"><div class="wrap"><p class="note" style="margin:0">資料僅供參考。</p></div></footer>
+<script>
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const num = v => v == null ? "–" : (+v).toLocaleString("zh-TW", {maximumFractionDigits: 2});
+const TODAY = new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);  // 台北日期
+const md = d => d ? (d.slice(0, 4) === TODAY.slice(0, 4) ? d.slice(5).replace("-", "/") : d.replace(/-/g, "/")) : "–";
+const addDays = (d, n) => { const t = new Date(d + "T00:00:00Z"); t.setUTCDate(t.getUTCDate() + n); return t.toISOString().slice(0, 10); };
+const objs = t => t.rows.map(r => Object.fromEntries(t.cols.map((k, i) => [k, r[i]])));
+
+let D, DISP = [], ATT = [], NEAR = [], HIT = {}, DAYIDX = {};
+const name = c => D.names[c] || c;
+const A = {day: "", min: 1, n: 60}, H = {days: 30, mk: "", n: 60};
+
+/* 平日數（含頭尾），不含國定假日 */
+function weekdays(a, b){
+  let n = 0;
+  for (let d = a; d <= b; d = addDays(d, 1)){ const w = new Date(d + "T00:00:00Z").getUTCDay(); if (w && w < 6) n++; }
+  return n;
+}
+function status(r){
+  if (TODAY < r.start) return {k: "soon", t: `${md(r.start)} 起`};
+  if (TODAY <= r.end) return {k: "disp", t: `處置中・剩 ${weekdays(TODAY, r.end)} 天`};
+  return {k: "", t: "已結束"};
+}
+
+/* 某檔在某交易日（含）往回的連續注意天數、近 n 日次數 */
+function streak(code, day){
+  let i = DAYIDX[day], n = 0;
+  while (i >= 0 && HIT[code]?.has(D.days[i])){ n++; i--; }
+  return n;
+}
+function recent(code, day, n){
+  const i = DAYIDX[day] ?? D.days.length - 1;
+  return D.days.slice(Math.max(0, i - n + 1), i + 1).filter(d => HIT[code]?.has(d)).length;
+}
+const cnt = (v, warm, hot) => `<span class="cnt mono ${v >= hot ? "hot" : v >= warm ? "warm" : ""}">${v}</span>`;
+const stockCell = (c, mk) => `<span class="sname">${esc(name(c))}<span class="mono">${esc(c)}</span></span>${mk ? `<span class="tag mk">${esc(mk)}</span>` : ""}`;
+const ivCell = v => v == null ? `<span class="faint">–</span>` : `<span class="${v >= 20 ? "up" : ""}">${v} 分</span>`;
+const clauseTxt = s => s ? s.split(";").map(k => `第${k}款`).join("、") : "";
+
+function renderStats(){
+  const live = DISP.filter(r => r.start <= TODAY && TODAY <= r.end), soon = DISP.filter(r => TODAY < r.start);
+  const last = D.days.at(-1), today = ATT.filter(r => r.date === last);
+  const c30 = new Set(DISP.filter(r => r.ann_date >= addDays(D.generated, -30)).map(r => r.code)).size;
+  document.getElementById("stats").innerHTML = [
+    ["處置中", live.length, `上市 ${live.filter(r => r.market === "上市").length}・上櫃 ${live.filter(r => r.market === "上櫃").length}`],
+    ["即將處置", soon.length, soon.length ? "下個交易日起" : "目前沒有"],
+    ["瀕臨處置", NEAR.length, D.near.date ? `${md(D.near.date)} 公告` : "–"],
+    ["最新注意股", today.length, `${md(last)}・近 30 天處置 ${c30} 檔`],
+  ].map(([k, v, s]) => `<div class="stat"><div class="k">${k}</div><div class="v mono">${v}</div><div class="s">${s}</div></div>`).join("");
+}
+
+function renderNow(){
+  const rows = DISP.filter(r => r.end >= TODAY).sort((a, b) => (TODAY < a.start) - (TODAY < b.start) || a.end.localeCompare(b.end));
+  document.getElementById("now-hint").textContent = `${rows.length} 檔・今天 ${md(TODAY)}`;
+  document.getElementById("now-body").innerHTML = rows.map(r => { const s = status(r); return `<tr class="click" data-c="${r.code}">
+    <td>${stockCell(r.code, r.market)}</td><td><span class="tag ${s.k}">${s.t}</span></td>
+    <td class="mono">${md(r.start)}–${md(r.end)}</td><td class="n mono">${ivCell(r.interval)}</td>
+    <td class="hide-s">${esc(r.measure)}</td><td class="hide-s reason">${esc(r.reason)}</td><td class="mono faint hide-s">${md(r.ann_date)}</td></tr>`; }).join("")
+    || `<tr><td colspan="7" class="empty">目前沒有處置中的股票</td></tr>`;
+  bindRows("#now-body");
+}
+
+function renderNear(){
+  const last = D.days.at(-1);
+  const rows = NEAR.map(r => ({...r, n10: recent(r.code, last, 10), n30: recent(r.code, last, 30)})).sort((a, b) => b.n10 - a.n10 || b.n30 - a.n30);
+  document.getElementById("near-hint").textContent = D.near.date ? `${rows.length} 檔・${md(D.near.date)} 公告` : "";
+  document.getElementById("near-body").innerHTML = rows.map(r => `<tr class="click" data-c="${r.code}">
+    <td>${stockCell(r.code, r.market)}</td><td class="wrap-cell reason">${esc(r.situation)}</td>
+    <td class="n">${cnt(r.n10, 4, 5)}</td><td class="n">${cnt(r.n30, 9, 11)}</td></tr>`).join("")
+    || `<tr><td colspan="4" class="empty">目前沒有注意累計次數異常的股票</td></tr>`;
+  bindRows("#near-body");
+}
+
+function renderAtt(){
+  const rows = ATT.filter(r => r.date === A.day).map(r => ({...r, s: streak(r.code, A.day), n10: recent(r.code, A.day, 10), n30: recent(r.code, A.day, 30)}))
+    .filter(r => r.s >= A.min).sort((a, b) => b.s - a.s || b.n10 - a.n10 || b.n30 - a.n30 || a.code.localeCompare(b.code));
+  document.getElementById("att-hint").textContent = `${md(A.day)}・${rows.length} 檔`;
+  document.getElementById("att-body").innerHTML = rows.slice(0, A.n).map(r => `<tr class="click" data-c="${r.code}">
+    <td>${stockCell(r.code, r.market)}</td><td class="n">${cnt(r.s, 2, 3)}</td><td class="n">${cnt(r.n10, 4, 6)}</td><td class="n">${cnt(r.n30, 9, 12)}</td>
+    <td class="n mono hide-s">${num(r.close)}</td>
+    <td class="wrap-cell reason">${r.clauses ? `<span class="tag">${clauseTxt(r.clauses)}</span>` : ""}${esc(r.info)}</td></tr>`).join("")
+    || `<tr><td colspan="6" class="empty">沒有符合的股票</td></tr>`;
+  document.getElementById("att-more").hidden = rows.length <= A.n;
+  bindRows("#att-body");
+}
+
+function renderHist(){
+  const since = addDays(D.generated, -H.days);
+  const rows = DISP.filter(r => r.ann_date >= since && (!H.mk || r.market === H.mk));
+  document.getElementById("hist-hint").textContent = `${rows.length} 筆・${new Set(rows.map(r => r.code)).size} 檔`;
+  document.getElementById("hist-body").innerHTML = rows.slice(0, H.n).map(r => `<tr class="click" data-c="${r.code}">
+    <td class="mono faint">${md(r.ann_date)}</td><td>${stockCell(r.code, r.market)}</td><td class="mono">${md(r.start)}–${md(r.end)}</td>
+    <td class="n mono">${ivCell(r.interval)}</td><td class="hide-s">${esc(r.measure)}</td><td class="hide-s reason">${esc(r.reason)}</td></tr>`).join("")
+    || `<tr><td colspan="6" class="empty">這段期間沒有處置</td></tr>`;
+  document.getElementById("hist-more").hidden = rows.length <= H.n;
+  bindRows("#hist-body");
+}
+
+function bindRows(sel){
+  document.querySelectorAll(`${sel} tr[data-c]`).forEach(tr => tr.onclick = () => pickStock(tr.dataset.c, true));
+}
+
+/* 查個股 */
+function showStock(code){
+  const ds = DISP.filter(r => r.code === code), as = ATT.filter(r => r.code === code);
+  const nr = NEAR.find(r => r.code === code), last = D.days.at(-1);
+  if (!ds.length && !as.length && !nr){ document.getElementById("stock").innerHTML = `<div class="empty">${esc(code)} 近期沒有處置或注意紀錄</div>`; return; }
+  const cur = ds.find(r => r.end >= TODAY);
+  document.getElementById("stock").innerHTML = `<div class="stock">
+    <div class="top"><div class="nm">${esc(name(code))}<span class="mono">${esc(code)}</span></div>
+      <div>${cur ? `<span class="tag ${status(cur).k}">${status(cur).t}</span>` : ""}${nr ? `<span class="tag soon">瀕臨處置</span>` : ""}</div></div>
+    <div class="kpis">
+      <div class="kpi"><div class="k">連續注意</div><div class="v mono">${streak(code, last)}</div><div class="s">至 ${md(last)}</div></div>
+      <div class="kpi"><div class="k">近 10 日注意</div><div class="v mono">${recent(code, last, 10)}</div><div class="s">交易日</div></div>
+      <div class="kpi"><div class="k">近 30 日注意</div><div class="v mono">${recent(code, last, 30)}</div><div class="s">交易日</div></div>
+      <div class="kpi"><div class="k">一年內處置</div><div class="v mono">${ds.length}</div><div class="s">${ds[0] ? `最近 ${md(ds[0].start)}–${md(ds[0].end)}` : "&nbsp;"}</div></div>
+    </div>
+    ${nr ? `<div class="sub-h">注意累計情形</div><div class="reason">${esc(nr.situation)}</div>` : ""}
+    ${ds.length ? `<div class="sub-h">處置紀錄</div><div class="tbl-wrap"><table><thead><tr><th>處置期間</th><th class="n">撮合</th><th>次別</th><th>原因</th></tr></thead><tbody>${
+      ds.map(r => `<tr><td class="mono">${md(r.start)}–${md(r.end)}</td><td class="n mono">${ivCell(r.interval)}</td><td>${esc(r.measure)}</td><td class="reason wrap-cell">${esc(r.reason)}</td></tr>`).join("")}</tbody></table></div>` : ""}
+    ${as.length ? `<div class="sub-h">注意紀錄（近 ${D.days.length} 個交易日）</div><div class="tbl-wrap"><table><thead><tr><th>日期</th><th class="n">收盤</th><th>注意原因</th></tr></thead><tbody>${
+      as.map(r => `<tr><td class="mono faint">${md(r.date)}</td><td class="n mono">${num(r.close)}</td><td class="wrap-cell reason">${r.clauses ? `<span class="tag">${clauseTxt(r.clauses)}</span>` : ""}${esc(r.info)}</td></tr>`).join("")}</tbody></table></div>` : ""}
+  </div>`;
+  history.replaceState(null, "", "#s=" + code);
+}
+function pickStock(c, scroll){
+  document.getElementById("q").value = `${c} ${name(c)}`;
+  showStock(c);
+  if (scroll) document.getElementById("q").scrollIntoView({behavior: "smooth", block: "start"});
+}
+function setupSearch(){
+  const q = document.getElementById("q"), box = document.getElementById("sugg");
+  const list = [...new Set([...DISP, ...ATT, ...NEAR].map(r => r.code))];
+  let hits = [], on = 0;
+  const draw = () => {
+    box.hidden = !hits.length;
+    box.innerHTML = hits.map((c, k) => `<div data-c="${c}" class="${k === on ? "on" : ""}"><span class="mono">${c}</span>　${esc(name(c))}</div>`).join("");
+    box.querySelectorAll("div").forEach(el => el.onmousedown = () => pick(el.dataset.c));
+  };
+  const pick = c => { hits = []; draw(); pickStock(c); };
+  q.oninput = () => {
+    const t = q.value.trim().toLowerCase(); on = 0;
+    hits = !t ? [] : list.filter(c => c.startsWith(t) || name(c).toLowerCase().includes(t))
+      .sort((a, b) => (b === t) - (a === t) || a.localeCompare(b)).slice(0, 8);
+    draw();
+  };
+  q.onkeydown = e => {
+    if (e.key === "ArrowDown"){ on = Math.min(on + 1, hits.length - 1); draw(); e.preventDefault(); }
+    else if (e.key === "ArrowUp"){ on = Math.max(on - 1, 0); draw(); e.preventDefault(); }
+    else if (e.key === "Enter" && hits.length) pick(hits[on]);
+  };
+  q.onblur = () => setTimeout(() => { hits = []; draw(); }, 150);
+}
+
+function chips(id, obj, key, render, parse = v => v){
+  const box = document.getElementById(id);
+  box.querySelectorAll("button").forEach(b => b.onclick = () => {
+    box.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+    obj[key] = parse(b.dataset.v); obj.n = 60; render();
+  });
+}
+
+fetch("data/alert/alert.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
+  D = d; DISP = objs(D.disp); ATT = objs(D.att); NEAR = objs(D.near);
+  D.days.forEach((x, i) => DAYIDX[x] = i);
+  for (const r of ATT) (HIT[r.code] ||= new Set()).add(r.date);
+  A.day = D.days.at(-1);
+  document.getElementById("att-day").innerHTML = D.days.slice(-5).reverse()
+    .map(x => `<button data-v="${x}" aria-pressed="${x === A.day}">${md(x)}</button>`).join("");
+  document.getElementById("sub").textContent = `上市櫃處置股、注意股與瀕臨處置名單，資料更新至 ${md(D.generated)}。點任一列可看該股的處置與注意紀錄。`;
+  renderStats(); renderNow(); renderNear(); renderAtt(); renderHist(); setupSearch();
+  chips("att-day", A, "day", renderAtt);
+  chips("att-min", A, "min", renderAtt, Number);
+  chips("hist-days", H, "days", renderHist, Number);
+  chips("hist-mk", H, "mk", renderHist);
+  document.getElementById("att-more").onclick = () => { A.n += 60; renderAtt(); };
+  document.getElementById("hist-more").onclick = () => { H.n += 60; renderHist(); };
+  const s = new URLSearchParams(location.hash.slice(1)).get("s");
+  if (s) pickStock(s);
+}).catch(e => { console.error(e); document.getElementById("sub").textContent = "資料載入失敗"; });
+</script>
+<script>(function(){var a=document.querySelector('nav.links a[aria-current="page"]');if(a&&a.parentNode.scrollWidth>a.parentNode.clientWidth){a.parentNode.scrollLeft=a.offsetLeft-a.parentNode.offsetLeft-16;}})();</script>
+</body>
+</html>
