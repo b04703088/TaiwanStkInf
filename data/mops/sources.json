@@ -1,29 +1,26 @@
 {
- "generated": "2026-10-15 03:06",
- "fetched_days": 14,
+ "generated": "2026-10-15 13:03",
+ "fetched_days": 2,
  "left_days": 0,
- "news": 2309,
+ "news": 170,
  "cats": {
-  "hr": 183,
-  "other": 505,
-  "ma": 248,
-  "fin": 294,
-  "capital": 291,
-  "shm": 81,
-  "call": 314,
-  "legal": 26,
-  "board": 84,
-  "clarify": 30,
-  "div": 134,
-  "attn": 60,
-  "buyback": 59
+  "hr": 14,
+  "other": 48,
+  "ma": 27,
+  "fin": 14,
+  "capital": 28,
+  "shm": 6,
+  "clarify": 3,
+  "call": 13,
+  "legal": 1,
+  "board": 3,
+  "div": 1,
+  "attn": 10,
+  "buyback": 2
  },
  "exright": 125,
  "calls": 115,
- "events": 251,
- "unparsed": [
-  "1609大亞 2026-08-25",
-  "3040遠見 2026-08-21"
- ],
+ "events": 11,
+ "unparsed": [],
  "errors": []
 }
