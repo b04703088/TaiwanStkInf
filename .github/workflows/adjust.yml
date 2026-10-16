@@ -1,0 +1,56 @@
+name: Fetch adjust events
+
+# 還原股價用的除權息／減資／面額變更／ETF 分割事件（fetch_adjust.py → data/adjust/）
+on:
+  schedule:
+    # 台北 18:53（UTC 10:53），週一至週五；除權息計算結果在除權息日前一個交易日盤後公布
+    - cron: "53 10 * * 1-5"
+  workflow_dispatch:
+    inputs:
+      since:
+        description: "回補起日 YYYY-MM-DD（空白 = 60 天前）"
+        required: false
+        default: ""
+  push:  # TEMP: 回補用，合併前移除
+    branches: [claude/adjusted-price-data-h6m2ad]
+    paths: [fetch_adjust.py, .github/workflows/adjust.yml]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fetch-adjust
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Fetch
+        env:
+          SINCE: ${{ github.event_name == 'push' && '2022-01-01' || github.event.inputs.since }}
+        run: python -u fetch_adjust.py ${SINCE:+--since "$SINCE"}
+
+      - name: Commit data
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/adjust
+          if git diff --cached --quiet; then
+            echo "No changes"
+            exit 0
+          fi
+          git commit -m "data: adjust events $(TZ=Asia/Taipei date +%F)"
+          for i in 1 2 3; do
+            git pull --rebase -q && git push && exit 0
+            sleep 10
+          done
+          exit 1
