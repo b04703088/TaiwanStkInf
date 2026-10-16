@@ -293,7 +293,13 @@
   .cnt em{font-style:normal;}
   .edit{font-size:12.5px; color:var(--text-faint); margin-top:10px; line-height:1.8;}
   .edit a{color:var(--text-muted);}
+  .big-head{display:flex; justify-content:space-between; align-items:flex-end; gap:16px; flex-wrap:wrap; margin:48px 0 18px;}
+  .big-head h2{font-size:22px;}
+  .big-head p{margin:4px 0 0; font-size:13px; color:var(--text-muted);}
+  .seg button .n{font-size:11.5px; opacity:.75; margin-left:4px;}
+  .pair .other{font-size:12px; color:var(--text-faint);}
   @media (max-width: 860px){
+    .pair .other{display:none;}
     .cards{grid-template-columns:repeat(2,1fr);}
     .card{padding:12px 14px;}
     .card ol, .card h4 .cnt{display:none;}
@@ -373,6 +379,19 @@
       <div class="chips" id="chips" role="group" aria-label="選擇分點"></div>
       <div class="cards" id="cards"></div>
 
+      <div class="big-head">
+        <div>
+          <h2>大額買賣超清單</h2>
+          <p id="bigDesc">選取分點合計買超或賣超超過門檻的股票</p>
+        </div>
+        <div class="seg" data-filter="big" role="group" aria-label="大額門檻">
+          <button type="button" data-v="1" aria-pressed="true">當日 ＞5,000 萬<span class="n" id="bigN1"></span></button>
+          <button type="button" data-v="5" aria-pressed="false">近 5 日 ＞1 億<span class="n" id="bigN5"></span></button>
+          <button type="button" data-v="20" aria-pressed="false">近 20 日 ＞3 億<span class="n" id="bigN20"></span></button>
+        </div>
+      </div>
+      <div class="pair" id="big"></div>
+
       <div class="toolbar">
         <div class="seg-group">
           <div class="seg" data-filter="period" role="group" aria-label="期間">
@@ -406,7 +425,9 @@
 <script type="module">
 import { loadIndustry, indTag } from "./industry-tags.js";
 const PAGE_SIZE = 50;
-const state = { days: [], idx: -1, date: null, W: null, on: new Set(), period: 1, side: "buy", q: "", shown: PAGE_SIZE, sort: null };
+const state = { days: [], idx: -1, date: null, W: null, on: new Set(), period: 1, side: "buy", q: "", shown: PAGE_SIZE, sort: null, big: "1" };
+/* 大額清單門檻（仟元）：當日 5,000 萬、近 5 日 1 億、近 20 日 3 億 */
+const BIG = { 1: 50000, 5: 100000, 20: 300000 };
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const wan = v => v == null ? "—" : (v / 10).toLocaleString("zh-TW", { maximumFractionDigits: Math.abs(v) >= 100 ? 0 : 1 });
@@ -415,8 +436,8 @@ const fmtS = v => v == null ? "—" : (v > 0 ? "+" : "") + Math.round(v).toLocal
 const cls = v => v > 0 ? "up" : v < 0 ? "down" : "flat";
 
 /* 期間內的資料 → 每檔股票：各分點淨額、合計 */
-function aggregate() {
-  const W = state.W, lo = Math.max(0, state.idx - state.period + 1), hi = state.idx;
+function aggregate(period = state.period) {
+  const W = state.W, lo = Math.max(0, state.idx - period + 1), hi = state.idx;
   const stocks = new Map(), perBranch = W.branches.map(() => ({ buy: 0, sell: 0, net: new Map() }));
   for (const [d, b, code, ba, sa, bs, ss] of W.rows) {
     if (d < lo || d > hi || code.startsWith("00")) continue;  // 不含 ETF
@@ -487,6 +508,33 @@ function renderTable(stocks) {
   $("moreWrap").hidden = list.length <= state.shown;
 }
 
+function renderBig() {
+  const per = { 1: aggregate(1).stocks, 5: aggregate(5).stocks, 20: aggregate(20).stocks };
+  const amt = {}, hit = {};
+  for (const n of [1, 5, 20]) {
+    amt[n] = new Map(per[n].map(s => [s.code, s.amt]));
+    hit[n] = per[n].filter(s => Math.abs(s.amt) > BIG[n]);
+    $("bigN" + n).textContent = `（${hit[n].length}）`;
+  }
+  const n = +state.big, avail = Math.min(n, state.idx + 1);
+  $("bigDesc").textContent = `選取分點合計${n === 1 ? "當日" : `近 ${n} 日`}買超或賣超超過 ${{ 1: "5,000 萬", 5: "1 億", 20: "3 億" }[n]}的股票` +
+    (avail < n ? `（目前只有 ${avail} 個交易日資料）` : "");
+  const others = [1, 5, 20].filter(x => x !== n);
+  const lab = x => x === 1 ? "當日" : `${x}日`;
+  const table = (list, side) => `<div><h3>${side === "buy" ? "買超" : "賣超"}<small>${list.length} 檔</small></h3>
+    <div class="table-wrap"><table class="rank"><thead><tr><th class="l">#</th><th class="l">股票</th><th>合計${side === "buy" ? "買超" : "賣超"}（萬）</th>
+      <th>分點數</th>${others.map(x => `<th class="other">${lab(x)}（萬）</th>`).join("")}</tr></thead>
+    <tbody>${list.map((s, i) => `<tr class="${i < 3 ? "top3" : ""}">
+      <td class="l rank-no mono">${i + 1}</td>
+      <td class="l name-cell"><a class="link" href="broker.html?s=${encodeURIComponent(s.code)}&date=${state.date}" style="text-decoration:none"><span class="stock-name">${esc(s.name)}</span></a><span class="stock-code mono">${esc(s.code)}</span></td>
+      <td class="mono ${cls(s.amt)}">${wanS(s.amt)}</td>
+      <td class="mono cnt">${side === "buy" ? s.nb : s.ns}</td>
+      ${others.map(x => { const v = amt[x].get(s.code); return `<td class="mono other ${v ? cls(v) : ""}">${v ? wanS(v) : "·"}</td>`; }).join("")}
+    </tr>`).join("") || `<tr><td colspan="${4 + others.length}" class="empty">沒有超過門檻的股票</td></tr>`}</tbody></table></div></div>`;
+  $("big").innerHTML = table(hit[n].filter(s => s.amt > 0).sort((a, b) => b.amt - a.amt), "buy") +
+    table(hit[n].filter(s => s.amt < 0).sort((a, b) => a.amt - b.amt), "sell");
+}
+
 function render() {
   const d = new Date(state.date + "T00:00:00+08:00");
   $("dateLabel").textContent = `${state.date.replaceAll("-", "/")}（${"日一二三四五六"[d.getDay()]}）`;
@@ -496,11 +544,12 @@ function render() {
   $("sourceTag").textContent = state.period > 1 ? `加總 ${state.days[state.idx - n + 1].slice(5).replace("-", "/")} ～ ${state.date.slice(5).replace("-", "/")}（${n} 個交易日）`
     : (state.idx === state.days.length - 1 ? "最新交易日 · 每日收盤後自動更新" : "歷史資料");
   const { stocks, perBranch } = aggregate();
-  renderChips(); renderCards(perBranch); renderStats(stocks); renderTable(stocks);
+  renderChips(); renderCards(perBranch); renderStats(stocks); renderBig(); renderTable(stocks);
   const url = new URL(location.href);
   url.search = "";
   if (state.idx !== state.days.length - 1) url.searchParams.set("date", state.date);
   if (state.period !== 1) url.searchParams.set("p", state.period);
+  if (state.big !== "1") url.searchParams.set("big", state.big);
   if (state.on.size !== state.W.branches.length) url.searchParams.set("b", [...state.on].map(i => state.W.branches[i].bid).join(","));
   history.replaceState(null, "", url);
 }
@@ -552,6 +601,10 @@ try {
   if ([1, 5, 10, 20].includes(+p.get("p"))) {
     state.period = +p.get("p");
     document.querySelectorAll('[data-filter="period"] button').forEach(x => x.setAttribute("aria-pressed", +x.dataset.v === state.period));
+  }
+  if (["5", "20"].includes(p.get("big"))) {
+    state.big = p.get("big");
+    document.querySelectorAll('[data-filter="big"] button').forEach(x => x.setAttribute("aria-pressed", x.dataset.v === state.big));
   }
   const i = p.get("date") ? state.days.indexOf(p.get("date")) : -1;
   showDay(i >= 0 ? i : state.days.length - 1);

@@ -138,7 +138,7 @@ python -m unittest discover tests                       # 測試
 
 - `fetch_broker_watch.py`：富邦「分點明細查詢」，每個分點每天買超、賣超各前 50 檔，金額（仟元）與張數
 - 輸出 `data/broker/watch/<YYYY>/<YYYYMMDD>.csv`：`date, bid, branch, code, name, buy_amt, sell_amt, net_amt, buy_sh, sell_sh, net_sh`
-- 網站 `watch.html`（分點籌碼 → 重點分點）：選取分點的買賣超金額加總排行，可選當日／近 5、10、20 日，可只看部分分點
+- 網站 `watch.html`（分點籌碼 → 重點分點）：選取分點的買賣超金額加總排行，可選當日／近 5、10、20 日，可只看部分分點；另有「大額買賣超清單」：當日 >5,000 萬、近 5 日 >1 億、近 20 日 >3 億的買超／賣超股票
 
 ### 分點評分與分類（波段高手／隔日沖／反指標）
 
