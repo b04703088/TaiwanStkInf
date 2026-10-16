@@ -12,6 +12,8 @@
        https://www.twse.com.tw/rwd/zh/split/TWTCAU          ETF 分割（反分割）恢復買賣參考價格
   上櫃 https://www.tpex.org.tw/www/zh-tw/bulletin/exDailyQ  除權除息計算結果表
        https://www.tpex.org.tw/www/zh-tw/bulletin/revivt    減資恢復買賣參考價格
+       https://www.tpex.org.tw/www/zh-tw/bulletin/pvChgRslt 變更股票面額恢復交易參考價
+       https://www.tpex.org.tw/www/zh-tw/bulletin/etfSplitRslt、etfRvsRslt  ETF 分割／反分割恢復交易參考價
 
 輸出 data/adjust/
   events.csv     date, market, code, name, kind, prev_close, ref_price, factor, cash, note, source
@@ -23,7 +25,7 @@
 
 用法
   python fetch_adjust.py                        # 近 60 天到未來 14 天（每天排程）
-  python fetch_adjust.py --since 2022-01-01     # 回補（按年分段查，約 1 分鐘）
+  python fetch_adjust.py --since 2022-01-01     # 回補（除權息按年分段查，約 1～2 分鐘）
 """
 import argparse
 import csv
@@ -217,6 +219,26 @@ def parse_twse_split(payload):
     return out
 
 
+def parse_tpex_resume(kind, source):
+    """櫃買 pvChgRslt（變更面額）、etfSplitRslt（ETF 分割）、etfRvsRslt（ETF 反分割）：欄位相同。"""
+    def parse(payload):
+        f, data = _rows(payload)
+        out = []
+        for r in data:
+            g = lambda *n: r[_ix(f, *n)]  # noqa: E731
+            prev, ref = num(g("最後交易日之收盤價格", "收盤價")), num(g("恢復買賣開始參考價", "參考價"))
+            note = ""
+            if prev and ref:
+                note = {"面額變更": f"1 股換 {fmt(prev / ref, 2)} 股", "分割": f"1 單位分割為 {fmt(prev / ref, 2)} 單位",
+                        "反分割": f"{fmt(ref / prev, 2)} 單位合併為 1 單位"}[kind]
+            e = event(roc_date(g("恢復買賣日期")), "TPEx", g("證券代號", "代號"), g("證券名稱", "名稱"), kind,
+                      prev, ref, source, note=note)
+            if e:
+                out.append(e)
+        return out
+    return parse
+
+
 # (來源名稱, URL 樣板, path, parser, 是否要按年分段)
 SOURCES = [
     ("TWT49U", TWSE, "exRight/TWT49U", parse_twse_exright, True),
@@ -225,6 +247,9 @@ SOURCES = [
     ("TWTCAU", TWSE, "split/TWTCAU", parse_twse_split, False),
     ("exDailyQ", TPEX, "exDailyQ", parse_tpex_exright, True),
     ("revivt", TPEX, "revivt", parse_tpex_reduction, False),
+    ("pvChgRslt", TPEX, "pvChgRslt", parse_tpex_resume("面額變更", "pvChgRslt"), False),
+    ("etfSplitRslt", TPEX, "etfSplitRslt", parse_tpex_resume("分割", "etfSplitRslt"), False),
+    ("etfRvsRslt", TPEX, "etfRvsRslt", parse_tpex_resume("反分割", "etfRvsRslt"), False),
 ]
 
 
