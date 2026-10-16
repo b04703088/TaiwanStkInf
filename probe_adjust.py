@@ -7,17 +7,30 @@ def get(u):
     except Exception as e:
         return 'ERR', repr(e)
 T='https://www.tpex.org.tw'
-s,b=get(T+'/zh-tw/index.html')
-hrefs=sorted(set(re.findall(r'href="([^"#]+)"',b)))
-print('HREFS',len(hrefs)); print('\n'.join(hrefs))
-for js in ['/rsrc/asset/js/global.js','/rsrc/js/main.js','/rsrc/asset/js/index.js']:
-    s,b2=get(T+js)
-    print('JS',js,s,sorted(set(re.findall(r'["\'`](/[A-Za-z0-9_\-/\.]*(?:www|json|menu|api)[A-Za-z0-9_\-/\.]*)["\'`]',b2)))[:80])
-B=T+'/www/zh-tw/bulletin/'
-for g in ['etfSplitRst','etfSplitResult','etfSplitRevivt','etfRevivt','parRevivt','revivtPar','chgFv','fv','faceValue','parvalueChange','parValueChange','parChange','revivtFV','denomination','exParvalue','chgparvalue','pvChange','etfReverseSplit','splitRevivt','revivtEtf','revivtSplit','parValueRevivt','revivtParValue']:
-    for q in ['?startDate=2024/01/01&endDate=2026/10/16&response=json','?response=json']:
-        s,b=get(B+g+q)
-        if not b.lstrip().startswith('<'):
-            print('GUESS',g,q,s,b[:300]); break
-    else:
-        print('miss',g)
+s,b=get(T+'/data/menu/zh-tw/menu.json')
+print('MENU',s,len(b))
+hits=[]
+def walk(o,path=''):
+    if isinstance(o,dict):
+        name=str(o.get('name') or o.get('title') or o.get('text') or '')
+        url=str(o.get('url') or o.get('link') or o.get('href') or '')
+        if re.search('面額|分割|減資|除權|除息|恢復買賣',name+url): hits.append((path+'/'+name,url,{k:v for k,v in o.items() if not isinstance(v,(list,dict))}))
+        for k,v in o.items(): walk(v,path+'/'+name)
+    elif isinstance(o,list):
+        for v in o: walk(v,path)
+try: walk(json.loads(b))
+except Exception as e: print('ERR',e); print(b[:2000])
+for h in hits: print('HIT',h)
+for _,url,_o in hits:
+    if not url: continue
+    u=url if url.startswith('http') else T+(url if url.startswith('/') else '/'+url)
+    s,p=get(u)
+    apis=sorted(set(re.findall(r'["\'`](/?www/[A-Za-z0-9_\-/]+|/?api/[A-Za-z0-9_\-/]+|bulletin/[A-Za-z0-9_\-/]+)',p)))
+    js=sorted(set(re.findall(r'src="([^"]+\.js[^"]*)"',p)))
+    print('PAGE',u,s,apis,[j for j in js if 'asset/js' not in j and 'jquery' not in j])
+    for j in js:
+        if 'jquery' in j or 'cloudflare' in j or 'gsap' in j: continue
+        ju=j if j.startswith('http') else T+(j if j.startswith('/') else '/'+j)
+        s2,jb=get(ju)
+        a2=sorted(set(re.findall(r'["\'`](/?www/[A-Za-z0-9_\-/]+|/?api/[A-Za-z0-9_\-/]+|bulletin/[A-Za-z0-9_\-/]+)',jb)))
+        if a2: print('   JS',ju,a2[:20])
