@@ -11,9 +11,6 @@ on:
         description: "回補起日 YYYY-MM-DD（空白 = 60 天前）"
         required: false
         default: ""
-  push:  # TEMP: 回補用，合併前移除
-    branches: [claude/adjusted-price-data-h6m2ad]
-    paths: [fetch_adjust.py, .github/workflows/adjust.yml]
 
 permissions:
   contents: write
@@ -35,7 +32,7 @@ jobs:
 
       - name: Fetch
         env:
-          SINCE: ${{ github.event_name == 'push' && '2022-01-01' || github.event.inputs.since }}
+          SINCE: ${{ github.event.inputs.since }}
         run: python -u fetch_adjust.py ${SINCE:+--since "$SINCE"}
 
       - name: Commit data

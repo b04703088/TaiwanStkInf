@@ -7,6 +7,24 @@
 - 已抓過的日期、週末、已確認的非交易日（記在 `data/no_trading_days.txt`）會直接跳過不連線；`--force` 可強制重抓
 - 輸出：`data/<YYYY>/<YYYYMMDD>.csv`，欄位 `date, market, code, name, open, high, low, close, change, volume, value, transactions`
 
+## 還原股價（除權息、減資、面額變更、ETF 分割）
+
+`fetch_adjust.py` 抓證交所／櫃買中心公布的「基準價變動」事件，每個事件都有事件前收盤價與事件後參考價，
+相除就是還原因子 `factor = ref_price / prev_close`。workflow `.github/workflows/adjust.yml` 週一至週五台北 18:53 跑（抓近 60 天到未來 14 天），已回補 2022 年起。
+
+- 來源：上市 TWT49U（除權除息計算結果）、TWTAUU（減資）、TWTB8U（變更面額）、TWTCAU（ETF 分割／反分割）；
+  上櫃 exDailyQ（除權除息）、revivt（減資）、pvChgRslt（變更面額）、etfSplitRslt／etfRvsRslt（ETF 分割／反分割）
+- 輸出 `data/adjust/events.csv`，欄位 `date, market, code, name, kind, prev_close, ref_price, factor, cash, note, source`
+  - `date`：除權息日／恢復買賣日，這天起是新基準；這天之前的價格要乘 `factor`
+  - `kind`：除息、除權、除權息、減資、面額變更、分割、反分割；`cash`：每股現金股利或減資退還股款（查得到才填）
+- 換算：還原價(t) = 原始價(t) × 所有「事件日 > t」的 factor 連乘（向後還原，最新價格不變）；成交量反向除以同一個倍數
+
+```bash
+python adjust.py 2330                                  # 2330 每天的原始價＋還原價（CSV）
+python adjust.py 0050 --start 2025-01-01 --events      # 只列事件與累積因子
+python fetch_adjust.py --since 2022-01-01              # 手動回補
+```
+
 ## ETF 每日持股明細
 
 每天抓各投信公告的 ETF 持股（成分股、總股數、權重），workflow `.github/workflows/etf.yml` 每個工作日跑三次並 commit。

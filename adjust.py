@@ -86,7 +86,7 @@ def adjust_rows(events, rows):
 
 def read_prices(code, start=None, end=None, data_dir=ROOT / "data"):
     rows = []
-    for path in sorted(glob.glob(str(data_dir / "[0-9]" * 4 / "*.csv"))):
+    for path in sorted(glob.glob(str(data_dir / ("[0-9]" * 4) / "*.csv"))):
         stem = Path(path).stem
         d = f"{stem[:4]}-{stem[4:6]}-{stem[6:8]}"
         if (start and d < start) or (end and d > end):
