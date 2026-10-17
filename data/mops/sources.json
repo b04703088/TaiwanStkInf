@@ -1,14 +1,14 @@
 {
- "generated": "2026-10-17 02:19",
+ "generated": "2026-10-17 14:06",
  "fetched_days": 2,
  "left_days": 0,
- "news": 189,
+ "news": 193,
  "cats": {
   "capital": 19,
   "board": 8,
   "div": 13,
   "clarify": 6,
-  "other": 44,
+  "other": 48,
   "ma": 46,
   "hr": 19,
   "fin": 10,
@@ -18,7 +18,7 @@
   "attn": 3,
   "legal": 2
  },
- "exright": 129,
+ "exright": 132,
  "calls": 136,
  "events": 13,
  "unparsed": [],
