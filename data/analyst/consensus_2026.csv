@@ -1,4 +1,5 @@
 date,time,news_id,code,name,kind,year,analysts,prev,value,chg_pct,high,low,target,bull,neutral,bear,close,url
+2026-10-17,08:10,6632607,6669,緯穎,eps,2026,17,121.74,122.85,0.91,145.86,109.85,2739.04,,,,,https://news.cnyes.com/news/id/6632607
 2026-10-16,22:11,6632424,3189,景碩,eps,2026,11,11.97,11.81,-1.34,14.82,9.78,1280,,,,,https://news.cnyes.com/news/id/6632424
 2026-10-16,22:10,6632423,2330,台積電,tp,,33,3200,3300,3.13,5000,2700,3300,39,3,0,2420,https://news.cnyes.com/news/id/6632423
 2026-10-16,16:11,6632079,2376,技嘉,eps,2026,10,34.36,35.54,3.43,42.2,26.14,500,,,,,https://news.cnyes.com/news/id/6632079
