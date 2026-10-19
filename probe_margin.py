@@ -1,37 +1,23 @@
-import json, urllib.request, re
+import json, urllib.request, time
 def get(u):
     req = urllib.request.Request(u, headers={"User-Agent": "Mozilla/5.0"})
     with urllib.request.urlopen(req, timeout=60) as r:
-        return r.read().decode("utf-8", "replace")
-def show(u):
-    print("=====", u)
-    try:
-        t = get(u)
-    except Exception as e:
-        print("ERR", e); return
-    try:
-        j = json.loads(t)
-    except Exception:
-        print(t[:1500]); return
-    def walk(o, p=""):
-        if isinstance(o, dict):
-            for k, v in o.items():
-                if isinstance(v, (dict, list)): walk(v, p+"."+k)
-                else: print(p+"."+k, "=", str(v)[:200])
-        elif isinstance(o, list):
-            print(p, "len", len(o))
-            for i, v in enumerate(o[:3]): walk(v, f"{p}[{i}]")
-    walk(j)
-show("https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN?date=20261016&selectType=ALL&response=json")
-show("https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN?date=20260102&selectType=MS&response=json")
-m = get("https://www.tpex.org.tw/data/menu/zh-tw/menu.json")
-for line in set(re.findall(r'"[^"]*margin[^"]*"', m)): print("menu:", line)
-show("https://www.tpex.org.tw/www/zh-tw/margin/balance?date=2026/10/16&response=json")
-show("https://www.tpex.org.tw/www/zh-tw/margin/balance?date=2026/10/16&id=&response=json")
-show("https://www.tpex.org.tw/web/stock/margin_trading/margin_balance/margin_bal_result.php?l=zh-tw&o=json&d=115/10/16")
-for path in ["margin/balance", "margin/sbl", "margin/marginBalance"]:
-    try:
-        h = get("https://www.tpex.org.tw/zh-tw/mainboard/trading/margin-trading/transactions.html")
-        print(set(re.findall(r'(?:bulletin|www/zh-tw)/[A-Za-z/]+', h)))
-    except Exception as e: print("page ERR", e)
-    break
+        return json.loads(r.read().decode("utf-8", "replace"))
+j = get("https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN?date=20261016&selectType=ALL&response=json")
+t0, t1 = j["tables"]
+print("T0", t0["fields"]); [print(" ", r) for r in t0["data"]]; print(t0.get("notes"))
+print("T1", t1["fields"]); [print(" ", r) for r in t1["data"][:4]]; print(t1["data"][-2:]); print(t1.get("notes"))
+codes=[r[0] for r in t1["data"]]; print("2330" in codes, "0050" in codes, len([c for c in codes if c.startswith("0")]))
+time.sleep(4)
+j = get("https://www.tpex.org.tw/www/zh-tw/margin/balance?date=2026/10/16&response=json")
+t = j["tables"][0]; print("TP", t["fields"]); [print(" ", r) for r in t["data"][:4]]; print("SUM", t["summary"])
+time.sleep(4)
+j = get("https://www.tpex.org.tw/www/zh-tw/margin/balance?date=2026/10/18&response=json"); print("tpex holiday", j.get("stat"), len(j["tables"][0]["data"]) if j.get("tables") else None)
+time.sleep(4)
+j = get("https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN?date=20261018&selectType=ALL&response=json"); print("twse holiday", j.get("stat"), j.get("tables") and len(j["tables"]))
+time.sleep(4)
+j = get("https://www.twse.com.tw/rwd/zh/afterTrading/FMTQIK?date=20261001&response=json"); print("FMTQIK", j.get("fields"), j.get("data", [])[:2])
+time.sleep(4)
+j = get("https://www.tpex.org.tw/www/zh-tw/margin/balance?date=2024/10/16&response=json"); print("tpex 2024", len(j["tables"][0]["data"]))
+time.sleep(4)
+j = get("https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN?date=20241016&selectType=ALL&response=json"); print("twse 2024", len(j["tables"][1]["data"]))
