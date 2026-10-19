@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>融資融券｜潮汐</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0E1620; --panel:#141F2B; --panel-2:#182531;
+    --line:rgba(232,237,242,0.09); --line-strong:rgba(232,237,242,0.16);
+    --text:#E8EDF2; --text-muted:#8B99A6; --text-faint:#5C6B79;
+    --brass:#C6A15B; --brass-soft:rgba(198,161,91,0.14); --rise:#E1594F; --fall:#3FAE72;
+    --radius-s:3px; --radius-m:6px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--ink); color:var(--text);
+    font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
+  h1,h2{font-family:'Noto Serif TC',serif; margin:0; font-weight:700;}
+  h2{font-size:20px;}
+  .mono{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+  a{color:inherit;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
+  header.site{position:sticky; top:0; z-index:40; background:rgba(14,22,32,0.88); backdrop-filter:blur(10px); border-bottom:1px solid var(--line);}
+  .nav-row{display:flex; align-items:center; justify-content:space-between; padding:16px 28px;}
+  .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
+  .brand-mark{font-family:'Noto Serif TC',serif; font-size:22px; font-weight:700;}
+  .brand-sub{font-size:12px; color:var(--text-faint);}
+  nav.links{display:flex; gap:26px; font-size:14px;}
+  nav.links a{text-decoration:none; color:var(--text-muted);}
+  nav.links a:hover{color:var(--brass);}
+  nav.links a[aria-current="page"]{color:var(--brass);}
+  .nav-cta{font-size:13px; color:var(--ink); background:var(--brass); padding:8px 16px; border-radius:var(--radius-s); text-decoration:none; font-weight:500;}
+  .page-head{padding:56px 0 8px;}
+  .eyebrow{font-size:13px; color:var(--brass); margin-bottom:10px;}
+  h1{font-size:32px;}
+  .desc{color:var(--text-muted); font-size:14.5px; margin:12px 0 0; max-width:52em;}
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden; margin-top:28px;}
+  .stat{background:var(--panel); padding:16px 20px;}
+  .stat .k{font-size:12.5px; color:var(--text-muted);}
+  .stat .v{font-size:26px; margin-top:2px;}
+  .stat .s{font-size:12px; color:var(--text-faint);}
+  section.block{margin-top:48px;}
+  .block-head{display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin-bottom:14px; flex-wrap:wrap;}
+  .hint{font-size:12.5px; color:var(--text-faint);}
+  .up{color:var(--rise);} .down{color:var(--fall);} .flat{color:var(--text-muted);}
+  .faint{color:var(--text-faint);}
+  .muted{color:var(--text-muted);}
+
+  .stock .px{font-size:15px;}
+  .kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-top:16px; padding-top:14px; border-top:1px solid var(--line);}
+  .kpi .k{font-size:12px; color:var(--text-muted);}
+  .kpi .v{font-size:20px; margin-top:2px;}
+  .kpi .s{font-size:12px; color:var(--text-faint); margin-top:2px;}
+  .views{display:flex; height:8px; border-radius:2px; overflow:hidden; margin-top:8px; background:var(--line);}
+  .views i{display:block; height:100%;}
+  .views .b{background:var(--rise);} .views .n{background:var(--text-faint);} .views .r{background:var(--fall);}
+
+  /* 表格 */
+  .tbl-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius-m);}
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  th, td{padding:9px 12px; border-bottom:1px solid var(--line); text-align:left; white-space:nowrap;}
+  th{font-size:12px; color:var(--text-muted); font-weight:500; background:var(--panel); position:sticky; top:0;}
+  td.n, th.n{text-align:right;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr.click{cursor:pointer;}
+  tbody tr.click:hover td{background:var(--panel);}
+  td.wrap-cell{white-space:normal; min-width:18em;}
+  .sname{font-weight:500;}
+  .sname .mono{font-size:11.5px; color:var(--text-faint); margin-left:6px; font-weight:500;}
+  .mini{display:inline-flex; width:72px; height:6px; border-radius:2px; overflow:hidden; background:var(--line); vertical-align:middle; margin-right:6px;}
+  .mini i{display:block; height:100%;}
+  .mini .b{background:var(--rise);} .mini .n{background:var(--text-faint);} .mini .r{background:var(--fall);}
+  .tag{display:inline-block; font-size:11.5px; padding:1px 7px; border-radius:var(--radius-s); border:1px solid var(--line-strong); color:var(--text-muted); margin-right:8px;}
+  .tag.rep{border-color:var(--brass); color:var(--brass);}
+  .ttl{display:block; font-size:12px; color:var(--text-faint); margin-top:2px; text-decoration:none; overflow:hidden; text-overflow:ellipsis; max-width:46em;}
+  .ttl:hover{color:var(--brass);}
+
+  .toolbar{display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin-bottom:12px;}
+  .chips{display:flex; flex-wrap:wrap; gap:6px;}
+  .chips button{background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:5px 11px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .chips button[aria-pressed="true"]{border-color:var(--brass); color:var(--brass);}
+  .tag.act{border-color:var(--brass); color:var(--brass);}
+  .tag.pend{border-style:dashed;}
+  .pos{font-size:11.5px; margin-left:6px;}
+  .bar{display:inline-block; width:64px; height:6px; border-radius:2px; background:var(--line); vertical-align:middle; margin-right:6px; overflow:hidden;}
+  .bar i{display:block; height:100%; background:var(--brass);}
+  .filter{background:var(--panel); border:1px solid var(--line-strong); color:var(--text); padding:6px 11px; border-radius:var(--radius-s); font:inherit; font-size:13px; width:12em;}
+  .filter:focus{outline:none; border-color:var(--brass);}
+  .more{display:block; margin:14px auto 0; background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:7px 18px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .more:hover{color:var(--brass); border-color:var(--brass);}
+  .empty{padding:20px 0; color:var(--text-faint); font-size:13.5px;}
+  .note{font-size:12.5px; color:var(--text-faint); margin-top:18px; line-height:1.8;}
+  footer.site{padding:48px 0; margin-top:64px; border-top:1px solid var(--line);}
+  .verdict{margin-top:28px; border:1px solid var(--line-strong); border-radius:var(--radius-m); background:var(--panel); padding:18px 22px;}
+  .verdict .head{display:flex; align-items:baseline; gap:14px; flex-wrap:wrap;}
+  .verdict .lv{font-family:'Noto Serif TC',serif; font-size:22px; font-weight:700;}
+  .verdict .lv.l3{color:var(--rise);} .verdict .lv.l2{color:#E39A4F;} .verdict .lv.l1{color:var(--brass);} .verdict .lv.l0{color:var(--fall);}
+  .checks{display:grid; grid-template-columns:repeat(2,1fr); gap:10px 28px; margin-top:14px;}
+  .chk{display:flex; gap:10px; font-size:13.5px; align-items:flex-start;}
+  .chk .dot{flex:none; width:10px; height:10px; border-radius:50%; margin-top:6px; background:var(--line-strong);}
+  .chk.hit .dot{background:var(--rise);}
+  .chk .t{color:var(--text);} .chk .d{color:var(--text-faint); font-size:12px;}
+  .chart{border:1px solid var(--line); border-radius:var(--radius-m); background:var(--panel); padding:10px 8px 4px; position:relative;}
+  .chart svg{display:block; width:100%; height:auto; overflow:visible;}
+  .chart text{fill:var(--text-faint); font-size:11px; font-family:'IBM Plex Mono',monospace;}
+  .legend{display:flex; gap:16px; flex-wrap:wrap; font-size:12px; color:var(--text-muted); margin:0 0 8px 8px;}
+  .legend i{display:inline-block; width:14px; height:3px; vertical-align:middle; margin-right:6px; border-radius:1px;}
+  .tip{position:absolute; pointer-events:none; background:var(--ink); border:1px solid var(--line-strong); border-radius:var(--radius-s); padding:7px 10px; font-size:12px; line-height:1.7; white-space:nowrap; display:none; z-index:5;}
+  .tag.kill{border-color:var(--rise); color:var(--rise);}
+  .tag.call{border-color:#E39A4F; color:#E39A4F;}
+  tr.detail td{background:var(--panel-2); white-space:normal;}
+  .chk-in{font-size:13px; color:var(--text-muted); display:flex; align-items:center; gap:6px;}
+  @media (max-width:860px){
+    .nav-row{padding:14px 16px; flex-wrap:wrap; row-gap:10px;}
+    nav.links{order:3; width:100%; gap:20px; overflow-x:auto; white-space:nowrap; font-size:13.5px; scrollbar-width:none;}
+    .wrap{padding:0 16px;}
+    .stats, .kpis{grid-template-columns:repeat(2,1fr);} h1{font-size:26px;}
+    .hide-s{display:none;}
+    .checks{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="nav-row">
+    <a href="index.html" class="brand"><span class="brand-mark">潮汐</span><span class="brand-sub">籌碼觀測站</span></a>
+    <nav class="links">
+      <a href="index.html">首頁</a>
+      <a href="ranking.html">成交排行</a>
+      <a href="industry.html">產業分類</a>
+      <a href="broker.html">分點籌碼</a>
+      <a href="etf.html">ETF持股</a>
+      <a href="cb.html">CB詢圈</a>
+      <a href="treasury.html">庫藏股</a>
+      <a href="margin.html" aria-current="page">融資融券</a>
+      <a href="analyst.html">外資報告</a>
+      <a href="alert.html">處置注意</a>
+      <a href="news.html">重大訊息</a>
+      <a href="fin.html">財報</a>
+      <a href="index.html#quant">量化策略</a>
+      <a href="health.html">資料健檢</a>
+    </nav>
+    <a href="index.html#cta" class="nav-cta">開始追蹤</a>
+  </div>
+</header>
+<main class="wrap">
+  <section class="page-head">
+    <div class="eyebrow">融資融券</div>
+    <h1>市場是不是在殺融資</h1>
+    <p class="desc" id="sub">載入中…</p>
+    <div class="stats" id="stats"></div>
+    <div class="verdict" id="verdict" hidden></div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>大盤融資餘額與維持率</h2>
+      <div class="chips" id="rng">
+        <button data-v="60" aria-pressed="false">近 3 個月</button>
+        <button data-v="120" aria-pressed="true">近 6 個月</button>
+        <button data-v="250" aria-pressed="false">近 1 年</button>
+      </div>
+    </div>
+    <div class="chart" id="mchart"></div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>個股融資</h2><span class="hint" id="s-hint"></span></div>
+    <div class="toolbar">
+      <div class="chips" id="s-sort">
+        <button data-v="f5p" aria-pressed="true">5日融資減幅</button>
+        <button data-v="f1" aria-pressed="false">今日融資減張</button>
+        <button data-v="f20p" aria-pressed="false">20日融資減幅</button>
+        <button data-v="ratio" aria-pressed="false">估計維持率最低</button>
+        <button data-v="up5" aria-pressed="false">5日融資增幅</button>
+        <button data-v="val" aria-pressed="false">融資市值</button>
+        <button data-v="ss" aria-pressed="false">券資比</button>
+      </div>
+    </div>
+    <div class="toolbar">
+      <div class="chips" id="s-mkt">
+        <button data-v="" aria-pressed="true">上市櫃</button>
+        <button data-v="TWSE" aria-pressed="false">上市</button>
+        <button data-v="TPEx" aria-pressed="false">上櫃</button>
+      </div>
+      <div class="chips" id="s-min">
+        <button data-v="0" aria-pressed="false">融資市值不限</button>
+        <button data-v="1e7" aria-pressed="true">≥ 1000 萬</button>
+        <button data-v="1e8" aria-pressed="false">≥ 1 億</button>
+        <button data-v="1e9" aria-pressed="false">≥ 10 億</button>
+      </div>
+      <label class="chk-in"><input type="checkbox" id="s-etf" checked> 排除 ETF</label>
+      <input class="filter" id="q" type="search" placeholder="篩選：代號或名稱" autocomplete="off" aria-label="篩選股票">
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>股票</th><th class="n">收盤</th><th class="n">1日</th><th class="n">5日</th><th class="n hide-s">20日</th>
+        <th class="n">融資餘額</th><th class="n">今日增減</th><th class="n">5日增減</th><th class="n hide-s">20日增減</th>
+        <th class="n hide-s">融資市值</th><th class="n">估計維持率</th><th class="n hide-s">券資比</th><th class="n hide-s">使用率</th></tr></thead>
+      <tbody id="s-body"></tbody>
+    </table></div>
+    <button class="more" id="s-more" hidden>顯示更多</button>
+  </section>
+
+  <p class="note">
+    資料來源：證交所「融資融券彙總」、櫃買中心「上櫃股票融資融券餘額」、證交所「每日市場成交資訊」（加權指數）；每個交易日晚上更新。張數單位為張。<br>
+    <b>估計維持率</b>：官方不公布。大盤＝Σ(各股融資餘額 × 收盤) ÷ 官方融資金額。個股＝收盤 ÷ (估計融資平均成本 × 融資成數 6 成)；平均成本從資料第一天起推算（當天既有餘額以收盤計、之後融資買進以當日收盤計入、償還以平均成本扣除），除權息、減資、資料天數不足都會讓估計失真，只能當參考。維持率低於 130% 會被追繳，補不足就斷頭賣出。<br>
+    <b>殺融資判讀</b>：同時符合越多項越明顯——大盤估計維持率跌破 140%（接近 130% 追繳線）、融資餘額 5 日減少 3% 以上且加權指數 5 日跌 3% 以上（價跌資減，融資被迫出場）、單日融資餘額減少 1% 以上、今天融資減少的股票超過 65%。門檻是經驗值，可依需要調整。<br>
+    個股標記「殺」＝5 日融資減少 10% 以上且股價 5 日跌 10% 以上；「追繳」＝估計維持率低於 130%。券資比＝融券 ÷ 融資；使用率＝融資餘額 ÷ 融資限額（股本 25%）。資料僅供參考，不構成投資建議。
+  </p>
+</main>
+<footer class="site"><div class="wrap"><p class="note" style="margin:0">資料僅供參考。</p></div></footer>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const cls = v => v == null ? "flat" : v > 0 ? "up" : v < 0 ? "down" : "flat";
+const pct = (v, d = 1) => v == null || !isFinite(v) ? "–" : (v > 0 ? "+" : "") + v.toFixed(d) + "%";
+const int = v => v == null ? "–" : Math.round(v).toLocaleString("zh-TW");
+const sint = v => v == null ? "–" : (v > 0 ? "+" : "") + Math.round(v).toLocaleString("zh-TW");
+const yi = v => v == null || !isFinite(v) ? "–" : Math.abs(v) >= 1e8 ? (v / 1e8).toFixed(Math.abs(v) >= 1e10 ? 0 : 1) + " 億" : Math.round(v / 1e4).toLocaleString("zh-TW") + " 萬";
+const num = v => v == null ? "–" : (+v).toLocaleString("zh-TW", {maximumFractionDigits: 2});
+const chg = (a, b) => a == null || b == null || !b ? null : (a / b - 1) * 100;
+const getJ = u => fetch(u).then(r => r.ok ? r.json() : null).catch(() => null);
+function chips(id, fn) {
+  const box = $(id);
+  box.addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    box.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+    fn(b.dataset.v);
+  });
+  return () => box.querySelector('[aria-pressed="true"]').dataset.v;
+}
+const obj = (cols, rows) => rows.map(r => Object.fromEntries(cols.map((c, i) => [c, r[i]])));
+
+let M = [], S = [];
+Promise.all([getJ("data/margin/market.json"), getJ("data/margin/stocks.json")]).then(([m, s]) => {
+  if (!m || !s) { $("sub").textContent = "還沒有融資融券資料。"; return; }
+  M = obj(m.cols, m.rows).map(r => ({...r, amt: r.twse_amt != null && r.tpex_amt != null ? r.twse_amt + r.tpex_amt : null,
+    ratio: r.all_ratio ?? r.twse_ratio}));
+  S = obj(s.cols, s.rows);
+  $("sub").textContent = `資料日期 ${s.date}。看融資餘額有沒有在股價下跌時被大量砍掉、估計維持率離 130% 追繳線多近，以及哪些個股的融資正在被清。`;
+  renderTop(); renderChart(); renderStocks();
+});
+
+function back(n) { return M.length > n ? M[M.length - 1 - n] : null; }
+
+function renderTop() {
+  const m = back(0), p1 = back(1), p5 = back(5), p20 = back(20);
+  const d1 = p1 && chg(m.amt, p1.amt), d5 = p5 && chg(m.amt, p5.amt), d20 = p20 && chg(m.amt, p20.amt);
+  const ix5 = p5 && chg(m.taiex, p5.taiex);
+  const tot = (m.n_up ?? 0) + (m.n_down ?? 0), downShare = tot ? m.n_down / tot * 100 : null;
+  const calls = S.filter(r => r.ratio != null && r.ratio < 130 && (r.fin_val || 0) >= 1e7 && !/^0/.test(r.code)).length;
+  $("stats").innerHTML = [
+    ["融資餘額（上市＋上櫃）", m.amt == null ? "–" : num(Math.round(m.amt)) + " 億", `今日 <span class="${cls(d1)}">${pct(d1, 2)}</span>　上市 ${num(Math.round(m.twse_amt))}／上櫃 ${num(Math.round(m.tpex_amt))}`],
+    ["融資 5 日／20 日增減", `<span class="${cls(d5)}">${pct(d5, 2)}</span>`, `20 日 <span class="${cls(d20)}">${pct(d20, 2)}</span>　加權指數 5 日 <span class="${cls(ix5)}">${pct(ix5, 1)}</span>`],
+    ["估計大盤融資維持率", m.ratio == null ? "–" : m.ratio.toFixed(1) + "%", `上市 ${m.twse_ratio ?? "–"}%／上櫃 ${m.tpex_ratio ?? "–"}%　追繳線 130%`],
+    ["今天融資減少的股票", downShare == null ? "–" : downShare.toFixed(0) + "%", `減 ${int(m.n_down)} 檔／增 ${int(m.n_up)} 檔　估計跌破 130%：${calls} 檔`],
+  ].map(([k, v, s]) => `<div class="stat"><div class="k">${k}</div><div class="v mono">${v}</div><div class="s">${s}</div></div>`).join("");
+
+  const checks = [
+    [m.ratio != null && m.ratio < 140, `大盤估計維持率 ${m.ratio == null ? "–" : m.ratio.toFixed(1) + "%"}`, "低於 140% 代表離 130% 追繳線不遠，斷頭賣壓會出現"],
+    [d5 != null && ix5 != null && d5 <= -3 && ix5 <= -3, `融資 5 日 ${pct(d5, 2)}、指數 5 日 ${pct(ix5, 1)}`, "兩者都跌 3% 以上：價跌資減，融資被迫出場"],
+    [d1 != null && d1 <= -1, `今日融資餘額 ${pct(d1, 2)}`, "單日減少 1% 以上屬於大幅減少"],
+    [downShare != null && downShare >= 65, `融資減少家數 ${downShare == null ? "–" : downShare.toFixed(0) + "%"}`, "超過 65% 的股票融資減少：全面性的去槓桿"],
+  ];
+  const hits = checks.filter(c => c[0]).length;
+  const [lv, txt] = hits >= 3 ? [3, "明顯在殺融資"] : hits === 2 ? [2, "有殺融資跡象"] : hits === 1 ? [1, "零星訊號，還不算殺融資"] : [0, "沒有殺融資跡象"];
+  let extra = "";
+  if (d5 != null && ix5 != null && d5 > 0 && ix5 <= -3) extra = "指數下跌但融資反而增加：散戶逢低加碼，籌碼更不穩，之後若續跌才容易出現殺融資。";
+  $("verdict").hidden = false;
+  $("verdict").innerHTML = `<div class="head"><span class="lv l${lv}">${txt}</span><span class="hint">符合 ${hits} / 4 項（${esc(m.date)}）</span></div>
+    <div class="checks">${checks.map(([hit, t, d]) => `<div class="chk${hit ? " hit" : ""}"><span class="dot"></span><div><div class="t mono">${t}</div><div class="d">${d}</div></div></div>`).join("")}</div>
+    ${extra ? `<p class="hint" style="margin:12px 0 0">${extra}</p>` : ""}`;
+}
+
+/* ---------- 大盤圖：上＝融資餘額＋加權指數；下＝估計維持率 ---------- */
+const getRng = chips("rng", renderChart);
+function renderChart() {
+  const n = +getRng(), rows = M.slice(-n);
+  const W = 1000, L = 52, R = 58, T = 10, H1 = 180, G = 26, H2 = 110, B = 22, H = T + H1 + G + H2 + B;
+  const X = i => L + (rows.length < 2 ? 0 : i / (rows.length - 1) * (W - L - R));
+  const ext = (vals, pad = 0.05) => { const v = vals.filter(x => x != null); if (!v.length) return [0, 1]; let a = Math.min(...v), b = Math.max(...v); const p = (b - a || 1) * pad; return [a - p, b + p]; };
+  const [a1, b1] = ext(rows.map(r => r.amt)), [ai, bi] = ext(rows.map(r => r.taiex));
+  const [a2, b2] = ext(rows.map(r => r.ratio).concat([130]), 0.08);
+  const Y1 = v => T + H1 - (v - a1) / (b1 - a1) * H1, YI = v => T + H1 - (v - ai) / (bi - ai) * H1;
+  const T2 = T + H1 + G, Y2 = v => T2 + H2 - (v - a2) / (b2 - a2) * H2;
+  const line = (f, y, color, w = 1.6) => { let d = "", pen = false; rows.forEach((r, i) => { const v = f(r); if (v == null) { pen = false; return; } d += (pen ? "L" : "M") + X(i).toFixed(1) + "," + y(v).toFixed(1); pen = true; }); return `<path d="${d}" fill="none" stroke="${color}" stroke-width="${w}"/>`; };
+  const ticks = (a, b, y, fmt, x, anchor) => { let s = ""; for (let k = 0; k <= 3; k++) { const v = a + (b - a) * k / 3; s += `<text x="${x}" y="${(y(v) + 4).toFixed(1)}" text-anchor="${anchor}">${fmt(v)}</text>`; } return s; };
+  const grid = (a, b, y) => { let s = ""; for (let k = 0; k <= 3; k++) { const yy = y(a + (b - a) * k / 3).toFixed(1); s += `<line x1="${L}" x2="${W - R}" y1="${yy}" y2="${yy}" stroke="var(--line)"/>`; } return s; };
+  const refs = [130, 140, 160].filter(v => v >= a2 && v <= b2).map(v => `<line x1="${L}" x2="${W - R}" y1="${Y2(v).toFixed(1)}" y2="${Y2(v).toFixed(1)}" stroke="${v === 130 ? "var(--rise)" : "var(--line-strong)"}" stroke-dasharray="4 4"/><text x="${W - R + 6}" y="${(Y2(v) + 4).toFixed(1)}">${v}%</text>`).join("");
+  const step = Math.max(1, Math.round(rows.length / 6));
+  const xl = rows.map((r, i) => i % step ? "" : `<text x="${X(i).toFixed(1)}" y="${H - 4}" text-anchor="middle">${r.date.slice(2, 7).replace("-", "/")}</text>`).join("");
+  $("mchart").innerHTML = `<div class="legend"><span><i style="background:var(--brass)"></i>融資餘額（億，左軸）</span><span><i style="background:var(--text-muted)"></i>加權指數（右軸）</span><span><i style="background:#6FA8DC"></i>估計融資維持率（下圖）</span></div>
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="大盤融資餘額、加權指數與估計維持率">
+    ${grid(a1, b1, Y1)}${ticks(a1, b1, Y1, v => Math.round(v).toLocaleString(), L - 6, "end")}${ticks(ai, bi, YI, v => Math.round(v).toLocaleString(), W - R + 6, "start")}
+    ${line(r => r.taiex, YI, "var(--text-muted)", 1.2)}${line(r => r.amt, Y1, "var(--brass)", 2)}
+    ${grid(a2, b2, Y2)}${ticks(a2, b2, Y2, v => v.toFixed(0) + "%", L - 6, "end")}${refs}${line(r => r.ratio, Y2, "#6FA8DC", 1.8)}
+    ${xl}<line id="cx" y1="${T}" y2="${T2 + H2}" stroke="var(--line-strong)" visibility="hidden"/>
+    <rect id="hit" x="${L}" y="${T}" width="${W - L - R}" height="${T2 + H2 - T}" fill="transparent"/></svg><div class="tip" id="tip"></div>`;
+  const svg = $("mchart").querySelector("svg"), tip = $("tip"), cx = svg.querySelector("#cx");
+  const move = e => {
+    const r = svg.getBoundingClientRect(), px = (e.clientX - r.left) / r.width * W;
+    const i = Math.max(0, Math.min(rows.length - 1, Math.round((px - L) / (W - L - R) * (rows.length - 1))));
+    const row = rows[i], prev = i > 0 ? rows[i - 1] : M[M.length - rows.length - 1];
+    const d1 = prev && chg(row.amt, prev.amt);
+    cx.setAttribute("x1", X(i)); cx.setAttribute("x2", X(i)); cx.setAttribute("visibility", "visible");
+    tip.innerHTML = `<b class="mono">${row.date}</b><br>融資餘額 <span class="mono">${num(Math.round(row.amt))} 億</span> <span class="${cls(d1)} mono">${pct(d1, 2)}</span><br>加權指數 <span class="mono">${num(row.taiex)}</span><br>估計維持率 <span class="mono">${row.ratio ?? "–"}%</span><br>融資減 ${int(row.n_down)}／增 ${int(row.n_up)} 檔`;
+    tip.style.display = "block";
+    const box = $("mchart").getBoundingClientRect(), x = e.clientX - box.left;
+    tip.style.left = (x > box.width / 2 ? x - tip.offsetWidth - 12 : x + 12) + "px"; tip.style.top = "36px";
+  };
+  svg.querySelector("#hit").addEventListener("pointermove", move);
+  svg.addEventListener("pointerleave", () => { tip.style.display = "none"; cx.setAttribute("visibility", "hidden"); });
+}
+
+/* ---------- 個股表 ---------- */
+let limit = 100, open = null;
+const SORTS = {
+  f5p: [r => r.f5p, 1], f1: [r => r.f1, 1], f20p: [r => r.f20p, 1], ratio: [r => r.ratio, 1],
+  up5: [r => r.f5p, -1], val: [r => r.fin_val, -1], ss: [r => r.ss_ratio, -1],
+};
+const getSort = chips("s-sort", () => { limit = 100; renderStocks(); });
+const getMkt = chips("s-mkt", () => { limit = 100; renderStocks(); });
+const getMin = chips("s-min", () => { limit = 100; renderStocks(); });
+$("s-etf").addEventListener("change", () => { limit = 100; renderStocks(); });
+$("q").addEventListener("input", () => { limit = 100; renderStocks(); });
+$("s-more").addEventListener("click", () => { limit += 100; renderStocks(); });
+
+function renderStocks() {
+  const q = $("q").value.trim(), mkt = getMkt(), min = +getMin(), noEtf = $("s-etf").checked;
+  const [key, dir] = SORTS[getSort()];
+  let rows = S.filter(r => r.fin != null && (!mkt || r.market === mkt) && (!noEtf || !/^0/.test(r.code))
+    && (q ? r.code.includes(q) || r.name.includes(q) : (r.fin_val || 0) >= min) && key(r) != null);
+  rows.sort((a, b) => dir * (key(a) - key(b)));
+  $("s-hint").textContent = `${rows.length} 檔`;
+  $("s-more").hidden = rows.length <= limit;
+  $("s-body").innerHTML = rows.slice(0, limit).map(r => {
+    const kill = r.f5p != null && r.r5 != null && r.f5p <= -10 && r.r5 <= -10;
+    const call = r.ratio != null && r.ratio < 130;
+    const tags = (kill ? '<span class="tag kill">殺</span>' : "") + (call ? '<span class="tag call">追繳</span>' : "");
+    const row = `<tr class="click" data-code="${esc(r.code)}"><td><span class="sname">${tags}${esc(r.name)}<span class="mono">${esc(r.code)}${r.market === "TPEx" ? " 櫃" : ""}</span></span></td>
+      <td class="n mono">${num(r.close)}</td><td class="n mono ${cls(r.r1)}">${pct(r.r1)}</td><td class="n mono ${cls(r.r5)}">${pct(r.r5)}</td><td class="n mono hide-s ${cls(r.r20)}">${pct(r.r20)}</td>
+      <td class="n mono">${int(r.fin)}</td><td class="n mono ${cls(r.f1)}">${sint(r.f1)}</td>
+      <td class="n mono ${cls(r.f5p)}">${pct(r.f5p)}<div class="faint" style="font-size:11px">${sint(r.f5)} 張</div></td>
+      <td class="n mono hide-s ${cls(r.f20p)}">${pct(r.f20p)}</td>
+      <td class="n mono hide-s">${yi(r.fin_val)}</td>
+      <td class="n mono ${call ? "up" : r.ratio != null && r.ratio < 150 ? "" : "muted"}">${r.ratio == null ? "–" : r.ratio + "%"}</td>
+      <td class="n mono hide-s">${r.ss_ratio == null ? "–" : r.ss_ratio + "%"}</td><td class="n mono hide-s">${r.use == null ? "–" : r.use + "%"}</td></tr>`;
+    return row + (open === r.code ? `<tr class="detail"><td colspan="13" id="detail">載入中…</td></tr>` : "");
+  }).join("") || `<tr><td colspan="13" class="empty">沒有符合的股票</td></tr>`;
+  if (open && $("detail")) loadDetail(open);
+}
+$("s-body").addEventListener("click", e => {
+  const tr = e.target.closest("tr.click"); if (!tr) return;
+  open = open === tr.dataset.code ? null : tr.dataset.code;
+  renderStocks();
+});
+
+async function loadDetail(code) {
+  const j = await getJ(`data/margin/s/${encodeURIComponent(code)}.json`);
+  const el = $("detail"); if (!el || open !== code) return;
+  if (!j) { el.textContent = "沒有走勢資料"; return; }
+  const rows = obj(j.cols, j.rows), W = 1000, L = 60, R = 60, T = 10, H1 = 170, B = 22, H = T + H1 + B;
+  const X = i => L + (rows.length < 2 ? 0 : i / (rows.length - 1) * (W - L - R));
+  const ext = k => { const v = rows.map(r => r[k]).filter(x => x != null); if (!v.length) return [0, 1]; const a = Math.min(...v), b = Math.max(...v), p = (b - a || Math.abs(b) || 1) * 0.06; return [a - p, b + p]; };
+  const [af, bf] = ext("fin"), [ac, bc] = ext("close");
+  const YF = v => T + H1 - (v - af) / (bf - af) * H1, YC = v => T + H1 - (v - ac) / (bc - ac) * H1;
+  const bw = Math.max(1, (W - L - R) / rows.length * 0.7);
+  const bars = rows.map((r, i) => r.fin == null ? "" : `<rect x="${(X(i) - bw / 2).toFixed(1)}" y="${YF(r.fin).toFixed(1)}" width="${bw.toFixed(1)}" height="${(T + H1 - YF(r.fin)).toFixed(1)}" fill="var(--brass)" opacity=".45"/>`).join("");
+  let d = "", pen = false; rows.forEach((r, i) => { if (r.close == null) { pen = false; return; } d += (pen ? "L" : "M") + X(i).toFixed(1) + "," + YC(r.close).toFixed(1); pen = true; });
+  const tk = (a, b, y, x, an, f) => [0, 1, 2, 3].map(k => { const v = a + (b - a) * k / 3; return `<text x="${x}" y="${(y(v) + 4).toFixed(1)}" text-anchor="${an}">${f(v)}</text>`; }).join("");
+  const step = Math.max(1, Math.round(rows.length / 6));
+  const xl = rows.map((r, i) => i % step ? "" : `<text x="${X(i).toFixed(1)}" y="${H - 4}" text-anchor="middle">${r.date.slice(5).replace("-", "/")}</text>`).join("");
+  const last = rows[rows.length - 1];
+  el.innerHTML = `<div class="chart" style="border:none;background:none"><div class="legend"><span><i style="background:var(--brass);opacity:.6"></i>融資餘額（張，左軸）</span><span><i style="background:var(--text)"></i>收盤（右軸）</span><span>最新估計維持率 <b class="mono">${last.ratio ?? "–"}%</b></span><span>融券 <b class="mono">${int(last.sht)}</b> 張</span></div>
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(code)} 融資餘額與股價">${bars}<path d="${d}" fill="none" stroke="var(--text)" stroke-width="1.6"/>
+    ${tk(af, bf, YF, L - 6, "end", v => Math.round(v).toLocaleString())}${tk(ac, bc, YC, W - R + 6, "start", v => v >= 100 ? Math.round(v) : v.toFixed(1))}${xl}</svg></div>`;
+}
+</script>
+</body>
+</html>

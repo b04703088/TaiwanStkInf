@@ -1,0 +1,57 @@
+name: Fetch margin trading
+
+on:
+  schedule:
+    # 證交所／櫃買約晚上 9 點後公布當日融資融券；台北 21:47 抓一次，隔天 07:37 補抓（UTC 13:47、23:37）
+    - cron: "47 13 * * 1-5"
+    - cron: "37 23 * * 1-5"
+  workflow_dispatch:
+    inputs:
+      start:
+        description: "回補起日 YYYY-MM-DD（留空 = 最近 7 天）"
+        required: false
+
+permissions:
+  contents: write
+  actions: write  # 有新資料時觸發網站部署
+
+concurrency:
+  group: fetch-margin
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Fetch
+        env:
+          IN_START: ${{ inputs.start }}
+        run: |
+          start="${IN_START:-$(TZ=Asia/Taipei date -d '7 days ago' +%F)}"
+          python fetch_margin.py --start "$start" --max-minutes 160
+
+      - name: Commit data
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/margin data/no_trading_days.txt
+          if git diff --cached --quiet; then
+            echo "No new data"
+            exit 0
+          fi
+          git commit -m "data: margin trading $(TZ=Asia/Taipei date +%F)"
+          for i in 1 2 3; do
+            git pull --rebase -q && git push && { gh workflow run pages.yml --ref "$GITHUB_REF_NAME" || echo "觸發部署失敗（不影響資料）"; exit 0; }
+            sleep 10
+          done
+          exit 1
