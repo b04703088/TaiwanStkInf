@@ -170,7 +170,8 @@
     <div class="block-head"><h2>個股融資</h2><span class="hint" id="s-hint"></span></div>
     <div class="toolbar">
       <div class="chips" id="s-sort">
-        <button data-v="f5p" aria-pressed="true">5日融資減幅</button>
+        <button data-v="kill" aria-pressed="true">價跌資減</button>
+        <button data-v="f5p" aria-pressed="false">5日融資減幅</button>
         <button data-v="f1" aria-pressed="false">今日融資減張</button>
         <button data-v="f20p" aria-pressed="false">20日融資減幅</button>
         <button data-v="ratio" aria-pressed="false">估計維持率最低</button>
@@ -207,7 +208,7 @@
     資料來源：證交所「融資融券彙總」、櫃買中心「上櫃股票融資融券餘額」、證交所「每日市場成交資訊」（加權指數）；每個交易日晚上更新。張數單位為張。<br>
     <b>估計維持率</b>：官方不公布。大盤＝Σ(各股融資餘額 × 收盤) ÷ 官方融資金額。個股＝收盤 ÷ (估計融資平均成本 × 融資成數 6 成)；平均成本從資料第一天起推算（當天既有餘額以收盤計、之後融資買進以當日收盤計入、償還以平均成本扣除），除權息、減資、資料天數不足都會讓估計失真，只能當參考。維持率低於 130% 會被追繳，補不足就斷頭賣出。<br>
     <b>殺融資判讀</b>：同時符合越多項越明顯——大盤估計維持率跌破 140%（接近 130% 追繳線）、融資餘額 5 日減少 3% 以上且加權指數 5 日跌 3% 以上（價跌資減，融資被迫出場）、單日融資餘額減少 1% 以上、今天融資減少的股票超過 65%。門檻是經驗值，可依需要調整。<br>
-    個股標記「殺」＝5 日融資減少 10% 以上且股價 5 日跌 10% 以上；「追繳」＝估計維持率低於 130%。券資比＝融券 ÷ 融資；使用率＝融資餘額 ÷ 融資限額（股本 25%）。資料僅供參考，不構成投資建議。
+    「價跌資減」只列股價 5 日跌 3% 以上、融資 5 日減 3% 以上的股票，依融資減幅排序。個股標記「殺」＝5 日融資減少 10% 以上且股價 5 日跌 10% 以上；「追繳」＝估計維持率低於 130%。券資比＝融券 ÷ 融資；使用率＝融資餘額 ÷ 融資限額（股本 25%）。資料僅供參考，不構成投資建議。
   </p>
 </main>
 <footer class="site"><div class="wrap"><p class="note" style="margin:0">資料僅供參考。</p></div></footer>
@@ -317,6 +318,7 @@ function renderChart() {
 /* ---------- 個股表 ---------- */
 let limit = 100, open = null;
 const SORTS = {
+  kill: [r => r.r5 != null && r.f5p != null && r.r5 <= -3 && r.f5p <= -3 ? r.f5p : null, 1],
   f5p: [r => r.f5p, 1], f1: [r => r.f1, 1], f20p: [r => r.f20p, 1], ratio: [r => r.ratio, 1],
   up5: [r => r.f5p, -1], val: [r => r.fin_val, -1], ss: [r => r.ss_ratio, -1],
 };
