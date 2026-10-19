@@ -1,0 +1,11 @@
+name: probe margin
+on:
+  push:
+    branches: [claude/margin-data-s2bi26]
+    paths: [probe_margin.py, .github/workflows/probe-margin.yml]
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python -u probe_margin.py
