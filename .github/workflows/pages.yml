@@ -19,6 +19,7 @@ on:
       - "scripts/calendar_site.py"
       - "scripts/analyst_site.py"
       - "scripts/mops_site.py"
+      - "scripts/kline_site.py"
       - ".github/workflows/pages.yml"
   workflow_dispatch: {}
 
