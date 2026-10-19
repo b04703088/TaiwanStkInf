@@ -1,0 +1,32 @@
+{
+ "generated": "2026-10-16T12:48:22+08:00",
+ "range": [
+  "2022-01-01",
+  "2026-10-30"
+ ],
+ "fetched": 11709,
+ "ok": [
+  "TWT49U",
+  "TWTAUU",
+  "TWTB8U",
+  "TWTCAU",
+  "exDailyQ",
+  "revivt",
+  "pvChgRslt",
+  "etfSplitRslt",
+  "etfRvsRslt"
+ ],
+ "errors": [],
+ "total": 11709,
+ "kinds": {
+  "除息": 10207,
+  "除權": 649,
+  "減資": 179,
+  "除權息": 642,
+  "面額變更": 21,
+  "反分割": 6,
+  "分割": 5
+ },
+ "first": "2022-01-03",
+ "last": "2026-10-27"
+}
