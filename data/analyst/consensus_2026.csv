@@ -1,4 +1,5 @@
 date,time,news_id,code,name,kind,year,analysts,prev,value,chg_pct,high,low,target,bull,neutral,bear,close,url
+2026-10-19,20:10,6633623,6782,視陽,tp,,6,288,300.5,4.34,306,200,300.5,5,1,0,254,https://news.cnyes.com/news/id/6633623
 2026-10-19,14:10,6633362,6415,矽力-KY,eps,2026,14,11.87,12.02,1.26,13.73,9.54,590,,,,,https://news.cnyes.com/news/id/6633362
 2026-10-19,14:10,6633361,1303,南亞,eps,2026,8,15.24,15.38,0.92,16.03,11.15,390,,,,,https://news.cnyes.com/news/id/6633361
 2026-10-19,14:10,6633360,2881,富邦金,eps,2026,11,11.31,11.58,2.39,11.86,9.94,145,,,,,https://news.cnyes.com/news/id/6633360
