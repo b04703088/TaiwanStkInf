@@ -93,7 +93,8 @@
   .more:hover{color:var(--brass); border-color:var(--brass);}
   .more[hidden]{display:none;}
   .brk{font-size:12.5px; line-height:1.5;}
-  td.brk-cell{white-space:normal; min-width:13em;}
+  td.brk-cell{white-space:normal; min-width:11em;}
+  #active th, #active td{padding-left:10px; padding-right:10px;}
   .brk .tag{margin-right:4px; font-size:11px; padding:0 5px;}
   .tag.hi{border-color:var(--rise); color:var(--rise);}
   .tag.sus{border-style:dashed;}
@@ -204,7 +205,7 @@
     資料來源：公開資訊觀測站「庫藏股統計彙總表」（上市、上櫃），依董事會決議日整理；每個交易日更新。<br>
     公司要等買回期間結束（或提前執行完畢）才公告實際買回股數與金額，所以「執行中」看不到最終結果；「已申報進度」是公司每買回達已發行股數 2% 或金額 3 億元時的申報加總，實際買到的通常更多，小量買回不會出現。<br>
     公司派分點：富邦證券網站（MoneyDJ）買回期間的分點買超前 15 名與這些分點的每日進出，跟實際買回張數比對。挑買超至少佔實際買回 10%、
-    買回期間淨買超天數 ≥ 有進出天數 60%、淨賣超那幾天的賣超合計 ≤ 淨買超日買超 15%、賣出 ≤ 買進 35% 的分點，從買超最多的開始加總到實際張數的 85%（超過也算）；
+    買回期間過半天數淨買超、淨賣超那幾天的賣超合計 ≤ 淨買超日買超 15%、賣出 ≤ 買進 35% 的分點，從買超最多的開始加總到實際張數的 85%（超過也算）；
     吻合度＝分點買超合計 ÷ 實際買回張數，85%～200% 標「高」、60% 以上「中」、30% 以上「低」。買回前 60 天就常買這檔的分點會排除。
     同一分點也有其他客戶，吻合不代表確定，僅供參考；買回張數太少、沒擠進前 15 名的計畫比對不到。<br>
     預定金額＝預定買回股數 × 最新收盤（法定上限另見各公司公告）。「待公告」是期間已過、結果還沒公告的計畫。資料僅供參考，不構成投資建議。
@@ -259,10 +260,10 @@ function brkLive(r){
   const shown = b.live.filter(x => x[2] != null).slice(0, 3);
   if (!shown.length) return '<span class="faint">公司派分點未進買超前 15</span>';
   return `<div class="brk" title="買回期間起 ～ ${b.d2} 的分點買超（張）">` + shown.map(x => {
-    const v = `<span class="mono ${cls(x[2])}">${x[2].toLocaleString()}</span>${plan && x[2] > 0 ? `<span class="mono faint">（${(x[2] / plan * 100).toFixed(0)}%）</span>` : ""}`;
-    const dd = x[5] ? ` <span class="mono faint" title="${dayTxt(x)}">${x[6]}/${x[5]}天</span>` : "";
-    return `<span style="white-space:nowrap">${x[8] ? "" : '<span class="tag sus" title="過去沒比對到，但本期大多數天數淨買超">疑似</span>'}${esc(x[1])} ${v}${dd}</span>`;
-  }).join("<br>") + "</div>";
+    const v = `<span class="mono ${cls(x[2])}"${plan && x[2] > 0 ? ` title="佔預定張數 ${(x[2] / plan * 100).toFixed(0)}%"` : ""}>${x[2].toLocaleString()}</span>`;
+    const dd = x[5] ? ` <span class="mono faint" style="white-space:nowrap" title="${dayTxt(x)}">淨買${x[6]}/${x[5]}天</span>` : "";
+    return `<div><span style="white-space:nowrap">${x[8] ? "" : '<span class="tag sus" title="過去沒比對到，但本期大多數天數淨買超">疑似</span>'}${esc(x[1])} ${v}</span>${dd}</div>`;
+  }).join("") + "</div>";
 }
 
 function renderCo(){
