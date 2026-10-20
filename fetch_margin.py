@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""抓取融資融券餘額（上市 TWSE MI_MARGN + 上櫃 TPEx margin/balance）、借券賣出與借券餘額、加權指數。
+"""抓取融資融券餘額（上市 TWSE MI_MARGN + 上櫃 TPEx margin/balance）、不限用途款項借貸擔保品與加權指數。
 
 用法:
     python fetch_margin.py                       # 抓今天（台北時間）
@@ -9,7 +9,8 @@
   data/margin/<YYYY>/<YYYYMMDD>.csv  個股融資融券（單位：張），欄位見 COLUMNS
   data/margin/summary.csv            大盤：上市／上櫃融資張數、融資金額（元）、融券張數
   data/margin/index.csv              加權指數收盤、成交金額（FMTQIK，每月一次請求）
-  data/sbl/<YYYY>/<YYYYMMDD>.csv     個股借券賣出（TWT93U、TPEx margin/sbl）與借券餘額（TWT72U），單位：股
+  data/pledge/<YYYY>/<YYYYMMDD>.csv  個股借貸款項擔保品（TWTA1U，上市櫃得融資融券股票，單位：張）：
+                                     證券商不限用途款項借貸、證金擔保放款、證券商證券業務借貸款項
 非交易日沿用 data/no_trading_days.txt（與 fetch_daily.py 共用）。
 """
 import argparse
@@ -31,12 +32,10 @@ INDEX_COLS = ["date", "taiex", "value"]
 TWSE_URL = ("https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN"
             "?date={d:%Y%m%d}&selectType=ALL&response=json")
 TPEX_URL = "https://www.tpex.org.tw/www/zh-tw/margin/balance?date={d:%Y}/{d:%m}/{d:%d}&response=json"
-SBL_COLUMNS = ["date", "market", "code", "name", "sbl_prev", "sbl_sell", "sbl_return", "sbl_adj", "sbl_bal",
-               "sbl_quota", "lend_bal", "note"]
-TWSE_SBL_URL = "https://www.twse.com.tw/rwd/zh/marginTrading/TWT93U?date={d:%Y%m%d}&response=json"
-TPEX_SBL_URL = "https://www.tpex.org.tw/www/zh-tw/margin/sbl?date={d:%Y}/{d:%m}/{d:%d}&response=json"
-LEND_URL = "https://www.twse.com.tw/rwd/zh/lending/TWT72U?date={d:%Y%m%d}&response=json"  # 上市櫃借券餘額合計
-SBL_DIR = DATA_DIR / "sbl"
+PLEDGE_COLUMNS = ["date", "market", "code", "name", "ul_prev", "ul_new", "ul_sell", "ul_cash", "ul_swap", "ul_bal",
+                  "ul_limit", "sf_bal", "bl_bal", "note"]
+PLEDGE_URL = "https://www.twse.com.tw/rwd/zh/marginTrading/TWTA1U?date={d:%Y%m%d}&response=json"
+PLEDGE_DIR = DATA_DIR / "pledge"
 FMTQIK_URL = "https://www.twse.com.tw/rwd/zh/afterTrading/FMTQIK?date={d:%Y%m}01&response=json"
 
 
@@ -108,37 +107,32 @@ def parse_tpex(payload, d):
     return rows, summary
 
 
-def _sbl_table(payload):
-    """TWT93U 與 TPEx margin/sbl 格式相同：融券 6 欄＋借券賣出 6 欄＋備註。"""
-    if not payload:
+def parse_pledge(payload, d):
+    """借貸款項擔保品餘額表：依 groups 找各類別起始欄（融資／證券業務借貸款項／不限用途／證金擔保放款／證金交割融資）。"""
+    if not payload or payload.get("stat") != "OK" or not payload.get("data"):
         return []
-    if payload.get("tables"):
-        t = payload["tables"][0]
-    elif payload.get("fields"):
-        t = payload
-    else:
-        return []
-    return [r for r in t.get("data") or [] if len(r) >= 15]
-
-
-def parse_sbl(payload, d, market):
-    return [{"date": d.isoformat(), "market": market, "code": r[0].strip(), "name": r[1].strip(),
-             "sbl_prev": _int(r[8]), "sbl_sell": _int(r[9]), "sbl_return": _int(r[10]), "sbl_adj": _int(r[11]),
-             "sbl_bal": _int(r[12]), "sbl_quota": _int(r[13]), "note": (r[14] or "").strip()}
-            for r in _sbl_table(payload)]
-
-
-def parse_lend(payload):
-    """借券餘額（含已借未賣出）{代號: 股數}。"""
-    if not payload or payload.get("stat") != "OK":
-        return {}
+    starts = {g.get("title", ""): g["start"] for g in payload.get("groups") or []}
+    ul = next((v for k, v in starts.items() if "不限用途" in k), 15)
+    bl = next((v for k, v in starts.items() if "證券業務借貸" in k), 8)
+    sf = next((v for k, v in starts.items() if "擔保放款" in k), 22)
     f = payload.get("fields") or []
-    i = next((k for k, x in enumerate(f) if x.startswith("本日借券餘額")), 5)
-    return {r[0].strip(): _int(r[i]) for r in payload.get("data") or [] if len(r) > i}
+    mkt = f.index("市場別") if "市場別" in f else None
+    rows = []
+    for r in payload["data"]:
+        if len(r) < ul + 7:
+            continue
+        m = r[mkt] if mkt is not None else ""
+        rows.append({"date": d.isoformat(), "market": "TWSE" if "集中" in m else "TPEx",
+                     "code": r[0].strip(), "name": r[1].strip(),
+                     "ul_prev": _int(r[ul]), "ul_new": _int(r[ul + 1]), "ul_sell": _int(r[ul + 2]),
+                     "ul_cash": _int(r[ul + 3]), "ul_swap": _int(r[ul + 4]), "ul_bal": _int(r[ul + 5]),
+                     "ul_limit": _int(r[ul + 6]), "sf_bal": _int(r[sf + 5]), "bl_bal": _int(r[bl + 5]),
+                     "note": (r[-1] or "").strip()})
+    return rows
 
 
-def sbl_path(d):
-    return SBL_DIR / f"{d:%Y}" / f"{d:%Y%m%d}.csv"
+def pledge_path(d):
+    return PLEDGE_DIR / f"{d:%Y}" / f"{d:%Y%m%d}.csv"
 
 
 def output_path(d):
@@ -173,35 +167,26 @@ def fetch_day(d, force=False, holidays=frozenset()):
     if not force and (d.weekday() >= 5 or d in holidays):
         return SKIPPED
     need_m = force or not output_path(d).exists()
-    need_s = force or not sbl_path(d).exists()
-    if not need_m and not need_s:
+    need_p = force or not pledge_path(d).exists()
+    if not need_m and not need_p:
         return SKIPPED
     if need_m:
-        r = fetch_margin_day(d)
-        if r == NO_DATA:
+        if fetch_margin_day(d) == NO_DATA:
             return NO_DATA
-        if need_s:
+        if need_p:
             time.sleep(REQUEST_INTERVAL)
-    if need_s and fetch_sbl_day(d) == NO_DATA and not need_m:
+    if need_p and fetch_pledge_day(d) == NO_DATA and not need_m:
         return NO_DATA
     return FETCHED
 
 
-def fetch_sbl_day(d):
-    twse = parse_sbl(http_get_json(TWSE_SBL_URL.format(d=d)), d, "TWSE")
-    time.sleep(REQUEST_INTERVAL)
-    tpex = parse_sbl(http_get_json(TPEX_SBL_URL.format(d=d)), d, "TPEx")
-    if not twse and not tpex:
-        print(f"{d}: 借券賣出無資料")
+def fetch_pledge_day(d):
+    rows = parse_pledge(http_get_json(PLEDGE_URL.format(d=d)), d)
+    if not rows:
+        print(f"{d}: 擔保品餘額無資料")
         return NO_DATA
-    if not twse or not tpex:
-        raise RuntimeError(f"借券賣出：上市 {len(twse)} 筆、上櫃 {len(tpex)} 筆，只有一邊有資料，稍後重試")
-    time.sleep(REQUEST_INTERVAL)
-    lend = parse_lend(http_get_json(LEND_URL.format(d=d)))
-    for r in twse + tpex:
-        r["lend_bal"] = lend.get(r["code"], "")
-    _write_csv(sbl_path(d), SBL_COLUMNS, twse + tpex)
-    print(f"{d}: 借券賣出 上市 {len(twse)}、上櫃 {len(tpex)}，借券餘額 {len(lend)} 筆")
+    _write_csv(pledge_path(d), PLEDGE_COLUMNS, rows)
+    print(f"{d}: 不限用途借貸擔保品 {len(rows)} 筆")
     return FETCHED
 
 
