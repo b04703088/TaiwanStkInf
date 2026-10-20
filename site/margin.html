@@ -95,6 +95,7 @@
   .note{font-size:12.5px; color:var(--text-faint); margin-top:18px; line-height:1.8;}
   footer.site{padding:48px 0; margin-top:64px; border-top:1px solid var(--line);}
   .stats.five{grid-template-columns:repeat(5,1fr);}
+  #s-body td, #s-body ~ th, .tbl-wrap th{padding:9px 7px;} #s-body td{font-size:13px;}
   .verdict{margin-top:28px; border:1px solid var(--line-strong); border-radius:var(--radius-m); background:var(--panel); padding:18px 22px;}
   .verdict .head{display:flex; align-items:baseline; gap:14px; flex-wrap:wrap;}
   .verdict .lv{font-family:'Noto Serif TC',serif; font-size:22px; font-weight:700;}
@@ -203,8 +204,9 @@
     <div class="tbl-wrap"><table>
       <thead><tr><th>股票</th><th class="n">收盤</th><th class="n">1日</th><th class="n">5日</th><th class="n hide-s">20日</th>
         <th class="n">融資餘額</th><th class="n">今日增減</th><th class="n">5日增減</th><th class="n hide-s">20日增減</th>
-        <th class="n hide-s">融資市值</th><th class="n">估計維持率</th><th class="n hide-s">券資比</th><th class="n hide-s">使用率</th>
-        <th class="n">不限用途擔保</th><th class="n hide-s">今日增減</th><th class="n">5日增減</th><th class="n hide-s">使用率</th></tr></thead>
+        <th class="n">估計維持率</th>
+        <th class="n">不限用途擔保</th><th class="n">5日增減</th><th class="n hide-s">擔保使用率</th>
+        <th class="n hide-s">券資比</th></tr></thead>
       <tbody id="s-body"></tbody>
     </table></div>
     <button class="more" id="s-more" hidden>顯示更多</button>
@@ -214,7 +216,7 @@
     資料來源：證交所「融資融券彙總」、櫃買中心「上櫃股票融資融券餘額」、證交所「每日市場成交資訊」（加權指數）；每個交易日晚上更新。張數單位為張。<br>
     <b>估計維持率</b>：官方不公布。大盤＝Σ(各股融資餘額 × 收盤) ÷ 官方融資金額。個股＝收盤 ÷ (估計融資平均成本 × 融資成數 6 成)；平均成本從資料第一天起推算（當天既有餘額以收盤計、之後融資買進以當日收盤計入、償還以平均成本扣除），除權息、減資、資料天數不足都會讓估計失真，只能當參考。維持率低於 130% 會被追繳，補不足就斷頭賣出。<br>
     <b>殺融資判讀</b>：同時符合越多項越明顯——大盤估計維持率跌破 140%（接近 130% 追繳線）、融資餘額 5 日減少 3% 以上且加權指數 5 日跌 3% 以上（價跌資減，融資被迫出場）、單日融資餘額減少 1% 以上、今天融資減少的股票超過 65%。門檻是經驗值，可依需要調整。<br>
-    「價跌資減」只列股價 5 日跌 3% 以上、融資 5 日減 3% 以上的股票，依融資減幅排序。<b>不限用途款項借貸</b>：投資人拿股票向券商質押借錢、用途不限（常被拿去再買股票），股價跌到維持率 130% 以下同樣會被追繳、斷頭。資料取自證交所「借貸款項擔保品餘額表」，只涵蓋得融資融券的上市櫃股票；「不限用途擔保」＝證券商不限用途款項借貸的擔保張數，使用率＝擔保張數 ÷ 次一營業日限額（約股本 1 成）；大盤擔保市值＝Σ(擔保張數 × 收盤)，不是借款金額（借款通常只有擔保市值的 5～6 成）。個股標記「殺」＝5 日融資減少 10% 以上且股價 5 日跌 10% 以上；「追繳」＝估計維持率低於 130%。券資比＝融券 ÷ 融資；使用率＝融資餘額 ÷ 融資限額（股本 25%）。資料僅供參考，不構成投資建議。
+    「價跌資減」只列股價 5 日跌 3% 以上、融資 5 日減 3% 以上的股票，依融資減幅排序。<b>不限用途款項借貸</b>：投資人拿股票向券商質押借錢、用途不限（常被拿去再買股票），股價跌到維持率 130% 以下同樣會被追繳、斷頭。資料取自證交所「借貸款項擔保品餘額表」，只涵蓋得融資融券的上市櫃股票；「不限用途擔保」＝證券商不限用途款項借貸的擔保張數，使用率＝擔保張數 ÷ 次一營業日限額（約股本 1 成）；大盤擔保市值＝Σ(擔保張數 × 收盤)，不是借款金額（借款通常只有擔保市值的 5～6 成）。個股標記「殺」＝5 日融資減少 10% 以上且股價 5 日跌 10% 以上；「追繳」＝估計維持率低於 130%。券資比＝融券 ÷ 融資。資料僅供參考，不構成投資建議。
   </p>
 </main>
 <footer class="site"><div class="wrap"><p class="note" style="margin:0">資料僅供參考。</p></div></footer>
@@ -352,18 +354,16 @@ function renderStocks() {
     const tags = (kill ? '<span class="tag kill">殺</span>' : "") + (call ? '<span class="tag call">追繳</span>' : "");
     const row = `<tr class="click" data-code="${esc(r.code)}"><td><span class="sname">${tags}${esc(r.name)}<span class="mono">${esc(r.code)}${r.market === "TPEx" ? " 櫃" : ""}</span></span></td>
       <td class="n mono">${num(r.close)}</td><td class="n mono ${cls(r.r1)}">${pct(r.r1)}</td><td class="n mono ${cls(r.r5)}">${pct(r.r5)}</td><td class="n mono hide-s ${cls(r.r20)}">${pct(r.r20)}</td>
-      <td class="n mono">${int(r.fin)}</td><td class="n mono ${cls(r.f1)}">${sint(r.f1)}</td>
+      <td class="n mono">${int(r.fin)}<div class="faint" style="font-size:11px">${r.fin_val ? yi(r.fin_val) : ""}</div></td><td class="n mono ${cls(r.f1)}">${sint(r.f1)}</td>
       <td class="n mono ${cls(r.f5p)}">${pct(r.f5p)}<div class="faint" style="font-size:11px">${sint(r.f5)} 張</div></td>
       <td class="n mono hide-s ${cls(r.f20p)}">${pct(r.f20p)}</td>
-      <td class="n mono hide-s">${yi(r.fin_val)}</td>
       <td class="n mono ${call ? "up" : r.ratio != null && r.ratio < 150 ? "" : "muted"}">${r.ratio == null ? "–" : r.ratio + "%"}</td>
-      <td class="n mono hide-s">${r.ss_ratio == null ? "–" : r.ss_ratio + "%"}</td><td class="n mono hide-s">${r.use == null ? "–" : r.use + "%"}</td>
       <td class="n mono">${int(r.ul)}<div class="faint" style="font-size:11px">${r.ul_val ? yi(r.ul_val) : ""}</div></td>
-      <td class="n mono hide-s ${cls(r.ul1)}">${sint(r.ul1)}</td>
       <td class="n mono ${cls(r.ul5p)}">${pct(r.ul5p)}<div class="faint" style="font-size:11px">${sint(r.ul5)} 張</div></td>
-      <td class="n mono hide-s">${r.ul_use == null ? "–" : r.ul_use + "%"}</td></tr>`;
-    return row + (open === r.code ? `<tr class="detail"><td colspan="17" id="detail">載入中…</td></tr>` : "");
-  }).join("") || `<tr><td colspan="17" class="empty">沒有符合的股票</td></tr>`;
+      <td class="n mono hide-s">${r.ul_use == null ? "–" : r.ul_use.toFixed(1) + "%"}</td>
+      <td class="n mono hide-s">${r.ss_ratio == null ? "–" : r.ss_ratio + "%"}</td></tr>`;
+    return row + (open === r.code ? `<tr class="detail"><td colspan="14" id="detail">載入中…</td></tr>` : "");
+  }).join("") || `<tr><td colspan="14" class="empty">沒有符合的股票</td></tr>`;
   if (open && $("detail")) loadDetail(open);
 }
 $("s-body").addEventListener("click", e => {
@@ -391,7 +391,8 @@ async function loadDetail(code) {
   const [au, bu] = ext("ul"), YU = v => T + H1 - (v - au) / (bu - au) * H1;
   let du = "", pu = false; rows.forEach((r, i) => { if (r.ul == null) { pu = false; return; } du += (pu ? "L" : "M") + X(i).toFixed(1) + "," + YU(r.ul).toFixed(1); pu = true; });
   const ulLine = du ? `<path d="${du}" fill="none" stroke="#6FA8DC" stroke-width="1.4" stroke-dasharray="5 3"/>` : "";
-  el.innerHTML = `<div class="chart" style="border:none;background:none"><div class="legend"><span><i style="background:var(--brass);opacity:.6"></i>融資餘額（張，左軸）</span><span><i style="background:var(--text)"></i>收盤（右軸）</span><span>最新估計維持率 <b class="mono">${last.ratio ?? "–"}%</b></span><span>融券 <b class="mono">${int(last.sht)}</b> 張</span><span><i style="background:#6FA8DC"></i>不限用途擔保 <b class="mono">${int(last.ul)}</b> 張（獨立刻度）</span></div>
+  const vis = el.closest(".tbl-wrap").clientWidth - 26;
+  el.innerHTML = `<div class="chart" style="border:none;background:none;position:sticky;left:0;width:${vis}px"><div class="legend"><span><i style="background:var(--brass);opacity:.6"></i>融資餘額（張，左軸）</span><span><i style="background:var(--text)"></i>收盤（右軸）</span><span>最新估計維持率 <b class="mono">${last.ratio ?? "–"}%</b></span><span>融券 <b class="mono">${int(last.sht)}</b> 張</span><span><i style="background:#6FA8DC"></i>不限用途擔保 <b class="mono">${int(last.ul)}</b> 張（獨立刻度）</span></div>
     <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(code)} 融資餘額與股價">${bars}<path d="${d}" fill="none" stroke="var(--text)" stroke-width="1.6"/>${ulLine}
     ${tk(af, bf, YF, L - 6, "end", v => Math.round(v).toLocaleString())}${tk(ac, bc, YC, W - R + 6, "start", v => v >= 100 ? Math.round(v) : v.toFixed(1))}${xl}</svg></div>`;
 }
