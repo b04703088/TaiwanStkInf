@@ -110,7 +110,7 @@ ETF持股的子頁「指數行事曆」`calendar.html`（`scripts/calendar_site.
 - `site/`：網頁原始檔（首頁 `index.html`、成交金額排行 `ranking.html`、ETF持股 `etf.html`：個股持有查詢／每日持股變化／AUM 排行）
 - `scripts/etf_site.py`：整理 ETF 最新持股與前一份的原始股數差異（含申購贖回）→ `data/etf/latest.json`
 - `scripts/build_site.py`：把最近 120 個交易日的 CSV 轉成 `data/daily/<日期>.json` 給網頁讀
-- `.github/workflows/pages.yml`：抓資料的 workflow 有新 commit、或改了 `site/` 後自動重建部署
+- `.github/workflows/pages.yml`：固定時段統一重建部署（台北 平日 08:53、14:03、20:03、23:03，週六 12:03），抓資料的 workflow 只 commit 不觸發部署；改了 `site/` 或網頁程式 push 到 main 時也會立即重建
   - repo variable `DEPLOY_TARGET=cloudflare` 時部署到 Cloudflare Pages（需要 secrets `CLOUDFLARE_API_TOKEN`、`CLOUDFLARE_ACCOUNT_ID`；專案名稱預設 `tide-stk-infs`，可用 variable `CF_PAGES_PROJECT` 改）；沒設時部署到 GitHub Pages
 
 ## 同步到 Firebase（Firestore）
