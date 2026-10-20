@@ -2,9 +2,7 @@ name: Fetch adjust events
 
 # 還原股價用的除權息／減資／面額變更／ETF 分割事件（fetch_adjust.py → data/adjust/）
 on:
-  schedule:
-    # 台北 18:53（UTC 10:53），週一至週五；除權息計算結果在除權息日前一個交易日盤後公布
-    - cron: "53 10 * * 1-5"
+  # 每日例行更新已併到 alert.yml（台北 18:47／07:47 跟處置股一起抓）；這裡只留手動回補
   workflow_dispatch:
     inputs:
       since:
