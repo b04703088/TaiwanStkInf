@@ -15,7 +15,7 @@ on:
 
 permissions:
   contents: write
-  actions: write  # 有新資料時觸發網站部署
+  actions: read  # dedupe 要查最近的執行紀錄
 
 concurrency:
   group: fetch-etf
@@ -79,8 +79,6 @@ jobs:
 
       - name: Commit data
         if: always()  # 部分 ETF 失敗，抓到的也要存
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -92,7 +90,7 @@ jobs:
           git commit -m "data: ETF holdings $(TZ=Asia/Taipei date +%F)"
           # 股價 workflow 也會 push 到同一個分支，衝突時重試
           for i in 1 2 3; do
-            git pull --rebase -q && git push && { gh workflow run pages.yml --ref "$GITHUB_REF_NAME" || echo "觸發部署失敗（不影響資料）"; exit 0; }
+            git pull --rebase -q && git push && exit 0
             sleep 10
           done
           exit 1

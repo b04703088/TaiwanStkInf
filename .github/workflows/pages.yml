@@ -1,8 +1,21 @@
 name: Deploy site
 
 on:
-  # 抓資料的 workflow 有新 commit 時，會用 workflow_dispatch 觸發這裡（沒有新資料就不部署，省 Actions 分鐘數）
-  # 改了網頁或手動更新資料也重建（排程 bot 的 commit 不會觸發 push 事件，不會重複部署）
+  # 抓資料的 workflow 只 commit 資料、不觸發部署；網站在固定時段統一重建，省 Actions 分鐘數
+  # 時間抓在各批資料進來之後（台北時間）：
+  #   08:53 早盤前（ETF、CB、券商報告、MOPS、庫藏股、融資券）
+  #   14:03 午間（券商報告、盤中重大訊息）
+  #   20:03 晚間（股價、分點、CB、ETF、處置注意股、庫藏股、財報）
+  #   23:03 收尾（ETF 晚場、融資券、MOPS、券商報告）
+  #   週六 12:03（產業分類、指數調整、MOPS）
+  # GitHub 排程常延遲；要準時可在 cron-job.org 加 workflow_dispatch
+  schedule:
+    - cron: "53 0 * * 1-5"
+    - cron: "3 6 * * 1-5"
+    - cron: "3 12 * * 1-5"
+    - cron: "3 15 * * 1-5"
+    - cron: "3 4 * * 6"
+  # 改了網頁或程式也立即重建（bot 的 commit 不會觸發 push 事件）
   # 只看 main：pages.yml 一律 checkout main 部署，功能分支 push 觸發只是重複部署 main
   push:
     branches: [main]
@@ -23,6 +36,7 @@ on:
       - "scripts/mops_site.py"
       - "scripts/margin_site.py"
       - "scripts/kline_site.py"
+      - "scripts/fin_site.py"
       - ".github/workflows/pages.yml"
   workflow_dispatch: {}
 

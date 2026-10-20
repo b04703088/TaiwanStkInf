@@ -21,7 +21,6 @@ on:
 
 permissions:
   contents: write
-  actions: write  # 有新資料時觸發網站部署
 
 concurrency:
   group: fetch-mops
@@ -46,8 +45,6 @@ jobs:
 
       - name: Commit data
         if: always()
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -58,7 +55,7 @@ jobs:
           fi
           git commit -m "data: MOPS news $(TZ=Asia/Taipei date +%F)"
           for i in 1 2 3; do
-            git pull --rebase -q && git push && { gh workflow run pages.yml --ref "$GITHUB_REF_NAME" || echo "觸發部署失敗（不影響資料）"; exit 0; }
+            git pull --rebase -q && git push && exit 0
             sleep 10
           done
           exit 1
