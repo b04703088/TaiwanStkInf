@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""抓取融資融券餘額（上市 TWSE MI_MARGN + 上櫃 TPEx margin/balance）與加權指數。
+"""抓取融資融券餘額（上市 TWSE MI_MARGN + 上櫃 TPEx margin/balance）、不限用途款項借貸擔保品與加權指數。
 
 用法:
     python fetch_margin.py                       # 抓今天（台北時間）
@@ -9,6 +9,8 @@
   data/margin/<YYYY>/<YYYYMMDD>.csv  個股融資融券（單位：張），欄位見 COLUMNS
   data/margin/summary.csv            大盤：上市／上櫃融資張數、融資金額（元）、融券張數
   data/margin/index.csv              加權指數收盤、成交金額（FMTQIK，每月一次請求）
+  data/pledge/<YYYY>/<YYYYMMDD>.csv  個股借貸款項擔保品（TWTA1U，上市櫃得融資融券股票，單位：張）：
+                                     證券商不限用途款項借貸、證金擔保放款、證券商證券業務借貸款項
 非交易日沿用 data/no_trading_days.txt（與 fetch_daily.py 共用）。
 """
 import argparse
@@ -30,6 +32,10 @@ INDEX_COLS = ["date", "taiex", "value"]
 TWSE_URL = ("https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN"
             "?date={d:%Y%m%d}&selectType=ALL&response=json")
 TPEX_URL = "https://www.tpex.org.tw/www/zh-tw/margin/balance?date={d:%Y}/{d:%m}/{d:%d}&response=json"
+PLEDGE_COLUMNS = ["date", "market", "code", "name", "ul_prev", "ul_new", "ul_sell", "ul_cash", "ul_swap", "ul_bal",
+                  "ul_limit", "sf_bal", "bl_bal", "note"]
+PLEDGE_URL = "https://www.twse.com.tw/rwd/zh/marginTrading/TWTA1U?date={d:%Y%m%d}&response=json"
+PLEDGE_DIR = DATA_DIR / "pledge"
 FMTQIK_URL = "https://www.twse.com.tw/rwd/zh/afterTrading/FMTQIK?date={d:%Y%m}01&response=json"
 
 
@@ -101,6 +107,34 @@ def parse_tpex(payload, d):
     return rows, summary
 
 
+def parse_pledge(payload, d):
+    """借貸款項擔保品餘額表：依 groups 找各類別起始欄（融資／證券業務借貸款項／不限用途／證金擔保放款／證金交割融資）。"""
+    if not payload or payload.get("stat") != "OK" or not payload.get("data"):
+        return []
+    starts = {g.get("title", ""): g["start"] for g in payload.get("groups") or []}
+    ul = next((v for k, v in starts.items() if "不限用途" in k), 15)
+    bl = next((v for k, v in starts.items() if "證券業務借貸" in k), 8)
+    sf = next((v for k, v in starts.items() if "擔保放款" in k), 22)
+    f = payload.get("fields") or []
+    mkt = f.index("市場別") if "市場別" in f else None
+    rows = []
+    for r in payload["data"]:
+        if len(r) < ul + 7:
+            continue
+        m = r[mkt] if mkt is not None else ""
+        rows.append({"date": d.isoformat(), "market": "TWSE" if "集中" in m else "TPEx",
+                     "code": r[0].strip(), "name": r[1].strip(),
+                     "ul_prev": _int(r[ul]), "ul_new": _int(r[ul + 1]), "ul_sell": _int(r[ul + 2]),
+                     "ul_cash": _int(r[ul + 3]), "ul_swap": _int(r[ul + 4]), "ul_bal": _int(r[ul + 5]),
+                     "ul_limit": _int(r[ul + 6]), "sf_bal": _int(r[sf + 5]), "bl_bal": _int(r[bl + 5]),
+                     "note": (r[-1] or "").strip()})
+    return rows
+
+
+def pledge_path(d):
+    return PLEDGE_DIR / f"{d:%Y}" / f"{d:%Y%m%d}.csv"
+
+
 def output_path(d):
     return MARGIN_DIR / f"{d:%Y}" / f"{d:%Y%m%d}.csv"
 
@@ -130,8 +164,33 @@ SKIPPED, FETCHED, NO_DATA = "skipped", "fetched", "no_data"
 
 
 def fetch_day(d, force=False, holidays=frozenset()):
-    if not force and (output_path(d).exists() or d.weekday() >= 5 or d in holidays):
+    if not force and (d.weekday() >= 5 or d in holidays):
         return SKIPPED
+    need_m = force or not output_path(d).exists()
+    need_p = force or not pledge_path(d).exists()
+    if not need_m and not need_p:
+        return SKIPPED
+    if need_m:
+        if fetch_margin_day(d) == NO_DATA:
+            return NO_DATA
+        if need_p:
+            time.sleep(REQUEST_INTERVAL)
+    if need_p and fetch_pledge_day(d) == NO_DATA and not need_m:
+        return NO_DATA
+    return FETCHED
+
+
+def fetch_pledge_day(d):
+    rows = parse_pledge(http_get_json(PLEDGE_URL.format(d=d)), d)
+    if not rows:
+        print(f"{d}: 擔保品餘額無資料")
+        return NO_DATA
+    _write_csv(pledge_path(d), PLEDGE_COLUMNS, rows)
+    print(f"{d}: 不限用途借貸擔保品 {len(rows)} 筆")
+    return FETCHED
+
+
+def fetch_margin_day(d):
     twse, s1 = parse_twse(http_get_json(TWSE_URL.format(d=d)), d)
     time.sleep(REQUEST_INTERVAL)
     tpex, s2 = parse_tpex(http_get_json(TPEX_URL.format(d=d)), d)

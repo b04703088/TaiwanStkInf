@@ -94,6 +94,8 @@
   .empty{padding:20px 0; color:var(--text-faint); font-size:13.5px;}
   .note{font-size:12.5px; color:var(--text-faint); margin-top:18px; line-height:1.8;}
   footer.site{padding:48px 0; margin-top:64px; border-top:1px solid var(--line);}
+  .stats.five{grid-template-columns:repeat(5,1fr);}
+  #s-body td, #s-body ~ th, .tbl-wrap th{padding:9px 7px;} #s-body td{font-size:13px;}
   .verdict{margin-top:28px; border:1px solid var(--line-strong); border-radius:var(--radius-m); background:var(--panel); padding:18px 22px;}
   .verdict .head{display:flex; align-items:baseline; gap:14px; flex-wrap:wrap;}
   .verdict .lv{font-family:'Noto Serif TC',serif; font-size:22px; font-weight:700;}
@@ -117,7 +119,7 @@
     .nav-row{padding:14px 16px; flex-wrap:wrap; row-gap:10px;}
     nav.links{order:3; width:100%; gap:20px; overflow-x:auto; white-space:nowrap; font-size:13.5px; scrollbar-width:none;}
     .wrap{padding:0 16px;}
-    .stats, .kpis{grid-template-columns:repeat(2,1fr);} h1{font-size:26px;}
+    .stats, .stats.five, .kpis{grid-template-columns:repeat(2,1fr);} h1{font-size:26px;}
     .hide-s{display:none;}
     .checks{grid-template-columns:1fr;}
   }
@@ -152,7 +154,7 @@
     <div class="eyebrow">融資融券</div>
     <h1>市場是不是在殺融資</h1>
     <p class="desc" id="sub">載入中…</p>
-    <div class="stats" id="stats"></div>
+    <div class="stats five" id="stats"></div>
     <div class="verdict" id="verdict" hidden></div>
   </section>
 
@@ -179,6 +181,10 @@
         <button data-v="up5" aria-pressed="false">5日融資增幅</button>
         <button data-v="val" aria-pressed="false">融資市值</button>
         <button data-v="ss" aria-pressed="false">券資比</button>
+        <button data-v="ul5p" aria-pressed="false">不限用途 5 日減幅</button>
+        <button data-v="ulup" aria-pressed="false">不限用途 5 日增幅</button>
+        <button data-v="ulv" aria-pressed="false">不限用途擔保市值</button>
+        <button data-v="uluse" aria-pressed="false">不限用途使用率</button>
       </div>
     </div>
     <div class="toolbar">
@@ -199,7 +205,9 @@
     <div class="tbl-wrap"><table>
       <thead><tr><th>股票</th><th class="n">收盤</th><th class="n">1日</th><th class="n">5日</th><th class="n hide-s">20日</th>
         <th class="n">融資餘額</th><th class="n">今日增減</th><th class="n">5日增減</th><th class="n hide-s">20日增減</th>
-        <th class="n hide-s">融資市值</th><th class="n">估計維持率</th><th class="n hide-s">券資比</th><th class="n hide-s">使用率</th></tr></thead>
+        <th class="n">估計維持率</th>
+        <th class="n">不限用途擔保</th><th class="n">5日增減</th><th class="n hide-s">擔保使用率</th>
+        <th class="n hide-s">券資比</th></tr></thead>
       <tbody id="s-body"></tbody>
     </table></div>
     <button class="more" id="s-more" hidden>顯示更多</button>
@@ -209,7 +217,7 @@
     資料來源：證交所「融資融券彙總」、櫃買中心「上櫃股票融資融券餘額」、證交所「每日市場成交資訊」（加權指數）；每個交易日晚上更新。張數單位為張。<br>
     <b>估計維持率</b>：官方不公布。大盤＝Σ(各股融資餘額 × 收盤) ÷ 官方融資金額。個股＝收盤 ÷ (估計融資平均成本 × 融資成數 6 成)；平均成本從資料第一天起推算（當天既有餘額以收盤計、之後融資買進以當日收盤計入、償還以平均成本扣除），除權息、減資、資料天數不足都會讓估計失真，只能當參考。維持率低於 130% 會被追繳，補不足就斷頭賣出。<br>
     <b>殺融資判讀</b>：同時符合越多項越明顯——大盤估計維持率跌破 140%（接近 130% 追繳線）、融資餘額 5 日減少 3% 以上且加權指數 5 日跌 3% 以上（價跌資減，融資被迫出場）、單日融資餘額減少 1% 以上、今天融資減少的股票超過 65%。門檻是經驗值，可依需要調整。<br>
-    「價跌資減」只列股價 5 日跌 3% 以上、融資 5 日減 3% 以上的股票，依融資減幅排序。個股標記「殺」＝5 日融資減少 10% 以上且股價 5 日跌 10% 以上；「追繳」＝估計維持率低於 130%。券資比＝融券 ÷ 融資；使用率＝融資餘額 ÷ 融資限額（股本 25%）。資料僅供參考，不構成投資建議。
+    「價跌資減」只列股價 5 日跌 3% 以上、融資 5 日減 3% 以上的股票，依融資減幅排序。<b>不限用途款項借貸</b>：投資人拿股票向券商質押借錢、用途不限（常被拿去再買股票），股價跌到維持率 130% 以下同樣會被追繳、斷頭。資料取自證交所「借貸款項擔保品餘額表」，只涵蓋得融資融券的上市櫃股票；「不限用途擔保」＝證券商不限用途款項借貸的擔保張數，使用率＝擔保張數 ÷ 次一營業日限額（約股本 1 成）；大盤擔保市值＝Σ(擔保張數 × 收盤)，不是借款金額（借款通常只有擔保市值的 5～6 成）。個股標記「殺」＝5 日融資減少 10% 以上且股價 5 日跌 10% 以上；「追繳」＝估計維持率低於 130%。券資比＝融券 ÷ 融資。資料僅供參考，不構成投資建議。
   </p>
 </main>
 <footer class="site"><div class="wrap"><p class="note" style="margin:0">資料僅供參考。</p></div></footer>
@@ -257,6 +265,8 @@ function renderTop() {
     ["融資餘額（上市＋上櫃）", m.amt == null ? "–" : num(Math.round(m.amt)) + " 億", `今日 <span class="${cls(d1)}">${pct(d1, 2)}</span>　上市 ${num(Math.round(m.twse_amt))}／上櫃 ${num(Math.round(m.tpex_amt))}`],
     ["融資 5 日／20 日增減", `<span class="${cls(d5)}">${pct(d5, 2)}</span>`, `20 日 <span class="${cls(d20)}">${pct(d20, 2)}</span>　加權指數 5 日 <span class="${cls(ix5)}">${pct(ix5, 1)}</span>`],
     ["估計大盤融資維持率", m.ratio == null ? "–" : m.ratio.toFixed(1) + "%", `上市 ${m.twse_ratio ?? "–"}%／上櫃 ${m.tpex_ratio ?? "–"}%　追繳線 130%`],
+    (() => { const u5 = p5 && chg(m.ul_amt, p5.ul_amt), u1 = p1 && chg(m.ul_lots, p1.ul_lots);
+      return ["不限用途借貸擔保市值", m.ul_amt == null ? "–" : num(Math.round(m.ul_amt)) + " 億", `擔保張數今日 <span class="${cls(u1)}">${pct(u1, 2)}</span>　市值 5 日 <span class="${cls(u5)}">${pct(u5, 1)}</span>`]; })(),
     ["今天融資減少的股票", downShare == null ? "–" : downShare.toFixed(0) + "%", `減 ${int(m.n_down)} 檔／增 ${int(m.n_up)} 檔　估計跌破 130%：${calls} 檔`],
   ].map(([k, v, s]) => `<div class="stat"><div class="k">${k}</div><div class="v mono">${v}</div><div class="s">${s}</div></div>`).join("");
 
@@ -307,7 +317,7 @@ function renderChart() {
     const row = rows[i], prev = i > 0 ? rows[i - 1] : M[M.length - rows.length - 1];
     const d1 = prev && chg(row.amt, prev.amt);
     cx.setAttribute("x1", X(i)); cx.setAttribute("x2", X(i)); cx.setAttribute("visibility", "visible");
-    tip.innerHTML = `<b class="mono">${row.date}</b><br>融資餘額 <span class="mono">${num(Math.round(row.amt))} 億</span> <span class="${cls(d1)} mono">${pct(d1, 2)}</span><br>加權指數 <span class="mono">${num(row.taiex)}</span><br>估計維持率 <span class="mono">${row.ratio ?? "–"}%</span><br>融資減 ${int(row.n_down)}／增 ${int(row.n_up)} 檔`;
+    tip.innerHTML = `<b class="mono">${row.date}</b><br>融資餘額 <span class="mono">${num(Math.round(row.amt))} 億</span> <span class="${cls(d1)} mono">${pct(d1, 2)}</span><br>加權指數 <span class="mono">${num(row.taiex)}</span><br>估計維持率 <span class="mono">${row.ratio ?? "–"}%</span><br>融資減 ${int(row.n_down)}／增 ${int(row.n_up)} 檔<br>不限用途擔保 <span class="mono">${row.ul_amt == null ? "–" : num(Math.round(row.ul_amt)) + " 億"}</span>`;
     tip.style.display = "block";
     const box = $("mchart").getBoundingClientRect(), x = e.clientX - box.left;
     tip.style.left = (x > box.width / 2 ? x - tip.offsetWidth - 12 : x + 12) + "px"; tip.style.top = "36px";
@@ -322,6 +332,7 @@ const SORTS = {
   kill: [r => r.r5 != null && r.f5p != null && r.r5 <= -3 && r.f5p <= -3 ? r.f5p : null, 1],
   f5p: [r => r.f5p, 1], f1: [r => r.f1, 1], f20p: [r => r.f20p, 1], ratio: [r => r.ratio, 1],
   up5: [r => r.f5p, -1], val: [r => r.fin_val, -1], ss: [r => r.ss_ratio, -1],
+  ul5p: [r => r.ul5p, 1], ulup: [r => r.ul5p, -1], ulv: [r => r.ul_val, -1], uluse: [r => r.ul_use, -1],
 };
 const getSort = chips("s-sort", () => { limit = 100; renderStocks(); });
 const getMkt = chips("s-mkt", () => { limit = 100; renderStocks(); });
@@ -344,14 +355,16 @@ function renderStocks() {
     const tags = (kill ? '<span class="tag kill">殺</span>' : "") + (call ? '<span class="tag call">追繳</span>' : "");
     const row = `<tr class="click" data-code="${esc(r.code)}"><td><span class="sname">${tags}${esc(r.name)}<span class="mono">${esc(r.code)}${r.market === "TPEx" ? " 櫃" : ""}</span></span></td>
       <td class="n mono">${num(r.close)}</td><td class="n mono ${cls(r.r1)}">${pct(r.r1)}</td><td class="n mono ${cls(r.r5)}">${pct(r.r5)}</td><td class="n mono hide-s ${cls(r.r20)}">${pct(r.r20)}</td>
-      <td class="n mono">${int(r.fin)}</td><td class="n mono ${cls(r.f1)}">${sint(r.f1)}</td>
+      <td class="n mono">${int(r.fin)}<div class="faint" style="font-size:11px">${r.fin_val ? yi(r.fin_val) : ""}</div></td><td class="n mono ${cls(r.f1)}">${sint(r.f1)}</td>
       <td class="n mono ${cls(r.f5p)}">${pct(r.f5p)}<div class="faint" style="font-size:11px">${sint(r.f5)} 張</div></td>
       <td class="n mono hide-s ${cls(r.f20p)}">${pct(r.f20p)}</td>
-      <td class="n mono hide-s">${yi(r.fin_val)}</td>
       <td class="n mono ${call ? "up" : r.ratio != null && r.ratio < 150 ? "" : "muted"}">${r.ratio == null ? "–" : r.ratio + "%"}</td>
-      <td class="n mono hide-s">${r.ss_ratio == null ? "–" : r.ss_ratio + "%"}</td><td class="n mono hide-s">${r.use == null ? "–" : r.use + "%"}</td></tr>`;
-    return row + (open === r.code ? `<tr class="detail"><td colspan="13" id="detail">載入中…</td></tr>` : "");
-  }).join("") || `<tr><td colspan="13" class="empty">沒有符合的股票</td></tr>`;
+      <td class="n mono">${int(r.ul)}<div class="faint" style="font-size:11px">${r.ul_val ? yi(r.ul_val) : ""}</div></td>
+      <td class="n mono ${cls(r.ul5p)}">${pct(r.ul5p)}<div class="faint" style="font-size:11px">${sint(r.ul5)} 張</div></td>
+      <td class="n mono hide-s">${r.ul_use == null ? "–" : r.ul_use.toFixed(1) + "%"}</td>
+      <td class="n mono hide-s">${r.ss_ratio == null ? "–" : r.ss_ratio + "%"}</td></tr>`;
+    return row + (open === r.code ? `<tr class="detail"><td colspan="14" id="detail">載入中…</td></tr>` : "");
+  }).join("") || `<tr><td colspan="14" class="empty">沒有符合的股票</td></tr>`;
   if (open && $("detail")) loadDetail(open);
 }
 $("s-body").addEventListener("click", e => {
@@ -376,8 +389,12 @@ async function loadDetail(code) {
   const step = Math.max(1, Math.round(rows.length / 6));
   const xl = rows.map((r, i) => i % step ? "" : `<text x="${X(i).toFixed(1)}" y="${H - 4}" text-anchor="middle">${r.date.slice(5).replace("-", "/")}</text>`).join("");
   const last = rows[rows.length - 1];
-  el.innerHTML = `<div class="chart" style="border:none;background:none"><div class="legend"><span><i style="background:var(--brass);opacity:.6"></i>融資餘額（張，左軸）</span><span><i style="background:var(--text)"></i>收盤（右軸）</span><span>最新估計維持率 <b class="mono">${last.ratio ?? "–"}%</b></span><span>融券 <b class="mono">${int(last.sht)}</b> 張</span></div>
-    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(code)} 融資餘額與股價">${bars}<path d="${d}" fill="none" stroke="var(--text)" stroke-width="1.6"/>
+  const [au, bu] = ext("ul"), YU = v => T + H1 - (v - au) / (bu - au) * H1;
+  let du = "", pu = false; rows.forEach((r, i) => { if (r.ul == null) { pu = false; return; } du += (pu ? "L" : "M") + X(i).toFixed(1) + "," + YU(r.ul).toFixed(1); pu = true; });
+  const ulLine = du ? `<path d="${du}" fill="none" stroke="#6FA8DC" stroke-width="1.4" stroke-dasharray="5 3"/>` : "";
+  const vis = el.closest(".tbl-wrap").clientWidth - 26;
+  el.innerHTML = `<div class="chart" style="border:none;background:none;position:sticky;left:0;width:${vis}px"><div class="legend"><span><i style="background:var(--brass);opacity:.6"></i>融資餘額（張，左軸）</span><span><i style="background:var(--text)"></i>收盤（右軸）</span><span>最新估計維持率 <b class="mono">${last.ratio ?? "–"}%</b></span><span>融券 <b class="mono">${int(last.sht)}</b> 張</span><span><i style="background:#6FA8DC"></i>不限用途擔保 <b class="mono">${int(last.ul)}</b> 張（獨立刻度）</span></div>
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(code)} 融資餘額與股價">${bars}<path d="${d}" fill="none" stroke="var(--text)" stroke-width="1.6"/>${ulLine}
     ${tk(af, bf, YF, L - 6, "end", v => Math.round(v).toLocaleString())}${tk(ac, bc, YC, W - R + 6, "start", v => v >= 100 ? Math.round(v) : v.toFixed(1))}${xl}</svg></div>`;
 }
 </script>

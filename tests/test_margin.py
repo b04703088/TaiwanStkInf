@@ -40,6 +40,15 @@ class ParseTest(unittest.TestCase):
         self.assertEqual(s["fin_amount"], "218250119000")
         self.assertEqual(s["fin_lots"], "2364632")
 
+    def test_pledge(self):
+        rows = F.parse_pledge(load("twta1u.json"), D)
+        r = rows[0]
+        self.assertEqual((r["market"], r["code"], r["ul_prev"], r["ul_new"], r["ul_sell"], r["ul_cash"], r["ul_swap"],
+                          r["ul_bal"], r["ul_limit"], r["sf_bal"], r["bl_bal"]),
+                         ("TWSE", "2330", "122760", "657", "47", "15", "184", "123171", "2593237", "18461", "29"))
+        self.assertEqual(rows[1]["market"], "TPEx")
+        self.assertEqual(F.parse_pledge({"stat": "很抱歉，沒有符合條件的資料"}, D), [])
+
     def test_empty(self):
         self.assertEqual(F.parse_twse({"stat": "很抱歉，沒有符合條件的資料"}, D), ([], None))
         self.assertEqual(F.parse_tpex({"stat": "ok", "tables": [{"data": []}]}, D), ([], None))
@@ -67,6 +76,9 @@ class SiteTest(unittest.TestCase):
                         "fin_cash": cash, "fin_bal": bal, "fin_limit": 10000, "sht_bal": 40}])
                 write(dd / d[:4] / f"{ymd}.csv", ["date", "market", "code", "close"],
                       [{"date": d, "market": "TWSE", "code": "1234", "close": px}])
+            for d, ul in (("2026-10-15", 500), ("2026-10-16", 450)):
+                write(dd / "pledge" / d[:4] / (d.replace("-", "") + ".csv"), F.PLEDGE_COLUMNS,
+                      [{"date": d, "market": "TWSE", "code": "1234", "ul_bal": ul, "ul_limit": 3000, "sf_bal": 7}])
             write(dd / "margin" / "summary.csv", F.SUMMARY_COLS,
                   [{"date": d, "market": "TWSE", "fin_lots": bal, "fin_amount": bal * 1000 * 60} for d, _, bal, *_ in days])
             out = margin_site.build(dd)
@@ -75,9 +87,14 @@ class SiteTest(unittest.TestCase):
         self.assertAlmostEqual(st["cost"], round(cost, 2))
         self.assertEqual(st["ratio"], round(90 / (cost * 0.6) * 100))
         self.assertEqual((st["f1"], st["r1"], st["use"], st["ss_ratio"]), (-300, -25.0, 8.0, 5.0))
+        self.assertEqual((st["ul"], st["ul1"], st["ul5"], st["ul_val"], st["ul_use"], st["sf"]),
+                         (450, -50, None, 450 * 1000 * 90, 15.0, 7))
+        self.assertEqual([x[5] for x in out["series"]["1234"]], [None, 500, 450])
         m = out["market"]["rows"]
         self.assertEqual(m[-1][margin_site.MARKET_COLS.index("twse_ratio")], 150.0)  # 90 / 60
         self.assertEqual(m[-1][margin_site.MARKET_COLS.index("n_down")], 1)
+        self.assertEqual(m[-1][margin_site.MARKET_COLS.index("ul_lots")], 450)
+        self.assertIsNone(m[0][margin_site.MARKET_COLS.index("ul_lots")])
         self.assertEqual(len(out["series"]["1234"]), 3)
 
 

@@ -4,7 +4,9 @@
                             融資增／減家數、加權指數（fetch_margin.py 的 summary.csv + index.csv）
   data/margin/stocks.json   最新一天全部個股：融資餘額與 1／5／20 日增減、股價漲跌、
                             融資市值、估計融資成本與維持率、融券餘額、券資比、融資使用率
-  data/margin/s/<代號>.json 個股近 SERIES_N 個交易日：收盤、融資餘額、融券餘額、估計維持率
+  data/margin/s/<代號>.json 個股近 SERIES_N 個交易日：收盤、融資餘額、融券餘額、估計維持率、不限用途借貸擔保張數
+不限用途款項借貸（data/pledge/，證交所借貸款項擔保品餘額表）：個股被拿去質押借錢的張數與限額；
+  大盤加總擔保市值＝Σ(擔保張數 × 1000 × 收盤)。
 
 估計方式（官方只公布大盤融資金額，個股沒有）：
   大盤維持率 ＝ Σ(個股融資餘額張數 × 1000 × 收盤) ÷ 官方融資金額
@@ -49,6 +51,12 @@ def closes_for(data_dir, d):
         if c:
             out[(r["market"], r["code"])] = c
     return out
+
+
+def pledge_for(data_dir, d):
+    """當日借貸款項擔保品 {(market, code): row}，沒有資料回傳空 dict。"""
+    p = Path(data_dir) / "pledge" / d[:4] / (d.replace("-", "") + ".csv")
+    return {(r["market"], r["code"]): r for r in _read(p)} if p.exists() else {}
 
 
 def load_days(data_dir, limit):
@@ -107,6 +115,9 @@ def market_series(data_dir, days, summary, index):
     prev_rows = None
     for d, rows, closes in days:
         s = by_date.get(d, {})
+        pl = pledge_for(data_dir, d)
+        ul_lots = sum(_f(r.get("ul_bal")) or 0 for r in pl.values()) if pl else None
+        ul_val = sum((_f(r.get("ul_bal")) or 0) * 1000 * closes[k] for k, r in pl.items() if closes.get(k)) if pl and closes else None
         mv = {"TWSE": 0.0, "TPEx": 0.0}
         for k, r in rows.items():
             c = closes.get(k)
@@ -134,14 +145,16 @@ def market_series(data_dir, days, summary, index):
         lots = lambda m, f: int(_f(s[m][f])) if m in s and _f(s[m].get(f)) is not None else None  # noqa: E731
         out.append([d, yi(amt["TWSE"]), yi(amt["TPEx"]), lots("TWSE", "fin_lots"), lots("TPEx", "fin_lots"),
                     lots("TWSE", "sht_lots"), lots("TPEx", "sht_lots"),
-                    ratio["TWSE"], ratio["TPEx"], all_ratio, n_up, n_down, idx.get(d)])
+                    ratio["TWSE"], ratio["TPEx"], all_ratio, n_up, n_down, idx.get(d),
+                    None if ul_lots is None else int(ul_lots), yi(ul_val)])
     return out
 
 
 MARKET_COLS = ["date", "twse_amt", "tpex_amt", "twse_lots", "tpex_lots", "twse_sht", "tpex_sht",
-               "twse_ratio", "tpex_ratio", "all_ratio", "n_up", "n_down", "taiex"]
+               "twse_ratio", "tpex_ratio", "all_ratio", "n_up", "n_down", "taiex", "ul_lots", "ul_amt"]
 STOCK_COLS = ["market", "code", "name", "close", "r1", "r5", "r20", "fin", "f1", "f5", "f5p", "f20", "f20p",
-              "fin_val", "cost", "ratio", "sht", "s5", "ss_ratio", "use"]
+              "fin_val", "cost", "ratio", "sht", "s5", "ss_ratio", "use",
+              "ul", "ul1", "ul5", "ul5p", "ul20p", "ul_val", "ul_use", "sf"]
 
 
 def build(data_dir):
@@ -152,16 +165,19 @@ def build(data_dir):
         return None
     tracker = CostTracker()
     last_close = {}
-    series = {}       # key -> list of [date, close, fin, sht, ratio]
+    series = {}       # key -> list of [date, close, fin, sht, ratio, ul]
+    pledge = {}       # date -> 不限用途借貸擔保品
     for i, (d, rows, closes) in enumerate(days):
         tracker.step(rows, closes, last_close)
         last_close.update(closes)
         if i >= len(days) - SERIES_N:
+            pledge[d] = pl = pledge_for(data_dir, d)
             for k, r in rows.items():
                 c = closes.get(k)
                 a = tracker.avg.get(k)
                 ratio = round(c / (a * FIN_RATIO) * 100) if c and a and (_f(r.get("fin_bal")) or 0) > 0 else None
-                series.setdefault(k, []).append([d, c, _f(r.get("fin_bal")), _f(r.get("sht_bal")), ratio])
+                series.setdefault(k, []).append([d, c, _f(r.get("fin_bal")), _f(r.get("sht_bal")), ratio,
+                                                 _f(pl.get(k, {}).get("ul_bal"))])
 
     def at(n):
         return days[-1 - n] if len(days) > n else None
@@ -184,6 +200,13 @@ def build(data_dir):
 
         f1, f5, f20 = fin_at(1), fin_at(5), fin_at(20)
         sht5 = _f(ref[5][1][k].get("sht_bal")) if ref[5] and k in ref[5][1] else None
+        def ul_at(n):
+            x = days[-1 - n] if len(days) > n else None
+            return _f(pledge.get(x[0], {}).get(k, {}).get("ul_bal")) if x else None
+
+        p0 = pledge.get(d0, {}).get(k, {})
+        u0, u1, u5, u20 = ul_at(0), ul_at(1), ul_at(5), ul_at(20)
+        ulim = _f(p0.get("ul_limit"))
         cost = tracker.avg.get(k)
         limit = _f(r.get("fin_limit"))
         stocks.append([
@@ -201,6 +224,13 @@ def build(data_dir):
             round(sht / fin * 100, 1) if fin and sht is not None else None,
             # 限額＝上市（櫃）股份 25%，融資使用率＝餘額 ÷ 限額
             round(fin / limit * 100, 2) if fin is not None and limit else None,
+            u0,
+            None if u0 is None or u1 is None else int(u0 - u1),
+            None if u0 is None or u5 is None else int(u0 - u5), pct(u0, u5), pct(u0, u20),
+            round(u0 * 1000 * c) if u0 and c else None,
+            # 次一營業日限額（約股本 1 成）：不限用途擔保張數 ÷ 限額
+            round(u0 / ulim * 100, 2) if u0 is not None and ulim else None,
+            _f(p0.get("sf_bal")),
         ])
     stocks.sort(key=lambda x: -(x[13] or 0))
 
@@ -224,5 +254,5 @@ def write_margin(data_dir, out_dir):
     dump(out_dir / "market.json", payload["market"])
     dump(out_dir / "stocks.json", payload["stocks"])
     for code, rows in payload["series"].items():
-        dump(out_dir / "s" / f"{code}.json", {"cols": ["date", "close", "fin", "sht", "ratio"], "rows": rows})
+        dump(out_dir / "s" / f"{code}.json", {"cols": ["date", "close", "fin", "sht", "ratio", "ul"], "rows": rows})
     return payload
