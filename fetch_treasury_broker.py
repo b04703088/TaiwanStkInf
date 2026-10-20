@@ -23,7 +23,8 @@
   market, code, board_date, win(in|pre), d1, d2, rank, bid, broker, buy, sell, net
   只存買超前 15 名；查過但沒資料時存一列 rank=0（避免重複查）。
 data/treasury/broker_days.csv：
-  market, code, board_date, bid, d1, d2, days(有進出的天數), buy_days(淨買超天數), sell_days(淨賣超天數), buy, sell, net
+  market, code, board_date, bid, d1, d2, days(有進出的天數), buy_days(淨買超天數), sell_days(淨賣超天數),
+  buy_net(淨買超那幾天的買超合計), sell_net(淨賣超那幾天的賣超合計，正數), buy, sell, net
 
 用法：python fetch_treasury_broker.py [--max-minutes 20]
 """
@@ -42,7 +43,8 @@ import fetch_broker_watch as FW
 ROOT = Path(__file__).resolve().parent
 OUT = ROOT / "data" / "treasury"
 COLS = ["market", "code", "board_date", "win", "d1", "d2", "rank", "bid", "broker", "buy", "sell", "net"]
-DAY_COLS = ["market", "code", "board_date", "bid", "d1", "d2", "days", "buy_days", "sell_days", "buy", "sell", "net"]
+DAY_COLS = ["market", "code", "board_date", "bid", "d1", "d2", "days", "buy_days", "sell_days", "buy_net", "sell_net",
+            "buy", "sell", "net"]
 DAILY = "https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zco0/zco0.djhtm"
 PRE_DAYS = 60
 MIN_SHARE = 0.10   # 已結束計畫：買超至少佔實際買回張數的比例才查每日
@@ -92,9 +94,10 @@ def parse_daily(page):
 
 
 def summarize(daily):
-    """每日 (日期, 買, 賣) → 有進出天數、淨買天數、淨賣天數、買、賣、淨"""
+    """每日 (日期, 買, 賣) → 有進出天數、淨買天數、淨賣天數、淨買日買超合計、淨賣日賣超合計、買、賣、淨"""
     act = [(b, s) for _, b, s in daily if b or s]
     return {"days": len(act), "buy_days": sum(1 for b, s in act if b > s), "sell_days": sum(1 for b, s in act if b < s),
+            "buy_net": sum(b - s for b, s in act if b > s), "sell_net": sum(s - b for b, s in act if b < s),
             "buy": sum(b for b, _ in act), "sell": sum(s for _, s in act), "net": sum(b - s for b, s in act)}
 
 

@@ -22,9 +22,9 @@ def rows(code, board, win, d1, d2, items):
     return out
 
 
-def day(code, board, bid, n, b, s):
+def day(code, board, bid, n, b, s, bn=1000, sn=0):
     return {"market": "sii", "code": code, "board_date": board, "bid": bid, "days": str(n), "buy_days": str(b),
-            "sell_days": str(s)}
+            "sell_days": str(s), "buy_net": str(bn), "sell_net": str(sn)}
 
 
 class MatchTest(unittest.TestCase):
@@ -32,10 +32,17 @@ class MatchTest(unittest.TestCase):
         # 兩個分點買超都夠，但 A 買賣日交錯（一般客戶），B 天天買（公司派）
         p = [prog("1111", "2026-05-01", "2026-05-04", "2026-07-03", 1000000)]
         b = rows("1111", "2026-05-01", "in", "2026-05-04", "2026-07-03", [("A", "交錯", 1500, 300), ("B", "天天買", 1000, 20)])
-        d = [day("1111", "2026-05-01", "A", 40, 20, 18), day("1111", "2026-05-01", "B", 40, 37, 2)]
+        d = [day("1111", "2026-05-01", "A", 40, 20, 18, 3000, 1800), day("1111", "2026-05-01", "B", 40, 37, 2, 1010, 10)]
         m = T.build(p, b, d)[0]["1111|2026-05-01"]
         self.assertEqual([x[1] for x in m["m"]], ["天天買"])
         self.assertEqual((m["conf"], m["m"][0][5:]), ("高", [40, 37, 2]))
+
+    def test_small_sell_days_ok(self):
+        # 兆豐-北高雄（可成 2026-08）：29 天裡 10 天淨賣超，但賣超合計只有 84 張，仍算一面倒
+        p = [prog("2474", "2026-08-07", "2026-08-10", "2026-10-06", 10000000)]
+        b = rows("2474", "2026-08-07", "in", "2026-08-10", "2026-10-06", [("700I", "兆豐-北高雄", 9959, 84)])
+        m = T.build(p, b, [day("2474", "2026-08-07", "700I", 29, 19, 10, 9959, 84)])[0]["2474|2026-08-07"]
+        self.assertEqual(m["conf"], "高")
 
     def test_over_bought_still_counts(self):
         # 買超 1,400 張 > 實際買回 1,000 張也算「高」（同分點還有其他買盤）
@@ -100,7 +107,8 @@ class DailyTest(unittest.TestCase):
                 "<tr><td>2026/10/01</td><td>0</td><td>0</td><td>0</td><td>0</td></tr></table>")
         d = F.parse_daily(page)
         self.assertEqual(d[1], ("2026-10-05", 1729, 64))
-        self.assertEqual(F.summarize(d), {"days": 3, "buy_days": 2, "sell_days": 1, "buy": 2201, "sell": 167, "net": 2034})
+        self.assertEqual(F.summarize(d), {"days": 3, "buy_days": 2, "sell_days": 1, "buy_net": 2104, "sell_net": 70,
+                                          "buy": 2201, "sell": 167, "net": 2034})
 
     def test_day_jobs(self):
         p = [prog("2474", "2026-08-07", "2026-08-10", "2026-10-06", 10000000)]

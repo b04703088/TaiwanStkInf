@@ -9,7 +9,9 @@
 
 已結束的計畫（有公告實際買回張數 B）
   1. 候選：買回期間買超 ≥ B 的 10%，而且買進賣出很一面倒：
-       有每日資料時：淨買超天數 ≥ 有進出天數的 60%、淨賣超天數 ≤ 25%、賣出張數 ≤ 買進的 35%
+       有每日資料時：淨買超天數 ≥ 有進出天數的 60%、淨賣超那幾天的賣超合計 ≤ 淨買超那幾天買超合計的 15%、
+                     賣出張數 ≤ 買進的 35%
+       （公司沒下單的日子，同分點其他客戶零星賣幾張也會算一天淨賣超，所以賣超看張數不看天數）
        還沒有每日資料時：只看賣出張數 ≤ 買進的 35%
      買回前 60 天就已經買超達到期間買超一半以上的分點，是本來就常買這檔的人，排除；
      但買回前那段如果跟同一家公司的上一次買回期間重疊（連續買回），就不做這個排除。
@@ -27,7 +29,7 @@ from collections import defaultdict
 MIN_SHARE = 0.10      # 候選分點買超至少佔實際買回張數的比例
 MAX_SELL = 0.35       # 賣出 ÷ 買進 上限
 BUY_DAYS = 0.60       # 淨買超天數 ÷ 有進出天數 下限
-SELL_DAYS = 0.25      # 淨賣超天數 ÷ 有進出天數 上限
+SELL_NET = 0.15       # 淨賣超日賣超合計 ÷ 淨買超日買超合計 上限
 ENOUGH = 0.85         # 合計達到實際張數的這個比例就停
 HIGH_MAX = 2.0        # 吻合度超過這個倍數降為「中」
 MAX_PICK = 3
@@ -52,19 +54,19 @@ def _windows(brokers):
 
 
 def _days(days):
-    """{(market, code, board_date, bid): (有進出天數, 淨買天數, 淨賣天數)}"""
+    """{(market, code, board_date, bid): (有進出天數, 淨買天數, 淨賣天數, 淨買日買超, 淨賣日賣超)}"""
     return {(r["market"], r["code"], r["board_date"], r["bid"]):
-            (int(_f(r["days"])), int(_f(r["buy_days"])), int(_f(r["sell_days"]))) for r in days}
+            tuple(int(_f(r[k])) for k in ("days", "buy_days", "sell_days", "buy_net", "sell_net")) for r in days}
 
 
 def one_sided(r, d):
-    """買超是否一面倒（公司買回的樣子）。d = (天數, 淨買天數, 淨賣天數) 或 None"""
+    """買超是否一面倒（公司買回的樣子）。d = _days 的值或 None"""
     if r["net"] <= 0 or r["sell"] > MAX_SELL * r["buy"]:
         return False
     if d is None:
         return True
-    n, b, s = d
-    return n > 0 and b >= BUY_DAYS * n and s <= SELL_DAYS * n
+    n, b, _, bn, sn = d
+    return n > 0 and b >= BUY_DAYS * n and sn <= SELL_NET * bn
 
 
 def _overlaps_other(p, programs_by_code, d1, d2):
@@ -79,7 +81,7 @@ def _overlaps_other(p, programs_by_code, d1, d2):
 
 def _entry(r, d):
     """[bid, broker, net, buy, sell, 天數, 淨買天數, 淨賣天數]（沒有每日資料時後三欄 None）"""
-    return [r["bid"], r["broker"], int(r["net"]), int(r["buy"]), int(r["sell"])] + (list(d) if d else [None] * 3)
+    return [r["bid"], r["broker"], int(r["net"]), int(r["buy"]), int(r["sell"])] + (list(d[:3]) if d else [None] * 3)
 
 
 def match_program(p, win, days, programs_by_code):
