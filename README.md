@@ -25,6 +25,8 @@ python adjust.py 0050 --start 2025-01-01 --events      # 只列事件與累積�
 python fetch_adjust.py --since 2022-01-01              # 手動回補
 ```
 
+網站「K線」頁（`site/kline.html`，資料由 `scripts/kline_site.py` 產生 `data/kline/s/<代號>.json`）畫日／週／月 K、均線 5/20/60，可切換還原價與原始價，事件日在圖下方標「息、權、減、面、分」。網址可帶 `#s=2330` 直接開某一檔。
+
 ## ETF 每日持股明細
 
 每天抓各投信公告的 ETF 持股（成分股、總股數、權重），workflow `.github/workflows/etf.yml` 每個工作日跑三次並 commit。

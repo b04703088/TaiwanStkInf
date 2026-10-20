@@ -22,6 +22,7 @@ on:
       - "scripts/analyst_site.py"
       - "scripts/mops_site.py"
       - "scripts/margin_site.py"
+      - "scripts/kline_site.py"
       - ".github/workflows/pages.yml"
   workflow_dispatch: {}
 
