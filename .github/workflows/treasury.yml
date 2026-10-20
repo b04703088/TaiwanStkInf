@@ -22,7 +22,7 @@ concurrency:
 jobs:
   fetch:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
 
@@ -35,6 +35,11 @@ jobs:
           IN_SINCE: ${{ inputs.since }}
         run: |
           if [ -n "$IN_SINCE" ]; then python fetch_treasury.py --since "$IN_SINCE"; else python fetch_treasury.py; fi
+
+      - name: Fetch broker branches during buyback periods
+        if: always()
+        # 買回期間的分點買超，用來比對公司派分點；第一次要回補全部計畫，之後每次只查執行中的
+        run: python fetch_treasury_broker.py --max-minutes 25
 
       - name: Commit data
         if: always()
