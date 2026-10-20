@@ -167,7 +167,8 @@
   <section class="block" id="co">
     <div class="block-head"><h2>公司派分點</h2><span class="hint" id="c-hint"></span></div>
     <p class="desc" style="margin:0 0 14px">公司買回自家股票一定要透過某個券商分點下單，而且只買不賣。把每次買回期間的分點買超跟公司公告的實際買回張數比對，
-      找出買超加總吻合的分點，就是公司派常用的分點。上方的篩選框也可以輸入分點名稱，查這個分點幫哪些公司買回。</p>
+      找出買回期間大多數天數都淨買超、買超張數跟實際買回相當（超過也算）的分點，就是公司派常用的分點。搜尋框也可以輸入分點名稱，查這個分點幫哪些公司買回。</p>
+    <div class="toolbar"><input class="filter" id="c-q" type="search" placeholder="查個股：代號、名稱或分點" autocomplete="off" aria-label="查詢公司派分點"></div>
     <div class="tbl-wrap"><table>
       <thead><tr><th>股票</th><th>推定分點（比對到次數）</th><th class="n">吻合／已結束買回</th><th class="hide-s">最近一次買回</th><th>本期公司派買超</th></tr></thead>
       <tbody id="c-body"></tbody>
@@ -202,8 +203,9 @@
   <p class="note">
     資料來源：公開資訊觀測站「庫藏股統計彙總表」（上市、上櫃），依董事會決議日整理；每個交易日更新。<br>
     公司要等買回期間結束（或提前執行完畢）才公告實際買回股數與金額，所以「執行中」看不到最終結果；「已申報進度」是公司每買回達已發行股數 2% 或金額 3 億元時的申報加總，實際買到的通常更多，小量買回不會出現。<br>
-    公司派分點：富邦證券網站（MoneyDJ）買回期間的分點買超前 15 名，跟實際買回張數比對。挑只買不賣（賣出 ≤ 買進 35%）、買超至少佔實際買回 10% 的分點，
-    加總不超過實際張數 115%；吻合度＝分點買超合計 ÷ 實際買回張數，85%～115% 標「高」、60% 以上「中」、30% 以上「低」。買回前 60 天就常買這檔的分點會排除。
+    公司派分點：富邦證券網站（MoneyDJ）買回期間的分點買超前 15 名與這些分點的每日進出，跟實際買回張數比對。挑買超至少佔實際買回 10%、
+    買回期間淨買超天數 ≥ 有進出天數 60%、淨賣超天數 ≤ 25%、賣出 ≤ 買進 35% 的分點，從買超最多的開始加總到實際張數的 85%（超過也算）；
+    吻合度＝分點買超合計 ÷ 實際買回張數，85%～200% 標「高」、60% 以上「中」、30% 以上「低」。買回前 60 天就常買這檔的分點會排除。
     同一分點也有其他客戶，吻合不代表確定，僅供參考；買回張數太少、沒擠進前 15 名的計畫比對不到。<br>
     預定金額＝預定買回股數 × 最新收盤（法定上限另見各公司公告）。「待公告」是期間已過、結果還沒公告的計畫。資料僅供參考，不構成投資建議。
   </p>
@@ -225,7 +227,7 @@ const dayDiff = (a, b) => Math.round((new Date(b + "T00:00:00") - new Date(a + "
 const md = d => d ? (d.slice(0, 4) === TODAY.slice(0, 4) ? d.slice(5) : d) : "–";
 
 let D, ALL = [], ACT = [], DONE = [], PX = {}, PXDATE = "";
-const A = {sort: "new", q: "", n: 50}, Dn = {days: 90, sort: "end", dir: -1, q: "", n: 50}, Cn = {n: 30};
+const A = {sort: "new", q: "", n: 50}, Dn = {days: 90, sort: "end", dir: -1, q: "", n: 50}, Cn = {n: 30, q: ""};
 let BRK = {}, CO = {};
 
 function objs(t){ return t.rows.map(r => Object.fromEntries(t.cols.map((k, i) => [k, r[i]]))); }
@@ -235,13 +237,18 @@ const match = r => !A.q || r.code.startsWith(A.q) || (r.name || "").toLowerCase(
   || brkNames(r).toLowerCase().includes(A.q) || (CO[r.code] || []).some(a => a[1].toLowerCase().includes(A.q));
 const confTag = c => `<span class="tag ${c === "高" ? "hi" : ""}" title="吻合度：分點買超合計 ÷ 實際買回張數">${c}</span>`;
 
+/* 每日進出：[.., 天數, 淨買天數, 淨賣天數] */
+const dayTxt = x => x[5] ? `淨買 ${x[6]}／${x[5]} 天、淨賣 ${x[7]} 天` : "";
+
 /* 已結束：推定分點 */
 function brkDone(r){
   const b = BRK[r.code + "|" + r.board_date];
   if (!b || !b.m) return '<span class="faint">–</span>';
-  const tip = b.m.map(x => `${x[1]}：買 ${x[3].toLocaleString()} 賣 ${x[4].toLocaleString()} 買超 ${x[2].toLocaleString()} 張`).join("\n");
+  const tip = b.m.map(x => `${x[1]}：買 ${x[3].toLocaleString()} 賣 ${x[4].toLocaleString()} 買超 ${x[2].toLocaleString()} 張${x[5] ? `，${dayTxt(x)}` : ""}`).join("\n");
+  const withDays = b.m.filter(x => x[5]);
+  const minDays = withDays.length ? Math.min(...withDays.map(x => x[6] / x[5])) : null;
   return `<div class="brk" title="${esc(tip)}">${confTag(b.conf)}${b.m.map(x => esc(x[1])).join("、")}
-    <span class="mono faint">${(b.cov * 100).toFixed(0)}%</span></div>`;
+    <span class="mono faint">${(b.cov * 100).toFixed(0)}%${minDays != null ? `・淨買天數 ${(minDays * 100).toFixed(0)}%` : ""}</span></div>`;
 }
 
 /* 執行中：已知公司派分點（與可疑分點）本期買超 */
@@ -253,7 +260,8 @@ function brkLive(r){
   if (!shown.length) return '<span class="faint">公司派分點未進買超前 15</span>';
   return `<div class="brk" title="買回期間起 ～ ${b.d2} 的分點買超（張）">` + shown.map(x => {
     const v = `<span class="mono ${cls(x[2])}">${x[2].toLocaleString()}</span>${plan && x[2] > 0 ? `<span class="mono faint">（${(x[2] / plan * 100).toFixed(0)}%）</span>` : ""}`;
-    return `<span style="white-space:nowrap">${x[5] ? "" : '<span class="tag sus" title="過去沒比對到，但本期幾乎只買不賣">疑似</span>'}${esc(x[1])} ${v}</span>`;
+    const dd = x[5] ? ` <span class="mono faint" title="${dayTxt(x)}">${x[6]}/${x[5]}天</span>` : "";
+    return `<span style="white-space:nowrap">${x[8] ? "" : '<span class="tag sus" title="過去沒比對到，但本期大多數天數淨買超">疑似</span>'}${esc(x[1])} ${v}${dd}</span>`;
   }).join("<br>") + "</div>";
 }
 
@@ -266,7 +274,7 @@ function renderCo(){
     const last = hit.sort((a, b) => b.board_date.localeCompare(a.board_date))[0];
     const act = ps.find(r => r.active && !r.pending);
     return {code, name: (ps[0] || {}).name, market: (ps[0] || {}).market, br, done: done.length, hit: hit.length, last, act};
-  }).filter(o => !A.q || o.code.startsWith(A.q) || (o.name || "").toLowerCase().includes(A.q) || o.br.some(a => a[1].toLowerCase().includes(A.q)));
+  }).filter(o => [A.q, Cn.q].every(q => !q || o.code.startsWith(q) || (o.name || "").toLowerCase().includes(q) || o.br.some(a => a[1].toLowerCase().includes(q))));
   rows.sort((a, b) => !!b.act - !!a.act || (b.last?.end || "").localeCompare(a.last?.end || ""));
   document.getElementById("c-hint").textContent = `${rows.length} 家・${rows.filter(o => o.act).length} 家正在買回`;
   document.getElementById("c-body").innerHTML = rows.slice(0, Cn.n).map(o => {
@@ -274,7 +282,7 @@ function renderCo(){
     let now = '<span class="faint">–</span>';
     if (o.act){
       const b = BRK[o.code + "|" + o.act.board_date];
-      const k = b && b.live ? b.live.filter(x => x[5] && x[2] != null) : [];
+      const k = b && b.live ? b.live.filter(x => x[8] && x[2] != null) : [];
       const net = k.reduce((s, x) => s + x[2], 0);
       now = k.length ? `<span class="mono ${cls(net)}">${net.toLocaleString()}</span> <span class="faint">張</span>` : '<span class="faint">未進前 15</span>';
     }
@@ -443,6 +451,8 @@ Promise.all([
   };
   document.getElementById("a-more").onclick = () => { A.n += 50; renderActive(); };
   document.getElementById("c-more").onclick = () => { Cn.n += 30; renderCo(); };
+  const cq = document.getElementById("c-q");
+  cq.oninput = () => { Cn.q = cq.value.trim().toLowerCase(); Cn.n = 30; renderCo(); };
   document.getElementById("d-more").onclick = () => { Dn.n += 50; renderDone(); };
   const q = document.getElementById("q");
   const s = new URLSearchParams(location.hash.slice(1)).get("s");
