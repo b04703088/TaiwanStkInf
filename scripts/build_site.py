@@ -19,6 +19,7 @@
   data/fin/index.json, s/<代號>.json  財報：月營收與季報（見 scripts/fin_site.py）
   data/margin/market.json, stocks.json, s/<代號>.json  融資融券、估計維持率（見 scripts/margin_site.py）
   data/kline/index.json, s/<代號>.json  K 線：2022 年起每日價量＋還原因子事件（見 scripts/kline_site.py）
+  每頁標題旁標示建置時間（＝網站上次更新時間，台北時間），見 stamp_built()
 
 用法：python scripts/build_site.py [--days 120] [--out _site]
 """
@@ -26,6 +27,7 @@ import argparse
 import json
 import shutil
 import sys
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -48,6 +50,26 @@ import mops_site  # noqa: E402
 import fin_site  # noqa: E402
 import margin_site  # noqa: E402
 import kline_site  # noqa: E402
+
+TPE = timezone(timedelta(hours=8))
+BRAND_SUB = '<span class="brand-sub">籌碼觀測站</span>'
+
+
+def stamp_built(out: Path, now: datetime) -> int:
+    """在每頁「籌碼觀測站」下面加一行上次更新時間，回傳改了幾頁。"""
+    t = now.astimezone(TPE)
+    # 絕對定位掛在「籌碼觀測站」正下方，不佔寬度（導覽列在 1280px 已經很擠）
+    tag = (f'<span class="brand-sub" style="position:relative">籌碼觀測站<span class="built-at"'
+           f' title="網站上次更新 {t:%Y-%m-%d %H:%M}（台北）"'
+           f' style="position:absolute;left:0;top:100%;font-size:11px;line-height:1.4;white-space:nowrap">'
+           f'更新 {t.month}/{t.day} {t:%H:%M}</span></span>')
+    n = 0
+    for f in out.glob("*.html"):
+        s = f.read_text(encoding="utf-8")
+        if BRAND_SUB in s:
+            f.write_text(s.replace(BRAND_SUB, tag, 1), encoding="utf-8")
+            n += 1
+    return n
 
 
 def build(out: Path, days: int) -> list[str]:
@@ -92,6 +114,7 @@ def build(out: Path, days: int) -> list[str]:
     kline_site.write_kline(ROOT / "data", out / "data" / "kline")
     for page in cb_site.SUBPAGES:  # CB詢圈子頁共用同一個 HTML，由檔名決定顯示哪一頁
         shutil.copy(out / "cb.html", out / page)
+    stamp_built(out, datetime.now(timezone.utc))
     (out / "data" / "health.json").write_text(
         json.dumps(health.check(ROOT / "data"), ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     return dates
