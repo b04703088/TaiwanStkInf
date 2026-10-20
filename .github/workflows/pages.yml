@@ -3,7 +3,9 @@ name: Deploy site
 on:
   # 抓資料的 workflow 有新 commit 時，會用 workflow_dispatch 觸發這裡（沒有新資料就不部署，省 Actions 分鐘數）
   # 改了網頁或手動更新資料也重建（排程 bot 的 commit 不會觸發 push 事件，不會重複部署）
+  # 只看 main：pages.yml 一律 checkout main 部署，功能分支 push 觸發只是重複部署 main
   push:
+    branches: [main]
     paths:
       - "data/**"
       - "config/**"
@@ -19,6 +21,7 @@ on:
       - "scripts/calendar_site.py"
       - "scripts/analyst_site.py"
       - "scripts/mops_site.py"
+      - "scripts/margin_site.py"
       - "scripts/kline_site.py"
       - ".github/workflows/pages.yml"
   workflow_dispatch: {}
