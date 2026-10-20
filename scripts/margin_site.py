@@ -4,7 +4,8 @@
                             融資增／減家數、加權指數（fetch_margin.py 的 summary.csv + index.csv）
   data/margin/stocks.json   最新一天全部個股：融資餘額與 1／5／20 日增減、股價漲跌、
                             融資市值、估計融資成本與維持率、融券餘額、券資比、融資使用率
-  data/margin/s/<代號>.json 個股近 SERIES_N 個交易日：收盤、融資餘額、融券餘額、估計維持率
+  data/margin/s/<代號>.json 個股近 SERIES_N 個交易日：收盤、融資餘額、融券餘額、估計維持率、借券賣出餘額
+借券賣出（data/sbl/，fetch_margin.py 抓的，原始單位為股）在網頁一律換成張。
 
 估計方式（官方只公布大盤融資金額，個股沒有）：
   大盤維持率 ＝ Σ(個股融資餘額張數 × 1000 × 收盤) ÷ 官方融資金額
@@ -49,6 +50,17 @@ def closes_for(data_dir, d):
         if c:
             out[(r["market"], r["code"])] = c
     return out
+
+
+def sbl_for(data_dir, d):
+    """當日借券賣出 {(market, code): row}，沒有資料回傳空 dict。"""
+    p = Path(data_dir) / "sbl" / d[:4] / (d.replace("-", "") + ".csv")
+    return {(r["market"], r["code"]): r for r in _read(p)} if p.exists() else {}
+
+
+def _lots(v):
+    v = _f(v)
+    return None if v is None else round(v / 1000)
 
 
 def load_days(data_dir, limit):
@@ -141,7 +153,8 @@ def market_series(data_dir, days, summary, index):
 MARKET_COLS = ["date", "twse_amt", "tpex_amt", "twse_lots", "tpex_lots", "twse_sht", "tpex_sht",
                "twse_ratio", "tpex_ratio", "all_ratio", "n_up", "n_down", "taiex"]
 STOCK_COLS = ["market", "code", "name", "close", "r1", "r5", "r20", "fin", "f1", "f5", "f5p", "f20", "f20p",
-              "fin_val", "cost", "ratio", "sht", "s5", "ss_ratio", "use"]
+              "fin_val", "cost", "ratio", "sht", "s5", "ss_ratio", "use",
+              "sbl", "sbl1", "sbl5", "sbl_val", "sbl_quota", "lend"]
 
 
 def build(data_dir):
@@ -152,16 +165,19 @@ def build(data_dir):
         return None
     tracker = CostTracker()
     last_close = {}
-    series = {}       # key -> list of [date, close, fin, sht, ratio]
+    series = {}       # key -> list of [date, close, fin, sht, ratio, sbl]
+    sbl = {}          # date -> 借券賣出
     for i, (d, rows, closes) in enumerate(days):
         tracker.step(rows, closes, last_close)
         last_close.update(closes)
         if i >= len(days) - SERIES_N:
+            sbl[d] = sb = sbl_for(data_dir, d)
             for k, r in rows.items():
                 c = closes.get(k)
                 a = tracker.avg.get(k)
                 ratio = round(c / (a * FIN_RATIO) * 100) if c and a and (_f(r.get("fin_bal")) or 0) > 0 else None
-                series.setdefault(k, []).append([d, c, _f(r.get("fin_bal")), _f(r.get("sht_bal")), ratio])
+                series.setdefault(k, []).append([d, c, _f(r.get("fin_bal")), _f(r.get("sht_bal")), ratio,
+                                                 _lots(sb.get(k, {}).get("sbl_bal"))])
 
     def at(n):
         return days[-1 - n] if len(days) > n else None
@@ -184,6 +200,12 @@ def build(data_dir):
 
         f1, f5, f20 = fin_at(1), fin_at(5), fin_at(20)
         sht5 = _f(ref[5][1][k].get("sht_bal")) if ref[5] and k in ref[5][1] else None
+        def sbl_at(n):
+            x = days[-1 - n] if len(days) > n else None
+            return _lots(sbl.get(x[0], {}).get(k, {}).get("sbl_bal")) if x else None
+
+        sb0 = sbl.get(d0, {}).get(k, {})
+        b0, b1, b5 = sbl_at(0), sbl_at(1), sbl_at(5)
         cost = tracker.avg.get(k)
         limit = _f(r.get("fin_limit"))
         stocks.append([
@@ -201,6 +223,12 @@ def build(data_dir):
             round(sht / fin * 100, 1) if fin and sht is not None else None,
             # 限額＝上市（櫃）股份 25%，融資使用率＝餘額 ÷ 限額
             round(fin / limit * 100, 2) if fin is not None and limit else None,
+            b0,
+            None if b0 is None or b1 is None else b0 - b1,
+            None if b0 is None or b5 is None else b0 - b5,
+            round(b0 * 1000 * c) if b0 and c else None,
+            _lots(sb0.get("sbl_quota")),
+            _lots(sb0.get("lend_bal")),
         ])
     stocks.sort(key=lambda x: -(x[13] or 0))
 
@@ -224,5 +252,5 @@ def write_margin(data_dir, out_dir):
     dump(out_dir / "market.json", payload["market"])
     dump(out_dir / "stocks.json", payload["stocks"])
     for code, rows in payload["series"].items():
-        dump(out_dir / "s" / f"{code}.json", {"cols": ["date", "close", "fin", "sht", "ratio"], "rows": rows})
+        dump(out_dir / "s" / f"{code}.json", {"cols": ["date", "close", "fin", "sht", "ratio", "sbl"], "rows": rows})
     return payload
