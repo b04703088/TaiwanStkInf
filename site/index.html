@@ -259,7 +259,7 @@
   .wk-date .tag.done{border-color:var(--brass-dim); color:var(--brass);}
   .wk-date .tag.today{background:var(--brass); color:var(--ink); border-color:var(--brass);}
   .wk-idx{font-size:14.5px;}
-  .wk-idx .wk-codes{font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--brass); margin-left:10px;}
+  .wk-idx .wk-codes{font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--brass); margin-right:10px;}
   .wk-prov{font-size:10.5px; border:1px solid var(--line-strong); color:var(--text-faint); border-radius:2px; padding:0 5px; margin-right:8px; vertical-align:2px;}
   .wk-etfs{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;}
   .wk-etfs a{border:1px solid var(--line-strong); border-radius:3px; padding:2px 8px; font-size:12.5px; color:var(--text-muted); text-decoration:none;}
@@ -515,7 +515,7 @@
          <div><span class="lbl del">刪除 ${x.del.length}</span>${x.del.length ? stk(x.del) : '<span class="muted">無</span>'}</div></div>`;
       return `<div class="wk-item">
         <div class="wk-date"><b>${md(x.ann)}（${wk(x.ann)}）</b><span>${x.eff ? `生效 ${md(x.eff)}（${wk(x.eff)}）` : ""}</span>${tag}</div>
-        <div><div class="wk-idx">${x.prov === "MSCI" ? '<span class="wk-prov">MSCI</span>' : x.prov === "FTSE" ? '<span class="wk-prov">富時</span>' : ""}${esc(short(x.index))}<span class="wk-codes">${x.etfs.map(esc).join("・")}</span></div>
+        <div><div class="wk-idx"><span class="wk-codes">${x.etfs.map(esc).join("・")}</span>${x.prov === "MSCI" ? '<span class="wk-prov">MSCI</span>' : x.prov === "FTSE" ? '<span class="wk-prov">富時</span>' : ""}${esc(short(x.index))}</div>
           <div class="wk-etfs">${x.etfs.map(c => `<a href="etf.html?q=${encodeURIComponent(c)}#changes"><b>${esc(c)}</b>${esc(d.etfs[c] || "")}</a>`).join("")}</div>
           ${res}</div>
       </div>`;
