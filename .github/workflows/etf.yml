@@ -22,7 +22,28 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # cron-job.org 會準時用 workflow_dispatch 觸發（台北 08:15、18:17、21:17），GitHub 排程常延遲好幾小時才跑，
+  # 變成同一時段重抓一次（約 4 分鐘）。排程觸發時，若 7 小時內已有 dispatch 跑過就跳過（cron-job.org 停掉時排程照常跑）；dispatch 一律照跑。
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      run: ${{ steps.dedupe.outputs.run }}
+    steps:
+      - id: dedupe
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "${{ github.event_name }}" != "schedule" ]; then echo "run=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          since=$(date -u -d '7 hours ago' +%Y-%m-%dT%H:%M:%SZ)
+          n=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/etf.yml/runs?per_page=20&created=%3E%3D$since" \
+                --jq "[.workflow_runs[] | select(.event != \"schedule\" and .conclusion != \"cancelled\")] | length" || echo 0)
+          echo "7 小時內其他 run：$n"
+          if [ "$n" -gt 0 ]; then echo "run=false" >> "$GITHUB_OUTPUT"; else echo "run=true" >> "$GITHUB_OUTPUT"; fi
+
   fetch:
+    needs: check
+    if: needs.check.outputs.run == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
