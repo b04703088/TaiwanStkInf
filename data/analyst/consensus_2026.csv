@@ -1,4 +1,6 @@
 date,time,news_id,code,name,kind,year,analysts,prev,value,chg_pct,high,low,target,bull,neutral,bear,close,url
+2026-10-21,14:10,6634958,9914,美利達,eps,2026,10,4.79,4.69,-2.09,5.32,3.08,94,,,,,https://news.cnyes.com/news/id/6634958
+2026-10-21,14:10,6634957,9921,巨大,eps,2026,9,3.57,3.46,-3.08,4.3,2.64,118,,,,,https://news.cnyes.com/news/id/6634957
 2026-10-21,12:10,6634902,1326,台化,eps,2026,7,3.74,3.76,0.53,4.9,3.6,84,,,,,https://news.cnyes.com/news/id/6634902
 2026-10-21,12:10,6634901,6213,聯茂,eps,2026,9,17.47,17.74,1.55,22.67,11.4,665,,,,,https://news.cnyes.com/news/id/6634901
 2026-10-21,12:10,6634900,3324,雙鴻,eps,2026,12,56.93,56.34,-1.04,58.8,52.19,1600,,,,,https://news.cnyes.com/news/id/6634900
