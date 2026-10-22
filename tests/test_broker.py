@@ -115,5 +115,9 @@ class BrokerLocalTest(unittest.TestCase):
                 "2026-09-30,2330,B,4,9275,凱基-三多,20,5,15,1\n"
                 "2026-09-30,2330,S,1,98A8,元大-松江,0,10,-10,1\n", encoding="utf-8")
             j = S.build_local(d)
-            self.assertEqual(j["days"], ["2026-09-30"])
-            self.assertEqual(j["rows"], [[0, "2330", 5000, 1, 1]])
+            self.assertEqual(j["date"], "2026-09-30")
+            rows = j["periods"]["1"]["rows"]
+            self.assertEqual([r[0] for r in rows], ["9275", "98A8"])  # 外資、總公司、凱基-台北都排除
+            self.assertEqual(rows[0][:8], ["9275", "凱基-三多", 15000, 0, 15000, 1, 0, 1])
+            self.assertEqual(rows[0][8], [["2330", 15000]])
+            self.assertEqual(rows[1][2:5], [0, 10000, -10000])

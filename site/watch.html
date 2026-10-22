@@ -349,6 +349,7 @@
       <nav class="subtabs" aria-label="分點籌碼子頁">
         <a href="broker.html">全市場前 15 大</a>
         <a href="watch.html" aria-current="page">重點分點</a>
+        <a href="local.html">地方主力</a>
       </nav>
       <div class="date-bar">
         <div class="date-picker" id="datePicker">
@@ -394,22 +395,6 @@
       </div>
       <div class="pair" id="big"></div>
 
-      <div class="big-head">
-        <div>
-          <h2>內資分點買超排行</h2>
-          <p id="localDesc">全市場分點，排除外資、凱基台北與各券商總公司</p>
-        </div>
-        <div class="seg" data-filter="lp" role="group" aria-label="內資分點期間">
-          <button type="button" data-v="1" aria-pressed="true">當日</button>
-          <button type="button" data-v="5" aria-pressed="false">近 5 日</button>
-          <button type="button" data-v="10" aria-pressed="false">近 10 日</button>
-          <button type="button" data-v="20" aria-pressed="false">近 20 日</button>
-        </div>
-      </div>
-      <div class="pair" id="local"></div>
-      <div class="more" id="localMoreWrap" hidden><button class="btn-ghost" id="localMore" type="button">顯示更多</button></div>
-      <p class="note" id="localNote"></p>
-
       <div class="toolbar">
         <div class="seg-group">
           <div class="seg" data-filter="period" role="group" aria-label="期間">
@@ -443,7 +428,7 @@
 <script type="module">
 import { loadIndustry, indTag } from "./industry-tags.js";
 const PAGE_SIZE = 50;
-const state = { days: [], idx: -1, date: null, W: null, on: new Set(), period: 1, side: "buy", q: "", shown: PAGE_SIZE, sort: null, big: "1", L: null, lp: "1", lshown: 30 };
+const state = { days: [], idx: -1, date: null, W: null, on: new Set(), period: 1, side: "buy", q: "", shown: PAGE_SIZE, sort: null, big: "1" };
 /* 大額清單門檻（仟元）：當日 5,000 萬、近 5 日 1 億、近 20 日 3 億 */
 const BIG = { 1: 50000, 5: 100000, 20: 300000 };
 const $ = id => document.getElementById(id);
@@ -553,38 +538,6 @@ function renderBig() {
     table(hit[n].filter(s => s.amt < 0).sort((a, b) => a.amt - b.amt), "sell");
 }
 
-/* 內資分點：全市場前 15 大分點裡，不是外資、凱基-台北、券商總公司的分點，每檔合計金額 */
-function renderLocal() {
-  const L = state.L;
-  if (!L) return;
-  let hi = -1;
-  for (let i = 0; i < L.days.length; i++) if (L.days[i] <= state.date) hi = i;
-  const n = +state.lp;
-  if (hi < 0) { $("local").innerHTML = `<p class="empty">這一天沒有全市場分點資料</p>`; $("localMoreWrap").hidden = true; return; }
-  const lo = Math.max(0, hi - n + 1), m = new Map();
-  for (const [d, code, amt, nb, ns] of L.rows) {
-    if (d < lo || d > hi || code.startsWith("00")) continue;  // 不含 ETF
-    let s = m.get(code);
-    if (!s) m.set(code, s = { code, name: L.names[code] || code, amt: 0, nb: 0, ns: 0 });
-    s.amt += amt; s.nb += nb; s.ns += ns;
-  }
-  const all = [...m.values()];
-  const span = lo === hi ? L.days[hi].slice(5).replace("-", "/") : `${L.days[lo].slice(5).replace("-", "/")} ～ ${L.days[hi].slice(5).replace("-", "/")}，${hi - lo + 1} 個交易日`;
-  $("localDesc").textContent = `全市場分點，排除外資、凱基台北與各券商總公司（${span}）`;
-  const table = (list, side) => `<div><h3>${side === "buy" ? "合計買超" : "合計賣超"}<small>${list.length} 檔</small></h3>
-    <div class="table-wrap"><table class="rank"><thead><tr><th class="l">#</th><th class="l">股票</th><th>金額（萬）</th><th>分點數${n > 1 ? "（人次）" : ""}</th></tr></thead>
-    <tbody>${list.slice(0, state.lshown).map((s, i) => `<tr class="${i < 3 ? "top3" : ""}">
-      <td class="l rank-no mono">${i + 1}</td>
-      <td class="l name-cell"><a class="link" href="broker.html?s=${encodeURIComponent(s.code)}&date=${L.days[hi]}" style="text-decoration:none"><span class="stock-name">${esc(s.name)}</span></a><span class="stock-code mono">${esc(s.code)}</span></td>
-      <td class="mono ${cls(s.amt)}">${wanS(s.amt)}</td>
-      <td class="mono cnt"><em class="up">${s.nb}</em> 買・<em class="down">${s.ns}</em> 賣</td>
-    </tr>`).join("") || `<tr><td colspan="4" class="empty">沒有資料</td></tr>`}</tbody></table></div></div>`;
-  const buy = all.filter(s => s.amt > 0).sort((a, b) => b.amt - a.amt), sell = all.filter(s => s.amt < 0).sort((a, b) => a.amt - b.amt);
-  $("local").innerHTML = table(buy, "buy") + table(sell, "sell");
-  $("localMoreWrap").hidden = Math.max(buy.length, sell.length) <= state.lshown;
-  $("localNote").textContent = `資料來源：全市場每檔股票買超、賣超前 15 大分點（只算得到有進前 15 的分點）。金額以淨張數 × 當日收盤價估算。不含 ETF。排除的外資券商：${L.foreign.join("、")}。`;
-}
-
 function render() {
   const d = new Date(state.date + "T00:00:00+08:00");
   $("dateLabel").textContent = `${state.date.replaceAll("-", "/")}（${"日一二三四五六"[d.getDay()]}）`;
@@ -594,13 +547,12 @@ function render() {
   $("sourceTag").textContent = state.period > 1 ? `加總 ${state.days[state.idx - n + 1].slice(5).replace("-", "/")} ～ ${state.date.slice(5).replace("-", "/")}（${n} 個交易日）`
     : (state.idx === state.days.length - 1 ? "最新交易日 · 每日收盤後自動更新" : "歷史資料");
   const { stocks, perBranch } = aggregate();
-  renderChips(); renderCards(perBranch); renderStats(stocks); renderBig(); renderLocal(); renderTable(stocks);
+  renderChips(); renderCards(perBranch); renderStats(stocks); renderBig(); renderTable(stocks);
   const url = new URL(location.href);
   url.search = "";
   if (state.idx !== state.days.length - 1) url.searchParams.set("date", state.date);
   if (state.period !== 1) url.searchParams.set("p", state.period);
   if (state.big !== "1") url.searchParams.set("big", state.big);
-  if (state.lp !== "1") url.searchParams.set("lp", state.lp);
   if (state.on.size !== state.W.branches.length) url.searchParams.set("b", [...state.on].map(i => state.W.branches[i].bid).join(","));
   history.replaceState(null, "", url);
 }
@@ -632,10 +584,9 @@ document.querySelectorAll(".seg").forEach(seg => seg.addEventListener("click", e
   seg.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
   state[seg.dataset.filter] = seg.dataset.filter === "period" ? +b.dataset.v : b.dataset.v;
   if (seg.dataset.filter === "side") state.sort = null;
-  state.shown = PAGE_SIZE; state.lshown = 30; render();
+  state.shown = PAGE_SIZE; render();
 }));
 $("search").addEventListener("input", e => { state.q = e.target.value; state.shown = PAGE_SIZE; renderTable(aggregate().stocks); });
-$("localMore").addEventListener("click", () => { state.lshown += 30; renderLocal(); });
 $("moreBtn").addEventListener("click", () => { state.shown += PAGE_SIZE; renderTable(aggregate().stocks); });
 $("prevDay").addEventListener("click", () => showDay(state.idx - 1));
 $("nextDay").addEventListener("click", () => showDay(state.idx + 1));
@@ -658,15 +609,9 @@ try {
     state.big = p.get("big");
     document.querySelectorAll('[data-filter="big"] button').forEach(x => x.setAttribute("aria-pressed", x.dataset.v === state.big));
   }
-  if (["5", "10", "20"].includes(p.get("lp"))) {
-    state.lp = p.get("lp");
-    document.querySelectorAll('[data-filter="lp"] button').forEach(x => x.setAttribute("aria-pressed", x.dataset.v === state.lp));
-  }
   const i = p.get("date") ? state.days.indexOf(p.get("date")) : -1;
   showDay(i >= 0 ? i : state.days.length - 1);
   loadIndustry().then(() => render());
-  fetch("data/broker/local.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : null)
-    .then(L => { if (L) { state.L = L; renderLocal(); } }).catch(e => console.error(e));
 } catch (e) {
   console.error(e);
   showError("還沒有重點分點資料，或讀取失敗。");

@@ -143,9 +143,6 @@ FOREIGN = {"美林", "摩根大通", "台灣摩根士丹利", "美商高盛", "�
            "港商野村", "大和國泰", "法銀巴黎", "台灣巴克萊", "港商蘇皇", "港商聯昌", "港商德意志(停)",
            "港商法國興業(停)", "瑞士信貸(停)", "香港上海匯豐", "渣打商銀"}
 EXCLUDE_BRANCHES = {"凱基-台北"}
-LCOLS = ["d", "code", "amt", "nb", "ns"]
-
-
 def _branch_kinds(data_dir):
     """bid → (券商代號, 券商名稱)。"""
     p = Path(data_dir) / "broker" / "branches.csv"
@@ -162,38 +159,68 @@ def is_local_branch(bid, name, kinds):
     return "-" in name  # 不在清單裡：總公司名稱不含「-」
 
 
-def build_local(data_dir, days=20):
-    """全市場前 15 大分點中，內資分點每天每檔的買賣超金額合計（仟元 ≈ 淨張數 × 收盤價）。"""
+PERIODS = (1, 5, 10, 20)
+LBCOLS = ["bid", "name", "buy", "sell", "net", "nb", "ns", "bdays", "top"]
+
+
+def _scores(data_dir):
+    p = Path(data_dir) / "broker" / "score" / "branches.csv"
+    return {r["bid"]: r for r in _read(p)} if p.exists() else {}
+
+
+def build_local(data_dir, days=20, top=5):
+    """全市場前 15 大分點中的地方分點（非外資、非凱基-台北、非總公司），最新一天往回各期間的買賣超金額排行。
+
+    金額（仟元）≈ 淨張數 × 當日收盤價。每個分點：買超金額、賣超金額、淨額、買超／賣超檔數、
+    有淨買超的天數、買超最多的幾檔股票 [代號, 金額]。另附 broker_score 的分類。
+    """
     data_dir = Path(data_dir)
     items = broker_days(data_dir)[-days:]
     if not items:
         return None
     kinds = _branch_kinds(data_dir)
-    day_list, names, rows = [], {}, []
-    for di, (date, path) in enumerate(items):
-        day_list.append(date)
+    names, bnames, daily = {}, {}, []  # daily[i] = {bid: {code: 金額}}
+    for date, path in items:
         pf = data_dir / date[:4] / f"{date.replace('-', '')}.csv"
         prices = {r["code"]: r for r in _read(pf)} if pf.exists() else {}
-        per = {}
-        seen = set()
+        per, seen = {}, set()
         for r in _read(path):
             key = (r["code"], r["bid"])
-            if key in seen or not is_local_branch(r["bid"], r["broker"], kinds):
+            if key in seen or r["code"].startswith("00") or not is_local_branch(r["bid"], r["broker"], kinds):
                 continue
             seen.add(key)
-            close = _num(prices.get(r["code"], {}).get("close"))
-            net = _int(r["net"])
-            if close is None or net is None:
+            close, net = _num(prices.get(r["code"], {}).get("close")), _int(r["net"])
+            if close is None or not net:
                 continue
-            s = per.setdefault(r["code"], [0.0, 0, 0])
-            s[0] += net * close
-            s[1 if net > 0 else 2] += net != 0
+            per.setdefault(r["bid"], {})[r["code"]] = net * close
             names[r["code"]] = prices[r["code"]].get("name", "")
-        rows += [[di, c, int(round(v[0])), v[1], v[2]] for c, v in per.items()]
-    return {"days": day_list, "names": names, "cols": LCOLS, "rows": rows,
+            bnames[r["bid"]] = r["broker"]
+        daily.append(per)
+    scores = _scores(data_dir)
+    periods = {}
+    for n in PERIODS:
+        agg, bdays = {}, {}
+        for per in daily[-n:]:
+            for bid, m in per.items():
+                a = agg.setdefault(bid, {})
+                for c, v in m.items():
+                    a[c] = a.get(c, 0) + v
+                if sum(m.values()) > 0:
+                    bdays[bid] = bdays.get(bid, 0) + 1
+        rows = []
+        for bid, a in agg.items():
+            buy = sum(v for v in a.values() if v > 0)
+            sell = -sum(v for v in a.values() if v < 0)
+            tops = sorted(((c, v) for c, v in a.items() if v > 0), key=lambda x: -x[1])[:top]
+            rows.append([bid, bnames[bid], int(round(buy)), int(round(sell)), int(round(buy - sell)),
+                         sum(v > 0 for v in a.values()), sum(v < 0 for v in a.values()), bdays.get(bid, 0),
+                         [[c, int(round(v))] for c, v in tops]])
+        rows.sort(key=lambda r: -r[4])
+        periods[str(n)] = {"from": items[max(0, len(items) - n)][0], "days": min(n, len(items)), "rows": rows}
+    cls = {bid: [r["class"], _num(r.get("flip_ratio")), _num(r.get("z5"))]
+           for bid, r in scores.items() if bid in bnames}
+    return {"date": items[-1][0], "cols": LBCOLS, "periods": periods, "names": names, "score": cls,
             "foreign": sorted(FOREIGN), "excluded": sorted(EXCLUDE_BRANCHES)}
-
-
 def write_local(data_dir, out_dir, days=20):
     payload = build_local(data_dir, days)
     if payload is None:

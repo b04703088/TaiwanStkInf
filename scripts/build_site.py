@@ -12,7 +12,7 @@
   data/health.json                   資料健檢結果（見 scripts/health.py）
   data/broker/days.json, <日期>.json  券商分點前 15 大（見 scripts/broker_site.py）
   data/broker/watch.json             重點分點（config/broker_watch.csv）近 60 個交易日
-  data/broker/local.json             內資分點（排除外資、凱基-台北、總公司）每檔買賣超金額，近 20 個交易日
+  data/broker/local.json             地方分點（排除外資、凱基-台北、總公司）買賣超金額排行，近 1／5／10／20 日
   data/analyst/analyst.json          FactSet 共識與外資報告（見 scripts/analyst_site.py）
   data/alert/alert.json              處置股、注意股（見 scripts/alert_site.py）
   data/treasury.json                 庫藏股買回計畫與進度（見 scripts/treasury_site.py）
