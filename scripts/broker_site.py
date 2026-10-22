@@ -135,3 +135,70 @@ def write_watch(data_dir, root, out_dir, days=60):
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     return payload
+
+
+# ---------------- 內資分點（排除外資、凱基-台北、總公司） ----------------
+# 外資券商（以 branches.csv 的券商名稱判斷）；含外商銀行的證券部門
+FOREIGN = {"美林", "摩根大通", "台灣摩根士丹利", "美商高盛", "花旗環球", "花旗", "新加坡商瑞銀", "港商麥格理",
+           "港商野村", "大和國泰", "法銀巴黎", "台灣巴克萊", "港商蘇皇", "港商聯昌", "港商德意志(停)",
+           "港商法國興業(停)", "瑞士信貸(停)", "香港上海匯豐", "渣打商銀"}
+EXCLUDE_BRANCHES = {"凱基-台北"}
+LCOLS = ["d", "code", "amt", "nb", "ns"]
+
+
+def _branch_kinds(data_dir):
+    """bid → (券商代號, 券商名稱)。"""
+    p = Path(data_dir) / "broker" / "branches.csv"
+    return {r["bid"]: (r["broker_id"], r["broker"]) for r in _read(p)} if p.exists() else {}
+
+
+def is_local_branch(bid, name, kinds):
+    """不是外資、不是凱基-台北、不是券商總公司的分點。"""
+    if name in EXCLUDE_BRANCHES:
+        return False
+    k = kinds.get(bid)
+    if k:
+        return k[1] not in FOREIGN and k[0] != bid
+    return "-" in name  # 不在清單裡：總公司名稱不含「-」
+
+
+def build_local(data_dir, days=20):
+    """全市場前 15 大分點中，內資分點每天每檔的買賣超金額合計（仟元 ≈ 淨張數 × 收盤價）。"""
+    data_dir = Path(data_dir)
+    items = broker_days(data_dir)[-days:]
+    if not items:
+        return None
+    kinds = _branch_kinds(data_dir)
+    day_list, names, rows = [], {}, []
+    for di, (date, path) in enumerate(items):
+        day_list.append(date)
+        pf = data_dir / date[:4] / f"{date.replace('-', '')}.csv"
+        prices = {r["code"]: r for r in _read(pf)} if pf.exists() else {}
+        per = {}
+        seen = set()
+        for r in _read(path):
+            key = (r["code"], r["bid"])
+            if key in seen or not is_local_branch(r["bid"], r["broker"], kinds):
+                continue
+            seen.add(key)
+            close = _num(prices.get(r["code"], {}).get("close"))
+            net = _int(r["net"])
+            if close is None or net is None:
+                continue
+            s = per.setdefault(r["code"], [0.0, 0, 0])
+            s[0] += net * close
+            s[1 if net > 0 else 2] += net != 0
+            names[r["code"]] = prices[r["code"]].get("name", "")
+        rows += [[di, c, int(round(v[0])), v[1], v[2]] for c, v in per.items()]
+    return {"days": day_list, "names": names, "cols": LCOLS, "rows": rows,
+            "foreign": sorted(FOREIGN), "excluded": sorted(EXCLUDE_BRANCHES)}
+
+
+def write_local(data_dir, out_dir, days=20):
+    payload = build_local(data_dir, days)
+    if payload is None:
+        return None
+    out = Path(out_dir) / "data" / "broker" / "local.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    return payload
