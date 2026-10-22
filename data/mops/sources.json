@@ -1,26 +1,29 @@
 {
- "generated": "2026-10-22 13:15",
+ "generated": "2026-10-22 22:43",
  "fetched_days": 2,
  "left_days": 0,
- "news": 197,
+ "news": 370,
  "cats": {
-  "shm": 6,
-  "capital": 19,
-  "ma": 35,
-  "other": 52,
-  "fin": 6,
-  "board": 10,
-  "attn": 10,
-  "legal": 5,
-  "call": 17,
-  "buyback": 3,
-  "clarify": 4,
-  "hr": 22,
-  "div": 8
+  "shm": 15,
+  "capital": 47,
+  "ma": 59,
+  "other": 81,
+  "fin": 13,
+  "board": 18,
+  "attn": 15,
+  "legal": 7,
+  "call": 48,
+  "buyback": 5,
+  "clarify": 7,
+  "div": 17,
+  "hr": 38
  },
  "exright": 146,
- "calls": 173,
- "events": 18,
- "unparsed": [],
+ "calls": 200,
+ "events": 48,
+ "unparsed": [
+  "1721國慶科技 2026-10-22",
+  "2630亞航 2026-10-22"
+ ],
  "errors": []
 }
