@@ -1,4 +1,5 @@
 id,code,company,short,series,bond_code,type,method,lead,units,bb_units,bb_start,bb_end,premium_lo,premium_hi,min_price,done_date,price_base_date,conv_price,premium,issue_pct,pay_date,list_expected,issue_date,list_date,bb_sn,au_sn,nt_sn,board_date,board_amount,board_method,filed_date,eff_date,sfb_status,stop_date,sfb_amount,wd_date
+b6486-2026-10-23-3,6486,互動,,3,,有擔保轉換公司債,競價拍賣,富邦綜合證券股份有限公司,4000,,,,,,,,,,,,,,,,,,,2026-10-23,400000000,競價拍賣,,,,,,
 b6231-2026-10-22-1,6231,系微,,1,,無擔保轉換公司債,,元大證券股份有限公司,3500,,,,,,,,,,,,,,,,,,,2026-10-22,350000000,,,,,,,
 b3023-2026-10-22-9,3023,信邦,,9,,無擔保轉換公司債,詢價圈購,富邦綜合證券股份有限公司,5000,,,,,,,,,,,,,,,,,,,2026-10-22,500000000,詢價圈購,,,,,,
 b3023-2026-10-22-10,3023,信邦,,10,,無擔保轉換公司債,競價拍賣,富邦綜合證券股份有限公司,20000,,,,,,,,,,,,,,,,,,,2026-10-22,2000000000,競價拍賣,,,,,,
