@@ -1,13 +1,14 @@
 {
- "generated": "2026-10-24 02:42",
+ "generated": "2026-10-24 14:25",
  "fetched_days": 2,
  "left_days": 0,
- "news": 159,
+ "news": 163,
  "cats": {
-  "other": 28,
+  "other": 31,
   "attn": 4,
   "ma": 18,
   "buyback": 4,
+  "legal": 3,
   "board": 10,
   "capital": 20,
   "shm": 13,
@@ -15,8 +16,7 @@
   "fin": 9,
   "call": 9,
   "div": 7,
-  "clarify": 2,
-  "legal": 2
+  "clarify": 2
  },
  "exright": 148,
  "calls": 203,
