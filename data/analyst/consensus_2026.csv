@@ -1,4 +1,5 @@
 date,time,news_id,code,name,kind,year,analysts,prev,value,chg_pct,high,low,target,bull,neutral,bear,close,url
+2026-10-26,20:10,6637805,3023,信邦,tp,,7,390,375,-3.85,410,330,375,7,0,0,298,https://news.cnyes.com/news/id/6637805
 2026-10-26,08:10,6637552,2059,川湖,eps,2026,13,345.71,352.18,1.87,393.72,239.4,15000,,,,,https://news.cnyes.com/news/id/6637552
 2026-10-26,08:10,6637551,2882,國泰金,eps,2026,9,8.95,9.02,0.78,10.12,8.53,127.1,,,,,https://news.cnyes.com/news/id/6637551
 2026-10-26,08:10,6637550,2351,順德,tp,,6,290,300,3.45,410,226,300,5,0,0,196,https://news.cnyes.com/news/id/6637550
