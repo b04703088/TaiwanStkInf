@@ -1,10 +1,7 @@
 name: Fetch margin trading
 
 on:
-  schedule:
-    # 證交所／櫃買約晚上 9 點後公布當日融資融券；台北 21:47 抓一次，隔天 07:37 補抓（UTC 13:47、23:37）
-    - cron: "47 13 * * 1-5"
-    - cron: "37 23 * * 1-5"
+  # 例行排程已併到 batch.yml；這裡只留手動回補
   workflow_dispatch:
     inputs:
       start:

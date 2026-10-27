@@ -1,11 +1,7 @@
 name: Fetch insider trading
 
 on:
-  schedule:
-    # 股權異動彙總表約每月 22 日公布上個月 → 每月 18～28 日台北 19:07 檢查；已抓過就幾秒結束。
-    # 每月約一次查全部約 2000 家公司的事後申報表（約 50～60 分鐘；彙總表不含配偶子女，不能先篩），時間到會存進度、隔天接著查。
-    # 事前申報（每天）跟著 broker.yml 抓，不在這裡。
-    - cron: "7 11 18-28 * *"
+  # 例行排程已併到 batch.yml；這裡只留手動回補
   workflow_dispatch:
     inputs:
       month:

@@ -21,11 +21,15 @@
   data/fin/index.json, s/<代號>.json  財報：月營收與季報（見 scripts/fin_site.py）
   data/margin/market.json, stocks.json, s/<代號>.json  融資融券、估計維持率（見 scripts/margin_site.py）
   data/kline/index.json, s/<代號>.json  K 線：2022 年起每日價量＋還原因子事件（見 scripts/kline_site.py）
+  data/chips/chips.json, s/<代號>.json 三大法人、借券賣出、當沖、集保大戶（見 scripts/chips_site.py）
+  data/futures.json                  期貨選擇權籌碼：法人未平倉、P/C ratio、大額交易人（見 scripts/futures_site.py）
+  data/screen/screen.json, div.json   選股：技術面、營收財報、籌碼條件；除權息與填息（見 scripts/screen_site.py）
   每頁標題旁標示建置時間（＝網站上次更新時間，台北時間），見 stamp_built()
 
 用法：python scripts/build_site.py [--days 120] [--out _site]
 """
 import argparse
+import csv
 import json
 import shutil
 import sys
@@ -34,7 +38,33 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from upload_firestore import SNAPSHOT_FIELDS, read_rows  # noqa: E402
+NUM_FIELDS = ("open", "high", "low", "close", "change", "volume", "value", "transactions")
+SNAPSHOT_FIELDS = ("code", "name", "market", "open", "high", "low", "close", "change", "volume", "value")
+
+
+def _num(s):
+    s = (s or "").strip()
+    if not s:
+        return None
+    try:
+        return float(s)
+    except ValueError:
+        return None
+
+
+def read_rows(path):
+    """讀一天的 CSV；沒有收盤價（當日無成交）的列略過。"""
+    rows = []
+    with open(path, newline="", encoding="utf-8") as fp:
+        for r in csv.DictReader(fp):
+            row = {"date": r["date"], "market": r["market"],
+                   "code": r["code"].strip(), "name": r["name"].strip()}
+            for k in NUM_FIELDS:
+                row[k] = _num(r.get(k))
+            if row["close"] is not None:
+                rows.append(row)
+    return rows
+
 
 sys.path.insert(0, str(ROOT / "scripts"))
 import etf_site  # noqa: E402
@@ -53,6 +83,9 @@ import mops_site  # noqa: E402
 import fin_site  # noqa: E402
 import margin_site  # noqa: E402
 import kline_site  # noqa: E402
+import screen_site  # noqa: E402
+import chips_site  # noqa: E402
+import futures_site  # noqa: E402
 
 TPE = timezone(timedelta(hours=8))
 BRAND_SUB = '<span class="brand-sub">籌碼觀測站</span>'
@@ -116,7 +149,12 @@ def build(out: Path, days: int) -> list[str]:
     mops_site.write_mops(ROOT / "data", out / "data" / "mops" / "mops.json")
     fin_site.write_fin(ROOT / "data", out / "data" / "fin")
     margin_site.write_margin(ROOT / "data", out / "data" / "margin")
-    kline_site.write_kline(ROOT / "data", out / "data" / "kline")
+    prices = kline_site.load_prices(ROOT / "data")
+    kline_site.write_kline(ROOT / "data", out / "data" / "kline", prices)
+    futures_site.write_futures(ROOT / "data", out / "data" / "futures.json")
+    chips = chips_site.write_chips(ROOT / "data", out / "data" / "chips")
+    screen_site.write_screen(ROOT / "data", out / "data" / "screen", today=datetime.now(TPE).date(), prices=prices,
+                             extra={"chips": chips} if chips else None)
     for page in cb_site.SUBPAGES:  # CB詢圈子頁共用同一個 HTML，由檔名決定顯示哪一頁
         shutil.copy(out / "cb.html", out / page)
     stamp_built(out, datetime.now(timezone.utc))

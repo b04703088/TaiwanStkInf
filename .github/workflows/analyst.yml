@@ -1,11 +1,7 @@
 name: Fetch analyst reports
 
 on:
-  schedule:
-    # 台北 08:23、13:53、21:23（UTC 00:23、05:53、13:23），每天都跑（週末也有新聞）
-    - cron: "23 0 * * *"
-    - cron: "53 5 * * *"
-    - cron: "23 13 * * *"
+  # 例行排程已併到 batch.yml；這裡只留手動回補
   workflow_dispatch:
     inputs:
       start:

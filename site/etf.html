@@ -50,14 +50,6 @@
   .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
   .brand-mark{font-family:'Noto Serif TC',serif; font-size:22px; font-weight:700; color:var(--text);}
   .brand-sub{font-size:12px; color:var(--text-faint);}
-  nav.links{display:flex; gap:16px; font-size:14px; white-space:nowrap;}
-  nav.links a{text-decoration:none; color:var(--text-muted); transition:color .15s ease;}
-  nav.links a:hover{color:var(--brass);}
-  nav.links a[aria-current="page"]{color:var(--brass);}
-  .nav-cta{
-    font-size:13px; color:var(--ink); background:var(--brass);
-    padding:8px 16px; border-radius:var(--radius-s); text-decoration:none; font-weight:500;
-  }
 
   /* ---------- page head（沿用 feature-head） ---------- */
   .page-head{padding:64px 0 36px;}
@@ -205,8 +197,6 @@
   @media (max-width: 860px){
     .nav-row{padding:14px 20px;}
     .nav-row{flex-wrap:wrap; row-gap:10px;}
-    nav.links{display:flex; order:3; width:100%; gap:20px; overflow-x:auto; white-space:nowrap; font-size:13.5px; padding-bottom:2px; scrollbar-width:none;}
-    nav.links::-webkit-scrollbar{display:none;}
     .page-head{padding:44px 0 28px;}
     .feature-head{grid-template-columns:1fr; gap:14px;}
     .feature-head h1{font-size:28px;}
@@ -360,27 +350,10 @@
       <span class="brand-mark">潮汐</span>
       <span class="brand-sub">籌碼觀測站</span>
     </a>
-    <nav class="links">
-      <a href="index.html">首頁</a>
-      <a href="ranking.html">成交排行</a>
-      <a href="industry.html">產業分類</a>
-      <a href="broker.html">分點籌碼</a>
-      <a href="etf.html" aria-current="page">ETF持股</a>
-      <a href="cb.html">CB詢圈</a>
-      <a href="treasury.html">庫藏股</a>
-      <a href="insider.html">內部人</a>
-      <a href="margin.html">融資融券</a>
-      <a href="analyst.html">外資報告</a>
-      <a href="alert.html">處置注意</a>
-      <a href="news.html">重大訊息</a>
-      <a href="fin.html">財報</a>
-      <a href="kline.html">K線</a>
-      <a href="index.html#quant">量化策略</a>
-      <a href="health.html">資料健檢</a>
-    </nav>
-    <a href="index.html#cta" class="nav-cta">開始追蹤</a>
+    <nav class="gnav"></nav>
   </div>
 </header>
+<script src="nav.js"></script>
 
 <main>
   <section class="page-head">
@@ -548,9 +521,12 @@
               <th class="col-hide" data-sort="flow5"><button type="button" id="flow5Label">近 5 日流入（億）</button></th>
               <th class="col-hide" data-sort="daum"><button type="button">規模變化（億）</button></th>
               <th class="col-hide" data-sort="prem"><button type="button">折溢價</button></th>
+              <th class="col-hide" data-sort="prem5" title="近 5 個交易日折溢價平均；長期溢價代表市價買貴了"><button type="button" id="prem5Label">5 日均折溢價</button></th>
+              <th class="col-hide" data-sort="holders" title="集保股權分散表的持有人數（每週更新）"><button type="button">受益人數</button></th>
+              <th class="col-hide" data-sort="dhold" title="受益人數較前一週增減"><button type="button">人數週增減</button></th>
             </tr>
           </thead>
-          <tbody id="aumRows"><tr><td colspan="10" class="empty">載入中…</td></tr></tbody>
+          <tbody id="aumRows"><tr><td colspan="13" class="empty">載入中…</td></tr></tbody>
         </table>
       </div>
       <div class="more" id="aumMoreWrap"><button class="btn-ghost" id="aumMore" type="button">顯示更多</button></div>
@@ -925,6 +901,7 @@ const aum = { rows: [], date: null, prev: null, nFlow: 0, cat: "全部", q: "", 
 const AUM_GET = {
   rank: x => x.rank, name: x => x.etf, cat: x => x.cat, aum: x => x.aum, nav: x => x.nav, units: x => x.units,
   flow: x => x.flow, flow5: x => x.flow5, daum: x => x.daum, prem: x => x.prem,
+  prem5: x => x.prem5, holders: x => x.holders, dhold: x => x.dhold,
 };
 
 async function loadAum() {
@@ -966,8 +943,11 @@ function renderAum() {
       <td class="mono col-hide ${cls(x.flow5)}">${x.flow5 ? fmtYiSigned(x.flow5) : '<span class="flat">0</span>'}</td>
       <td class="mono col-hide ${cls(x.daum)}">${x.daum == null ? "—" : fmtYiSigned(x.daum)}</td>
       <td class="mono col-hide ${cls(x.prem)}">${x.prem == null ? "—" : (x.prem > 0 ? "+" : "") + fmtN(x.prem, 2) + "%"}</td>
+      <td class="mono col-hide ${cls(x.prem5)}">${x.prem5 == null ? "—" : (x.prem5 > 0 ? "+" : "") + fmtN(x.prem5, 2) + "%"}</td>
+      <td class="mono col-hide flat">${x.holders == null ? "—" : fmtN(x.holders, 0)}</td>
+      <td class="mono col-hide ${cls(x.dhold)}">${x.dhold == null ? "—" : (x.dhold > 0 ? "+" : "") + fmtN(x.dhold, 2) + "%"}</td>
     </tr>`).join("")
-    : `<tr><td colspan="10" class="empty">沒有符合條件的 ETF</td></tr>`;
+    : `<tr><td colspan="13" class="empty">沒有符合條件的 ETF</td></tr>`;
   $("aumMoreWrap").hidden = list.length <= aum.shown;
 }
 
@@ -1251,6 +1231,5 @@ try {
   $("holderRows").innerHTML = `<tr><td colspan="6" class="empty">讀取資料失敗，請重新整理頁面。</td></tr>`;
 }
 </script>
-<script>(function(){var a=document.querySelector('nav.links a[aria-current="page"]');if(a&&a.parentNode.scrollWidth>a.parentNode.clientWidth){a.parentNode.scrollLeft=a.offsetLeft-a.parentNode.offsetLeft-16;}})();</script>
 </body>
 </html>

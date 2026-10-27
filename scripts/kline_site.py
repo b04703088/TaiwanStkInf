@@ -83,12 +83,13 @@ def build(prices, events, days):
     return {"last": days[-1] if days else None, "stocks": stocks}, per
 
 
-def write_kline(data_dir, out_dir):
+def write_kline(data_dir, out_dir, loaded=None):
+    """loaded: 已經讀好的 load_prices(data_dir) 結果（選股頁共用，省一次讀檔）。"""
     out_dir = Path(out_dir)
     if out_dir.exists():
         shutil.rmtree(out_dir)
     (out_dir / "s").mkdir(parents=True)
-    prices, days = load_prices(data_dir)
+    prices, days = loaded or load_prices(data_dir)
     index, per = build(prices, load_events(data_dir), days)
     dump = lambda o: json.dumps(o, ensure_ascii=False, separators=(",", ":"))  # noqa: E731
     (out_dir / "index.json").write_text(dump(index), encoding="utf-8")

@@ -57,7 +57,7 @@ def progress_by_program(progress):
     return out
 
 
-def build(programs, progress, generated=None, brokers=None):
+def build(programs, progress, generated=None, brokers=None, days=None):
     prog = progress_by_program(progress)
     rows = []
     for p in programs:
@@ -66,7 +66,7 @@ def build(programs, progress, generated=None, brokers=None):
             r.update(prog.get((p["market"], p["code"], p["board_date"]), {}))
         rows.append([_v(k, r.get(k)) for k in COLS])
     rows.sort(key=lambda x: (x[3] or "", x[1]), reverse=True)
-    brk, co = treasury_broker.build(programs, brokers or [])
+    brk, co = treasury_broker.build(programs, brokers or [], days or [])
     return {"generated": generated, "cols": COLS, "rows": rows, "brk": brk, "co": co}
 
 
@@ -78,7 +78,7 @@ def write_treasury(data_dir, out_path):
     gen = None
     if (d / "sources.json").exists():
         gen = json.loads((d / "sources.json").read_text(encoding="utf-8")).get("generated")
-    payload = build(programs, _read(d / "progress.csv"), gen, _read(d / "brokers.csv"))
+    payload = build(programs, _read(d / "progress.csv"), gen, _read(d / "brokers.csv"), _read(d / "broker_days.csv"))
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
