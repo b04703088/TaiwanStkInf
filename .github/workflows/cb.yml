@@ -1,11 +1,7 @@
 name: Fetch CB bookbuilding
 
 on:
-  schedule:
-    # 台北 08:13、18:13（UTC 00:13、10:13），週一至週五。
-    # 詢圈公告、承銷公告多在白天上傳；GitHub 排程常延遲，可用 cron-job.org 呼叫 workflow_dispatch 準時觸發。
-    - cron: "13 0 * * 1-5"
-    - cron: "13 10 * * 1-5"
+  # 例行排程已併到 batch.yml；這裡只留手動回補
   workflow_dispatch:
     inputs:
       years:

@@ -3,8 +3,7 @@ name: Fetch financials
 # 月營收（每月 10 日前公布）與季報（申報期間每天重抓），結果 commit 到 data/financials/。
 # 每次例行執行之外，也會在時間上限內往回補 --since 之後還沒有的月份／季別（下次接續）。
 on:
-  schedule:
-    - cron: "40 10 * * *"   # 台北 18:40，每天
+  # 例行排程已併到 batch.yml；這裡只留手動回補
   workflow_dispatch:
     inputs:
       since:

@@ -70,16 +70,6 @@
   .brand{display:flex; align-items:baseline; gap:10px;}
   .brand-mark{font-family:'Noto Serif TC',serif; font-size:22px; font-weight:700; color:var(--text);}
   .brand-sub{font-size:12px; color:var(--text-faint);}
-  nav.links{display:flex; gap:16px; font-size:14px; white-space:nowrap;}
-  nav.links a{text-decoration:none; color:var(--text-muted); transition:color .15s ease;}
-  nav.links a:hover{color:var(--brass);}
-  nav.links a[aria-current="page"]{color:var(--brass);}
-  .nav-cta{
-    font-size:13px; color:var(--ink); background:var(--brass);
-    padding:8px 16px; border-radius:var(--radius-s); text-decoration:none;
-    font-weight:500;
-  }
-  .nav-toggle{display:none;}
 
   /* ---------- hero ---------- */
   .hero{padding:76px 0 0;}
@@ -217,8 +207,6 @@
   @media (max-width: 860px){
     .nav-row{padding:14px 20px;}
     .nav-row{flex-wrap:wrap; row-gap:10px;}
-    nav.links{display:flex; order:3; width:100%; gap:20px; overflow-x:auto; white-space:nowrap; font-size:13.5px; padding-bottom:2px; scrollbar-width:none;}
-    nav.links::-webkit-scrollbar{display:none;}
     .hero{padding:52px 0 0;}
     .hero-grid{grid-template-columns:1fr; gap:34px;}
     .hero h1{font-size:32px;}
@@ -337,7 +325,6 @@
     .quick{grid-template-columns:1fr 1fr;}
   }
 </style>
-<link rel="stylesheet" href="nav.css">
 </head>
 <body>
 
@@ -347,20 +334,10 @@
       <span class="brand-mark">潮汐</span>
       <span class="brand-sub">籌碼觀測站</span>
     </div>
-    <nav class="links">
-      <a href="index.html" aria-current="page">首頁</a>
-      <div class="nav-grp"><button type="button" onclick="this.parentNode.classList.toggle('open')">行情</button><div class="nav-menu"><a href="ranking.html">成交排行</a><a href="industry.html">產業分類</a><a href="kline.html">K線</a></div></div>
-      <div class="nav-grp"><button type="button" onclick="this.parentNode.classList.toggle('open')">籌碼</button><div class="nav-menu"><a href="chips.html">法人籌碼</a><a href="broker.html">分點籌碼</a><a href="margin.html">融資融券</a><a href="insider.html">內部人</a><a href="treasury.html">庫藏股</a><a href="futures.html">期權籌碼</a></div></div>
-      <a href="etf.html">ETF持股</a>
-      <div class="nav-grp"><button type="button" onclick="this.parentNode.classList.toggle('open')">事件</button><div class="nav-menu"><a href="news.html">重大訊息</a><a href="cb.html">CB詢圈</a><a href="alert.html">處置注意</a><a href="analyst.html">外資報告</a></div></div>
-      <a href="fin.html">財報</a>
-      <a href="screen.html">選股</a>
-      <a href="#quant">量化策略</a>
-      <a href="health.html">資料健檢</a>
-    </nav>
-    <a href="#cta" class="nav-cta">開始追蹤</a>
+    <nav class="gnav"></nav>
   </div>
 </header>
+<script src="nav.js"></script>
 
 <main>
   <section class="home">
@@ -437,7 +414,6 @@
   </div>
 </footer>
 
-<script>(function(){var a=document.querySelector('nav.links a[aria-current="page"]');var n=a&&a.closest('nav');if(n&&n.scrollWidth>n.clientWidth){n.scrollLeft=a.offsetLeft-n.offsetLeft-16;}})();</script>
 <script>
 // 標題下方：最新交易日，config/broker_watch.csv 裡所有分點加總後，淨買超或淨賣超 ≥ 5000 萬的個股（不含 ETF）
 (async function () {

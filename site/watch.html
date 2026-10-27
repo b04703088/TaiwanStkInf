@@ -50,14 +50,6 @@
   .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
   .brand-mark{font-family:'Noto Serif TC',serif; font-size:22px; font-weight:700; color:var(--text);}
   .brand-sub{font-size:12px; color:var(--text-faint);}
-  nav.links{display:flex; gap:16px; font-size:14px; white-space:nowrap;}
-  nav.links a{text-decoration:none; color:var(--text-muted); transition:color .15s ease;}
-  nav.links a:hover{color:var(--brass);}
-  nav.links a[aria-current="page"]{color:var(--brass);}
-  .nav-cta{
-    font-size:13px; color:var(--ink); background:var(--brass);
-    padding:8px 16px; border-radius:var(--radius-s); text-decoration:none; font-weight:500;
-  }
 
   /* ---------- page head（沿用 feature-head） ---------- */
   .page-head{padding:64px 0 36px;}
@@ -205,8 +197,6 @@
   @media (max-width: 860px){
     .nav-row{padding:14px 20px;}
     .nav-row{flex-wrap:wrap; row-gap:10px;}
-    nav.links{display:flex; order:3; width:100%; gap:20px; overflow-x:auto; white-space:nowrap; font-size:13.5px; padding-bottom:2px; scrollbar-width:none;}
-    nav.links::-webkit-scrollbar{display:none;}
     .page-head{padding:44px 0 28px;}
     .feature-head{grid-template-columns:1fr; gap:14px;}
     .feature-head h1{font-size:28px;}
@@ -320,7 +310,6 @@
   table.rank.hist td.zero{color:var(--text-faint);}
   @media (max-width: 860px){ .modal{padding:16px 8px;} .modal-box{padding:16px 12px;} }
 </style>
-<link rel="stylesheet" href="nav.css">
 </head>
 <body>
 
@@ -330,20 +319,10 @@
       <span class="brand-mark">潮汐</span>
       <span class="brand-sub">籌碼觀測站</span>
     </a>
-    <nav class="links">
-      <a href="index.html">首頁</a>
-      <div class="nav-grp"><button type="button" onclick="this.parentNode.classList.toggle('open')">行情</button><div class="nav-menu"><a href="ranking.html">成交排行</a><a href="industry.html">產業分類</a><a href="kline.html">K線</a></div></div>
-      <div class="nav-grp cur"><button type="button" onclick="this.parentNode.classList.toggle('open')">籌碼</button><div class="nav-menu"><a href="chips.html">法人籌碼</a><a href="broker.html" aria-current="page">分點籌碼</a><a href="margin.html">融資融券</a><a href="insider.html">內部人</a><a href="treasury.html">庫藏股</a><a href="futures.html">期權籌碼</a></div></div>
-      <a href="etf.html">ETF持股</a>
-      <div class="nav-grp"><button type="button" onclick="this.parentNode.classList.toggle('open')">事件</button><div class="nav-menu"><a href="news.html">重大訊息</a><a href="cb.html">CB詢圈</a><a href="alert.html">處置注意</a><a href="analyst.html">外資報告</a></div></div>
-      <a href="fin.html">財報</a>
-      <a href="screen.html">選股</a>
-      <a href="index.html#quant">量化策略</a>
-      <a href="health.html">資料健檢</a>
-    </nav>
-    <a href="index.html#cta" class="nav-cta">開始追蹤</a>
+    <nav class="gnav"></nav>
   </div>
 </header>
+<script src="nav.js"></script>
 
 <main>
   <section class="page-head">
@@ -666,6 +645,5 @@ try {
   showError("還沒有重點分點資料，或讀取失敗。");
 }
 </script>
-<script>(function(){var a=document.querySelector('nav.links a[aria-current="page"]');var n=a&&a.closest('nav');if(n&&n.scrollWidth>n.clientWidth){n.scrollLeft=a.offsetLeft-n.offsetLeft-16;}})();</script>
 </body>
 </html>
