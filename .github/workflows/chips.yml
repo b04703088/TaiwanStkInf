@@ -1,0 +1,66 @@
+name: Fetch chips (法人、借券、當沖、期權、集保)
+
+on:
+  schedule:
+    # 三大法人約 16:00、借券與當沖約 21:00 公布；期交所約 15:30；集保週五傍晚更新當週
+    # 台北 21:57 抓一次，隔天 07:47 補抓（當沖 T+2 才定案，所以近 4 天每次重抓）
+    - cron: "57 13 * * 1-5"
+    - cron: "47 23 * * 1-5"
+    # 週六 10:17 抓集保股權分散表
+    - cron: "17 2 * * 6"
+  workflow_dispatch:
+    inputs:
+      start:
+        description: "回補起日 YYYY-MM-DD（留空 = 最近 7 天）"
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fetch-chips
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 三大法人、借券、當沖
+        if: github.event.schedule != '17 2 * * 6'
+        env:
+          IN_START: ${{ inputs.start }}
+        run: |
+          start="${IN_START:-$(TZ=Asia/Taipei date -d '7 days ago' +%F)}"
+          python fetch_chips.py --start "$start" --refresh 4 --max-minutes 160
+
+      - name: 期貨選擇權
+        if: always() && github.event.schedule != '17 2 * * 6'
+        run: python fetch_futures.py
+
+      - name: 集保股權分散
+        if: always()
+        run: python fetch_tdcc.py
+
+      - name: Commit data
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/chips data/futures data/tdcc data/no_trading_days.txt
+          if git diff --cached --quiet; then
+            echo "No new data"
+            exit 0
+          fi
+          git commit -m "data: chips $(TZ=Asia/Taipei date +%F)"
+          for i in 1 2 3; do
+            git pull --rebase -q && git push && exit 0
+            sleep 10
+          done
+          exit 1

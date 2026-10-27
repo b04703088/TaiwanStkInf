@@ -1,0 +1,63 @@
+name: backfill chips (temporary)
+on:
+  push:
+    branches: [claude/project-thread-ytdtq4]
+    paths: [.github/workflows/backfill-tmp.yml]
+permissions:
+  contents: write
+jobs:
+  chips:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        range:
+          - "2025-10-01 2025-11-30"
+          - "2025-12-01 2026-01-31"
+          - "2026-02-01 2026-04-15"
+          - "2026-04-16 2026-06-30"
+          - "2026-07-01 2026-08-31"
+          - "2026-09-01 2026-10-27"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Fetch
+        run: |
+          set -- ${{ matrix.range }}
+          python fetch_chips.py --start "$1" --end "$2" --max-minutes 100 || true
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/chips
+          git commit -qm "data: chips backfill ${{ matrix.range }}" || exit 0
+          for i in 1 2 3 4 5 6; do
+            git pull --rebase -q -X ours && git push && exit 0
+            sleep $((RANDOM % 20 + 5))
+          done
+          exit 1
+  futures:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python fetch_futures.py --start 2024-01-01 || true
+      - run: python fetch_tdcc.py || true
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/futures data/tdcc
+          git commit -qm "data: futures backfill 2024-01~, tdcc" || exit 0
+          for i in 1 2 3 4 5 6; do
+            git pull --rebase -q && git push && exit 0
+            sleep $((RANDOM % 20 + 5))
+          done
+          exit 1
