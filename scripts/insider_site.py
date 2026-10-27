@@ -2,7 +2,8 @@
 
   trades    每月事後申報：每位內部人當月的集中市場買賣、其他原因增減、設質／解質（最近 MONTHS 個月）
   transfer  持股轉讓事前申報（最近 TRANSFER_DAYS 天）：預定在市場賣出、鉅額、洽特定人、贈與、信託…
-  pledge    內部人設質／解質公告（每天，最近 PLEDGE_DAYS 天；fetch_insider.py 有抓才有）
+  pledge    質權設定彙總表（每月每家公司）：董監當月設質／解質、累計設質比例，經理人＋大股東設質；
+            只留當月有設質／解質、或設質比例 ≥ PLEDGE_PCT% 的公司（最近 MONTHS 個月）
 欄位名 + 列（減少檔案大小）；公司層級的加總、估計金額（股數 × 最新收盤）由網頁計算。
 """
 import csv
@@ -12,16 +13,17 @@ from pathlib import Path
 
 MONTHS = 6
 TRANSFER_DAYS = 180
-PLEDGE_DAYS = 180
+PLEDGE_PCT = 20
 TRADES = ["month", "market", "code", "company", "role", "name", "held_prev", "buy_mkt", "buy_other",
           "sell_mkt", "sell_other", "held_now", "pledged", "pledge_add", "pledge_sub", "note", "dup"]
 TRANSFER = ["date", "market", "code", "company", "role", "name", "method", "shares", "held", "after",
             "daily_max", "transferee", "period"]
-PLEDGE = ["date", "market", "code", "company", "role", "name", "kind", "shares", "held", "pledged",
-          "pledged_pct", "pledgee", "deal_date"]
+PLEDGE = ["month", "market", "code", "company", "ds_held", "ds_padd", "ds_psub", "ds_pledged", "ds_ppct",
+          "mgr_held", "major_held", "mm_pledged", "mm_ppct"]
 INTS = {"held_prev", "buy_mkt", "buy_other", "sell_mkt", "sell_other", "held_now", "pledged", "pledge_add",
-        "pledge_sub", "shares", "held", "after", "daily_max"}
-NUMS = {"pledged_pct"}
+        "pledge_sub", "shares", "held", "after", "daily_max", "ds_held", "ds_padd", "ds_psub", "ds_pledged",
+        "mgr_held", "major_held", "mm_pledged"}
+NUMS = {"ds_ppct", "mm_ppct"}
 
 
 def _read(p):
@@ -61,6 +63,11 @@ def roc_period(s):
     return "~".join(one(x) for x in (s or "").split("~")) if s else s
 
 
+def _keep_pledge(r):
+    v = {k: _v(k, r.get(k)) for k in ("ds_padd", "ds_psub", "ds_ppct", "mm_ppct")}
+    return v["ds_padd"] or v["ds_psub"] or (v["ds_ppct"] or 0) >= PLEDGE_PCT or (v["mm_ppct"] or 0) >= PLEDGE_PCT
+
+
 def build(data_dir, today=None, generated=None):
     d = Path(data_dir) / "insider"
     today = today or date.today()
@@ -73,12 +80,14 @@ def build(data_dir, today=None, generated=None):
     for p in sorted((d / "transfer").glob("*.csv")):
         transfer += [dict(r, period=roc_period(r.get("period"))) for r in _read(p) if r.get("date", "") >= since]
     transfer.sort(key=lambda r: (r["date"], r["code"]), reverse=True)
-    since = (today - timedelta(days=PLEDGE_DAYS)).isoformat()
     pledge = []
-    for p in sorted((d / "pledge").glob("*.csv")):
-        pledge += [r for r in _read(p) if r.get("date", "") >= since]
-    pledge.sort(key=lambda r: (r["date"], r["code"]), reverse=True)
+    pmonths = sorted({p.stem[:6] for p in (d / "irb130").glob("[0-9]" * 6 + "_*.csv")})[-MONTHS:]
+    for m in reversed(pmonths):
+        for mkt in ("sii", "otc"):
+            pledge += [dict(r, month=f"{m[:4]}-{m[4:]}", market=mkt) for r in _read(d / "irb130" / f"{m}_{mkt}.csv")
+                       if _keep_pledge(r)]
     return {"generated": generated, "months": [f"{m[:4]}-{m[4:]}" for m in reversed(months)],
+            "pmonths": [f"{m[:4]}-{m[4:]}" for m in reversed(pmonths)],
             "trades": _table(TRADES, trades), "transfer": _table(TRANSFER, transfer),
             "pledge": _table(PLEDGE, pledge)}
 

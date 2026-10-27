@@ -1,0 +1,25 @@
+name: fetch irb130 (temporary)
+on:
+  push:
+    branches: [claude/project-thread-ulky9f]
+    paths: [".github/workflows/probe-irb.yml"]
+permissions:
+  contents: write
+jobs:
+  irb:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: |
+          python -u -c "
+          import fetch_insider as F
+          for m in range(3, 10):
+              for mkt in ('sii', 'otc'):
+                  r = F.irb130(2026, m, mkt); print(m, mkt, len(r or []))
+          "
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/insider && git commit -m "data: insider irb130 2026-03~09" && for i in 1 2 3; do git pull --rebase -q && git push && exit 0; sleep 10; done
