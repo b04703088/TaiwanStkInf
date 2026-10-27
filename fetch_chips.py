@@ -109,8 +109,9 @@ def parse_tpex_inst(payload):
 
 
 def parse_sbl(payload):
-    """信用額度總量管制餘額表：代號、名稱、融券 6 欄、借券賣出 6 欄（前日餘額、賣出、還券、調整、餘額、限額）、備註。"""
-    out = {}
+    """信用額度總量管制餘額表：代號、名稱、融券 6 欄、借券賣出 6 欄（前日餘額、賣出、還券、調整、餘額、限額）、備註。
+    前日＋賣出－還券＋調整＝餘額；個別股票偶爾對不起來（停止借券、下市歸零），超過 5% 對不起來才當成欄位變了。"""
+    out, bad = {}, 0
     for fields, data in _tables(payload):
         if len(fields) < 14:
             continue
@@ -119,10 +120,11 @@ def parse_sbl(payload):
             if not code:
                 continue  # 合計列
             prev, sell, ret, adj, bal = (_int(x) for x in r[8:13])
-            if bal != "" and prev != "" and sell != "" and ret != "" and \
-                    int(prev) + int(sell) - int(ret) + int(adj or 0) != int(bal):
-                raise RuntimeError(f"借券賣出餘額對不起來：{r}")
+            if "" not in (prev, sell, ret, bal) and int(prev) + int(sell) - int(ret) + int(adj or 0) != int(bal):
+                bad += 1
             out[code] = {"name": r[1].strip(), "sbl_sell": sell, "sbl_ret": ret, "sbl_bal": bal}
+    if out and bad > len(out) * 0.05:
+        raise RuntimeError(f"借券賣出餘額對不起來（{bad}/{len(out)} 筆），請檢查欄位")
     return out
 
 
