@@ -7,6 +7,10 @@ on:
       since:
         description: "董事會決議日起日 YYYY-MM-DD（留空 = 前年 1 月 1 日起）"
         required: false
+      broker_minutes:
+        description: "分點資料最多抓幾分鐘（回補時可加大，上限約 100）"
+        required: false
+        default: "25"
 
 permissions:
   contents: write
@@ -18,7 +22,7 @@ concurrency:
 jobs:
   fetch:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
 
@@ -35,7 +39,9 @@ jobs:
       - name: Fetch broker branches during buyback periods
         if: always()
         # 買回期間的分點買超，用來比對公司派分點；第一次要回補全部計畫，之後每次只查執行中的
-        run: python fetch_treasury_broker.py --max-minutes 25
+        env:
+          IN_MIN: ${{ inputs.broker_minutes || '25' }}
+        run: python fetch_treasury_broker.py --max-minutes "$IN_MIN"
 
       - name: Commit data
         if: always()
