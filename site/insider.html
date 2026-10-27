@@ -301,9 +301,10 @@ function renderPledge(){
       <td class="n mono">${r.ds_pledged ? lots(r.ds_pledged) + " 張" : "–"}${r.ds_pledged ? pctTxt(r.ds_ppct) : ""}</td>
       <td class="n mono hide-s">${r.mm_pledged ? lots(r.mm_pledged) + " 張" + pctTxt(r.mm_ppct) : "–"}</td>
       <td class="who">${names.length ? esc(names.slice(0, 3).join("、")) + (names.length > 3 ? `<span class="faint"> 等 ${names.length} 人</span>` : "") : '<span class="faint">–</span>'}</td></tr>`;
-    return head + (open ? ppl.map(t => `<tr class="sub-row"><td colspan="3"><span class="sname">${esc(short(t.name))}</span><span class="faint" style="margin-left:6px">${esc(short(t.role))}</span>${t.dup ? `<span class="faint">（同 ${esc(t.dup)}）</span>` : ""}</td>
-      <td class="n mono"><span class="up">${t.pledge_add ? "+" + lots(t.pledge_add) : ""}</span> <span class="down">${t.pledge_sub ? "−" + lots(t.pledge_sub) : ""}</span></td>
-      <td class="n mono">${lots(t.pledged)} 張</td><td class="n mono hide-s faint">${t.held_now ? (t.pledged / t.held_now * 100).toFixed(0) + "% 持股" : ""}</td>
+    return head + (open ? ppl.map(t => `<tr class="sub-row"><td class="person"><span class="sname">${esc(short(t.name))}</span><span class="role">${esc(short(t.role))}${t.dup ? `（同 ${esc(t.dup)}）` : ""}</span></td>
+      <td class="n mono up">${t.pledge_add ? lots(t.pledge_add) : ""}</td><td class="n mono down">${t.pledge_sub ? lots(t.pledge_sub) : ""}</td>
+      <td class="n mono">${yi(money(t.code, t.pledge_add || t.pledge_sub))}</td>
+      <td class="n mono">${lots(t.pledged)} 張${t.held_now ? pctTxt(t.pledged / t.held_now * 100) : ""}</td><td class="hide-s"></td>
       <td class="faint">持股 ${lots(t.held_now)} 張</td></tr>`).join("") : "");
   }).join("") || `<tr><td colspan="7" class="empty">${S.q ? "這檔股票最近幾個月董監沒有設質／解質" : "沒有資料"}</td></tr>`;
   document.getElementById("g-more").hidden = rows.length <= G.n;
