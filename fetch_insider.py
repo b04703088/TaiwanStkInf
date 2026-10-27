@@ -4,14 +4,15 @@
 資料來源（公開資訊觀測站／證交所／櫃買中心，公開免登入）
   1. 股權異動彙總表 IRB110（每月一份，上市 sii／上櫃 otc，約每月 22 日公布上個月）
        https://siis.twse.com.tw/publish/<sii|otc>/<民國年>IRB110_<月>.HTM
-     只有每家公司的合計，用來篩出「這個月內部人持股有變動」的公司。
+     只有每家公司的合計，當作當月的公司清單。注意彙總表只算本人持股，不含配偶及未成年子女，
+     所以不能拿來篩「有變動」的公司（家人買賣會漏掉），每家都要查第 2 步。
      質權設定彙總表 IRB130（同一個網址，IRB110 換成 IRB130）：每家公司董監當月設質／解質股數、累計設質比例，
-     經理人＋大股東已設質股數；網頁的設質／解質公司排行直接用這份，也拿來篩出質押有變動的公司。
+     經理人＋大股東已設質股數；網頁的設質／解質公司排行直接用這份。
   2. 內部人持股異動事後申報表（觀測站 query6_1，每家公司每個月）
        POST https://mops.twse.com.tw/mops/api/query6_1
      每位內部人的「本月增加／減少」，分成 集中市場（自有股數(集中)）與 其他原因（贈與、信託、繼承、員工認股…）。
      以及每個人當月的設定質權／解除質權股數。
-     只查第 1 步篩出「持股或質押有變動」的公司（約 700～800 家，觀測站一家要好幾秒，約 50 分鐘），
+     第 1 步清單上的每一家都查（約 2000 家，一家約 1.5 秒，約 50～60 分鐘），
      中途停掉（--max-minutes）會存進度，下次接著查。
   3. 持股轉讓事前申報（每天，OpenAPI 只給最新一天，所以要每天抓、累積）
        https://openapi.twse.com.tw/v1/opendata/t187ap12_L
@@ -163,22 +164,6 @@ def irb130(y, m, mkt):
     return irb_report("irb130", y, m, mkt)
 
 
-def candidates(cur, prev, pledge=None, pledge_prev=None):
-    """這個月內部人持股或質押有變動的公司（約 700～800 家）：董監有增加或減少、經理人／大股東持股跟上個月不同，
-    或董監有設質／解質、經理人＋大股東的設質股數跟上個月不同。觀測站一家要好幾秒，一個月約 50 分鐘，分兩天查完。"""
-    before = {r["code"]: r for r in prev or []}
-    pl = {r["code"]: r for r in pledge or []}
-    pl0 = {r["code"]: r for r in pledge_prev or []}
-    out = []
-    for r in cur:
-        p, g, g0 = before.get(r["code"]), pl.get(r["code"]), pl0.get(r["code"])
-        if (r["ds_add"] or r["ds_sub"]
-                or (p and (r["mgr_held"] != p["mgr_held"] or r["major_held"] != p["major_held"]))
-                or (g and (g["ds_padd"] or g["ds_psub"] or (g0 and g["mm_pledged"] != g0["mm_pledged"])))):
-            out.append(r)
-    return out
-
-
 # ---------------- 2. 事後申報表 ----------------
 # query6_1 的 24 欄（titles 有完整名稱）
 I_ROLE, I_NAME, I_KIND, I_PREV = 0, 1, 2, 4
@@ -264,19 +249,17 @@ def fetch_month(y, m, force=False, deadline=None):
     part_p, done_p = out_p.with_suffix(".part.csv"), out_p.with_suffix(".done.txt")
     if out_p.exists() and not force:
         return True
-    py, pm = ym_add((y, m), -1)
     cand = []
     for mkt in ("sii", "otc"):
         cur, pledge = irb110(y, m, mkt), irb130(y, m, mkt)
         if cur is None or pledge is None:
             print(f"{y}-{m:02d} {mkt} 股權異動／質權設定彙總表還沒公布", flush=True)
             return False
-        prev, pledge_prev = irb110(py, pm, mkt), irb130(py, pm, mkt)
-        cand += [(mkt, r["code"], r["company"]) for r in candidates(cur, prev, pledge, pledge_prev)]
+        cand += [(mkt, r["code"], r["company"]) for r in cur]
     rows = [{**r, **{k: _int(r.get(k)) for k in TRADE_INTS}} for r in _read(part_p)]
     done = set(done_p.read_text(encoding="utf-8").split()) if done_p.exists() else set()
     todo = [c for c in cand if c[1] not in done]
-    print(f"{y}-{m:02d}：內部人持股或質押有變動的公司 {len(cand)} 家（已查 {len(done)}），逐家查事後申報表", flush=True)
+    print(f"{y}-{m:02d}：上市櫃公司 {len(cand)} 家（已查 {len(done)}），逐家查事後申報表", flush=True)
     failed = []
 
     def save_part():

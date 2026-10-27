@@ -1,0 +1,40 @@
+name: backfill insider all companies (temporary)
+on:
+  push:
+    branches: [claude/project-thread-ulky9f]
+    paths: [".github/workflows/probe-insider.yml"]
+permissions:
+  contents: write
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      matrix:
+        months: ["2026-09 2026-06", "2026-08 2026-05", "2026-07 2026-04"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: Fetch
+        run: |
+          python -u - <<'PY'
+          import time, fetch_insider as F
+          deadline = time.time() + 300 * 60
+          for ym in "${{ matrix.months }}".split():
+              y, m = map(int, ym.split("-"))
+              ok = F.fetch_month(y, m, force=True, deadline=deadline)
+              print(ym, "done" if ok else "NOT done", flush=True)
+          PY
+          grep -h ",2383," data/insider/trades/*.csv || true
+      - name: Commit
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/insider
+          git diff --cached --quiet && exit 0
+          git commit -m "data: insider backfill ${{ matrix.months }} (all companies)"
+          for i in 1 2 3 4 5; do git pull --rebase -q && git push && exit 0; sleep 15; done
+          exit 1
