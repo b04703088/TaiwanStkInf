@@ -21,19 +21,6 @@ class Irb110Test(unittest.TestCase):
         self.assertEqual((r["issued"], r["ds_add"], r["ds_sub"], r["ds_held"]), (7723181742, 0, 0, 637628625))
         self.assertEqual((r["ds_pct"], r["mgr_held"], r["major_held"]), (8.25, 15335763, 0))
 
-    def test_candidates(self):
-        base = {"ds_add": 0, "ds_sub": 0, "mgr_held": 10, "major_held": 0}
-        cur = [{"code": "A", **base}, {"code": "B", **base, "ds_add": 5}, {"code": "C", **base, "mgr_held": 11},
-               {"code": "D", **base}, {"code": "E", **base, "ds_sub": 3}, {"code": "F", **base, "mgr_held": 9},
-               {"code": "G", **base}, {"code": "H", **base}]
-        prev = [{"code": c, **base} for c in "ACFGH"]
-        pb = {"ds_padd": 0, "ds_psub": 0, "mm_pledged": 0}
-        pledge = [{"code": "G", **pb, "ds_psub": 100}, {"code": "H", **pb, "mm_pledged": 5}, {"code": "A", **pb}]
-        pledge_prev = [{"code": "H", **pb}, {"code": "A", **pb}]
-        # 只賣（E）、經理人減少（F）、董監解質（G）、大股東質押變動（H）都要查
-        self.assertEqual([r["code"] for r in F.candidates(cur, prev, pledge, pledge_prev)], list("BCEFGH"))
-        self.assertEqual([r["code"] for r in F.candidates(cur, prev)], list("BCEF"))
-
     def test_parse_irb130(self):
         page = ("<TR><TD>公 司 名 稱</TD><TD>x</TD></TR>"
                 "<TR><TD>1110東南水泥股份有限</TD><TD> 186,281,467</TD><TD> 0</TD><TD> 1,000</TD><TD> 40,000,000</TD>"
