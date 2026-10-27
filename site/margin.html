@@ -28,11 +28,6 @@
   .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
   .brand-mark{font-family:'Noto Serif TC',serif; font-size:22px; font-weight:700;}
   .brand-sub{font-size:12px; color:var(--text-faint);}
-  nav.links{display:flex; gap:20px; font-size:14px;}
-  nav.links a{text-decoration:none; color:var(--text-muted);}
-  nav.links a:hover{color:var(--brass);}
-  nav.links a[aria-current="page"]{color:var(--brass);}
-  .nav-cta{font-size:13px; color:var(--ink); background:var(--brass); padding:8px 16px; border-radius:var(--radius-s); text-decoration:none; font-weight:500;}
   .page-head{padding:56px 0 8px;}
   .eyebrow{font-size:13px; color:var(--brass); margin-bottom:10px;}
   h1{font-size:32px;}
@@ -95,6 +90,8 @@
   .note{font-size:12.5px; color:var(--text-faint); margin-top:18px; line-height:1.8;}
   footer.site{padding:48px 0; margin-top:64px; border-top:1px solid var(--line);}
   .stats.five{grid-template-columns:repeat(5,1fr);}
+  #s-head th[data-k]{cursor:pointer; user-select:none;} #s-head th[data-k]:hover{color:var(--brass);}
+  #s-head th.sorted{color:var(--brass);}
   #s-body td, #s-body ~ th, .tbl-wrap th{padding:9px 7px;} #s-body td{font-size:13px;}
   .verdict{margin-top:28px; border:1px solid var(--line-strong); border-radius:var(--radius-m); background:var(--panel); padding:18px 22px;}
   .verdict .head{display:flex; align-items:baseline; gap:14px; flex-wrap:wrap;}
@@ -117,7 +114,6 @@
   .chk-in{font-size:13px; color:var(--text-muted); display:flex; align-items:center; gap:6px;}
   @media (max-width:860px){
     .nav-row{padding:14px 16px; flex-wrap:wrap; row-gap:10px;}
-    nav.links{order:3; width:100%; gap:20px; overflow-x:auto; white-space:nowrap; font-size:13.5px; scrollbar-width:none;}
     .wrap{padding:0 16px;}
     .stats, .stats.five, .kpis{grid-template-columns:repeat(2,1fr);} h1{font-size:26px;}
     .hide-s{display:none;}
@@ -129,26 +125,10 @@
 <header class="site">
   <div class="nav-row">
     <a href="index.html" class="brand"><span class="brand-mark">潮汐</span><span class="brand-sub">籌碼觀測站</span></a>
-    <nav class="links">
-      <a href="index.html">首頁</a>
-      <a href="ranking.html">成交排行</a>
-      <a href="industry.html">產業分類</a>
-      <a href="broker.html">分點籌碼</a>
-      <a href="etf.html">ETF持股</a>
-      <a href="cb.html">CB詢圈</a>
-      <a href="treasury.html">庫藏股</a>
-      <a href="margin.html" aria-current="page">融資融券</a>
-      <a href="analyst.html">外資報告</a>
-      <a href="alert.html">處置注意</a>
-      <a href="news.html">重大訊息</a>
-      <a href="fin.html">財報</a>
-      <a href="kline.html">K線</a>
-      <a href="index.html#quant">量化策略</a>
-      <a href="health.html">資料健檢</a>
-    </nav>
-    <a href="index.html#cta" class="nav-cta">開始追蹤</a>
+    <nav class="gnav"></nav>
   </div>
 </header>
+<script src="nav.js"></script>
 <main class="wrap">
   <section class="page-head">
     <div class="eyebrow">融資融券</div>
@@ -203,11 +183,11 @@
       <input class="filter" id="q" type="search" placeholder="篩選：代號或名稱" autocomplete="off" aria-label="篩選股票">
     </div>
     <div class="tbl-wrap"><table>
-      <thead><tr><th>股票</th><th class="n">收盤</th><th class="n">1日</th><th class="n">5日</th><th class="n hide-s">20日</th>
-        <th class="n">融資餘額</th><th class="n">今日增減</th><th class="n">5日增減</th><th class="n hide-s">20日增減</th>
-        <th class="n">估計維持率</th>
-        <th class="n">不限用途擔保</th><th class="n">5日增減</th><th class="n hide-s">擔保使用率</th>
-        <th class="n hide-s">券資比</th></tr></thead>
+      <thead id="s-head"><tr><th>股票</th><th class="n" data-k="close">收盤</th><th class="n" data-k="r1">1日</th><th class="n" data-k="r5">5日</th><th class="n hide-s" data-k="r20">20日</th>
+        <th class="n" data-k="fin">融資餘額</th><th class="n" data-k="f1">今日增減</th><th class="n" data-k="f5p">5日增減</th><th class="n hide-s" data-k="f20p">20日增減</th>
+        <th class="n" data-k="ratio">估計維持率</th>
+        <th class="n" data-k="ul">不限用途擔保</th><th class="n" data-k="ul5p">5日增減</th><th class="n hide-s" data-k="ul_use">擔保使用率</th>
+        <th class="n hide-s" data-k="ss_ratio">券資比</th></tr></thead>
       <tbody id="s-body"></tbody>
     </table></div>
     <button class="more" id="s-more" hidden>顯示更多</button>
@@ -334,7 +314,16 @@ const SORTS = {
   up5: [r => r.f5p, -1], val: [r => r.fin_val, -1], ss: [r => r.ss_ratio, -1],
   ul5p: [r => r.ul5p, 1], ulup: [r => r.ul5p, -1], ulv: [r => r.ul_val, -1], uluse: [r => r.ul_use, -1],
 };
-const getSort = chips("s-sort", () => { limit = 100; renderStocks(); });
+const getSort = chips("s-sort", () => { colSort = null; limit = 100; renderStocks(); });
+// 點欄位標題排序：第一次由大到小，再點一次由小到大；點上方排序按鈕會取消
+let colSort = null;
+$("s-head").addEventListener("click", e => {
+  const th = e.target.closest("th[data-k]"); if (!th) return;
+  const k = th.dataset.k;
+  colSort = colSort && colSort.k === k ? {k, dir: -colSort.dir} : {k, dir: -1};
+  $("s-sort").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", false));
+  limit = 100; renderStocks();
+});
 const getMkt = chips("s-mkt", () => { limit = 100; renderStocks(); });
 const getMin = chips("s-min", () => { limit = 100; renderStocks(); });
 $("s-etf").addEventListener("change", () => { limit = 100; renderStocks(); });
@@ -343,7 +332,13 @@ $("s-more").addEventListener("click", () => { limit += 100; renderStocks(); });
 
 function renderStocks() {
   const q = $("q").value.trim(), mkt = getMkt(), min = +getMin(), noEtf = $("s-etf").checked;
-  const [key, dir] = SORTS[getSort()];
+  const sel = $("s-sort").querySelector('[aria-pressed="true"]');
+  const [key, dir] = colSort ? [r => r[colSort.k], colSort.dir] : SORTS[sel ? sel.dataset.v : "kill"];
+  $("s-head").querySelectorAll("th[data-k]").forEach(th => {
+    const on = colSort && th.dataset.k === colSort.k;
+    th.classList.toggle("sorted", !!on);
+    th.textContent = th.textContent.replace(/ [▼▲]$/, "") + (on ? (colSort.dir < 0 ? " ▼" : " ▲") : "");
+  });
   let rows = S.filter(r => r.fin != null && (!mkt || r.market === mkt) && (!noEtf || !/^0/.test(r.code))
     && (q ? r.code.includes(q) || r.name.includes(q) : (r.fin_val || 0) >= min) && key(r) != null);
   rows.sort((a, b) => dir * (key(a) - key(b)));

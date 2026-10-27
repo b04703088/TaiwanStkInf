@@ -50,14 +50,6 @@
   .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
   .brand-mark{font-family:'Noto Serif TC',serif; font-size:22px; font-weight:700; color:var(--text);}
   .brand-sub{font-size:12px; color:var(--text-faint);}
-  nav.links{display:flex; gap:20px; font-size:14px;}
-  nav.links a{text-decoration:none; color:var(--text-muted); transition:color .15s ease;}
-  nav.links a:hover{color:var(--brass);}
-  nav.links a[aria-current="page"]{color:var(--brass);}
-  .nav-cta{
-    font-size:13px; color:var(--ink); background:var(--brass);
-    padding:8px 16px; border-radius:var(--radius-s); text-decoration:none; font-weight:500;
-  }
 
   /* ---------- page head（沿用 feature-head） ---------- */
   .page-head{padding:64px 0 36px;}
@@ -205,8 +197,6 @@
   @media (max-width: 860px){
     .nav-row{padding:14px 20px;}
     .nav-row{flex-wrap:wrap; row-gap:10px;}
-    nav.links{display:flex; order:3; width:100%; gap:20px; overflow-x:auto; white-space:nowrap; font-size:13.5px; padding-bottom:2px; scrollbar-width:none;}
-    nav.links::-webkit-scrollbar{display:none;}
     .page-head{padding:44px 0 28px;}
     .feature-head{grid-template-columns:1fr; gap:14px;}
     .feature-head h1{font-size:28px;}
@@ -305,6 +295,20 @@
     .card ol, .card h4 .cnt{display:none;}
     .card .big{font-size:17px;}
   }
+  /* 個股：重點分點近 20 日 */
+  .modal{position:fixed; inset:0; z-index:60; background:rgba(5,10,15,.72); display:flex; align-items:flex-start; justify-content:center; padding:56px 16px; overflow:auto;}
+  .modal-box{background:var(--panel); border:1px solid var(--line-strong); border-radius:var(--radius-m); width:min(1080px,100%); padding:22px 24px; box-shadow:0 24px 60px rgba(0,0,0,.5);}
+  .modal-head{display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:14px;}
+  .modal-head h2{font-size:20px;}
+  .modal-head .sub{font-size:12.5px; color:var(--text-faint); margin-top:4px;}
+  .modal-head .sub a{color:var(--text-muted);}
+  .modal-close{white-space:nowrap; background:none; border:1px solid var(--line-strong); color:var(--text-muted); border-radius:var(--radius-s); padding:4px 12px; font:inherit; cursor:pointer;}
+  .modal-close:hover{color:var(--brass); border-color:var(--brass);}
+  table.rank.hist td, table.rank.hist th{padding:8px 10px; font-size:12.5px;}
+  table.rank.hist td:first-child, table.rank.hist th:first-child{position:sticky; left:0; background:var(--panel); z-index:1;}
+  table.rank.hist tr.sum td{border-bottom:1px solid var(--line-strong); font-weight:600;}
+  table.rank.hist td.zero{color:var(--text-faint);}
+  @media (max-width: 860px){ .modal{padding:16px 8px;} .modal-box{padding:16px 12px;} }
 </style>
 </head>
 <body>
@@ -315,26 +319,10 @@
       <span class="brand-mark">潮汐</span>
       <span class="brand-sub">籌碼觀測站</span>
     </a>
-    <nav class="links">
-      <a href="index.html">首頁</a>
-      <a href="ranking.html">成交排行</a>
-      <a href="industry.html">產業分類</a>
-      <a href="broker.html" aria-current="page">分點籌碼</a>
-      <a href="etf.html">ETF持股</a>
-      <a href="cb.html">CB詢圈</a>
-      <a href="treasury.html">庫藏股</a>
-      <a href="margin.html">融資融券</a>
-      <a href="analyst.html">外資報告</a>
-      <a href="alert.html">處置注意</a>
-      <a href="news.html">重大訊息</a>
-      <a href="fin.html">財報</a>
-      <a href="kline.html">K線</a>
-      <a href="index.html#quant">量化策略</a>
-      <a href="health.html">資料健檢</a>
-    </nav>
-    <a href="index.html#cta" class="nav-cta">開始追蹤</a>
+    <nav class="gnav"></nav>
   </div>
 </header>
+<script src="nav.js"></script>
 
 <main>
   <section class="page-head">
@@ -349,6 +337,7 @@
       <nav class="subtabs" aria-label="分點籌碼子頁">
         <a href="broker.html">全市場前 15 大</a>
         <a href="watch.html" aria-current="page">重點分點</a>
+        <a href="local.html">地方主力</a>
       </nav>
       <div class="date-bar">
         <div class="date-picker" id="datePicker">
@@ -412,11 +401,22 @@
 
       <div class="table-wrap"><table class="rank" id="tbl"></table></div>
       <div class="more" id="moreWrap" hidden><button class="btn-ghost" id="moreBtn" type="button">顯示更多</button></div>
-      <p class="note">不含 ETF。金額單位：萬元。資料來源：富邦證券網站分點明細查詢，每個分點每天只公布買超、賣超各前 50 檔，所以多日加總只包含每天有進前 50 的部分。點股票可看該股全市場前 15 大分點。</p>
+      <p class="note">不含 ETF。金額單位：萬元。資料來源：富邦證券網站分點明細查詢，每個分點每天只公布買超、賣超各前 50 檔，所以多日加總只包含每天有進前 50 的部分。點股票可看選取分點近 20 個交易日每天對這檔的買賣超。</p>
       <p class="edit">要新增或刪除追蹤的分點：在 GitHub 編輯 <a href="https://github.com/b04703088/TaiwanStkInf/blob/claude/claim-credit-endpoint-3km5kj/config/broker_watch.csv" target="_blank" rel="noopener">config/broker_watch.csv</a>（一行一個分點，名稱可查 <a href="https://github.com/b04703088/TaiwanStkInf/blob/claude/claim-credit-endpoint-3km5kj/data/broker/branches.csv" target="_blank" rel="noopener">分點清單</a>），存檔後會自動回補近 20 個交易日並更新本頁。</p>
     </div>
   </section>
 </main>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle" hidden>
+  <div class="modal-box">
+    <div class="modal-head">
+      <div><h2 id="mTitle"></h2><div class="sub" id="mSub"></div></div>
+      <button class="modal-close" id="mClose" type="button">關閉</button>
+    </div>
+    <div class="table-wrap"><table class="rank hist" id="mTbl"></table></div>
+    <p class="note">金額單位：萬元（買超 − 賣超）。「·」= 該分點當天這檔沒進買超或賣超前 50 名（可能沒交易，也可能金額較小）。</p>
+  </div>
+</div>
 
 <footer class="site">
   <div class="wrap">
@@ -502,7 +502,7 @@ function renderTable(stocks) {
       ${on.map(i => th(String(i), esc(W.branches[i].label), "br")).join("")}</tr></thead>
     <tbody>${list.slice(0, state.shown).map((s, i) => `<tr class="${i < 3 ? "top3" : ""}">
       <td class="l rank-no mono">${i + 1}</td>
-      <td class="l name-cell"><a class="link" href="broker.html?s=${encodeURIComponent(s.code)}&date=${state.date}" style="text-decoration:none"><span class="stock-name">${esc(s.name)}</span></a><span class="stock-code mono">${esc(s.code)}</span>${indTag(s.code)}</td>
+      <td class="l name-cell"><button class="link" type="button" data-stock="${esc(s.code)}" title="看重點分點近 20 日買賣超"><span class="stock-name">${esc(s.name)}</span></button><span class="stock-code mono">${esc(s.code)}</span>${indTag(s.code)}</td>
       <td class="mono ${cls(s.amt)}">${wanS(s.amt)}</td>
       <td class="mono cnt"><em class="up">${s.nb}</em> 買・<em class="down">${s.ns}</em> 賣</td>
       ${on.map(b => { const v = s.by.get(b); return `<td class="mono br ${v ? cls(v) : "zero"}">${v ? wanS(v) : "·"}</td>`; }).join("")}
@@ -528,7 +528,7 @@ function renderBig() {
       <th>分點數</th>${others.map(x => `<th class="other">${lab(x)}（萬）</th>`).join("")}</tr></thead>
     <tbody>${list.map((s, i) => `<tr class="${i < 3 ? "top3" : ""}">
       <td class="l rank-no mono">${i + 1}</td>
-      <td class="l name-cell"><a class="link" href="broker.html?s=${encodeURIComponent(s.code)}&date=${state.date}" style="text-decoration:none"><span class="stock-name">${esc(s.name)}</span></a><span class="stock-code mono">${esc(s.code)}</span></td>
+      <td class="l name-cell"><button class="link" type="button" data-stock="${esc(s.code)}" title="看重點分點近 20 日買賣超"><span class="stock-name">${esc(s.name)}</span></button><span class="stock-code mono">${esc(s.code)}</span></td>
       <td class="mono ${cls(s.amt)}">${wanS(s.amt)}</td>
       <td class="mono cnt">${side === "buy" ? s.nb : s.ns}</td>
       ${others.map(x => { const v = amt[x].get(s.code); return `<td class="mono other ${v ? cls(v) : ""}">${v ? wanS(v) : "·"}</td>`; }).join("")}
@@ -536,6 +536,31 @@ function renderBig() {
   $("big").innerHTML = table(hit[n].filter(s => s.amt > 0).sort((a, b) => b.amt - a.amt), "buy") +
     table(hit[n].filter(s => s.amt < 0).sort((a, b) => a.amt - b.amt), "sell");
 }
+
+/* 個股：選取的重點分點近 20 個交易日每天的買賣超 */
+function openStock(code) {
+  const W = state.W, hi = state.idx, lo = Math.max(0, hi - 19);
+  const on = [...state.on].sort((a, b) => a - b);
+  const grid = new Map();  // d → Map(b → [金額, 張數])
+  for (const [d, b, c, ba, sa, bs, ss] of W.rows) {
+    if (c !== code || d < lo || d > hi || !state.on.has(b) || ba == null) continue;
+    if (!grid.has(d)) grid.set(d, new Map());
+    grid.get(d).set(b, [ba - sa, (bs ?? 0) - (ss ?? 0)]);
+  }
+  const tot = b => { let a = 0, sh = 0; for (const m of grid.values()) { const v = m.get(b); if (v) { a += v[0]; sh += v[1]; } } return [a, sh]; };
+  const cell = v => v ? `<td class="mono ${cls(v[0])}" title="${fmtS(v[1])} 張">${wanS(v[0])}</td>` : `<td class="mono zero">·</td>`;
+  const dayTot = d => { const m = grid.get(d); if (!m) return null; let a = 0, sh = 0; for (const v of m.values()) { a += v[0]; sh += v[1]; } return [a, sh]; };
+  const all = (() => { let a = 0, sh = 0; for (const b of on) { const [x, y] = tot(b); a += x; sh += y; } return [a, sh]; })();
+  const days = []; for (let d = hi; d >= lo; d--) days.push(d);
+  $("mTitle").textContent = `${W.names[code] || code} ${code}`;
+  $("mSub").innerHTML = `重點分點近 ${hi - lo + 1} 個交易日買賣超（${W.days[lo].slice(5).replace("-", "/")} ～ ${W.days[hi].slice(5).replace("-", "/")}，${on.length} 個分點）　<a href="broker.html?s=${encodeURIComponent(code)}&date=${state.date}">看全市場前 15 大分點 →</a>`;
+  $("mTbl").innerHTML = `<thead><tr><th class="l">日期</th><th>合計</th>${on.map(b => `<th class="br">${esc(W.branches[b].label)}</th>`).join("")}</tr></thead>
+    <tbody><tr class="sum"><td class="l">${hi - lo + 1} 日合計</td>${cell(all[0] ? all : null)}${on.map(b => { const t = tot(b); return cell(t[0] || t[1] ? t : null); }).join("")}</tr>
+    ${days.map(d => `<tr><td class="l mono">${W.days[d].slice(5).replace("-", "/")}</td>${cell(dayTot(d))}${on.map(b => cell(grid.get(d)?.get(b))).join("")}</tr>`).join("")}</tbody>`;
+  $("modal").hidden = false;
+  document.body.style.overflow = "hidden";
+}
+function closeStock() { $("modal").hidden = true; document.body.style.overflow = ""; }
 
 function render() {
   const d = new Date(state.date + "T00:00:00+08:00");
@@ -563,6 +588,9 @@ function showDay(idx) {
 function showError(msg) { $("tbl").innerHTML = `<tbody><tr><td class="empty">${esc(msg)}</td></tr></tbody>`; }
 
 document.addEventListener("click", e => {
+  const st = e.target.closest("[data-stock]");
+  if (st) { openStock(st.dataset.stock); return; }
+  if (e.target.id === "modal" || e.target.id === "mClose") { closeStock(); return; }
   const c = e.target.closest(".chip");
   if (c) {
     if (c.dataset.all) state.on = new Set(state.W.branches.map((_, i) => i));
@@ -586,6 +614,7 @@ document.querySelectorAll(".seg").forEach(seg => seg.addEventListener("click", e
   state.shown = PAGE_SIZE; render();
 }));
 $("search").addEventListener("input", e => { state.q = e.target.value; state.shown = PAGE_SIZE; renderTable(aggregate().stocks); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("modal").hidden) closeStock(); });
 $("moreBtn").addEventListener("click", () => { state.shown += PAGE_SIZE; renderTable(aggregate().stocks); });
 $("prevDay").addEventListener("click", () => showDay(state.idx - 1));
 $("nextDay").addEventListener("click", () => showDay(state.idx + 1));
@@ -616,6 +645,5 @@ try {
   showError("還沒有重點分點資料，或讀取失敗。");
 }
 </script>
-<script>(function(){var a=document.querySelector('nav.links a[aria-current="page"]');if(a&&a.parentNode.scrollWidth>a.parentNode.clientWidth){a.parentNode.scrollLeft=a.offsetLeft-a.parentNode.offsetLeft-16;}})();</script>
 </body>
 </html>

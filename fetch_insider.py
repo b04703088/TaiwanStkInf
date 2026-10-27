@@ -5,10 +5,13 @@
   1. 股權異動彙總表 IRB110（每月一份，上市 sii／上櫃 otc，約每月 22 日公布上個月）
        https://siis.twse.com.tw/publish/<sii|otc>/<民國年>IRB110_<月>.HTM
      只有每家公司的合計，用來篩出「這個月內部人持股有變動」的公司。
+     質權設定彙總表 IRB130（同一個網址，IRB110 換成 IRB130）：每家公司董監當月設質／解質股數、累計設質比例，
+     經理人＋大股東已設質股數；網頁的設質／解質公司排行直接用這份，也拿來篩出質押有變動的公司。
   2. 內部人持股異動事後申報表（觀測站 query6_1，每家公司每個月）
        POST https://mops.twse.com.tw/mops/api/query6_1
      每位內部人的「本月增加／減少」，分成 集中市場（自有股數(集中)）與 其他原因（贈與、信託、繼承、員工認股…）。
-     只查第 1 步篩出「內部人持股有增加」的公司（約 350 家，觀測站一家要好幾秒，約 25 分鐘），
+     以及每個人當月的設定質權／解除質權股數。
+     只查第 1 步篩出「持股或質押有變動」的公司（約 700～800 家，觀測站一家要好幾秒，約 50 分鐘），
      中途停掉（--max-minutes）會存進度，下次接著查。
   3. 持股轉讓事前申報（每天，OpenAPI 只給最新一天，所以要每天抓、累積）
        https://openapi.twse.com.tw/v1/opendata/t187ap12_L
@@ -16,8 +19,12 @@
 
 輸出
   data/insider/irb110/<YYYYMM>_<sii|otc>.csv   code, company, issued, ds_add, ds_sub, ds_held, ds_pct, mgr_held, major_held
-  data/insider/trades/<YYYYMM>.csv             每位內部人當月有變動的持股（只留普通股）
-      month, market, code, company, role, name, held_prev, buy_mkt, buy_other, sell_mkt, sell_other, held_now, pledged, note
+  data/insider/irb130/<YYYYMM>_<sii|otc>.csv   code, company, ds_held, ds_padd, ds_psub, ds_pledged, ds_ppct,
+                                               mgr_held, major_held, mm_pledged, mm_ppct
+  data/insider/trades/<YYYYMM>.csv             每位內部人當月有變動的持股或質押（只留普通股）
+      month, market, code, company, role, name, held_prev, buy_mkt, buy_other, sell_mkt, sell_other, held_now, pledged,
+      note, dup, pledge_add, pledge_sub
+      pledged = 月底累計設質股數；pledge_add / pledge_sub = 當月設定／解除質權股數
       buy_mkt / sell_mkt = 集中市場買進／賣出股數（策略主要看這兩欄）；配偶及未成年子女的列，name 為「本人姓名(配偶/子女)」
       dup：夫妻都是內部人時，「甲的配偶」那列就是乙本人的買賣，會重複出現；這種列填上乙的名字，加總時要略過
   data/insider/transfer/<YYYY>.csv             事前申報（預定在市場上賣出或贈與、信託…）
@@ -48,8 +55,11 @@ TRANSFER_URLS = [("sii", "https://openapi.twse.com.tw/v1/opendata/t187ap12_L"),
 DELAY = 0.3
 
 IRB_COLS = ["code", "company", "issued", "ds_add", "ds_sub", "ds_held", "ds_pct", "mgr_held", "major_held"]
+IRB130_COLS = ["code", "company", "ds_held", "ds_padd", "ds_psub", "ds_pledged", "ds_ppct", "mgr_held", "major_held",
+               "mm_pledged", "mm_ppct"]
 TRADE_COLS = ["month", "market", "code", "company", "role", "name", "held_prev", "buy_mkt", "buy_other",
-              "sell_mkt", "sell_other", "held_now", "pledged", "note", "dup"]
+              "sell_mkt", "sell_other", "held_now", "pledged", "note", "dup", "pledge_add", "pledge_sub"]
+TRADE_INTS = ["held_prev", "buy_mkt", "buy_other", "sell_mkt", "sell_other", "held_now", "pledged", "pledge_add", "pledge_sub"]
 TRANSFER_COLS = ["date", "market", "code", "company", "role", "name", "method", "shares", "held", "after",
                  "daily_max", "transferee", "period"]
 
@@ -105,33 +115,66 @@ def parse_irb110(page):
     return rows
 
 
-def irb110(y, m, mkt):
-    """回傳 [rows] 或 None（還沒公布）。已抓過的直接讀檔。"""
-    p = OUT / "irb110" / f"{y}{m:02d}_{mkt}.csv"
+def parse_irb130(page):
+    """質權設定彙總表：每家公司董監當月設質／解質股數、累計設質與佔持股比例，經理人＋大股東已設質股數。"""
+    rows = []
+    for tr in _TR.findall(page):
+        tds = [html.unescape(re.sub(r"<[^>]+>", "", t)).strip() for t in _TD.findall(tr)]
+        if len(tds) != 10:
+            continue
+        m = _CODE.match(tds[0])
+        if not m:
+            continue
+        rows.append({"code": m.group(1), "company": m.group(2).strip(), "ds_held": _int(tds[1]),
+                     "ds_padd": _int(tds[2]), "ds_psub": _int(tds[3]), "ds_pledged": _int(tds[4]),
+                     "ds_ppct": C.num(tds[5]), "mgr_held": _int(tds[6]), "major_held": _int(tds[7]),
+                     "mm_pledged": _int(tds[8]), "mm_ppct": C.num(tds[9])})
+    return rows
+
+
+REPORTS = {"irb110": (parse_irb110, IRB_COLS), "irb130": (parse_irb130, IRB130_COLS)}
+
+
+def irb_report(kind, y, m, mkt):
+    """彙總表（irb110 股權異動／irb130 質權設定）→ [rows] 或 None（還沒公布）。已抓過的直接讀檔。"""
+    parse, cols = REPORTS[kind]
+    p = OUT / kind / f"{y}{m:02d}_{mkt}.csv"
     if p.exists():
-        return [{**r, **{k: _int(r[k]) for k in IRB_COLS[2:] if k != "ds_pct"}} for r in _read(p)]
-    url = IRB_URL.format(mkt=mkt, roc=y - 1911, mm=f"{m:02d}")
+        return [{**r, **{k: _int(r[k]) for k in cols[2:] if not k.endswith("pct")}} for r in _read(p)]
+    url = IRB_URL.format(mkt=mkt, roc=y - 1911, mm=f"{m:02d}").replace("IRB110", kind.upper())
     try:
         raw = C.http(url, raw=True, retries=2)
     except C.AdapterError as e:
         if "404" in str(e):
             return None
         raise
-    rows = parse_irb110(raw.decode("cp950", errors="replace"))
+    rows = parse(raw.decode("cp950", errors="replace"))
     if not rows:
         return None
-    _write(p, IRB_COLS, rows)
+    _write(p, cols, rows)
     return rows
 
 
-def candidates(cur, prev):
-    """這個月董監有「增加」、或經理人／大股東持股比上個月多的公司（約 350 家）。
-    只賣不買的公司不查：賣出另有每天的事前申報，而且觀測站一家要好幾秒，全部查一個月要近一小時。"""
+def irb110(y, m, mkt):
+    return irb_report("irb110", y, m, mkt)
+
+
+def irb130(y, m, mkt):
+    return irb_report("irb130", y, m, mkt)
+
+
+def candidates(cur, prev, pledge=None, pledge_prev=None):
+    """這個月內部人持股或質押有變動的公司（約 700～800 家）：董監有增加或減少、經理人／大股東持股跟上個月不同，
+    或董監有設質／解質、經理人＋大股東的設質股數跟上個月不同。觀測站一家要好幾秒，一個月約 50 分鐘，分兩天查完。"""
     before = {r["code"]: r for r in prev or []}
+    pl = {r["code"]: r for r in pledge or []}
+    pl0 = {r["code"]: r for r in pledge_prev or []}
     out = []
     for r in cur:
-        p = before.get(r["code"])
-        if r["ds_add"] or (p and (r["mgr_held"] > p["mgr_held"] or r["major_held"] > p["major_held"])):
+        p, g, g0 = before.get(r["code"]), pl.get(r["code"]), pl0.get(r["code"])
+        if (r["ds_add"] or r["ds_sub"]
+                or (p and (r["mgr_held"] != p["mgr_held"] or r["major_held"] != p["major_held"]))
+                or (g and (g["ds_padd"] or g["ds_psub"] or (g0 and g["mm_pledged"] != g0["mm_pledged"])))):
             out.append(r)
     return out
 
@@ -140,6 +183,7 @@ def candidates(cur, prev):
 # query6_1 的 24 欄（titles 有完整名稱）
 I_ROLE, I_NAME, I_KIND, I_PREV = 0, 1, 2, 4
 I_ADD_MKT, I_ADD_OTHER, I_SUB_MKT, I_SUB_OTHER, I_NOW, I_PLEDGE, I_NOTE = 8, 9, 13, 14, 18, 21, 23
+I_PLEDGE_ADD, I_PLEDGE_SUB = 12, 17   # 本月增加／減少 底下的「設定質權股數」「解除質權股數」
 
 
 def mops(api, body):
@@ -151,8 +195,11 @@ def mops(api, body):
 
 def parse_query6(res, y, m, market, code, company):
     """事後申報表 → 有變動的內部人。同一人兼多個身分只留一列（身分用「、」合併）。"""
-    titles = [t.get("main", "") for t in res.get("titles") or []]
-    if titles and (len(titles) < 14 or "本月增加" not in titles[8] or "本月實際自有持有股數" not in titles[10]):
+    raw_titles = res.get("titles") or []
+    titles = [t.get("main", "") for t in raw_titles]
+    subs = lambda i: "".join(s.get("main", "") for s in raw_titles[i].get("sub") or [])  # noqa: E731
+    if titles and (len(titles) < 14 or "本月增加" not in titles[8] or "本月實際自有持有股數" not in titles[10]
+                   or "設定質權" not in subs(8) or "解除質權" not in subs(9)):
         raise C.AdapterError(f"query6_1 {code} 欄位變了：{titles}")
     month = f"{y}-{m:02d}"
     out, seen, principal = [], {}, ""
@@ -170,12 +217,14 @@ def parse_query6(res, y, m, market, code, company):
             continue
         vals = {"held_prev": _int(row[I_PREV]), "buy_mkt": _int(row[I_ADD_MKT]), "buy_other": _int(row[I_ADD_OTHER]),
                 "sell_mkt": _int(row[I_SUB_MKT]), "sell_other": _int(row[I_SUB_OTHER]),
-                "held_now": _int(row[I_NOW]), "pledged": _int(row[I_PLEDGE])}
-        if not (vals["buy_mkt"] or vals["buy_other"] or vals["sell_mkt"] or vals["sell_other"]):
+                "held_now": _int(row[I_NOW]), "pledged": _int(row[I_PLEDGE]),
+                "pledge_add": _int(row[I_PLEDGE_ADD]), "pledge_sub": _int(row[I_PLEDGE_SUB])}
+        if not any(vals[k] for k in ("buy_mkt", "buy_other", "sell_mkt", "sell_other", "pledge_add", "pledge_sub")):
             continue
         short_role = re.sub(r"之配偶及未成年子女$", "", role).replace("本人", "")
         # 同一人（或同一家投資公司）兼多個身分、或「利用他人名義持有」另列一行時，同一筆買賣會重複出現，只記一次
-        key = (re.sub(r"\s+", " ", who).upper(), vals["buy_mkt"], vals["buy_other"], vals["sell_mkt"], vals["sell_other"])
+        key = (re.sub(r"\s+", " ", who).upper(), vals["buy_mkt"], vals["buy_other"], vals["sell_mkt"], vals["sell_other"],
+               vals["pledge_add"], vals["pledge_sub"])
         if key in seen:
             r = seen[key]
             if short_role not in r["role"].split("、"):
@@ -189,16 +238,21 @@ def parse_query6(res, y, m, market, code, company):
     return out
 
 
+def _dup_key(r):
+    return (r["code"], r["buy_mkt"], r["buy_other"], r["sell_mkt"], r["sell_other"],
+            r.get("pledge_add", 0), r.get("pledge_sub", 0))
+
+
 def mark_dups(rows):
     """配偶列的買賣和同公司另一位內部人本人完全相同 → 視為同一筆（夫妻都是內部人），dup 填那個人。"""
     own = {}
     for r in rows:
         if "(配偶/子女)" not in r["name"]:
-            own.setdefault((r["code"], r["buy_mkt"], r["buy_other"], r["sell_mkt"], r["sell_other"]), r["name"])
+            own.setdefault(_dup_key(r), r["name"])
     for r in rows:
         r.setdefault("dup", "")
         if "(配偶/子女)" in r["name"]:
-            who = own.get((r["code"], r["buy_mkt"], r["buy_other"], r["sell_mkt"], r["sell_other"]))
+            who = own.get(_dup_key(r))
             if who and who != r["name"].replace("(配偶/子女)", ""):
                 r["dup"] = who
     return rows
@@ -213,16 +267,16 @@ def fetch_month(y, m, force=False, deadline=None):
     py, pm = ym_add((y, m), -1)
     cand = []
     for mkt in ("sii", "otc"):
-        cur = irb110(y, m, mkt)
-        if cur is None:
-            print(f"{y}-{m:02d} {mkt} 股權異動彙總表還沒公布", flush=True)
+        cur, pledge = irb110(y, m, mkt), irb130(y, m, mkt)
+        if cur is None or pledge is None:
+            print(f"{y}-{m:02d} {mkt} 股權異動／質權設定彙總表還沒公布", flush=True)
             return False
-        prev = irb110(py, pm, mkt)
-        cand += [(mkt, r["code"], r["company"]) for r in candidates(cur, prev)]
-    rows = [{**r, **{k: _int(r[k]) for k in TRADE_COLS[6:13]}} for r in _read(part_p)]
+        prev, pledge_prev = irb110(py, pm, mkt), irb130(py, pm, mkt)
+        cand += [(mkt, r["code"], r["company"]) for r in candidates(cur, prev, pledge, pledge_prev)]
+    rows = [{**r, **{k: _int(r.get(k)) for k in TRADE_INTS}} for r in _read(part_p)]
     done = set(done_p.read_text(encoding="utf-8").split()) if done_p.exists() else set()
     todo = [c for c in cand if c[1] not in done]
-    print(f"{y}-{m:02d}：內部人持股增加的公司 {len(cand)} 家（已查 {len(done)}），逐家查事後申報表", flush=True)
+    print(f"{y}-{m:02d}：內部人持股或質押有變動的公司 {len(cand)} 家（已查 {len(done)}），逐家查事後申報表", flush=True)
     failed = []
 
     def save_part():

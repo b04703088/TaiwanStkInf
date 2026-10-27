@@ -24,9 +24,25 @@ class Irb110Test(unittest.TestCase):
     def test_candidates(self):
         base = {"ds_add": 0, "ds_sub": 0, "mgr_held": 10, "major_held": 0}
         cur = [{"code": "A", **base}, {"code": "B", **base, "ds_add": 5}, {"code": "C", **base, "mgr_held": 11},
-               {"code": "D", **base}]
-        prev = [{"code": "A", **base}, {"code": "C", **base}]
-        self.assertEqual([r["code"] for r in F.candidates(cur, prev)], ["B", "C"])
+               {"code": "D", **base}, {"code": "E", **base, "ds_sub": 3}, {"code": "F", **base, "mgr_held": 9},
+               {"code": "G", **base}, {"code": "H", **base}]
+        prev = [{"code": c, **base} for c in "ACFGH"]
+        pb = {"ds_padd": 0, "ds_psub": 0, "mm_pledged": 0}
+        pledge = [{"code": "G", **pb, "ds_psub": 100}, {"code": "H", **pb, "mm_pledged": 5}, {"code": "A", **pb}]
+        pledge_prev = [{"code": "H", **pb}, {"code": "A", **pb}]
+        # 只賣（E）、經理人減少（F）、董監解質（G）、大股東質押變動（H）都要查
+        self.assertEqual([r["code"] for r in F.candidates(cur, prev, pledge, pledge_prev)], list("BCEFGH"))
+        self.assertEqual([r["code"] for r in F.candidates(cur, prev)], list("BCEF"))
+
+    def test_parse_irb130(self):
+        page = ("<TR><TD>公 司 名 稱</TD><TD>x</TD></TR>"
+                "<TR><TD>1110東南水泥股份有限</TD><TD> 186,281,467</TD><TD> 0</TD><TD> 1,000</TD><TD> 40,000,000</TD>"
+                "<TD> 21.47</TD><TD> 2,163</TD><TD> 80,496,816</TD><TD> 40,000,000</TD><TD> 49.69</TD></TR>")
+        rows = F.parse_irb130(page)
+        self.assertEqual(len(rows), 1)
+        r = rows[0]
+        self.assertEqual((r["code"], r["ds_padd"], r["ds_psub"], r["ds_pledged"], r["ds_ppct"]), ("1110", 0, 1000, 40000000, 21.47))
+        self.assertEqual((r["major_held"], r["mm_pledged"], r["mm_ppct"]), (80496816, 40000000, 49.69))
 
     def test_ym_add(self):
         self.assertEqual(F.ym_add((2026, 1), -1), (2025, 12))
@@ -48,6 +64,15 @@ class Query6Test(unittest.TestCase):
         self.assertNotIn("林全", by)
         # 同一人多個身分只留一列
         self.assertEqual(len([r for r in rows if r["name"] == z["name"]]), 1)
+        self.assertTrue(all("pledge_add" in r and "pledge_sub" in r for r in rows))
+
+    def test_pledge_only_row_kept(self):
+        res = json.loads((FIX / "query6_1_2330_11508.json").read_text(encoding="utf-8"))["result"]
+        row = list(res["data"][0])
+        row[F.I_PLEDGE_ADD], row[F.I_PLEDGE] = "500,000", "2,100,000"
+        rows = F.parse_query6({**res, "data": [row]}, 2026, 8, "sii", "2330", "台積電")
+        self.assertEqual(len(rows), 1)
+        self.assertEqual((rows[0]["pledge_add"], rows[0]["pledge_sub"], rows[0]["pledged"]), (500000, 0, 2100000))
 
     def test_spouse_mirror_marked(self):
         base = {"code": "1", "buy_other": 0, "sell_other": 0}
@@ -97,10 +122,11 @@ class MonthResumeTest(unittest.TestCase):
         base = {"company": "x", "issued": 1, "ds_sub": 0, "ds_held": 1, "ds_pct": 1.0, "mgr_held": 0, "major_held": 0}
         cur = [{"code": c, **base, "ds_add": 1} for c in ("2330", "2331", "2332")]
         calls = []
-        olds = (F.OUT, F.irb110, F.mops, F.DELAY)
+        olds = (F.OUT, F.irb110, F.irb130, F.mops, F.DELAY)
         with tempfile.TemporaryDirectory() as d:
             F.OUT, F.DELAY = Path(d), 0
             F.irb110 = lambda y, m, mkt: cur if mkt == "sii" else []
+            F.irb130 = lambda y, m, mkt: []
             F.mops = lambda api, body: calls.append(body["companyId"]) or res
             try:
                 self.assertFalse(F.fetch_month(2026, 8, deadline=1))      # 時間已到：一家都不查，存進度
@@ -113,7 +139,7 @@ class MonthResumeTest(unittest.TestCase):
                 self.assertTrue(F.fetch_month(2026, 8))                   # 已完成：不再查
                 self.assertEqual(len(calls), 3)
             finally:
-                F.OUT, F.irb110, F.mops, F.DELAY = olds
+                F.OUT, F.irb110, F.irb130, F.mops, F.DELAY = olds
 
 
 if __name__ == "__main__":

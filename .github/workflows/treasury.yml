@@ -1,11 +1,7 @@
 name: Fetch treasury stock
 
 on:
-  schedule:
-    # 台北 08:37、19:37（UTC 00:37、11:37），週一至週五。
-    # 觀測站彙總表在公司申報後更新；董事會多在下午或晚上決議，晚上那次抓當天的新計畫。
-    - cron: "37 0 * * 1-5"
-    - cron: "37 11 * * 1-5"
+  # 例行排程已併到 batch.yml；這裡只留手動回補
   workflow_dispatch:
     inputs:
       since:

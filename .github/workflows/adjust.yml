@@ -2,7 +2,7 @@ name: Fetch adjust events
 
 # 還原股價用的除權息／減資／面額變更／ETF 分割事件（fetch_adjust.py → data/adjust/）
 on:
-  # 每日例行更新已併到 alert.yml（台北 18:47／07:47 跟處置股一起抓）；這裡只留手動回補
+  # 每日例行更新已併到 batch.yml 傍晚時段；這裡只留手動回補
   workflow_dispatch:
     inputs:
       since:

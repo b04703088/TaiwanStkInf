@@ -28,11 +28,6 @@
   .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
   .brand-mark{font-family:'Noto Serif TC',serif; font-size:22px; font-weight:700;}
   .brand-sub{font-size:12px; color:var(--text-faint);}
-  nav.links{display:flex; gap:20px; font-size:14px;}
-  nav.links a{text-decoration:none; color:var(--text-muted);}
-  nav.links a:hover{color:var(--brass);}
-  nav.links a[aria-current="page"]{color:var(--brass);}
-  .nav-cta{font-size:13px; color:var(--ink); background:var(--brass); padding:8px 16px; border-radius:var(--radius-s); text-decoration:none; font-weight:500;}
   .page-head{padding:56px 0 8px;}
   .eyebrow{font-size:13px; color:var(--brass); margin-bottom:10px;}
   h1{font-size:32px;}
@@ -97,10 +92,17 @@
   .day .d .wd{font-size:12px; color:var(--text-muted);}
   .day .d .rel{font-size:11.5px; color:var(--brass);}
   .day.past .d .md{color:var(--text-muted);}
-  .day .items{padding:8px 14px; display:flex; flex-wrap:wrap; gap:6px 18px; align-content:flex-start;}
-  .it{font-size:13.5px; display:inline-flex; align-items:baseline; gap:6px; white-space:nowrap;}
+  .day .items{padding:2px 14px; min-width:0;}
+  /* 每個事件一列：類別｜股票｜時間地點或金額｜主旨 */
+  .it{font-size:13.5px; display:grid; grid-template-columns:62px minmax(8.5em, 11em) minmax(0, 1fr) minmax(0, 1.2fr); gap:4px 12px; align-items:baseline; padding:8px 0; border-bottom:1px dashed var(--line);}
+  .it:last-child{border-bottom:none;}
+  .it:hover{background:rgba(232,237,242,0.03);}
+  .it .tag{justify-self:start;}
+  .it .sname{white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .it .sname .mono{margin-left:4px;}
-  .it .nt{font-size:12px; color:var(--text-faint);}
+  .it .nt{font-size:12.5px; color:var(--text-muted); line-height:1.5;}
+  .it .sj{font-size:12px; color:var(--text-faint); line-height:1.5; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .it.more-it{display:block; padding:9px 0;}
   .day.today .d{box-shadow:inset 3px 0 0 var(--brass);}
   /* 查個股 */
   .search{position:relative; max-width:460px;}
@@ -135,11 +137,18 @@
   footer.site{padding:48px 0; margin-top:64px; border-top:1px solid var(--line);}
   @media (max-width:860px){
     .nav-row{padding:14px 16px; flex-wrap:wrap; row-gap:10px;}
-    nav.links{order:3; width:100%; gap:20px; overflow-x:auto; white-space:nowrap; font-size:13.5px; scrollbar-width:none;}
     .wrap{padding:0 16px;}
     .stats{grid-template-columns:repeat(2,1fr);} h1{font-size:26px;}
     .hide-s{display:none;}
     td.wrap-cell{min-width:0;}
+    .day{grid-template-columns:72px 1fr;}
+    .day .d{padding:10px 10px;}
+    .day .d .md{font-size:15px;}
+    .day .items{padding:0 12px;}
+    .it{grid-template-columns:auto minmax(0, 1fr); gap:3px 8px;}
+    .it .nt, .it .sj{grid-column:1 / -1;}
+    .it .sj{white-space:normal;}
+    .it .nt:empty, .it .sj:empty{display:none;}
     th, td{padding:8px 10px;}
     .day{grid-template-columns:84px 1fr;}
     .day .d{padding:10px;}
@@ -156,26 +165,10 @@
 <header class="site">
   <div class="nav-row">
     <a href="index.html" class="brand"><span class="brand-mark">潮汐</span><span class="brand-sub">籌碼觀測站</span></a>
-    <nav class="links">
-      <a href="index.html">首頁</a>
-      <a href="ranking.html">成交排行</a>
-      <a href="industry.html">產業分類</a>
-      <a href="broker.html">分點籌碼</a>
-      <a href="etf.html">ETF持股</a>
-      <a href="cb.html">CB詢圈</a>
-      <a href="treasury.html">庫藏股</a>
-      <a href="margin.html">融資融券</a>
-      <a href="analyst.html">外資報告</a>
-      <a href="alert.html">處置注意</a>
-      <a href="news.html" aria-current="page">重大訊息</a>
-      <a href="fin.html">財報</a>
-      <a href="kline.html">K線</a>
-      <a href="index.html#quant">量化策略</a>
-      <a href="health.html">資料健檢</a>
-    </nav>
-    <a href="index.html#cta" class="nav-cta">開始追蹤</a>
+    <nav class="gnav"></nav>
   </div>
 </header>
+<script src="nav.js"></script>
 <main class="wrap">
   <section class="page-head">
     <div class="eyebrow">重大訊息</div>
@@ -278,9 +271,9 @@ function renderWatch(){
 function calItems(){
   const out = MEETS.map(m => ({d: m.ev_date, code: m.code, name: m.name, kind: m.ev_kind === "法說會" ? "call" : "shm",
     label: m.ev_kind === "法說會" ? "法說" : m.ev_kind === "臨時會" ? "臨時會" : "股東會", ev: m.ev_kind, note: m.ev_note,
-    title: `${m.subject}（${m.date} 公告）${m.ev_note ? "\n" + m.ev_note : ""}`, link: m.link}));
+    title: `${m.subject}（${m.date} 公告）${m.ev_note ? "\n" + m.ev_note : ""}`, link: m.link, sj: m.subject ? `${m.date ? m.date.slice(5) + " 公告・" : ""}${m.subject}` : ""}));
   for (const v of DIVS) out.push({d: v.ex_date, code: v.code, name: v.name, kind: "div", label: v.kind, ev: "div",
-    note: [v.cash ? `現金 ${num(v.cash)}` : "", v.stock ? `股票 ${num(v.stock)}` : ""].filter(Boolean).join("・"), title: `${v.kind}交易日 ${v.ex_date}`});
+    note: [v.cash ? `現金 ${num(v.cash)}` : "", v.stock ? `股票 ${num(v.stock)}` : ""].filter(Boolean).join("・"), title: `${v.kind}交易日 ${v.ex_date}`, sj: v.pay_date ? `發放日 ${v.pay_date}` : ""});
   return out;
 }
 function renderCal(){
@@ -298,16 +291,17 @@ function renderCal(){
     const n = diff(d, TODAY), wd = WD[new Date(d + "T00:00:00Z").getUTCDay()];
     const rel = n === 0 ? "今天" : n === 1 ? "明天" : n > 0 ? `${n} 天後` : `${-n} 天前`;
     const all = by.get(d).sort((a, b) => WATCH.has(b.code) - WATCH.has(a.code)), cap = OPEN.has(d) ? all.length : DAYCAP;
-    const items = all.slice(0, cap).map(m => `<span class="it" data-c="${esc(m.code)}" title="${esc(m.title)}">
+    const items = all.slice(0, cap).map(m => `<div class="it" data-c="${esc(m.code)}" title="${esc(m.title)}">
       <span class="tag ${m.kind === "div" ? "dv" : m.kind}">${esc(m.label)}</span>
-      ${stockCell(m.code, m.name)}${m.note ? `<span class="nt">${esc(m.note.length > 20 ? m.note.slice(0, 19) + "…" : m.note)}</span>` : ""}</span>`).join("")
-      + (all.length > cap ? `<span class="it more-it" data-d="${d}">還有 ${all.length - cap} 項 ▾</span>` : "");
+      ${stockCell(m.code, m.name)}<span class="nt">${esc(m.note || "")}${m.link ? `<a class="lnk" href="${esc(m.link)}" target="_blank" rel="noopener">${m.link.includes("/nas/STR/") ? "簡報" : "影音"}</a>` : ""}</span>
+      <span class="sj">${esc(m.sj || "")}</span></div>`).join("")
+      + (all.length > cap ? `<div class="it more-it" data-d="${d}">還有 ${all.length - cap} 項 ▾</div>` : "");
     return `<div class="day${n < 0 ? " past" : ""}${n === 0 ? " today" : ""}"><div class="d"><div class="md">${d.slice(5)}</div>
       <div class="wd">週${wd}・${all.length} 項</div><div class="rel">${rel}</div></div><div class="items">${items}</div></div>`;
   }).join("") || `<div class="empty" style="padding:20px">沒有符合的項目</div>`;
   document.getElementById("cal-more").hidden = days.length <= C.n;
   document.querySelectorAll(".more-it").forEach(el => el.onclick = () => { OPEN.add(el.dataset.d); renderCal(); });
-  document.querySelectorAll("#agenda .it[data-c]").forEach(el => el.onclick = () => pickStock(el.dataset.c, true));
+  document.querySelectorAll("#agenda .it[data-c]").forEach(el => el.onclick = e => { if (!e.target.closest("a")) pickStock(el.dataset.c, true); });
 }
 
 /* 重訊列表 */
@@ -469,6 +463,5 @@ fetch("data/mops/mops.json", {cache: "no-cache"}).then(r => { if (!r.ok) throw n
   addEventListener("hashchange", () => fromHash(true));
 }).catch(e => { console.error(e); document.getElementById("sub").textContent = "資料載入失敗"; });
 </script>
-<script>(function(){var a=document.querySelector('nav.links a[aria-current="page"]');if(a&&a.parentNode.scrollWidth>a.parentNode.clientWidth){a.parentNode.scrollLeft=a.offsetLeft-a.parentNode.offsetLeft-16;}})();</script>
 </body>
 </html>

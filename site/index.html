@@ -70,16 +70,6 @@
   .brand{display:flex; align-items:baseline; gap:10px;}
   .brand-mark{font-family:'Noto Serif TC',serif; font-size:22px; font-weight:700; color:var(--text);}
   .brand-sub{font-size:12px; color:var(--text-faint);}
-  nav.links{display:flex; gap:20px; font-size:14px;}
-  nav.links a{text-decoration:none; color:var(--text-muted); transition:color .15s ease;}
-  nav.links a:hover{color:var(--brass);}
-  nav.links a[aria-current="page"]{color:var(--brass);}
-  .nav-cta{
-    font-size:13px; color:var(--ink); background:var(--brass);
-    padding:8px 16px; border-radius:var(--radius-s); text-decoration:none;
-    font-weight:500;
-  }
-  .nav-toggle{display:none;}
 
   /* ---------- hero ---------- */
   .hero{padding:76px 0 0;}
@@ -217,8 +207,6 @@
   @media (max-width: 860px){
     .nav-row{padding:14px 20px;}
     .nav-row{flex-wrap:wrap; row-gap:10px;}
-    nav.links{display:flex; order:3; width:100%; gap:20px; overflow-x:auto; white-space:nowrap; font-size:13.5px; padding-bottom:2px; scrollbar-width:none;}
-    nav.links::-webkit-scrollbar{display:none;}
     .hero{padding:52px 0 0;}
     .hero-grid{grid-template-columns:1fr; gap:34px;}
     .hero h1{font-size:32px;}
@@ -346,26 +334,10 @@
       <span class="brand-mark">潮汐</span>
       <span class="brand-sub">籌碼觀測站</span>
     </div>
-    <nav class="links">
-      <a href="index.html" aria-current="page">首頁</a>
-      <a href="ranking.html">成交排行</a>
-      <a href="industry.html">產業分類</a>
-      <a href="broker.html">分點籌碼</a>
-      <a href="etf.html">ETF持股</a>
-      <a href="cb.html">CB詢圈</a>
-      <a href="treasury.html">庫藏股</a>
-      <a href="margin.html">融資融券</a>
-      <a href="analyst.html">外資報告</a>
-      <a href="alert.html">處置注意</a>
-      <a href="news.html">重大訊息</a>
-      <a href="fin.html">財報</a>
-      <a href="kline.html">K線</a>
-      <a href="#quant">量化策略</a>
-      <a href="health.html">資料健檢</a>
-    </nav>
-    <a href="#cta" class="nav-cta">開始追蹤</a>
+    <nav class="gnav"></nav>
   </div>
 </header>
+<script src="nav.js"></script>
 
 <main>
   <section class="home">
@@ -414,6 +386,9 @@
         <a href="etf.html"><b>ETF持股</b><span>個股被哪些 ETF 持有、每日持股變化、AUM 排行、指數行事曆、換股時長</span></a>
         <a href="cb.html"><b>CB詢圈</b><span>可轉債從董事會、送件到詢圈、掛牌的時間軸</span></a>
         <a href="alert.html"><b>處置注意</b><span>處置中、明天可能處置與每日注意股</span></a>
+        <a href="chips.html"><b>法人籌碼</b><span>三大法人買賣超與連買、借券賣出增減、當沖比率、集保千張大戶週增減</span></a>
+        <a href="futures.html"><b>期權籌碼</b><span>外資台指期與選擇權未平倉、P/C Ratio、前十大交易人</span></a>
+        <a href="screen.html"><b>選股</b><span>技術面、營收財報、籌碼條件混搭篩選；除權息與填息紀錄</span></a>
         <a href="margin.html"><b>融資融券</b><span>是不是在殺融資：大盤融資餘額與估計維持率、個股融資增減與斷頭壓力</span></a>
         <a href="treasury.html"><b>庫藏股</b><span>公司買回自家股票：執行中的計畫、價格區間、實際買回結果</span></a>
         <a href="news.html"><b>重大訊息</b><span>股東會、法說會、除權息行事曆，個股時間軸與關注清單，每天上市櫃重訊</span></a>
@@ -439,7 +414,6 @@
   </div>
 </footer>
 
-<script>(function(){var a=document.querySelector('nav.links a[aria-current="page"]');if(a&&a.parentNode.scrollWidth>a.parentNode.clientWidth){a.parentNode.scrollLeft=a.offsetLeft-a.parentNode.offsetLeft-16;}})();</script>
 <script>
 // 標題下方：最新交易日，config/broker_watch.csv 裡所有分點加總後，淨買超或淨賣超 ≥ 5000 萬的個股（不含 ETF）
 (async function () {

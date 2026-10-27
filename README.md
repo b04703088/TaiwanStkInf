@@ -113,26 +113,12 @@ ETF持股的子頁「指數行事曆」`calendar.html`（`scripts/calendar_site.
 - `.github/workflows/pages.yml`：固定時段統一重建部署（台北 平日 08:53、14:03、20:03、23:03，週六 12:03），抓資料的 workflow 只 commit 不觸發部署；改了 `site/` 或網頁程式 push 到 main 時也會立即重建
   - repo variable `DEPLOY_TARGET=cloudflare` 時部署到 Cloudflare Pages（需要 secrets `CLOUDFLARE_API_TOKEN`、`CLOUDFLARE_ACCOUNT_ID`；專案名稱預設 `tide-stk-infs`，可用 variable `CF_PAGES_PROJECT` 改）；沒設時部署到 GitHub Pages
 
-## 同步到 Firebase（Firestore）
-
-每次抓到新資料後，workflow 會用 `upload_firestore.py` 把這次新增的 CSV 寫進 Firestore：
-
-- `stock_prices/{code}/daily/{YYYY-MM-DD}`：每檔每日一筆
-- `daily_snapshots/{YYYY-MM-DD}`：當日全市場一份，`data` 欄位是 JSON 字串（`{columns, rows}`），前端用 `JSON.parse` 讀
-- `jobs/firestore_upload`：最後一次上傳狀態
-
-啟用方式：Firebase Console → 專案設定 → 服務帳戶 → 產生私密金鑰，把整份 JSON 貼到 GitHub repo 的
-Settings → Secrets and variables → Actions → `FIREBASE_SERVICE_ACCOUNT`。沒設定就自動略過。
-
-一天約 2,000 次寫入，Firestore 免費額度每天 20,000 次，所以一次最多上傳最新 5 天（`--max-files`）。
-
 ## 本機執行
 
 ```bash
 python fetch_daily.py                                   # 今天
 python fetch_daily.py --date 2026-09-23                 # 指定日期
 python fetch_daily.py --start 2026-09-01 --end 2026-09-23   # 回補
-python upload_firestore.py --latest 5                   # 把最新 5 天寫進 Firestore（需憑證）
 python -m unittest discover tests                       # 測試
 ```
 
@@ -158,7 +144,12 @@ python -m unittest discover tests                       # 測試
 
 - `fetch_broker_watch.py`：富邦「分點明細查詢」，每個分點每天買超、賣超各前 50 檔，金額（仟元）與張數
 - 輸出 `data/broker/watch/<YYYY>/<YYYYMMDD>.csv`：`date, bid, branch, code, name, buy_amt, sell_amt, net_amt, buy_sh, sell_sh, net_sh`
-- 網站 `watch.html`（分點籌碼 → 重點分點）：選取分點的買賣超金額加總排行，可選當日／近 5、10、20 日，可只看部分分點；另有「大額買賣超清單」：當日 >5,000 萬、近 5 日 >1 億、近 20 日 >3 億的買超／賣超股票
+- 網站 `watch.html`（分點籌碼 → 重點分點）：選取分點的買賣超金額加總排行，可選當日／近 5、10、20 日，可只看部分分點；另有「大額買賣超清單」：當日 >5,000 萬、近 5 日 >1 億、近 20 日 >3 億的買超／賣超股票；點股票會跳出選取分點近 20 個交易日每天對這檔的買賣超
+
+### 地方主力分點
+
+網站 `local.html`（分點籌碼 → 地方主力）：全市場每檔前 15 大分點中，排除外資券商（`scripts/broker_site.py` 的 `FOREIGN`）、凱基-台北、各券商總公司，剩下的分點依淨買超金額排行，可選當日／近 5、10、20 日。
+金額以淨張數 × 收盤價估算；另列買超檔數、集中度（買超最多一檔的佔比）、淨買天數、分點評分分類，可排除隔日沖、只看買超 ≤ 10 檔的集中買進分點。另列估計損益（期間內以每天收盤價買賣、到最新收盤的市值變化）與分點評分的 5 日超額報酬、勝率。資料由 `build_site.py` 產生 `data/broker/local.json`。
 
 ### 分點評分與分類（波段高手／隔日沖／反指標）
 
@@ -356,6 +347,28 @@ python fetch_financials.py --revenue 2026-09      # 某月營收
 python fetch_financials.py --quarter 2026Q2       # 某季財報
 python fetch_financials.py --since 2013-01 --max-minutes 50
 ```
+
+## 法人籌碼（三大法人、借券賣出、當沖、集保大戶）
+
+`fetch_chips.py` 每個交易日抓三大法人買賣超（證交所 T86、櫃買 insti/dailyTrade）、借券賣出（信用額度總量管制餘額表 TWT93U、櫃買 margin/sbl）、
+現股當沖（TWTB4U、櫃買 intraday/stat），合併成 `data/chips/<YYYY>/<YYYYMMDD>.csv`（單位：股）。當沖數字 T+2 才定案，排程 `--refresh 4` 會重抓最近 4 天。
+`fetch_tdcc.py` 每週六抓集保結算所股權分散表（開放資料 1-5，只有最新一週，靠每週累積），整理成千張大戶、400 張以上、50 張以下持股比例與股東人數，存 `data/tdcc/<YYYYMMDD>.csv`。
+併在 `.github/workflows/batch.yml`：平日晚上 21:40 時段抓法人／借券／當沖與期交所，週末早上抓集保。已回補 2025-10 起的法人／借券／當沖。
+
+網站「法人籌碼」頁（`site/chips.html`，資料由 `scripts/chips_site.py` 產生）：大盤每日買賣超、三大法人排行（今日／5 日／20 日／連買連賣天數）、
+借券賣出增減與回補天數、當沖率排行、集保大戶週增減，點股票看近 20 日明細。金額以張數 × 收盤估算。
+
+## 期貨選擇權籌碼
+
+`fetch_futures.py` 從期交所下載專區（一次一個月）抓三大法人台指期／小台／微台與臺指選擇權未平倉、Put/Call Ratio、台指期大額交易人、台指期近月行情，
+存 `data/futures/{inst,pcr,large,tx}.csv`，隨 `batch.yml` 平日晚上時段執行；已回補 2024 年起。網站「期權籌碼」頁（`site/futures.html`）：
+外資未平倉淨口數（大台＋小台／4＋微台／20）、外資選擇權淨額、P/C Ratio、前十大特定法人，和台指期走勢對照。
+
+## 選股（條件篩選、除權息填息）
+
+網站「選股」頁（`site/screen.html`，資料由 `scripts/screen_site.py` 產生 `data/screen/screen.json`、`div.json`）把每檔的技術面（還原價算報酬、均線、
+52 週新高、量增突破、均線糾結）、營收財報（營收創新高、連續年增、毛利率／營益率年增、本益比、殖利率、ROE）與籌碼（法人連買、借券回補、當沖率、千張大戶）
+放在一起，勾選多個條件取交集。「除權息與填息」分頁列出即將除權息、最近除權息的填息進度，以及近兩年的填息紀錄（填息＝除權息日起第一個收盤 ≥ 除權息前收盤）。
 
 ## 資料健檢
 

@@ -1,11 +1,7 @@
 name: Fetch insider trading
 
 on:
-  schedule:
-    # 股權異動彙總表約每月 22 日公布上個月 → 每月 18～28 日台北 19:07 檢查；已抓過就幾秒結束。
-    # 每月約一次查 350 家公司的事後申報表（約 25 分鐘），時間到會存進度、隔天接著查。
-    # 事前申報（每天）跟著 broker.yml 抓，不在這裡。
-    - cron: "7 11 18-28 * *"
+  # 例行排程已併到 batch.yml；這裡只留手動回補
   workflow_dispatch:
     inputs:
       month:
@@ -22,7 +18,7 @@ concurrency:
 jobs:
   fetch:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
 
@@ -34,7 +30,7 @@ jobs:
         env:
           IN_MONTH: ${{ inputs.month }}
         run: |
-          args=(--skip-transfer --max-minutes 35)
+          args=(--skip-transfer --max-minutes 50)
           [ -n "$IN_MONTH" ] && args+=(--month "$IN_MONTH")
           python fetch_insider.py "${args[@]}"
 

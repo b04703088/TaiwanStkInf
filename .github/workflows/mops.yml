@@ -1,13 +1,7 @@
 name: Fetch MOPS news
 
 on:
-  schedule:
-    # 台北 08:37、17:37、22:37（UTC 00:37、09:37、14:37），週一至週五；重訊多在盤後到晚上發布
-    - cron: "37 0 * * 1-5"
-    - cron: "37 9 * * 1-5"
-    - cron: "37 14 * * 1-5"
-    # 週六補抓週五深夜的重訊
-    - cron: "37 1 * * 6"
+  # 例行排程已併到 batch.yml；這裡只留手動回補
   workflow_dispatch:
     inputs:
       since:
