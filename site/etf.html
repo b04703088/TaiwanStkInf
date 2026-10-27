@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0E1620">
 <title>ETF持股｜潮汐</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -293,7 +294,16 @@
   .mode{font-size:11px; color:var(--text-faint); border:1px solid var(--line-strong); border-radius:2px; padding:1px 6px; vertical-align:3px;}
   .chip-group{margin-top:40px;}
   .cat{font-size:11.5px; color:var(--text-muted); white-space:nowrap;}
-  #aumTable .bar-track{width:90px;}
+  #aumTable .bar-track{width:56px;}
+  /* AUM 排行 13 欄：縮小間距、表頭可換行，1280px 內不必橫向捲動 */
+  #aumTable{font-size:13.5px;}
+  #aumTable th, #aumTable td{padding-left:6px; padding-right:6px;}
+  #aumTable td:nth-child(2){white-space:normal; min-width:9.5em;}
+  #aumTable .kind{display:inline-block; white-space:nowrap;}
+  #aumTable th{line-height:1.35; vertical-align:bottom;}
+  #aumTable th button{text-align:inherit;}
+  @media (max-width:1180px){ #aumTable .col-mid{display:none;} }
+  @media (max-width:1000px){ #aumTable .col-lo{display:none;} }
   .aum-v{display:inline-flex; flex-direction:column; align-items:flex-end; line-height:1.25; min-width:6.5em;}
   .aum-v b{font-weight:600; font-size:14.5px; color:var(--text);}
   .aum-v b small{font-family:'Noto Sans TC',sans-serif; font-weight:400; font-size:11.5px; color:var(--text-muted); margin-left:3px;}
@@ -516,14 +526,14 @@
               <th class="l col-hide" data-sort="cat" data-dir="asc"><button type="button">類型</button></th>
               <th data-sort="aum" title="基金規模 AUM＝受益單位數 × 單位淨值"><button type="button">基金規模</button></th>
               <th class="col-hide" data-sort="nav"><button type="button">淨值</button></th>
-              <th class="col-hide" data-sort="units"><button type="button">受益單位（億）</button></th>
-              <th data-sort="flow"><button type="button">當日流入（億）</button></th>
+              <th class="col-hide col-mid" data-sort="units"><button type="button">受益單位<br>（億）</button></th>
+              <th data-sort="flow"><button type="button">當日流入<br>（億）</button></th>
               <th class="col-hide" data-sort="flow5"><button type="button" id="flow5Label">近 5 日流入（億）</button></th>
-              <th class="col-hide" data-sort="daum"><button type="button">規模變化（億）</button></th>
+              <th class="col-hide col-mid" data-sort="daum"><button type="button">規模變化<br>（億）</button></th>
               <th class="col-hide" data-sort="prem"><button type="button">折溢價</button></th>
-              <th class="col-hide" data-sort="prem5" title="近 5 個交易日折溢價平均；長期溢價代表市價買貴了"><button type="button" id="prem5Label">5 日均折溢價</button></th>
-              <th class="col-hide" data-sort="holders" title="集保股權分散表的持有人數（每週更新）"><button type="button">受益人數</button></th>
-              <th class="col-hide" data-sort="dhold" title="受益人數較前一週增減"><button type="button">人數週增減</button></th>
+              <th class="col-hide" data-sort="prem5" title="近 5 個交易日折溢價平均；長期溢價代表市價買貴了"><button type="button" id="prem5Label">5 日均<br>折溢價</button></th>
+              <th class="col-hide col-lo" data-sort="holders" title="集保股權分散表的持有人數（每週更新）"><button type="button">受益人數</button></th>
+              <th class="col-hide" data-sort="dhold" title="受益人數較前一週增減"><button type="button">人數<br>週增減</button></th>
             </tr>
           </thead>
           <tbody id="aumRows"><tr><td colspan="13" class="empty">載入中…</td></tr></tbody>
@@ -910,7 +920,7 @@ async function loadAum() {
   const d = await r.json();
   aum.rows = d.rows.map(x => Object.fromEntries(d.cols.map((c, i) => [c, x[i]]))).map((x, i) => ({ ...x, rank: i + 1 }));
   Object.assign(aum, { date: d.date, prev: d.prev, nFlow: d.n_flow });
-  $("flow5Label").textContent = `近 ${d.n_flow} 日流入（億）`;
+  $("flow5Label").innerHTML = `近 ${d.n_flow} 日流入<br>（億）`;
   $("catSeg").innerHTML = CATS.map(c => `<button type="button" data-v="${c}" aria-pressed="${c === "全部"}">${c}</button>`).join("");
 }
 
@@ -938,13 +948,13 @@ function renderAum() {
       <td class="l col-hide"><span class="cat">${esc(x.cat)}</span></td>
       <td><div class="value-cell"><span class="aum-v mono" title="${fmtN(x.aum / 1e8, 2)} 億元"><b>${fmtAum(x.aum)}</b><small>佔${aum.cat === "全部" ? "全體" : "此類"} ${fmtN(x.aum / total * 100, x.aum / total >= 0.1 ? 1 : 2)}%</small></span><div class="bar-track"><div class="bar-fill" style="width:${(x.aum / maxAum * 100).toFixed(1)}%"></div></div></div></td>
       <td class="mono col-hide flat">${fmtN(x.nav, 2)}</td>
-      <td class="mono col-hide flat">${fmtN(x.units / 1e8, 2)}</td>
+      <td class="mono col-hide col-mid flat">${fmtN(x.units / 1e8, 2)}</td>
       <td class="mono ${cls(x.flow)}">${x.flow ? fmtYiSigned(x.flow) : '<span class="flat">0</span>'}</td>
       <td class="mono col-hide ${cls(x.flow5)}">${x.flow5 ? fmtYiSigned(x.flow5) : '<span class="flat">0</span>'}</td>
-      <td class="mono col-hide ${cls(x.daum)}">${x.daum == null ? "—" : fmtYiSigned(x.daum)}</td>
+      <td class="mono col-hide col-mid ${cls(x.daum)}">${x.daum == null ? "—" : fmtYiSigned(x.daum)}</td>
       <td class="mono col-hide ${cls(x.prem)}">${x.prem == null ? "—" : (x.prem > 0 ? "+" : "") + fmtN(x.prem, 2) + "%"}</td>
       <td class="mono col-hide ${cls(x.prem5)}">${x.prem5 == null ? "—" : (x.prem5 > 0 ? "+" : "") + fmtN(x.prem5, 2) + "%"}</td>
-      <td class="mono col-hide flat">${x.holders == null ? "—" : fmtN(x.holders, 0)}</td>
+      <td class="mono col-hide col-lo flat">${x.holders == null ? "—" : fmtN(x.holders, 0)}</td>
       <td class="mono col-hide ${cls(x.dhold)}">${x.dhold == null ? "—" : (x.dhold > 0 ? "+" : "") + fmtN(x.dhold, 2) + "%"}</td>
     </tr>`).join("")
     : `<tr><td colspan="13" class="empty">沒有符合條件的 ETF</td></tr>`;
