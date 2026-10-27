@@ -24,6 +24,7 @@
   data/chips/chips.json, s/<代號>.json 三大法人、借券賣出、當沖、集保大戶（見 scripts/chips_site.py）
   data/futures.json                  期貨選擇權籌碼：法人未平倉、P/C ratio、大額交易人（見 scripts/futures_site.py）
   data/screen/screen.json, div.json   選股：技術面、營收財報、籌碼條件；除權息與填息（見 scripts/screen_site.py）
+  data/stock/s/<代號>.json           個股綜合查詢：各頁資料裡跟這檔有關的動作（見 scripts/stock_site.py，要最後跑）
   每頁標題旁標示建置時間（＝網站上次更新時間，台北時間），見 stamp_built()
 
 用法：python scripts/build_site.py [--days 120] [--out _site]
@@ -86,6 +87,7 @@ import kline_site  # noqa: E402
 import screen_site  # noqa: E402
 import chips_site  # noqa: E402
 import futures_site  # noqa: E402
+import stock_site  # noqa: E402
 
 TPE = timezone(timedelta(hours=8))
 BRAND_SUB = '<span class="brand-sub">籌碼觀測站</span>'
@@ -155,6 +157,7 @@ def build(out: Path, days: int) -> list[str]:
     chips = chips_site.write_chips(ROOT / "data", out / "data" / "chips")
     screen_site.write_screen(ROOT / "data", out / "data" / "screen", today=datetime.now(TPE).date(), prices=prices,
                              extra={"chips": chips} if chips else None)
+    stock_site.write_stock(out, datetime.now(TPE).date())  # 讀上面各頁剛寫好的 JSON，要放最後
     for page in cb_site.SUBPAGES:  # CB詢圈子頁共用同一個 HTML，由檔名決定顯示哪一頁
         shutil.copy(out / "cb.html", out / page)
     stamp_built(out, datetime.now(timezone.utc))

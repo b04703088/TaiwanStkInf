@@ -41,6 +41,7 @@ on:
       - "scripts/chips_site.py"
       - "scripts/futures_site.py"
       - "scripts/insider_site.py"
+      - "scripts/stock_site.py"
       - ".github/workflows/pages.yml"
   workflow_dispatch: {}
 
