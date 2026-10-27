@@ -478,6 +478,6 @@ fetch("data/calendar.json", { cache: "no-cache" }).then(r => { if (!r.ok) throw 
   $("cal").innerHTML = `<p class="empty" style="grid-column:1/-1;padding:20px">讀取行事曆失敗</p>`;
 });
 </script>
-<script>(function(){var t=document.querySelector('.tabs a[aria-selected="true"]');if(t)t.parentNode.scrollLeft=t.offsetLeft-t.parentNode.offsetLeft-16;var a=document.querySelector('nav.links a[aria-current="page"]');if(a&&a.parentNode.scrollWidth>a.parentNode.clientWidth){a.parentNode.scrollLeft=a.offsetLeft-a.parentNode.offsetLeft-16;}})();</script>
+<script>(function(){var t=document.querySelector('.tabs a[aria-selected="true"]');if(t)t.parentNode.scrollLeft=t.offsetLeft-t.parentNode.offsetLeft-16;var a=document.querySelector('nav.links a[aria-current="page"]');var n=a&&a.closest('nav');if(n&&n.scrollWidth>n.clientWidth){n.scrollLeft=a.offsetLeft-n.offsetLeft-16;}})();</script>
 </body>
 </html>

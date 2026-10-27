@@ -286,6 +286,39 @@ def check(data_dir=ROOT / "data", now=None):
         level = "warn" if (lg or 0) >= AUM_LAG_WARN or n < 100 else "ok"
         add("aum", "aum", "全體 ETF 規模", level, d, f"{n} 檔" + (f"，落後 {lg} 個交易日" if lg else ""), rows=n, lag=lg)
 
+    # ---------- 三大法人、借券、當沖 ----------
+    chip_files = sorted(data_dir.glob("chips/[0-9][0-9][0-9][0-9]/[0-9]*.csv"), key=lambda p: p.name)
+    if not chip_files:
+        add("chips", "chips", "三大法人／借券／當沖", "warn", None, "還沒有籌碼資料")
+    else:
+        rows = _read(chip_files[-1])
+        d = _date(chip_files[-1].stem)
+        lg = lag(d)
+        miss = [k for k, col in (("借券", "sbl_bal"), ("當沖", "dt_vol")) if not any(r.get(col) for r in rows)]
+        level = "warn" if (lg or 0) >= 2 or miss or len(rows) < 1500 else "ok"
+        add("chips", "chips", "三大法人／借券／當沖", level, d,
+            f"{len(rows)} 檔" + (f"，缺{'、'.join(miss)}" if miss else "") + (f"，落後 {lg} 個交易日" if lg else ""), rows=len(rows), lag=lg)
+
+    # ---------- 期貨選擇權 ----------
+    fut = _read(data_dir / "futures" / "inst.csv") if (data_dir / "futures" / "inst.csv").exists() else []
+    if not fut:
+        add("futures", "futures", "期貨選擇權籌碼", "warn", None, "還沒有期交所資料")
+    else:
+        d = max(r["date"] for r in fut)
+        lg = lag(d)
+        add("futures", "futures", "期貨選擇權籌碼", "warn" if (lg or 0) >= 2 else "ok", d,
+            "三大法人未平倉" + (f"，落後 {lg} 個交易日" if lg else ""), lag=lg)
+
+    # ---------- 集保股權分散 ----------
+    tdcc = sorted((data_dir / "tdcc").glob("[0-9]*.csv"))
+    if not tdcc:
+        add("tdcc", "tdcc", "集保大戶持股", "warn", None, "還沒有集保資料（每週六抓）")
+    else:
+        d = _date(tdcc[-1].stem)
+        age = (now.date() - datetime.strptime(d, "%Y-%m-%d").date()).days
+        add("tdcc", "tdcc", "集保大戶持股", "warn" if age > 9 else "ok", d,
+            f"{len(tdcc)} 週" + (f"，已 {age} 天沒更新（每週六更新）" if age > 9 else ""), rows=len(_read(tdcc[-1])))
+
     count = {k: sum(1 for i in items if i["level"] == k) for k in ("ok", "warn", "error")}
     return {"generated": now.strftime("%Y-%m-%d %H:%M"), "expected": expected, "latest_price": latest_price,
             "count": count, "items": items}

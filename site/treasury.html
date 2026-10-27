@@ -445,6 +445,6 @@ Promise.all([
   q.oninput = () => { A.q = q.value.trim().toLowerCase(); A.n = Dn.n = 50; Cn.n = 30; renderActive(); renderCo(); renderDone(); };
 }).catch(e => { console.error(e); document.getElementById("sub").textContent = "資料載入失敗"; });
 </script>
-<script>(function(){var a=document.querySelector('nav.links a[aria-current="page"]');if(a&&a.parentNode.scrollWidth>a.parentNode.clientWidth){a.parentNode.scrollLeft=a.offsetLeft-a.parentNode.offsetLeft-16;}})();</script>
+<script>(function(){var a=document.querySelector('nav.links a[aria-current="page"]');var n=a&&a.closest('nav');if(n&&n.scrollWidth>n.clientWidth){n.scrollLeft=a.offsetLeft-n.offsetLeft-16;}})();</script>
 </body>
 </html>

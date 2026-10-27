@@ -18,8 +18,8 @@ MARKET_N = 120
 SERIES_N = 120
 LOOK = 60           # 算排行、連買要讀幾天
 ROW_COLS = ["code", "name", "market", "close", "value",
-            "f1", "f5", "f20", "fs", "t1", "t5", "t20", "ts", "d1", "d5", "i1", "i5", "i20",
-            "fv5", "tv5", "iv5",
+            "f1", "f5", "f20", "fs", "t1", "t5", "t20", "ts", "d1", "d5", "d20", "ds", "i1", "i5", "i20", "is",
+            "fv5", "tv5", "dv5", "iv5",
             "sbl", "sbl1", "sbl5", "sbl_days", "dt", "dt5",
             "p1000", "big_d", "holders", "hold_d", "p400"]
 SCREEN_COLS = ["f5", "fs", "t5", "ts", "i5", "sbl", "sbl5", "dt", "big", "big_d", "hold_d"]
@@ -39,6 +39,10 @@ def _read(p):
 
 def _lots(v):
     return None if v is None else round(v / 1000)
+
+
+def _add(a, b):
+    return None if a is None and b is None else round((a or 0) + (b or 0), 2)
 
 
 def chip_files(data_dir):
@@ -140,9 +144,10 @@ def build(days, weeks):
                "close": c, "value": round(c * vol / 1e8, 2) if c and vol else None,
                "f1": _lots(f[-1]), "f5": _lots(sum_n(f, 5)), "f20": _lots(sum_n(f, 20)), "fs": streak(f),
                "t1": _lots(t[-1]), "t5": _lots(sum_n(t, 5)), "t20": _lots(sum_n(t, 20)), "ts": streak(t),
-               "d1": _lots(dl[-1]), "d5": _lots(sum_n(dl, 5)),
-               "i1": _lots(i[-1]), "i5": _lots(sum_n(i, 5)), "i20": _lots(sum_n(i, 20)),
-               "fv5": val(code, "f_net", 5), "tv5": val(code, "t_net", 5), "iv5": val(code, "inst_net", 5),
+               "d1": _lots(dl[-1]), "d5": _lots(sum_n(dl, 5)), "d20": _lots(sum_n(dl, 20)), "ds": streak(dl),
+               "i1": _lots(i[-1]), "i5": _lots(sum_n(i, 5)), "i20": _lots(sum_n(i, 20)), "is": streak(i),
+               "fv5": _add(val(code, "f_net", 5), val(code, "fd_net", 5)), "tv5": val(code, "t_net", 5),
+               "dv5": val(code, "d_net", 5), "iv5": val(code, "inst_net", 5),
                "sbl": _lots(sbl), "sbl1": _lots(sbl1), "sbl5": _lots(sbl5),
                "sbl_days": round(sbl / avg_vol, 1) if sbl and avg_vol else None,
                "dt": dt, "dt5": round(sum(dt5) / len(dt5), 1) if dt5 else None,

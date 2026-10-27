@@ -434,7 +434,7 @@
   </div>
 </footer>
 
-<script>(function(){var a=document.querySelector('nav.links a[aria-current="page"]');if(a&&a.parentNode.scrollWidth>a.parentNode.clientWidth){a.parentNode.scrollLeft=a.offsetLeft-a.parentNode.offsetLeft-16;}})();</script>
+<script>(function(){var a=document.querySelector('nav.links a[aria-current="page"]');var n=a&&a.closest('nav');if(n&&n.scrollWidth>n.clientWidth){n.scrollLeft=a.offsetLeft-n.offsetLeft-16;}})();</script>
 <script>
 // 標題下方：最新交易日，config/broker_watch.csv 裡所有分點加總後，淨買超或淨賣超 ≥ 5000 萬的個股（不含 ETF）
 (async function () {

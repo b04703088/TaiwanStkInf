@@ -1252,6 +1252,6 @@ try {
   $("holderRows").innerHTML = `<tr><td colspan="6" class="empty">讀取資料失敗，請重新整理頁面。</td></tr>`;
 }
 </script>
-<script>(function(){var a=document.querySelector('nav.links a[aria-current="page"]');if(a&&a.parentNode.scrollWidth>a.parentNode.clientWidth){a.parentNode.scrollLeft=a.offsetLeft-a.parentNode.offsetLeft-16;}})();</script>
+<script>(function(){var a=document.querySelector('nav.links a[aria-current="page"]');var n=a&&a.closest('nav');if(n&&n.scrollWidth>n.clientWidth){n.scrollLeft=a.offsetLeft-n.offsetLeft-16;}})();</script>
 </body>
 </html>

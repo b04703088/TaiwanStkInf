@@ -461,6 +461,6 @@ fetch("data/kline/index.json", {cache: "no-cache"}).then(r => r.json()).then(d =
   pickStock(s && NAMES[s] ? s : "2330");
 }).catch(e => { console.error(e); $("sub").textContent = "資料載入失敗"; });
 </script>
-<script>(function(){var a=document.querySelector('nav.links a[aria-current="page"]');if(a&&a.parentNode.scrollWidth>a.parentNode.clientWidth){a.parentNode.scrollLeft=a.offsetLeft-a.parentNode.offsetLeft-16;}})();</script>
+<script>(function(){var a=document.querySelector('nav.links a[aria-current="page"]');var n=a&&a.closest('nav');if(n&&n.scrollWidth>n.clientWidth){n.scrollLeft=a.offsetLeft-n.offsetLeft-16;}})();</script>
 </body>
 </html>

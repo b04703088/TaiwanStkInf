@@ -117,7 +117,7 @@
 </main>
 <footer class="site"><div class="wrap"><p class="note" style="margin:0">本頁於每次網站重建時產生。</p></div></footer>
 <script>
-const LABEL = {price:"股價", etf:"ETF", aum:"規模", broker:"分點", watch:"重點分點", tip:"行事曆", msci:"MSCI", cb:"CB詢圈", industry:"產業分類", mops:"重訊"};
+const LABEL = {price:"股價", etf:"ETF", aum:"規模", broker:"分點", watch:"重點分點", tip:"行事曆", msci:"MSCI", cb:"CB詢圈", industry:"產業分類", mops:"重訊", chips:"法人籌碼", futures:"期權", tdcc:"集保"};
 const TXT = {ok:"正常", warn:"留意", error:"異常"};
 let data, mode = "issue";
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -150,6 +150,6 @@ fetch("data/health.json", {cache:"no-cache"}).then(r => r.json()).then(h => {
   render();
 }).catch(() => { document.getElementById("sub").textContent = "健檢資料載入失敗"; });
 </script>
-<script>(function(){var a=document.querySelector('nav.links a[aria-current="page"]');if(a&&a.parentNode.scrollWidth>a.parentNode.clientWidth){a.parentNode.scrollLeft=a.offsetLeft-a.parentNode.offsetLeft-16;}})();</script>
+<script>(function(){var a=document.querySelector('nav.links a[aria-current="page"]');var n=a&&a.closest('nav');if(n&&n.scrollWidth>n.clientWidth){n.scrollLeft=a.offsetLeft-n.offsetLeft-16;}})();</script>
 </body>
 </html>

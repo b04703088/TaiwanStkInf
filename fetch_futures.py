@@ -151,7 +151,7 @@ def parse_tx(rows):
         rs.sort(key=lambda r: r[2])
         n = rs[0]
         oi_all = sum(int(_n(r[11]) or 0) for r in rs)
-        out.append({"date": d, "contract": n[2], "close": _n(n[6]), "change": _n(n[7]), "volume": _n(n[9]),
+        out.append({"date": d, "contract": n[2].strip(), "close": _n(n[6]), "change": _n(n[7]), "volume": _n(n[9]),
                     "settle": _n(n[10]), "oi": _n(n[11]), "oi_all": str(oi_all)})
     return out
 
