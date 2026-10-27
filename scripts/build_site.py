@@ -12,6 +12,7 @@
   data/health.json                   資料健檢結果（見 scripts/health.py）
   data/broker/days.json, <日期>.json  券商分點前 15 大（見 scripts/broker_site.py）
   data/broker/watch.json             重點分點（config/broker_watch.csv）近 60 個交易日
+  data/broker/local.json             地方分點（排除外資、凱基-台北、總公司）買賣超金額排行，近 1／5／10／20 日
   data/analyst/analyst.json          FactSet 共識與外資報告（見 scripts/analyst_site.py）
   data/alert/alert.json              處置股、注意股（見 scripts/alert_site.py）
   data/treasury.json                 庫藏股買回計畫與進度（見 scripts/treasury_site.py）
@@ -100,6 +101,7 @@ def build(out: Path, days: int) -> list[str]:
     etf_site.write_active(ROOT / "data", out / "data" / "etf" / "active.json")
     broker_site.write_site(ROOT / "data", out, days=20)
     broker_site.write_watch(ROOT / "data", ROOT, out, days=60)
+    broker_site.write_local(ROOT / "data", out, days=20)
     cb_site.write_cb(ROOT / "data", out / "data" / "cb" / "cb.json")
     industry_site.write_industry(ROOT / "data", out / "data" / "industry" / "industry.json")
     flow_site.write_flow(ROOT / "data", out / "data" / "flow.json")

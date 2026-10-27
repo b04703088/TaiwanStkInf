@@ -92,3 +92,33 @@ class BrokerSiteTest(unittest.TestCase):
             self.assertEqual(j["stocks"][0][6:8], [9555, 8446])
             self.assertEqual(j["brokers"], [["8440", "摩根大通"], ["1650", "新加坡商瑞銀"]])
             self.assertEqual(j["rows"][1], [0, 1, 1, 1, 3308, 6989, 11.32])
+
+
+class BrokerLocalTest(unittest.TestCase):
+    def test_build_local_excludes_foreign_hq_and_kgi_taipei(self):
+        sys.path.insert(0, str(ROOT / "scripts"))
+        import broker_site as S
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            (d / "2026").mkdir()
+            (d / "2026" / "20260930.csv").write_text(
+                "date,market,code,name,close,change,volume\n2026-09-30,TWSE,2330,台積電,1000,5,32500000\n", encoding="utf-8")
+            (d / "broker" / "2026").mkdir(parents=True)
+            (d / "broker" / "branches.csv").write_text(
+                "broker_id,broker,bid,branch\n8440,摩根大通,8440,摩根大通\n9200,凱基,9200,凱基\n"
+                "9200,凱基,9268,凱基-台北\n9200,凱基,9275,凱基-三多\n9800,元大,98A8,元大-松江\n", encoding="utf-8")
+            (d / "broker" / "2026" / "20260930.csv").write_text(
+                "date,code,side,rank,bid,broker,buy,sell,net,pct\n"
+                "2026-09-30,2330,B,1,8440,摩根大通,500,0,500,1\n"
+                "2026-09-30,2330,B,2,9200,凱基,400,0,400,1\n"
+                "2026-09-30,2330,B,3,9268,凱基-台北,300,0,300,1\n"
+                "2026-09-30,2330,B,4,9275,凱基-三多,20,5,15,1\n"
+                "2026-09-30,2330,S,1,98A8,元大-松江,0,10,-10,1\n", encoding="utf-8")
+            j = S.build_local(d)
+            self.assertEqual(j["date"], "2026-09-30")
+            rows = j["periods"]["1"]["rows"]
+            self.assertEqual([r[0] for r in rows], ["9275", "98A8"])  # 外資、總公司、凱基-台北都排除
+            self.assertEqual(rows[0][:8], ["9275", "凱基-三多", 15000, 0, 15000, 1, 0, 1])
+            self.assertEqual(rows[0][8], [["2330", 15000]])
+            self.assertEqual(rows[0][9], 0)  # 只有一天：以當日收盤價買進、當日收盤估值，損益 0
+            self.assertEqual(rows[1][2:5], [0, 10000, -10000])
