@@ -172,22 +172,29 @@ def upsert(name, rows):
     return len(rows)
 
 
+def _get(path, form, a, b):
+    """期交所查詢迄日若不是交易日（假日、還沒收盤）會回「日期時間錯誤」：迄日往前退，最多退 7 天。"""
+    for back in range(8):
+        e = b - timedelta(days=back)
+        if e < a:
+            break
+        rows = post_csv(path, dict(form, queryStartDate=f"{a:%Y/%m/%d}", queryEndDate=f"{e:%Y/%m/%d}"))
+        time.sleep(INTERVAL)
+        if rows:
+            return rows
+    return []
+
+
 def fetch_range(a, b):
-    s, e = f"{a:%Y/%m/%d}", f"{b:%Y/%m/%d}"
     got = {}
-    got["inst"] = parse_fut(post_csv("futContractsDateDown", {"queryStartDate": s, "queryEndDate": e, "commodityId": ""}))
-    time.sleep(INTERVAL)
-    got["inst"] += parse_opt(post_csv("callsAndPutsDateDown", {"queryStartDate": s, "queryEndDate": e, "commodityId": "TXO"}))
-    time.sleep(INTERVAL)
-    got["pcr"] = parse_pcr(post_csv("pcRatioDown", {"queryStartDate": s, "queryEndDate": e}))
-    time.sleep(INTERVAL)
-    got["large"] = parse_large(post_csv("largeTraderFutDown", {"queryStartDate": s, "queryEndDate": e}))
-    time.sleep(INTERVAL)
-    got["tx"] = parse_tx(post_csv("futDataDown", {"down_type": "1", "commodity_id": "TX", "queryStartDate": s, "queryEndDate": e}))
-    time.sleep(INTERVAL)
+    got["inst"] = parse_fut(_get("futContractsDateDown", {"commodityId": ""}, a, b))
+    got["inst"] += parse_opt(_get("callsAndPutsDateDown", {"commodityId": "TXO"}, a, b))
+    got["pcr"] = parse_pcr(_get("pcRatioDown", {}, a, b))
+    got["large"] = parse_large(_get("largeTraderFutDown", {}, a, b))
+    got["tx"] = parse_tx(_get("futDataDown", {"down_type": "1", "commodity_id": "TX"}, a, b))
     for k, v in got.items():
         upsert(k, v)
-    print(f"{s}~{e}: " + "、".join(f"{k} {len(v)}" for k, v in got.items()))
+    print(f"{a}~{b}: " + "、".join(f"{k} {len(v)}" for k, v in got.items()))
 
 
 def months(start, end):
