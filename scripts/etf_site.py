@@ -128,7 +128,22 @@ def write_latest(data_dir, out_path):
 
 
 # ---------------- AUM 排行 ----------------
-AUM_COLS = ["etf", "name", "cat", "aum", "nav", "units", "du", "flow", "flow5", "daum", "prem", "tracked"]
+AUM_COLS = ["etf", "name", "cat", "aum", "nav", "units", "du", "flow", "flow5", "daum", "prem", "tracked",
+            "prem5", "holders", "dhold"]
+
+
+def tdcc_holders(data_dir):
+    """集保股權分散表最近兩週 → ({etf: 受益人數}, {etf: 較前一週增減 %}, 資料日期)。"""
+    files = sorted((Path(data_dir) / "tdcc").glob("[0-9]*.csv"))[-2:]
+    weeks = []
+    for f in files:
+        with f.open(encoding="utf-8") as fp:
+            weeks.append({r["code"]: int(r["holders"]) for r in csv.DictReader(fp) if r["holders"].isdigit()})
+    if not weeks:
+        return {}, {}, None
+    cur, prev = weeks[-1], (weeks[-2] if len(weeks) > 1 else {})
+    d = {c: round((n / prev[c] - 1) * 100, 2) for c, n in cur.items() if prev.get(c)}
+    return cur, d, files[-1].stem
 
 
 def build_aum(data_dir, flow_days=5):
@@ -152,17 +167,21 @@ def build_aum(data_dir, flow_days=5):
     if lst.exists():
         with lst.open(encoding="utf-8") as fp:
             tracked = {r["etf"] for r in csv.DictReader(fp)}
+    holders, dhold, tdcc_date = tdcc_holders(data_dir)
     rows = []
     for code, r in latest.items():
         aum = _num(r["aum"])
         p = prev.get(code)
         flow5 = sum(_num(day[code]["flow"]) or 0 for day in recent if code in day)
+        prems = [_num(day[code]["premium"]) for day in recent if code in day]
+        prems = [x for x in prems if x is not None]
         rows.append([code, r["name"], r["category"], aum, _num(r["nav"]), _num(r["units"]),
                      _num(r["units_change"]), _num(r["flow"]), flow5,
-                     (aum - _num(p["aum"])) if p else None, _num(r["premium"]), code in tracked])
+                     (aum - _num(p["aum"])) if p else None, _num(r["premium"]), code in tracked,
+                     round(sum(prems) / len(prems), 2) if prems else None, holders.get(code), dhold.get(code)])
     rows.sort(key=lambda x: -(x[3] or 0))
     return {"date": date_of(files[-1]), "prev": date_of(files[-2]) if len(files) > 1 else None,
-            "n_flow": len(recent), "cols": AUM_COLS, "rows": rows}
+            "n_flow": len(recent), "tdcc": tdcc_date, "cols": AUM_COLS, "rows": rows}
 
 
 def write_aum(data_dir, out_path):

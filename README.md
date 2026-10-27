@@ -347,6 +347,28 @@ python fetch_financials.py --quarter 2026Q2       # 某季財報
 python fetch_financials.py --since 2013-01 --max-minutes 50
 ```
 
+## 法人籌碼（三大法人、借券賣出、當沖、集保大戶）
+
+`fetch_chips.py` 每個交易日抓三大法人買賣超（證交所 T86、櫃買 insti/dailyTrade）、借券賣出（信用額度總量管制餘額表 TWT93U、櫃買 margin/sbl）、
+現股當沖（TWTB4U、櫃買 intraday/stat），合併成 `data/chips/<YYYY>/<YYYYMMDD>.csv`（單位：股）。當沖數字 T+2 才定案，排程 `--refresh 4` 會重抓最近 4 天。
+`fetch_tdcc.py` 每週六抓集保結算所股權分散表（開放資料 1-5，只有最新一週，靠每週累積），整理成千張大戶、400 張以上、50 張以下持股比例與股東人數，存 `data/tdcc/<YYYYMMDD>.csv`。
+併在 `.github/workflows/batch.yml`：平日晚上 21:40 時段抓法人／借券／當沖與期交所，週末早上抓集保。已回補 2025-10 起的法人／借券／當沖。
+
+網站「法人籌碼」頁（`site/chips.html`，資料由 `scripts/chips_site.py` 產生）：大盤每日買賣超、三大法人排行（今日／5 日／20 日／連買連賣天數）、
+借券賣出增減與回補天數、當沖率排行、集保大戶週增減，點股票看近 20 日明細。金額以張數 × 收盤估算。
+
+## 期貨選擇權籌碼
+
+`fetch_futures.py` 從期交所下載專區（一次一個月）抓三大法人台指期／小台／微台與臺指選擇權未平倉、Put/Call Ratio、台指期大額交易人、台指期近月行情，
+存 `data/futures/{inst,pcr,large,tx}.csv`，隨 `batch.yml` 平日晚上時段執行；已回補 2024 年起。網站「期權籌碼」頁（`site/futures.html`）：
+外資未平倉淨口數（大台＋小台／4＋微台／20）、外資選擇權淨額、P/C Ratio、前十大特定法人，和台指期走勢對照。
+
+## 選股（條件篩選、除權息填息）
+
+網站「選股」頁（`site/screen.html`，資料由 `scripts/screen_site.py` 產生 `data/screen/screen.json`、`div.json`）把每檔的技術面（還原價算報酬、均線、
+52 週新高、量增突破、均線糾結）、營收財報（營收創新高、連續年增、毛利率／營益率年增、本益比、殖利率、ROE）與籌碼（法人連買、借券回補、當沖率、千張大戶）
+放在一起，勾選多個條件取交集。「除權息與填息」分頁列出即將除權息、最近除權息的填息進度，以及近兩年的填息紀錄（填息＝除權息日起第一個收盤 ≥ 除權息前收盤）。
+
 ## 資料健檢
 
 `scripts/health.py` 檢查資料有沒有漏抓或抓錯，結果在網站的 `health.html`（ETF持股、成交排行頁尾有連結）。

@@ -521,9 +521,12 @@
               <th class="col-hide" data-sort="flow5"><button type="button" id="flow5Label">近 5 日流入（億）</button></th>
               <th class="col-hide" data-sort="daum"><button type="button">規模變化（億）</button></th>
               <th class="col-hide" data-sort="prem"><button type="button">折溢價</button></th>
+              <th class="col-hide" data-sort="prem5" title="近 5 個交易日折溢價平均；長期溢價代表市價買貴了"><button type="button" id="prem5Label">5 日均折溢價</button></th>
+              <th class="col-hide" data-sort="holders" title="集保股權分散表的持有人數（每週更新）"><button type="button">受益人數</button></th>
+              <th class="col-hide" data-sort="dhold" title="受益人數較前一週增減"><button type="button">人數週增減</button></th>
             </tr>
           </thead>
-          <tbody id="aumRows"><tr><td colspan="10" class="empty">載入中…</td></tr></tbody>
+          <tbody id="aumRows"><tr><td colspan="13" class="empty">載入中…</td></tr></tbody>
         </table>
       </div>
       <div class="more" id="aumMoreWrap"><button class="btn-ghost" id="aumMore" type="button">顯示更多</button></div>
@@ -898,6 +901,7 @@ const aum = { rows: [], date: null, prev: null, nFlow: 0, cat: "全部", q: "", 
 const AUM_GET = {
   rank: x => x.rank, name: x => x.etf, cat: x => x.cat, aum: x => x.aum, nav: x => x.nav, units: x => x.units,
   flow: x => x.flow, flow5: x => x.flow5, daum: x => x.daum, prem: x => x.prem,
+  prem5: x => x.prem5, holders: x => x.holders, dhold: x => x.dhold,
 };
 
 async function loadAum() {
@@ -939,8 +943,11 @@ function renderAum() {
       <td class="mono col-hide ${cls(x.flow5)}">${x.flow5 ? fmtYiSigned(x.flow5) : '<span class="flat">0</span>'}</td>
       <td class="mono col-hide ${cls(x.daum)}">${x.daum == null ? "—" : fmtYiSigned(x.daum)}</td>
       <td class="mono col-hide ${cls(x.prem)}">${x.prem == null ? "—" : (x.prem > 0 ? "+" : "") + fmtN(x.prem, 2) + "%"}</td>
+      <td class="mono col-hide ${cls(x.prem5)}">${x.prem5 == null ? "—" : (x.prem5 > 0 ? "+" : "") + fmtN(x.prem5, 2) + "%"}</td>
+      <td class="mono col-hide flat">${x.holders == null ? "—" : fmtN(x.holders, 0)}</td>
+      <td class="mono col-hide ${cls(x.dhold)}">${x.dhold == null ? "—" : (x.dhold > 0 ? "+" : "") + fmtN(x.dhold, 2) + "%"}</td>
     </tr>`).join("")
-    : `<tr><td colspan="10" class="empty">沒有符合條件的 ETF</td></tr>`;
+    : `<tr><td colspan="13" class="empty">沒有符合條件的 ETF</td></tr>`;
   $("aumMoreWrap").hidden = list.length <= aum.shown;
 }
 

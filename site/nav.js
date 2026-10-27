@@ -5,9 +5,13 @@
     ["市場總覽", [
       ["ranking.html", "成交排行", "個股／族群資金流向", ["flow"]],
       ["industry.html", "產業分類"],
+      ["screen.html", "選股", "技術面掃描、營收財報、籌碼條件；除權息填息"],
+      ["chips.html#dt", "當沖比率"],
     ]],
     ["籌碼動向", [
       ["broker.html", "分點籌碼", "前15大／重點／地方主力", ["watch", "local"]],
+      ["chips.html", "法人籌碼", "三大法人、借券賣出、集保大戶"],
+      ["futures.html", "期權籌碼", "外資台指期、選擇權、P/C Ratio"],
       ["margin.html", "融資融券"],
       ["insider.html", "內部人"],
     ]],
@@ -25,6 +29,7 @@
     ]],
     ["ETF", [
       ["etf.html", "ETF持股"],
+      ["etf.html#aum", "ETF規模與折溢價", "受益人數、5 日均折溢價"],
       ["calendar.html", "指數行事曆"],
     ]],
   ];

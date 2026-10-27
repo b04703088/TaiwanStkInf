@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>期權籌碼｜潮汐</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0E1620; --panel:#141F2B; --panel-2:#182531;
+    --line:rgba(232,237,242,0.09); --line-strong:rgba(232,237,242,0.16);
+    --text:#E8EDF2; --text-muted:#8B99A6; --text-faint:#5C6B79;
+    --brass:#C6A15B; --brass-soft:rgba(198,161,91,0.14); --rise:#E1594F; --fall:#3FAE72;
+    --radius-s:3px; --radius-m:6px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--ink); color:var(--text);
+    font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
+  h1,h2{font-family:'Noto Serif TC',serif; margin:0; font-weight:700;}
+  h2{font-size:20px;}
+  .mono{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+  a{color:inherit;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
+  header.site{position:sticky; top:0; z-index:40; background:rgba(14,22,32,0.88); backdrop-filter:blur(10px); border-bottom:1px solid var(--line);}
+  .nav-row{display:flex; align-items:center; justify-content:space-between; padding:16px 28px;}
+  .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
+  .brand-mark{font-family:'Noto Serif TC',serif; font-size:22px; font-weight:700;}
+  .brand-sub{font-size:12px; color:var(--text-faint);}
+  .page-head{padding:56px 0 8px;}
+  .eyebrow{font-size:13px; color:var(--brass); margin-bottom:10px;}
+  h1{font-size:32px;}
+  .desc{color:var(--text-muted); font-size:14.5px; margin:12px 0 0; max-width:52em;}
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden; margin-top:28px;}
+  .stat{background:var(--panel); padding:16px 20px;}
+  .stat .k{font-size:12.5px; color:var(--text-muted);}
+  .stat .v{font-size:26px; margin-top:2px;}
+  .stat .s{font-size:12px; color:var(--text-faint);}
+  section.block{margin-top:48px;}
+  .block-head{display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin-bottom:14px; flex-wrap:wrap;}
+  .hint{font-size:12.5px; color:var(--text-faint);}
+  .up{color:var(--rise);} .down{color:var(--fall);} .flat{color:var(--text-muted);}
+  .faint{color:var(--text-faint);}
+  .muted{color:var(--text-muted);}
+
+  /* 查個股 */
+  .search{position:relative; max-width:460px;}
+  .search input{width:100%; background:var(--panel); border:1px solid var(--line-strong); color:var(--text); padding:11px 14px; border-radius:var(--radius-m); font:inherit; font-size:15px;}
+  .search input:focus{outline:none; border-color:var(--brass);}
+  .sugg{position:absolute; left:0; right:0; top:calc(100% + 4px); background:var(--panel-2); border:1px solid var(--line-strong); border-radius:var(--radius-m); z-index:10; overflow:hidden;}
+  .sugg div{padding:8px 14px; cursor:pointer; font-size:14px;}
+  .sugg div:hover, .sugg div.on{background:var(--brass-soft);}
+  .stock{margin-top:16px; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-m); padding:18px 20px;}
+  .stock .top{display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap;}
+  .stock .nm{font-size:20px; font-weight:700;}
+  .stock .nm .mono{font-size:14px; color:var(--text-muted); margin-left:8px; font-weight:500;}
+  .stock .px{font-size:15px;}
+  .kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-top:16px; padding-top:14px; border-top:1px solid var(--line);}
+  .kpi .k{font-size:12px; color:var(--text-muted);}
+  .kpi .v{font-size:20px; margin-top:2px;}
+  .kpi .s{font-size:12px; color:var(--text-faint); margin-top:2px;}
+  .views{display:flex; height:8px; border-radius:2px; overflow:hidden; margin-top:8px; background:var(--line);}
+  .views i{display:block; height:100%;}
+  .views .b{background:var(--rise);} .views .n{background:var(--text-faint);} .views .r{background:var(--fall);}
+
+  /* 表格 */
+  .tbl-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius-m);}
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  th, td{padding:9px 12px; border-bottom:1px solid var(--line); text-align:left; white-space:nowrap;}
+  th{font-size:12px; color:var(--text-muted); font-weight:500; background:var(--panel); position:sticky; top:0;}
+  td.n, th.n{text-align:right;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr.click{cursor:pointer;}
+  tbody tr.click:hover td{background:var(--panel);}
+  td.wrap-cell{white-space:normal; min-width:18em;}
+  .sname{font-weight:500;}
+  .sname .mono{font-size:11.5px; color:var(--text-faint); margin-left:6px; font-weight:500;}
+  .mini{display:inline-flex; width:72px; height:6px; border-radius:2px; overflow:hidden; background:var(--line); vertical-align:middle; margin-right:6px;}
+  .mini i{display:block; height:100%;}
+  .mini .b{background:var(--rise);} .mini .n{background:var(--text-faint);} .mini .r{background:var(--fall);}
+  .tag{display:inline-block; font-size:11.5px; padding:1px 7px; border-radius:var(--radius-s); border:1px solid var(--line-strong); color:var(--text-muted); margin-right:8px;}
+  .tag.rep{border-color:var(--brass); color:var(--brass);}
+  .ttl{display:block; font-size:12px; color:var(--text-faint); margin-top:2px; text-decoration:none; overflow:hidden; text-overflow:ellipsis; max-width:46em;}
+  .ttl:hover{color:var(--brass);}
+
+  .toolbar{display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin-bottom:12px;}
+  .chips{display:flex; flex-wrap:wrap; gap:6px;}
+  .chips button{background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:5px 11px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .chips button[aria-pressed="true"]{border-color:var(--brass); color:var(--brass);}
+  .more{display:block; margin:14px auto 0; background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:7px 18px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .more:hover{color:var(--brass); border-color:var(--brass);}
+  .empty{padding:20px 0; color:var(--text-faint); font-size:13.5px;}
+  .note{font-size:12.5px; color:var(--text-faint); margin-top:18px; line-height:1.8;}
+  footer.site{padding:48px 0; margin-top:64px; border-top:1px solid var(--line);}
+  @media (max-width:860px){
+    .nav-row{padding:14px 16px; flex-wrap:wrap; row-gap:10px;}
+    .wrap{padding:0 16px;}
+    .stats, .kpis{grid-template-columns:repeat(2,1fr);} h1{font-size:26px;}
+    .hide-s{display:none;}
+    td.wrap-cell{min-width:14em;}
+  }
+
+  .sub-h{font-size:14px; color:var(--text-muted); margin:22px 0 8px; font-weight:500; display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap;}
+  .tag.mk{font-size:11px; padding:0 5px; margin:0 0 0 6px;}
+  .tag.hi{border-color:var(--rise); color:var(--rise); margin:0;}
+  .chart{position:relative;}
+  .chart svg{display:block; width:100%; height:auto; overflow:visible;}
+  .chart .axis{font-size:10.5px; fill:var(--text-faint); font-family:'IBM Plex Mono',monospace;}
+  .tip{position:absolute; pointer-events:none; background:var(--ink); border:1px solid var(--line-strong); border-radius:var(--radius-s); padding:8px 10px; font-size:12px; min-width:140px; box-shadow:0 4px 16px rgba(0,0,0,.4); display:none; z-index:5;}
+  .tip .d{color:var(--text-muted); margin-bottom:4px;}
+  .tip .r{display:flex; gap:12px; justify-content:space-between; white-space:nowrap;}
+  .tip .r b{font-weight:500; font-family:'IBM Plex Mono',monospace;}
+  .charts{display:grid; grid-template-columns:1fr 1fr; gap:24px;}
+  .note-cell{white-space:normal; min-width:16em; max-width:28em; font-size:12.5px; color:var(--text-muted);}
+  .toggle{background:none; border:none; color:var(--brass); cursor:pointer; font:inherit; font-size:13px; padding:0;}
+  @media (max-width:860px){ .charts{grid-template-columns:1fr;} }
+  .tabs{display:flex; gap:28px; border-bottom:1px solid var(--line-strong); margin-top:36px; overflow-x:auto; scrollbar-width:none;}
+  .tabs a{white-space:nowrap; text-decoration:none; color:var(--text-muted); padding:10px 0; border-bottom:2px solid transparent; margin-bottom:-1px; font-size:15px;}
+  .tabs a:hover{color:var(--text);}
+  .tabs a[aria-selected="true"]{color:var(--text); border-bottom-color:var(--brass); font-weight:500;}
+  .grp{display:flex; gap:12px; align-items:flex-start; margin-bottom:10px;}
+  .grp .lbl{flex:none; width:4.5em; font-size:12.5px; color:var(--text-faint); padding-top:6px;}
+  .chips button[disabled]{opacity:.35; cursor:not-allowed;}
+  .filter{background:var(--panel); border:1px solid var(--line-strong); color:var(--text); padding:6px 11px; border-radius:var(--radius-s); font:inherit; font-size:13px; width:12em;}
+  .filter:focus{outline:none; border-color:var(--brass);}
+  select.filter{width:auto;}
+  .chk-in{font-size:13px; color:var(--text-muted); display:flex; align-items:center; gap:6px;}
+  th[data-k]{cursor:pointer; user-select:none;} th[data-k]:hover{color:var(--brass);} th.sorted{color:var(--brass);}
+  .tag.mk{font-size:11px; padding:0 5px; margin:0 0 0 6px;}
+  .tag.hit{border-color:var(--rise); color:var(--rise); margin:0 4px 0 0; font-size:11px; padding:0 5px;}
+  .sname a{text-decoration:none;} .sname a:hover{color:var(--brass);}
+  .why{font-size:12.5px; color:var(--text-faint); margin:-4px 0 12px;}
+  @media (max-width:860px){ .grp{flex-direction:column; gap:4px;} .grp .lbl{padding-top:0;} .tabs{gap:20px;} }
+  .chart{border:1px solid var(--line); border-radius:var(--radius-m); background:var(--panel); padding:10px 8px 4px;}
+  .chart text{fill:var(--text-faint); font-size:11px; font-family:'IBM Plex Mono',monospace;}
+  tbody tr.click{cursor:pointer;} tbody tr.click:hover td{background:var(--panel);}
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="nav-row">
+    <a href="index.html" class="brand"><span class="brand-mark">潮汐</span><span class="brand-sub">籌碼觀測站</span></a>
+    <nav class="gnav"></nav>
+  </div>
+</header>
+<script src="nav.js"></script>
+<main class="wrap">
+  <section class="page-head">
+    <div class="eyebrow">期權籌碼</div>
+    <h1>外資在期貨選擇權怎麼押大盤</h1>
+    <p class="desc" id="sub">載入中…</p>
+    <div class="stats" id="stats"></div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2 id="c-title">走勢</h2>
+      <div class="chips" id="rng">
+        <button data-v="60" aria-pressed="true">近 3 個月</button>
+        <button data-v="120" aria-pressed="false">近 6 個月</button>
+        <button data-v="250" aria-pressed="false">近 1 年</button>
+      </div>
+    </div>
+    <div class="toolbar"><div class="chips" id="ser">
+      <button data-v="f_oi" aria-pressed="true">外資台指期未平倉</button>
+      <button data-v="t_oi" aria-pressed="false">投信未平倉</button>
+      <button data-v="d_oi" aria-pressed="false">自營商未平倉</button>
+      <button data-v="pc_oi" aria-pressed="false">P/C Ratio</button>
+      <button data-v="top10i_net" aria-pressed="false">前十大特定法人</button>
+      <button data-v="f_opt" aria-pressed="false">外資選擇權淨額</button>
+    </div></div>
+    <div class="chart" id="chart"></div>
+    <p class="hint" style="margin-top:8px">金色線是台指期近月收盤（右軸），用來對照籌碼變化與行情。</p>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>每日明細</h2><span class="hint">期貨口數一律折成大台（小台 ÷ 4、微台 ÷ 20）</span></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>日期</th><th class="n">台指期</th><th class="n">漲跌</th><th class="n">外資未平倉</th><th class="n">增減</th><th class="n hide-s">投信</th><th class="n hide-s">自營商</th>
+        <th class="n hide-s">外資買權（億）</th><th class="n hide-s">外資賣權（億）</th><th class="n">P/C Ratio</th><th class="n hide-s">前十大特法</th></tr></thead>
+      <tbody id="body"></tbody>
+    </table></div>
+    <button class="more" id="more" hidden>顯示更多</button>
+  </section>
+
+  <p class="note">
+    外資未平倉淨口數＝外資在台指期（大台＋小台＋微台）多單減空單的未平倉口數，負數代表淨空單；大幅增加空單常是避險或看空。投信長期持有大量多單，多半是 ETF 等基金避險部位。<br>
+    外資選擇權淨額＝外資臺指選擇權買權（或賣權）未平倉「買方減賣方」的契約金額：買權為正、賣權為負，偏多；反之偏空。<br>
+    P/C Ratio＝臺指選擇權賣權未平倉量 ÷ 買權未平倉量 × 100。一般解讀：比率上升代表賣權（保護）增加；不過賣權多半是賣方提供，也常被當成支撐訊號，宜搭配其他指標。<br>
+    前十大特定法人＝台指期全部月份前十大交易人中屬於特定法人的多空淨部位。資料來源：臺灣期貨交易所。資料僅供參考，不構成投資建議。
+  </p>
+</main>
+<footer class="site"><div class="wrap"><p class="note" style="margin:0">資料僅供參考。</p></div></footer>
+<script>
+const $ = id => document.getElementById(id);
+const fx = (v, d = 0) => v == null ? "–" : (+v).toLocaleString("zh-TW", {minimumFractionDigits: d, maximumFractionDigits: d});
+const cls = v => v == null ? "faint" : v > 0 ? "up" : v < 0 ? "down" : "flat";
+const sgn = (v, d = 0) => v == null ? `<span class="faint">–</span>` : `<span class="${cls(v)}">${v > 0 ? "+" : ""}${fx(v, d)}</span>`;
+const plain = (v, d = 0) => v == null ? `<span class="faint">–</span>` : fx(v, d);
+const dTxt = d => `${d.slice(5, 7)}/${d.slice(8)}`;
+let D, R = [];
+const S = {n: 60, ser: "f_oi", rows: 30};
+const NAMES = {f_oi: "外資台指期未平倉淨口數", t_oi: "投信台指期未平倉淨口數", d_oi: "自營商台指期未平倉淨口數", pc_oi: "P/C Ratio（未平倉，%）",
+               top10i_net: "前十大特定法人淨部位（口）", f_opt: "外資選擇權淨額（億，買權＋賣權）"};
+
+function chart(){
+  const pts = R.slice(-S.n).map(r => ({d: r.date, v: S.ser === "f_opt" ? (r.f_call == null && r.f_put == null ? null : (r.f_call || 0) + (r.f_put || 0)) : r[S.ser], px: r.tx}));
+  $("c-title").textContent = NAMES[S.ser];
+  const W = $("chart").clientWidth - 16 || 900, H = 240, L = 60, Rr = 56, T = 10, B = 22, pw = W - L - Rr, ph = H - T - B;
+  const vs = pts.map(p => p.v).filter(v => v != null), ps = pts.map(p => p.px).filter(v => v != null);
+  if (!vs.length) { $("chart").innerHTML = `<div class="empty">沒有資料</div>`; return; }
+  const line = S.ser === "pc_oi";
+  let lo = line ? Math.min(...vs) : Math.min(0, ...vs), hi = line ? Math.max(...vs) : Math.max(0, ...vs); if (lo === hi) hi = lo + 1;
+  const pad = (hi - lo) * 0.05; if (line) { lo -= pad; hi += pad; }
+  const plo = Math.min(...ps), phi = Math.max(...ps) || 1;
+  const Y = v => T + (hi - v) / (hi - lo) * ph, PY = v => T + (phi - v) / ((phi - plo) || 1) * ph, bw = pw / pts.length;
+  let g = "";
+  for (let k = 0; k <= 4; k++) { const v = lo + (hi - lo) * k / 4, pv = plo + (phi - plo) * k / 4;
+    g += `<line x1="${L}" x2="${W - Rr}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${L - 6}" y="${Y(v) + 4}" text-anchor="end">${fx(v, Math.abs(hi - lo) < 20 ? 1 : 0)}</text>`;
+    if (ps.length) g += `<text x="${W - Rr + 6}" y="${PY(pv) + 4}" fill="var(--brass)" style="fill:var(--brass)">${fx(pv)}</text>`; }
+  if (line) g += `<polyline fill="none" stroke="var(--text-muted)" stroke-width="1.6" points="${pts.map((p, k) => p.v == null ? "" : `${L + (k + .5) * bw},${Y(p.v)}`).join(" ")}"/>`;
+  pts.forEach((p, k) => {
+    const x = L + k * bw;
+    if (!line && p.v != null) { const y = Math.min(Y(p.v), Y(0)), h = Math.max(1, Math.abs(Y(p.v) - Y(0)));
+      g += `<rect x="${x + bw * .15}" y="${y}" width="${bw * .7}" height="${h}" fill="${p.v >= 0 ? "var(--rise)" : "var(--fall)"}" opacity=".85"><title>${p.d}　${fx(p.v, 1)}</title></rect>`; }
+    if (k % Math.ceil(pts.length / 6) === 0) g += `<text x="${x}" y="${H - 6}">${dTxt(p.d)}</text>`;
+  });
+  if (ps.length) g += `<polyline fill="none" stroke="var(--brass)" stroke-width="1.6" points="${pts.map((p, k) => p.px == null ? "" : `${L + (k + .5) * bw},${PY(p.px)}`).join(" ")}"/>`;
+  $("chart").innerHTML = `<svg viewBox="0 0 ${W} ${H}">${g}</svg>`;
+}
+
+function table(){
+  const rows = R.slice().reverse();
+  $("body").innerHTML = rows.slice(0, S.rows).map(r => `<tr><td class="mono">${dTxt(r.date)}</td><td class="n mono">${plain(r.tx)}</td><td class="n mono">${sgn(r.tx_chg)}</td>
+    <td class="n mono">${sgn(r.f_oi)}</td><td class="n mono">${sgn(r.f_oi_d)}</td><td class="n mono hide-s">${sgn(r.t_oi)}</td><td class="n mono hide-s">${sgn(r.d_oi)}</td>
+    <td class="n mono hide-s">${sgn(r.f_call, 2)}</td><td class="n mono hide-s">${sgn(r.f_put, 2)}</td><td class="n mono">${plain(r.pc_oi, 1)}</td><td class="n mono hide-s">${sgn(r.top10i_net)}</td></tr>`).join("");
+  $("more").hidden = rows.length <= S.rows;
+}
+
+function chipBind(id, key, parse, fn){
+  $(id).querySelectorAll("button").forEach(b => b.onclick = () => {
+    $(id).querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); S[key] = parse(b.dataset.v); fn(); });
+}
+
+fetch("data/futures.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
+  D = d; R = d.rows.map(r => Object.fromEntries(d.cols.map((k, i) => [k, r[i]])));
+  const L = R[R.length - 1], P = R[R.length - 6] || R[0];
+  $("sub").textContent = `${d.date.replaceAll("-", "/")}・三大法人台指期與選擇權未平倉、Put/Call Ratio、大額交易人，每個交易日下午更新。`;
+  $("stats").innerHTML = [
+    ["台指期近月", fx(L.tx), L.tx_chg == null ? "" : `<span class="${cls(L.tx_chg)}">${L.tx_chg > 0 ? "+" : ""}${fx(L.tx_chg)}</span>`],
+    ["外資未平倉淨口數", `<span class="${cls(L.f_oi)}">${fx(L.f_oi)}</span>`, `今日 ${L.f_oi_d == null ? "–" : (L.f_oi_d > 0 ? "+" : "") + fx(L.f_oi_d)}・5 日 ${P.f_oi == null ? "–" : (L.f_oi - P.f_oi > 0 ? "+" : "") + fx(L.f_oi - P.f_oi)}`],
+    ["P/C Ratio", fx(L.pc_oi, 1), "賣權 ÷ 買權未平倉 %"],
+    ["外資選擇權淨額", `<span class="${cls((L.f_call || 0) + (L.f_put || 0))}">${fx((L.f_call || 0) + (L.f_put || 0), 1)}</span>`, `億元（買權 ${fx(L.f_call, 1)}・賣權 ${fx(L.f_put, 1)}）`],
+  ].map(([k, v, s]) => `<div class="stat"><div class="k">${k}</div><div class="v mono">${v}</div><div class="s">${s}</div></div>`).join("");
+  chipBind("rng", "n", Number, chart); chipBind("ser", "ser", v => v, chart);
+  $("more").onclick = () => { S.rows += 30; table(); };
+  chart(); table(); addEventListener("resize", chart);
+}).catch(e => { $("sub").textContent = "資料載入失敗"; console.error(e); });
+</script>
+</body>
+</html>

@@ -6,8 +6,8 @@ name: Fetch batch
 #
 #   早上 08:30  MOPS 公告、可轉債、分析師、庫藏股、處置股（盤前補抓）、融資融券（補抓）
 #   傍晚 18:40  處置股＋還原事件、可轉債、MOPS 公告、財報、內部人（每月 18～28 日）
-#   晚上 21:40  融資融券、MOPS 公告、分析師、庫藏股＋買回期間分點
-#   週末只跑：早上 分析師、MOPS 公告；傍晚 財報、內部人；晚上 分析師
+#   晚上 21:40  融資融券、MOPS 公告、分析師、庫藏股＋買回期間分點、三大法人／借券／當沖、期交所籌碼
+#   週末只跑：早上 分析師、MOPS 公告、集保股權分散；傍晚 財報、內部人；晚上 分析師
 # 每日股價、券商分點、ETF 由 cron-job.org 準時觸發且有先後關係，不在這裡。
 on:
   schedule:
@@ -70,6 +70,7 @@ jobs:
           case "$slot" in
             morning)
               on analyst; on mops
+              [ $wk = 0 ] && on tdcc
               if [ $wk = 1 ]; then on cb; on treasury; on alert; on margin; fi ;;
             evening)
               on financials
@@ -77,7 +78,7 @@ jobs:
               if [ $wk = 1 ]; then on alert; on adjust; on cb; on mops; fi ;;
             night)
               on analyst
-              if [ $wk = 1 ]; then on margin; on mops; on treasury; on treasury_broker; fi ;;
+              if [ $wk = 1 ]; then on margin; on mops; on treasury; on treasury_broker; on chips; fi ;;
           esac
           echo "slot=$slot" >> "$GITHUB_OUTPUT"
           echo "時段 $slot，平日=$wk，日期 $dom"; cat "$GITHUB_OUTPUT"
@@ -141,6 +142,22 @@ jobs:
         if: always() && steps.s.outputs.insider == '1'
         continue-on-error: true
         run: python fetch_insider.py --skip-transfer --max-minutes 50
+
+      - name: 三大法人、借券賣出、當沖
+        if: always() && steps.s.outputs.chips == '1'
+        continue-on-error: true
+        # 借券、當沖約 21:00 公布；當沖 T+2 才定案，近 4 天每次重抓
+        run: python fetch_chips.py --start "$(TZ=Asia/Taipei date -d '7 days ago' +%F)" --refresh 4 --max-minutes 30
+
+      - name: 期貨選擇權籌碼
+        if: always() && steps.s.outputs.chips == '1'
+        continue-on-error: true
+        run: python fetch_futures.py
+
+      - name: 集保股權分散
+        if: always() && steps.s.outputs.tdcc == '1'
+        continue-on-error: true
+        run: python fetch_tdcc.py
 
       - name: Commit data
         if: always()

@@ -37,6 +37,9 @@ on:
       - "scripts/margin_site.py"
       - "scripts/kline_site.py"
       - "scripts/fin_site.py"
+      - "scripts/screen_site.py"
+      - "scripts/chips_site.py"
+      - "scripts/futures_site.py"
       - "scripts/insider_site.py"
       - ".github/workflows/pages.yml"
   workflow_dispatch: {}
