@@ -17,9 +17,6 @@ on:
     - cron: "40 10 * * 0,6"   # 台北 18:40 週末
     - cron: "40 13 * * 1-5"   # 台北 21:40 平日
     - cron: "40 13 * * 0,6"   # 台北 21:40 週末
-  push:  # TEMP test
-    branches: [claude/project-thread-6frnf8]
-    paths: [.github/workflows/batch.yml]
   workflow_dispatch:
     inputs:
       slot:
@@ -43,10 +40,6 @@ jobs:
   fetch:
     runs-on: ubuntu-latest
     timeout-minutes: 180
-    strategy:  # TEMP test
-      fail-fast: false
-      matrix:
-        t: [morning, evening, night, wk]
     steps:
       - uses: actions/checkout@v4
 
@@ -58,8 +51,8 @@ jobs:
         id: s
         env:
           CRON: ${{ github.event.schedule }}
-          IN_SLOT: ${{ inputs.slot || (matrix.t == 'wk' && 'morning' || matrix.t) }}
-          IN_WEEKEND: ${{ inputs.weekend || matrix.t == 'wk' }}
+          IN_SLOT: ${{ inputs.slot }}
+          IN_WEEKEND: ${{ inputs.weekend }}
         run: |
           case "$CRON" in
             "30 0 "*)  slot=morning ;;
