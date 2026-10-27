@@ -1,0 +1,14 @@
+name: probe insider pledge
+on:
+  push:
+    branches: [claude/project-thread-ulky9f]
+    paths: ["scripts/_probe/**", ".github/workflows/probe-insider.yml"]
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: python -u scripts/_probe/probe_pledge.py
