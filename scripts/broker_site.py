@@ -160,7 +160,7 @@ def is_local_branch(bid, name, kinds):
 
 
 PERIODS = (1, 5, 10, 20)
-LBCOLS = ["bid", "name", "buy", "sell", "net", "nb", "ns", "bdays", "top"]
+LBCOLS = ["bid", "name", "buy", "sell", "net", "nb", "ns", "bdays", "top", "pnl"]
 
 
 def _scores(data_dir):
@@ -179,7 +179,8 @@ def build_local(data_dir, days=20, top=5):
     if not items:
         return None
     kinds = _branch_kinds(data_dir)
-    names, bnames, daily = {}, {}, []  # daily[i] = {bid: {code: 金額}}
+    names, bnames, daily = {}, {}, []  # daily[i] = {bid: {code: (金額, 淨張數)}}
+    last_close = {}
     for date, path in items:
         pf = data_dir / date[:4] / f"{date.replace('-', '')}.csv"
         prices = {r["code"]: r for r in _read(pf)} if pf.exists() else {}
@@ -192,32 +193,41 @@ def build_local(data_dir, days=20, top=5):
             close, net = _num(prices.get(r["code"], {}).get("close")), _int(r["net"])
             if close is None or not net:
                 continue
-            per.setdefault(r["bid"], {})[r["code"]] = net * close
+            per.setdefault(r["bid"], {})[r["code"]] = (net * close, net)
             names[r["code"]] = prices[r["code"]].get("name", "")
             bnames[r["bid"]] = r["broker"]
         daily.append(per)
+        for c, p in prices.items():
+            v = _num(p.get("close"))
+            if v is not None:
+                last_close[c] = v
     scores = _scores(data_dir)
     periods = {}
     for n in PERIODS:
-        agg, bdays = {}, {}
+        agg, shares, bdays = {}, {}, {}
         for per in daily[-n:]:
             for bid, m in per.items():
-                a = agg.setdefault(bid, {})
-                for c, v in m.items():
+                a, sh = agg.setdefault(bid, {}), shares.setdefault(bid, {})
+                for c, (v, k) in m.items():
                     a[c] = a.get(c, 0) + v
-                if sum(m.values()) > 0:
+                    sh[c] = sh.get(c, 0) + k
+                if sum(v for v, _ in m.values()) > 0:
                     bdays[bid] = bdays.get(bid, 0) + 1
         rows = []
         for bid, a in agg.items():
             buy = sum(v for v in a.values() if v > 0)
             sell = -sum(v for v in a.values() if v < 0)
             tops = sorted(((c, v) for c, v in a.items() if v > 0), key=lambda x: -x[1])[:top]
+            # 估計損益：期間內買賣（以當日收盤價成交）到最新收盤價的市值變化
+            pnl = sum(k * last_close[c] for c, k in shares[bid].items() if c in last_close) - sum(a.values())
             rows.append([bid, bnames[bid], int(round(buy)), int(round(sell)), int(round(buy - sell)),
                          sum(v > 0 for v in a.values()), sum(v < 0 for v in a.values()), bdays.get(bid, 0),
-                         [[c, int(round(v))] for c, v in tops]])
+                         [[c, int(round(v))] for c, v in tops], int(round(pnl))])
         rows.sort(key=lambda r: -r[4])
         periods[str(n)] = {"from": items[max(0, len(items) - n)][0], "days": min(n, len(items)), "rows": rows}
-    cls = {bid: [r["class"], _num(r.get("flip_ratio")), _num(r.get("z5"))]
+    # 分點評分：[分類, 隔日賣出比例%, z5, 買超後 5 日平均超額報酬%, 5 日勝率%, 5 日事件數]
+    cls = {bid: [r["class"], _num(r.get("flip_ratio")), _num(r.get("z5")), _num(r.get("ex5")),
+                 _num(r.get("hit5")), _int(r.get("n5"))]
            for bid, r in scores.items() if bid in bnames}
     return {"date": items[-1][0], "cols": LBCOLS, "periods": periods, "names": names, "score": cls,
             "foreign": sorted(FOREIGN), "excluded": sorted(EXCLUDE_BRANCHES)}

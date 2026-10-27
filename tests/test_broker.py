@@ -120,4 +120,5 @@ class BrokerLocalTest(unittest.TestCase):
             self.assertEqual([r[0] for r in rows], ["9275", "98A8"])  # 外資、總公司、凱基-台北都排除
             self.assertEqual(rows[0][:8], ["9275", "凱基-三多", 15000, 0, 15000, 1, 0, 1])
             self.assertEqual(rows[0][8], [["2330", 15000]])
+            self.assertEqual(rows[0][9], 0)  # 只有一天：以當日收盤價買進、當日收盤估值，損益 0
             self.assertEqual(rows[1][2:5], [0, 10000, -10000])

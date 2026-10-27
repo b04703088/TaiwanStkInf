@@ -388,6 +388,7 @@
       <div class="table-wrap"><table class="rank" id="tbl"></table></div>
       <div class="more" id="moreWrap" hidden><button class="btn-ghost" id="moreBtn" type="button">顯示更多</button></div>
       <p class="note">金額單位：萬元，以淨張數 × 當日收盤價估算。資料來源：全市場每檔股票買超、賣超前 15 大分點，只算得到分點有進前 15 的股票；不含 ETF。集中度 = 買超最多那一檔佔該分點總買超的比例。分類來自分點評分（買超後股價表現、隔天賣出比例），樣本少的分點會標「樣本不足」。點分點可看它當天買賣的股票。</p>
+      <p class="note">估計損益：假設分點在期間內每天都以當日收盤價買賣，到最新收盤價時這些部位賺賠多少（不含手續費、證交稅，也不含期間開始前的舊部位）。5 日超額報酬、勝率來自分點評分：分點大額買超或賣超（佔成交 ≥ 1%、≥ 500 萬）後，隔天開盤進場持有 5 天的報酬減掉大盤平均（賣超則看之後跌多少），以及其中判斷對的比例，滑鼠移上去可看次數。都是用前 15 大分點的不完整資料估算，只能當參考。</p>
       <p class="note" id="exclNote"></p>
     </div>
   </section>
@@ -411,9 +412,9 @@ const TAG = { "隔日沖": "flip", "波段高手": "smart", "反指標": "contra
 
 function rows() {
   const D = state.D, P = D.periods[state.period], q = state.q.trim().toLowerCase();
-  return P.rows.map(([bid, name, buy, sell, net, nb, ns, bdays, top]) => {
+  return P.rows.map(([bid, name, buy, sell, net, nb, ns, bdays, top, pnl]) => {
     const sc = D.score[bid] || [];
-    return { bid, name, buy, sell, net, nb, ns, bdays, top, cls: sc[0] || "", flip: sc[1], conc: buy > 0 && top.length ? top[0][1] / buy * 100 : 0 };
+    return { bid, name, buy, sell, net, nb, ns, bdays, top, pnl, cls: sc[0] || "", flip: sc[1], ex5: sc[3] ?? null, hit5: sc[4] ?? null, n5: sc[5] ?? 0, conc: buy > 0 && top.length ? top[0][1] / buy * 100 : 0 };
   }).filter(r => r.net > 0 && (!state.noflip || r.cls !== "隔日沖") && (!state.focus || r.nb <= 10) &&
     (!q || r.name.toLowerCase().includes(q) || r.top.some(([c]) => c.includes(q) || (D.names[c] || "").toLowerCase().includes(q))));
 }
@@ -422,22 +423,24 @@ function render() {
   const D = state.D, P = D.periods[state.period];
   $("sourceTag").textContent = P.days > 1 ? `加總 ${P.from.slice(5).replace("-", "/")} ～ ${D.date.slice(5).replace("-", "/")}（${P.days} 個交易日）` : `${D.date.replaceAll("-", "/")} · 每日收盤後自動更新`;
   const { k, dir } = state.sort;
-  const list = rows().sort((a, b) => ((k === "cls" ? a.cls.localeCompare(b.cls) : a[k] - b[k]) * dir) || b.net - a.net);
+  const list = rows().sort((a, b) => ((k === "cls" ? a.cls.localeCompare(b.cls) : (a[k] ?? -1e15) - (b[k] ?? -1e15)) * dir) || b.net - a.net);
   const th = (key, label, extra = "") => `<th class="sortable ${k === key ? "sorted" : ""} ${extra}" data-k="${key}">${label}</th>`;
   const multi = P.days > 1;
-  $("tbl").innerHTML = `<thead><tr><th class="l">#</th><th class="l">分點</th>${th("net", "淨買超（萬）")}${th("buy", "買超（萬）", "col-x")}
-      ${th("nb", "買超檔數")}${th("conc", "集中度")}${multi ? th("bdays", "淨買天數", "col-x") : ""}<th class="l">分類</th><th class="l">買超最多的股票（萬）</th></tr></thead>
+  $("tbl").innerHTML = `<thead><tr><th class="l">#</th><th class="l">分點</th>${th("net", "淨買超（萬）")}
+      ${th("nb", "買超檔數")}${th("conc", "集中度")}${th("pnl", "估計損益（萬）")}${th("ex5", "5 日超額報酬", "col-x")}${th("hit5", "勝率", "col-x")}${multi ? th("bdays", "淨買天數", "col-x") : ""}<th class="l">分類</th><th class="l">買超最多（萬）</th></tr></thead>
     <tbody>${list.slice(0, state.shown).map((r, i) => `<tr class="${i < 3 ? "top3" : ""}">
       <td class="l rank-no mono">${i + 1}</td>
       <td class="l"><a class="link" href="broker.html?b=${encodeURIComponent(r.bid)}&date=${D.date}" style="text-decoration:none"><span class="stock-name">${esc(r.name)}</span></a></td>
       <td class="mono ${cls(r.net)}">${wanS(r.net)}</td>
-      <td class="mono up col-x">${wan(r.buy)}</td>
       <td class="mono">${r.nb}<span class="cnt"> / ${r.ns} 賣</span></td>
       <td class="mono">${r.conc.toFixed(0)}%</td>
+      <td class="mono ${cls(r.pnl)}">${wanS(r.pnl)}</td>
+      <td class="mono col-x ${r.ex5 != null ? cls(r.ex5) : ""}" title="${r.n5} 次">${r.ex5 != null ? (r.ex5 > 0 ? "+" : "") + r.ex5.toFixed(2) + "%" : "—"}</td>
+      <td class="mono col-x">${r.hit5 != null ? r.hit5.toFixed(0) + "%" : "—"}</td>
       ${multi ? `<td class="mono col-x">${r.bdays}<span class="cnt"> / ${P.days}</span></td>` : ""}
       <td class="l">${r.cls ? `<span class="tag ${TAG[r.cls] || ""}" title="${r.flip != null ? `隔日賣出比例 ${r.flip}%` : ""}">${esc(r.cls)}</span>` : ""}</td>
-      <td class="tops">${r.top.slice(0, 3).map(([c, v]) => `<a href="broker.html?s=${encodeURIComponent(c)}&date=${D.date}">${esc(D.names[c] || c)} <b class="mono">${wan(v)}</b></a>`).join("")}</td>
-    </tr>`).join("") || `<tr><td colspan="10" class="empty">沒有符合條件的分點</td></tr>`}</tbody>`;
+      <td class="tops">${r.top.slice(0, 2).map(([c, v]) => `<a href="broker.html?s=${encodeURIComponent(c)}&date=${D.date}">${esc(D.names[c] || c)} <b class="mono">${wan(v)}</b></a>`).join("")}</td>
+    </tr>`).join("") || `<tr><td colspan="12" class="empty">沒有符合條件的分點</td></tr>`}</tbody>`;
   $("moreWrap").hidden = list.length <= state.shown;
   const url = new URL(location.href);
   url.search = "";
