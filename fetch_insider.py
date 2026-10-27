@@ -49,7 +49,8 @@ DELAY = 0.3
 
 IRB_COLS = ["code", "company", "issued", "ds_add", "ds_sub", "ds_held", "ds_pct", "mgr_held", "major_held"]
 TRADE_COLS = ["month", "market", "code", "company", "role", "name", "held_prev", "buy_mkt", "buy_other",
-              "sell_mkt", "sell_other", "held_now", "pledged", "note", "dup"]
+              "sell_mkt", "sell_other", "held_now", "pledged", "note", "dup", "pledge_add", "pledge_sub"]
+TRADE_INTS = ["held_prev", "buy_mkt", "buy_other", "sell_mkt", "sell_other", "held_now", "pledged", "pledge_add", "pledge_sub"]
 TRANSFER_COLS = ["date", "market", "code", "company", "role", "name", "method", "shares", "held", "after",
                  "daily_max", "transferee", "period"]
 
@@ -140,6 +141,7 @@ def candidates(cur, prev):
 # query6_1 的 24 欄（titles 有完整名稱）
 I_ROLE, I_NAME, I_KIND, I_PREV = 0, 1, 2, 4
 I_ADD_MKT, I_ADD_OTHER, I_SUB_MKT, I_SUB_OTHER, I_NOW, I_PLEDGE, I_NOTE = 8, 9, 13, 14, 18, 21, 23
+I_PLEDGE_ADD, I_PLEDGE_SUB = 12, 17   # 本月增加／減少 底下的「設定質權股數」「解除質權股數」
 
 
 def mops(api, body):
@@ -151,8 +153,11 @@ def mops(api, body):
 
 def parse_query6(res, y, m, market, code, company):
     """事後申報表 → 有變動的內部人。同一人兼多個身分只留一列（身分用「、」合併）。"""
-    titles = [t.get("main", "") for t in res.get("titles") or []]
-    if titles and (len(titles) < 14 or "本月增加" not in titles[8] or "本月實際自有持有股數" not in titles[10]):
+    raw_titles = res.get("titles") or []
+    titles = [t.get("main", "") for t in raw_titles]
+    subs = lambda i: "".join(s.get("main", "") for s in raw_titles[i].get("sub") or [])  # noqa: E731
+    if titles and (len(titles) < 14 or "本月增加" not in titles[8] or "本月實際自有持有股數" not in titles[10]
+                   or "設定質權" not in subs(8) or "解除質權" not in subs(9)):
         raise C.AdapterError(f"query6_1 {code} 欄位變了：{titles}")
     month = f"{y}-{m:02d}"
     out, seen, principal = [], {}, ""
@@ -170,12 +175,14 @@ def parse_query6(res, y, m, market, code, company):
             continue
         vals = {"held_prev": _int(row[I_PREV]), "buy_mkt": _int(row[I_ADD_MKT]), "buy_other": _int(row[I_ADD_OTHER]),
                 "sell_mkt": _int(row[I_SUB_MKT]), "sell_other": _int(row[I_SUB_OTHER]),
-                "held_now": _int(row[I_NOW]), "pledged": _int(row[I_PLEDGE])}
-        if not (vals["buy_mkt"] or vals["buy_other"] or vals["sell_mkt"] or vals["sell_other"]):
+                "held_now": _int(row[I_NOW]), "pledged": _int(row[I_PLEDGE]),
+                "pledge_add": _int(row[I_PLEDGE_ADD]), "pledge_sub": _int(row[I_PLEDGE_SUB])}
+        if not any(vals[k] for k in ("buy_mkt", "buy_other", "sell_mkt", "sell_other", "pledge_add", "pledge_sub")):
             continue
         short_role = re.sub(r"之配偶及未成年子女$", "", role).replace("本人", "")
         # 同一人（或同一家投資公司）兼多個身分、或「利用他人名義持有」另列一行時，同一筆買賣會重複出現，只記一次
-        key = (re.sub(r"\s+", " ", who).upper(), vals["buy_mkt"], vals["buy_other"], vals["sell_mkt"], vals["sell_other"])
+        key = (re.sub(r"\s+", " ", who).upper(), vals["buy_mkt"], vals["buy_other"], vals["sell_mkt"], vals["sell_other"],
+               vals["pledge_add"], vals["pledge_sub"])
         if key in seen:
             r = seen[key]
             if short_role not in r["role"].split("、"):
@@ -189,16 +196,21 @@ def parse_query6(res, y, m, market, code, company):
     return out
 
 
+def _dup_key(r):
+    return (r["code"], r["buy_mkt"], r["buy_other"], r["sell_mkt"], r["sell_other"],
+            r.get("pledge_add", 0), r.get("pledge_sub", 0))
+
+
 def mark_dups(rows):
     """配偶列的買賣和同公司另一位內部人本人完全相同 → 視為同一筆（夫妻都是內部人），dup 填那個人。"""
     own = {}
     for r in rows:
         if "(配偶/子女)" not in r["name"]:
-            own.setdefault((r["code"], r["buy_mkt"], r["buy_other"], r["sell_mkt"], r["sell_other"]), r["name"])
+            own.setdefault(_dup_key(r), r["name"])
     for r in rows:
         r.setdefault("dup", "")
         if "(配偶/子女)" in r["name"]:
-            who = own.get((r["code"], r["buy_mkt"], r["buy_other"], r["sell_mkt"], r["sell_other"]))
+            who = own.get(_dup_key(r))
             if who and who != r["name"].replace("(配偶/子女)", ""):
                 r["dup"] = who
     return rows
@@ -219,7 +231,7 @@ def fetch_month(y, m, force=False, deadline=None):
             return False
         prev = irb110(py, pm, mkt)
         cand += [(mkt, r["code"], r["company"]) for r in candidates(cur, prev)]
-    rows = [{**r, **{k: _int(r[k]) for k in TRADE_COLS[6:13]}} for r in _read(part_p)]
+    rows = [{**r, **{k: _int(r.get(k)) for k in TRADE_INTS}} for r in _read(part_p)]
     done = set(done_p.read_text(encoding="utf-8").split()) if done_p.exists() else set()
     todo = [c for c in cand if c[1] not in done]
     print(f"{y}-{m:02d}：內部人持股增加的公司 {len(cand)} 家（已查 {len(done)}），逐家查事後申報表", flush=True)
