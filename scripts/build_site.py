@@ -26,6 +26,7 @@
 用法：python scripts/build_site.py [--days 120] [--out _site]
 """
 import argparse
+import csv
 import json
 import shutil
 import sys
@@ -34,7 +35,33 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from upload_firestore import SNAPSHOT_FIELDS, read_rows  # noqa: E402
+NUM_FIELDS = ("open", "high", "low", "close", "change", "volume", "value", "transactions")
+SNAPSHOT_FIELDS = ("code", "name", "market", "open", "high", "low", "close", "change", "volume", "value")
+
+
+def _num(s):
+    s = (s or "").strip()
+    if not s:
+        return None
+    try:
+        return float(s)
+    except ValueError:
+        return None
+
+
+def read_rows(path):
+    """讀一天的 CSV；沒有收盤價（當日無成交）的列略過。"""
+    rows = []
+    with open(path, newline="", encoding="utf-8") as fp:
+        for r in csv.DictReader(fp):
+            row = {"date": r["date"], "market": r["market"],
+                   "code": r["code"].strip(), "name": r["name"].strip()}
+            for k in NUM_FIELDS:
+                row[k] = _num(r.get(k))
+            if row["close"] is not None:
+                rows.append(row)
+    return rows
+
 
 sys.path.insert(0, str(ROOT / "scripts"))
 import etf_site  # noqa: E402

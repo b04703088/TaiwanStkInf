@@ -15,9 +15,6 @@ on:
       start:
         description: "回補起日 YYYY-MM-DD（選填）"
         required: false
-      sync_days:
-        description: "另外把 data/ 最新 N 天同步到 Firestore（選填，最多 5）"
-        required: false
 
 permissions:
   contents: write
@@ -59,32 +56,9 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data
-          # 記下這次新增/更新的 CSV，給下一步上傳 Firestore 用
-          git diff --cached --name-only --diff-filter=AM -- data | grep '\.csv$' > "$RUNNER_TEMP/new_csv.txt" || true
           if git diff --cached --quiet; then
             echo "No new data"
           else
             git commit -m "data: daily prices $(TZ=Asia/Taipei date +%F)"
             git push
           fi
-
-      - name: Upload to Firestore
-        if: always()
-        env:
-          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          SYNC_DAYS: ${{ inputs.sync_days }}
-        run: |
-          if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then
-            echo "未設定 FIREBASE_SERVICE_ACCOUNT secret，略過 Firestore 上傳"
-            exit 0
-          fi
-          touch "$RUNNER_TEMP/new_csv.txt"
-          if [ -n "$SYNC_DAYS" ]; then
-            ls data/[0-9][0-9][0-9][0-9]/[0-9]*.csv | sort | tail -n "$SYNC_DAYS" >> "$RUNNER_TEMP/new_csv.txt"
-          fi
-          if [ ! -s "$RUNNER_TEMP/new_csv.txt" ]; then
-            echo "這次沒有新資料"
-            exit 0
-          fi
-          pip install --quiet firebase-admin
-          python upload_firestore.py --list "$RUNNER_TEMP/new_csv.txt"

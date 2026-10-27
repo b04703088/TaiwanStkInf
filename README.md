@@ -113,26 +113,12 @@ ETF持股的子頁「指數行事曆」`calendar.html`（`scripts/calendar_site.
 - `.github/workflows/pages.yml`：固定時段統一重建部署（台北 平日 08:53、14:03、20:03、23:03，週六 12:03），抓資料的 workflow 只 commit 不觸發部署；改了 `site/` 或網頁程式 push 到 main 時也會立即重建
   - repo variable `DEPLOY_TARGET=cloudflare` 時部署到 Cloudflare Pages（需要 secrets `CLOUDFLARE_API_TOKEN`、`CLOUDFLARE_ACCOUNT_ID`；專案名稱預設 `tide-stk-infs`，可用 variable `CF_PAGES_PROJECT` 改）；沒設時部署到 GitHub Pages
 
-## 同步到 Firebase（Firestore）
-
-每次抓到新資料後，workflow 會用 `upload_firestore.py` 把這次新增的 CSV 寫進 Firestore：
-
-- `stock_prices/{code}/daily/{YYYY-MM-DD}`：每檔每日一筆
-- `daily_snapshots/{YYYY-MM-DD}`：當日全市場一份，`data` 欄位是 JSON 字串（`{columns, rows}`），前端用 `JSON.parse` 讀
-- `jobs/firestore_upload`：最後一次上傳狀態
-
-啟用方式：Firebase Console → 專案設定 → 服務帳戶 → 產生私密金鑰，把整份 JSON 貼到 GitHub repo 的
-Settings → Secrets and variables → Actions → `FIREBASE_SERVICE_ACCOUNT`。沒設定就自動略過。
-
-一天約 2,000 次寫入，Firestore 免費額度每天 20,000 次，所以一次最多上傳最新 5 天（`--max-files`）。
-
 ## 本機執行
 
 ```bash
 python fetch_daily.py                                   # 今天
 python fetch_daily.py --date 2026-09-23                 # 指定日期
 python fetch_daily.py --start 2026-09-01 --end 2026-09-23   # 回補
-python upload_firestore.py --latest 5                   # 把最新 5 天寫進 Firestore（需憑證）
 python -m unittest discover tests                       # 測試
 ```
 
