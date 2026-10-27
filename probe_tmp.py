@@ -53,24 +53,27 @@ def get(url, data=None, n=1500):
     show(j)
 
 
-get("https://www.twse.com.tw/rwd/zh/fund/T86?date=20261023&selectType=ALLBUT0999&response=json")
-get("https://www.tpex.org.tw/www/zh-tw/insti/dailyTrade?type=Daily&sect=EW&date=2026/10/23&response=json")
-get("https://www.twse.com.tw/rwd/zh/fund/BFI82U?type=day&dayDate=20261023&response=json")
-get("https://www.twse.com.tw/rwd/zh/marginTrading/TWT93U?date=20261023&response=json")
-get("https://www.tpex.org.tw/www/zh-tw/margin/sbl?date=2026/10/23&response=json")
-get("https://www.twse.com.tw/rwd/zh/dayTrading/TWTB4U?date=20261023&selectType=All&response=json")
-get("https://www.tpex.org.tw/www/zh-tw/intraday/stat?date=2026/10/23&response=json")
-get("https://www.tpex.org.tw/www/zh-tw/intraday/trading?date=2026/10/23&response=json")
-get("https://www.twse.com.tw/rwd/zh/exRight/TWT48U?startDate=20261027&endDate=20261130&response=json")
-get("https://www.tpex.org.tw/www/zh-tw/bulletin/exRight?startDate=2026/10/27&endDate=2026/11/30&response=json")
-get("https://opendata.tdcc.com.tw/getOD.ashx?id=1-5", n=800)
-get("https://www.tdcc.com.tw/portal/zh/smWeb/qryStock", n=3000)
+
+get("https://www.twse.com.tw/rwd/zh/fund/T86?date=20261022&selectType=ALLBUT0999&response=json")
+get("https://www.tpex.org.tw/www/zh-tw/insti/dailyTrade?type=Daily&sect=EW&date=2026/10/22&response=json")
+get("https://www.twse.com.tw/rwd/zh/fund/T86?date=20220103&selectType=ALLBUT0999&response=json", n=300)
+get("https://www.twse.com.tw/rwd/zh/marginTrading/TWT93U?date=20261022&response=json")
+get("https://www.tpex.org.tw/www/zh-tw/margin/sbl?date=2026/10/22&response=json")
+get("https://www.twse.com.tw/rwd/zh/dayTrading/TWTB4U?date=20261022&selectType=All&response=json")
+for q in ["type=Daily&date=2026/10/22", "date=2026/10/22&type=AL", "date=2026/10/22&sect=AL&type=Daily", "d=2026/10/22", "date=2026/10/22&stkno=&type=all"]:
+    get("https://www.tpex.org.tw/www/zh-tw/intraday/stat?" + q + "&response=json")
+get("https://www.tpex.org.tw/www/zh-tw/intraday/statist?date=2026/10/22&response=json")
+get("https://www.tpex.org.tw/www/zh-tw/afterTrading/dayTrading?date=2026/10/22&response=json")
+get("https://www.tpex.org.tw/web/stock/trading/intraday_trading/intraday_trading_list_result.php?l=zh-tw&d=115/10/22&s=0,asc", n=800)
+get("https://www.tpex.org.tw/www/zh-tw/bulletin/exDailyQ?startDate=2026/10/27&endDate=2026/11/30&response=json", n=800)
+get("https://www.tpex.org.tw/www/zh-tw/bulletin/exRightPre?response=json", n=800)
 get("https://www.taifex.com.tw/cht/3/futContractsDateDown",
-    {"queryStartDate": "2026/10/20", "queryEndDate": "2026/10/23", "commodityId": "TXF"}, n=2500)
-get("https://www.taifex.com.tw/cht/3/pcRatioDown", {"queryStartDate": "2026/10/01", "queryEndDate": "2026/10/23"}, n=1500)
-get("https://www.taifex.com.tw/cht/3/largeTraderFutDown", {"queryStartDate": "2026/10/20", "queryEndDate": "2026/10/23"}, n=2500)
-get("https://www.taifex.com.tw/cht/3/futDataDown",
-    {"down_type": "1", "commodity_id": "TX", "queryStartDate": "2026/10/22", "queryEndDate": "2026/10/23"}, n=1500)
+    {"queryStartDate": "2026/10/01", "queryEndDate": "2026/10/22", "commodityId": "TXF"}, n=1500)
+get("https://www.taifex.com.tw/cht/3/futContractsDateDown",
+    {"queryStartDate": "2026/10/01", "queryEndDate": "2026/10/22", "commodityId": ""}, n=1500)
 get("https://www.taifex.com.tw/cht/3/callsAndPutsDateDown",
-    {"queryStartDate": "2026/10/22", "queryEndDate": "2026/10/23", "commodityId": "TXO"}, n=2000)
-get("https://openapi.taifex.com.tw/v1/MarketDataOfMajorInstitutionalTradersDetailsOfFuturesContractsBytheDate", n=1500)
+    {"queryStartDate": "2026/10/01", "queryEndDate": "2026/10/22", "commodityId": "TXO"}, n=1500)
+get("https://www.taifex.com.tw/cht/3/totalTableDateDown",
+    {"queryStartDate": "2026/10/01", "queryEndDate": "2026/10/22"}, n=1500)
+get("https://www.taifex.com.tw/cht/3/pcRatioDown", {"queryStartDate": "2022/01/01", "queryEndDate": "2026/10/22"}, n=300)
+get("https://www.taifex.com.tw/cht/3/largeTraderFutDown", {"queryStartDate": "2025/10/20", "queryEndDate": "2026/10/22"}, n=300)
