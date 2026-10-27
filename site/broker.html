@@ -265,6 +265,7 @@
   .subtabs a:hover{color:var(--text);}
   .subtabs a[aria-current="page"]{color:var(--brass); border-bottom-color:var(--brass);}
 </style>
+<link rel="stylesheet" href="nav.css">
 </head>
 <body>
 
@@ -276,19 +277,12 @@
     </a>
     <nav class="links">
       <a href="index.html">首頁</a>
-      <a href="ranking.html">成交排行</a>
-      <a href="industry.html">產業分類</a>
-      <a href="broker.html" aria-current="page">分點籌碼</a>
+      <div class="nav-grp"><button type="button" onclick="this.parentNode.classList.toggle('open')">行情</button><div class="nav-menu"><a href="ranking.html">成交排行</a><a href="industry.html">產業分類</a><a href="kline.html">K線</a></div></div>
+      <div class="nav-grp cur"><button type="button" onclick="this.parentNode.classList.toggle('open')">籌碼</button><div class="nav-menu"><a href="chips.html">法人籌碼</a><a href="broker.html" aria-current="page">分點籌碼</a><a href="margin.html">融資融券</a><a href="insider.html">內部人</a><a href="treasury.html">庫藏股</a><a href="futures.html">期權籌碼</a></div></div>
       <a href="etf.html">ETF持股</a>
-      <a href="cb.html">CB詢圈</a>
-      <a href="treasury.html">庫藏股</a>
-      <a href="insider.html">內部人</a>
-      <a href="margin.html">融資融券</a>
-      <a href="analyst.html">外資報告</a>
-      <a href="alert.html">處置注意</a>
-      <a href="news.html">重大訊息</a>
+      <div class="nav-grp"><button type="button" onclick="this.parentNode.classList.toggle('open')">事件</button><div class="nav-menu"><a href="news.html">重大訊息</a><a href="cb.html">CB詢圈</a><a href="alert.html">處置注意</a><a href="analyst.html">外資報告</a></div></div>
       <a href="fin.html">財報</a>
-      <a href="kline.html">K線</a>
+      <a href="screen.html">選股</a>
       <a href="index.html#quant">量化策略</a>
       <a href="health.html">資料健檢</a>
     </nav>

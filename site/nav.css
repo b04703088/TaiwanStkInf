@@ -1,0 +1,20 @@
+/* 導覽列分組（各頁共用）：桌機滑過／點擊展開選單；手機（≤860px）攤平成一排可橫向捲動的連結 */
+.nav-grp{position:relative;}
+.nav-grp > button{background:none; border:0; padding:0; font:inherit; color:var(--text-muted); cursor:pointer;}
+.nav-grp > button::after{content:"▾"; font-size:10px; margin-left:3px; opacity:.7;}
+.nav-grp > button:hover, .nav-grp.cur > button{color:var(--brass);}
+.nav-menu{display:none; position:absolute; top:100%; left:-14px; z-index:60; flex-direction:column; min-width:9.5em;
+  padding:8px 0; margin-top:0; background:var(--panel-2, #182531); border:1px solid var(--line-strong); border-radius:var(--radius-m, 6px);
+  box-shadow:0 8px 24px rgba(0,0,0,.35);}
+.nav-grp::after{content:""; position:absolute; left:0; right:0; top:100%; height:8px;}
+.nav-grp:hover .nav-menu, .nav-grp:focus-within .nav-menu, .nav-grp.open .nav-menu{display:flex;}
+nav.links .nav-menu a{padding:7px 16px; white-space:nowrap;}
+nav.links .nav-menu a:hover{background:var(--brass-soft, rgba(198,161,91,.14));}
+@media (max-width:860px){
+  .nav-grp{display:contents;}
+  .nav-grp::after{display:none;}
+  .nav-grp > button{display:none;}
+  .nav-menu, .nav-grp:hover .nav-menu{display:contents; position:static;}
+  nav.links .nav-menu a{padding:0;}
+  nav.links .nav-menu a:hover{background:none;}
+}
