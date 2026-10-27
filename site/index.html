@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0E1620">
 <title>潮汐｜籌碼觀測站</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -324,6 +325,54 @@
     .home h1{font-size:28px;}
     .quick{grid-template-columns:1fr 1fr;}
   }
+
+  /* 資料日期 */
+  .asof{display:flex; flex-wrap:wrap; gap:10px 28px; margin:14px 0 4px; padding:12px 16px; background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--brass); border-radius:var(--radius-s);}
+  .asof div{display:flex; align-items:baseline; gap:8px;}
+  .asof span{font-size:12.5px; color:var(--text-muted);}
+  .asof b{font-family:'IBM Plex Mono',monospace; font-size:19px; font-weight:600; color:var(--text);}
+  .asof small{font-size:12px; color:var(--text-faint);}
+  .asof small.stale{color:var(--brass);}
+  /* 我的自選 */
+  .my{margin-top:26px;}
+  .my-head{display:flex; align-items:baseline; justify-content:space-between; gap:12px; border-bottom:1px solid var(--line-strong); padding-bottom:8px;}
+  .my-head h2{font-size:17px;}
+  .my-add{background:none; border:1px solid var(--line-strong); border-radius:var(--radius-s); color:var(--text-muted); font:inherit; font-size:12.5px; padding:3px 10px; cursor:pointer;}
+  .my-add:hover{border-color:var(--brass); color:var(--brass);}
+  .my kbd, .my-empty kbd{font-family:'IBM Plex Mono',monospace; font-size:11px; padding:0 4px; border:1px solid var(--line-strong); border-radius:3px;}
+  .my-empty{font-size:13px; color:var(--text-faint); margin:10px 0 0;}
+  .my-grid{display:flex; flex-wrap:wrap; gap:1px; background:var(--line); border:1px solid var(--line); border-top:0;}
+  .my-card{flex:1 1 200px; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:2px 8px; padding:11px 14px; background:var(--ink); text-decoration:none; color:inherit;}
+  .my-card:hover{background:var(--panel-2);}
+  .my-card .nm{font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .my-card .nm b{font-family:'IBM Plex Mono',monospace; font-weight:500; font-size:12px; color:var(--text-faint); margin-left:6px;}
+  .my-card .px{font-family:'IBM Plex Mono',monospace; font-size:15px; text-align:right;}
+  .my-card .ch{grid-column:1/-1; font-family:'IBM Plex Mono',monospace; font-size:12.5px; text-align:right;}
+  .my-card .ch.up{color:var(--rise);} .my-card .ch.down{color:var(--fall);} .my-card .ch.flat{color:var(--text-faint);}
+  /* 買賣超合計 */
+  .bw-sum{display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:14px; margin:8px 0 14px;}
+  .bw-sum div span{display:block; font-size:12px; color:var(--text-faint);}
+  .bw-sum div b{font-family:'IBM Plex Mono',monospace; font-size:22px; font-weight:600;}
+  .bw-sum .b b{color:var(--rise);} .bw-sum .s{text-align:right;} .bw-sum .s b{color:var(--fall);}
+  .bw-sum .bar{display:flex; height:8px; border-radius:4px; overflow:hidden; background:var(--panel-2);}
+  .bw-sum .bar i{background:var(--rise);} .bw-sum .bar em{background:var(--fall); margin-left:auto;}
+  table.bw-t td.num .bwb{display:block; height:3px; margin-top:4px; margin-left:auto; border-radius:2px; opacity:.7;}
+  table.bw-t td.num.buy .bwb{background:var(--rise);} table.bw-t td.num.sell .bwb{background:var(--fall);}
+  /* 可摺疊區塊 */
+  details.fold > summary{cursor:pointer; list-style:none; flex-wrap:wrap;}
+  details.fold > summary::-webkit-details-marker{display:none;}
+  details.fold > summary h2::before{content:""; display:inline-block; width:7px; height:7px; border-right:2px solid var(--brass); border-bottom:2px solid var(--brass); transform:rotate(-45deg); margin:0 12px 3px 2px; transition:transform .15s ease;}
+  details.fold[open] > summary h2::before{transform:rotate(45deg);}
+  details.fold > summary:hover h2{color:var(--brass);}
+  .fold-sum{flex:1; font-size:13px; color:var(--text-muted);}
+  details.fold[open] .fold-sum{visibility:hidden;}
+  details.fold + details.fold{margin-top:28px;}
+  @media (max-width: 860px){
+    .asof{gap:6px 20px;} .asof b{font-size:16px;}
+    .bw-sum div b{font-size:17px;}
+    .my-card{flex-basis:150px;}
+    .fold-sum{flex-basis:100%; order:3; padding-left:21px;}
+  }
 </style>
 </head>
 <body>
@@ -344,9 +393,19 @@
     <div class="wrap">
       <div class="eyebrow">潮汐 · 籌碼觀測站</div>
       <h1>今天要先看的重點</h1>
+      <div class="asof" id="asof" hidden>
+        <div><span>資料日期</span><b id="asofDay"></b><small id="asofNote"></small></div>
+        <div><span>網站更新</span><b id="asofBuilt"></b><small>台北時間</small></div>
+      </div>
+
+      <div class="my" id="my">
+        <div class="my-head"><h2>我的自選</h2><button type="button" class="my-add" id="myAdd">＋ 搜尋加入 <kbd>/</kbd></button></div>
+        <div id="myBody"><p class="my-empty">還沒有自選股。按右上角「搜尋個股」或鍵盤 <kbd>/</kbd>，在股票旁按 ☆ 就會出現在這裡（只存在這台裝置的瀏覽器）。</p></div>
+      </div>
 
       <div class="bw" id="bw" hidden>
         <p class="bw-head"><b>追蹤分點大額進出</b><span id="bwSub"></span></p>
+        <div class="bw-sum" id="bwSum"></div>
         <div class="bw-grid">
           <table class="bw-t"><caption class="buy" id="bwBuyCap">買超</caption>
             <thead><tr><th>個股</th><th class="num">淨買超</th><th class="who">主要分點</th></tr></thead><tbody id="bwBuy"></tbody></table>
@@ -356,29 +415,29 @@
         <p class="bw-foot" id="bwFoot"></p>
       </div>
 
-      <div class="block">
-        <div class="block-head">
-          <h2>未來一週 ETF 指數調整</h2>
+      <details class="block fold" id="foldWeek">
+        <summary class="block-head">
+          <h2>未來一週 ETF 指數調整</h2><span class="fold-sum" id="weekSum"></span>
           <a href="calendar.html">完整行事曆 →</a>
-        </div>
+        </summary>
         <p class="block-note" id="weekNote">載入中…</p>
         <div id="weekList"></div>
-      </div>
+      </details>
 
-      <div class="block" style="margin-top:56px">
-        <div class="block-head">
-          <h2>CB 詢價圈購</h2>
+      <details class="block fold" id="foldCb">
+        <summary class="block-head">
+          <h2>CB 詢價圈購</h2><span class="fold-sum" id="cbSum"></span>
           <a href="cb-bb.html">所有詢圈案件 →</a>
-        </div>
+        </summary>
         <p class="block-note" id="cbNote">載入中…</p>
         <div class="cb-grid">
           <div><h3>進行中<small id="cbLiveN"></small></h3><div id="cbLive"></div>
             <h3 style="margin-top:28px">董事會剛通過<small id="cbBoardN">近 7 天</small></h3><div id="cbBoard"></div></div>
           <div><h3>近期詢圈結果<small>近 14 天訂價</small></h3><div id="cbNew"></div></div>
         </div>
-      </div>
+      </details>
 
-      <div class="block-head" style="margin-top:56px"><h2>資料頁</h2></div>
+      <div class="block-head" style="margin-top:48px"><h2>資料頁</h2></div>
       <div class="quick">
         <a href="ranking.html"><b>成交排行</b><span>當日成交金額排行、市場資金集中度</span></a>
         <a href="industry.html"><b>產業分類</b><span>個股屬於哪些細產業、今日細產業強弱</span></a>
@@ -443,15 +502,20 @@
     // 同方向貢獻最大的 2 個分點
     const who = o => Object.entries(o.br).filter(([, n]) => Math.sign(n) === Math.sign(o.net) && Math.abs(n) >= 1000)
       .sort((a, b) => Math.abs(b[1]) - Math.abs(a[1])).slice(0, 2).map(([b, n]) => `${esc(W.branches[b].label)} ${amt(n)}`).join("、");
+    const top = Math.max(1, ...hits.map(([, o]) => Math.abs(o.net)));
     const tr = ([code, o]) => `<tr>
       <td><a href="watch.html?date=${date}&p=1">${esc(W.names[code] || code)}<b>${esc(code)}</b></a></td>
-      <td class="num ${o.net > 0 ? "buy" : "sell"}">${o.net > 0 ? "+" : "−"}${amt(o.net)}</td>
+      <td class="num ${o.net > 0 ? "buy" : "sell"}">${o.net > 0 ? "+" : "−"}${amt(o.net)}<i class="bwb" style="width:${Math.max(4, Math.abs(o.net) / top * 100).toFixed(0)}%"></i></td>
       <td class="who">${who(o) || "—"}</td></tr>`;
     const buy = hits.filter(([, o]) => o.net > 0).sort((a, b) => b[1].net - a[1].net);
     const sell = hits.filter(([, o]) => o.net < 0).sort((a, b) => a[1].net - b[1].net);
-    const sum = l => amt(l.reduce((s, [, o]) => s + o.net, 0));
-    $("bwBuyCap").innerHTML = `買超 ${buy.length} 檔${buy.length ? `<small>合計 ${sum(buy)}</small>` : ""}`;
-    $("bwSellCap").innerHTML = `賣超 ${sell.length} 檔${sell.length ? `<small>合計 ${sum(sell)}</small>` : ""}`;
+    const tot = l => l.reduce((s, [, o]) => s + o.net, 0);
+    const tb = tot(buy), ts = -tot(sell), tt = tb + ts || 1;
+    $("bwSum").innerHTML = `<div class="b"><span>買超 ${buy.length} 檔合計</span><b>+${amt(tb)}</b></div>
+      <div class="bar" title="買超 ${(tb / tt * 100).toFixed(0)}%・賣超 ${(ts / tt * 100).toFixed(0)}%"><i style="width:${(tb / tt * 100).toFixed(1)}%"></i><em style="width:${(ts / tt * 100).toFixed(1)}%"></em></div>
+      <div class="s"><span>賣超 ${sell.length} 檔合計</span><b>−${amt(ts)}</b></div>`;
+    $("bwBuyCap").textContent = `買超 ${buy.length} 檔`;
+    $("bwSellCap").textContent = `賣超 ${sell.length} 檔`;
     $("bwBuy").innerHTML = buy.map(tr).join("") || '<tr><td class="empty" colspan="3">沒有個股淨買超達 5000 萬</td></tr>';
     $("bwSell").innerHTML = sell.map(tr).join("") || '<tr><td class="empty" colspan="3">沒有個股淨賣超達 5000 萬</td></tr>';
     $("bwSub").textContent = `${md(date)}（${wk(date)}）・${W.branches.length} 個追蹤分點加總淨額 ≥ 5000 萬・不含 ETF`;
@@ -480,6 +544,7 @@
       .filter(x => x.etfs.length && x.ann <= end && (x.ann >= today || (x.eff && x.eff >= today)))
       .sort((a, b) => a.ann.localeCompare(b.ann) || a.index.localeCompare(b.index));
     const nEtf = new Set(rows.flatMap(x => x.etfs)).size;
+    $("weekSum").textContent = rows.length ? `${rows.length} 個指數・${nEtf} 檔 ETF` + (rows.some(x => x.ann === today) ? "・今天有公告" : "") : "未來一週沒有調整";
     $("weekNote").textContent = `${md(today)} ～ ${md(end)}：${rows.length} 個指數、${nEtf} 檔 ETF。公告後（收盤後）列出成分股納入／刪除名單，生效前一個交易日收盤 ETF 通常會調整持股。`;
     const stk = xs => xs.map(([c, n, en]) => `<span class="stk"${en ? ` title="${esc(en)}"` : ""}><b>${esc(c || "—")}</b>${esc(n)}</span>`).join("");
     $("weekList").innerHTML = rows.length ? rows.map(x => {
@@ -528,6 +593,7 @@
       : c.bb_end > today ? ["live", "詢圈中"] : ["", "待訂價"];
     const cnt = k => live.filter(c => stOf(c)[1] === k || (k === "詢圈中" && stOf(c)[0] === "end")).length;
     $("cbLiveN").textContent = `詢圈中 ${cnt("詢圈中")}・即將開始 ${live.filter(c => stOf(c)[0] === "soon").length}・待訂價 ${cnt("待訂價")}`;
+    $("cbSum").textContent = $("cbLiveN").textContent;
     $("cbLive").innerHTML = live.length ? live.map(c => {
       const [k, t] = stOf(c);
       return `<a class="cb-case" href="cb-bb.html">
@@ -543,6 +609,7 @@
     const meth = c => { const m = c.board_method || c.method; return m ? (/競/.test(m) ? "競拍" : "詢圈") : "方式未定"; };
     const lead = c => (c.lead || "").replace(/股份有限公司|綜合證券|證券/g, "");
     $("cbBoardN").textContent = `近 7 天 ${boards.length} 檔`;
+    $("cbSum").textContent += `・董事會新通過 ${boards.length}`;
     $("cbBoard").innerHTML = boards.length ? boards.map(c => {
       const m = meth(c), sec = /有擔保/.test(c.type || "") ? "有擔保" : "無擔保";
       return `<a class="cb-new" href="cb-pipeline.html#c-${esc(c.id)}">
@@ -574,6 +641,67 @@
     console.error(e);
     $("cbNote").textContent = "讀取 CB 資料失敗，請重新整理頁面。";
   }
+})();
+</script>
+<script>
+// 資料日期、網站更新時間；我的自選；摺疊區塊記住開合
+(function () {
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const wk = d => "日一二三四五六"[new Date(d + "T00:00:00+08:00").getDay()];
+  const md = d => `${+d.slice(5, 7)}/${+d.slice(8, 10)}`;
+  const today = new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);
+  let daily = null;
+
+  const built = document.querySelector(".built-at");
+  if (built) $("asofBuilt").textContent = built.textContent.replace(/^更新\s*/, "");
+  fetch("data/days.json", { cache: "no-cache" }).then(r => r.json()).then(days => {
+    const d = days[days.length - 1];
+    if (!d) return;
+    $("asofDay").textContent = `${md(d)}（${wk(d)}）`;
+    const lag = Math.round((Date.parse(today) - Date.parse(d)) / 864e5);
+    $("asofNote").textContent = d === today ? "今日收盤" : lag <= 5 ? "最近一個交易日收盤" : `已 ${lag} 天未更新`;
+    if (lag > 5) $("asofNote").className = "stale";
+    if (!built) $("asofBuilt").parentNode.hidden = true;
+    $("asof").hidden = false;
+    daily = fetch(`data/daily/${d}.json`).then(r => r.json()).catch(() => null);
+    renderMy();
+  }).catch(() => {});
+
+  async function renderMy() {
+    const W = window.TideWatch, codes = W ? W.list() : [];
+    if (!codes.length) {
+      $("myBody").innerHTML = `<p class="my-empty">還沒有自選股。按右上角「搜尋個股」或鍵盤 <kbd>/</kbd>，在股票旁按 ☆ 就會出現在這裡（只存在這台裝置的瀏覽器）。</p>`;
+      return;
+    }
+    const d = daily ? await daily : null;
+    const by = {};
+    if (d) {
+      const C = Object.fromEntries(d.columns.map((c, i) => [c, i]));
+      d.rows.forEach(x => { by[x[C.code]] = { name: x[C.name], close: +x[C.close], chg: +x[C.change] }; });
+    }
+    $("myBody").innerHTML = `<div class="my-grid">${codes.map(c => {
+      const x = by[c];
+      const pct = x && x.close - x.chg ? x.chg / (x.close - x.chg) * 100 : null;
+      const k = !x || !x.chg ? "flat" : x.chg > 0 ? "up" : "down";
+      return `<a class="my-card" href="kline.html#s=${encodeURIComponent(c)}">
+        <span class="nm">${esc(x?.name || c)}<b>${esc(c)}</b></span><span class="px">${x && x.close ? x.close.toLocaleString("zh-TW", { maximumFractionDigits: 2 }) : "—"}</span>
+        <span class="ch ${k}">${x && pct != null ? `${x.chg > 0 ? "+" : ""}${x.chg.toLocaleString("zh-TW", { maximumFractionDigits: 2 })}（${pct > 0 ? "+" : ""}${pct.toFixed(2)}%）` : ""}</span></a>`;
+    }).join("")}</div>`;
+  }
+  document.addEventListener("tide:watch", renderMy);
+  addEventListener("storage", e => { if (e.key === "tide.watch") renderMy(); });
+  $("myAdd").addEventListener("click", () => document.querySelector(".gsearch")?.click());
+  renderMy();
+
+  // 摺疊：預設收起（手機首屏短一點），使用者展開過就記住
+  document.querySelectorAll("details.fold").forEach(el => {
+    let open = null;
+    try { open = localStorage.getItem("tide.fold." + el.id); } catch (e) {}
+    el.open = open === "1";
+    el.addEventListener("toggle", () => { try { localStorage.setItem("tide.fold." + el.id, el.open ? "1" : "0"); } catch (e) {} });
+    el.querySelector("summary a")?.addEventListener("click", e => e.stopPropagation());
+  });
 })();
 </script>
 </body>
