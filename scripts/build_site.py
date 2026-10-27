@@ -16,6 +16,7 @@
   data/analyst/analyst.json          FactSet 共識與外資報告（見 scripts/analyst_site.py）
   data/alert/alert.json              處置股、注意股（見 scripts/alert_site.py）
   data/treasury.json                 庫藏股買回計畫與進度（見 scripts/treasury_site.py）
+  data/insider/insider.json          內部人事前申報、每月持股異動與設質解質（見 scripts/insider_site.py）
   data/mops/mops.json                重大訊息、股東會／法說會行事曆（見 scripts/mops_site.py）
   data/fin/index.json, s/<代號>.json  財報：月營收與季報（見 scripts/fin_site.py）
   data/margin/market.json, stocks.json, s/<代號>.json  融資融券、估計維持率（見 scripts/margin_site.py）
@@ -47,6 +48,7 @@ import calendar_site  # noqa: E402
 import analyst_site  # noqa: E402
 import alert_site  # noqa: E402
 import treasury_site  # noqa: E402
+import insider_site  # noqa: E402
 import mops_site  # noqa: E402
 import fin_site  # noqa: E402
 import margin_site  # noqa: E402
@@ -110,6 +112,7 @@ def build(out: Path, days: int) -> list[str]:
     analyst_site.write_analyst(ROOT / "data", out / "data" / "analyst" / "analyst.json")
     alert_site.write_alert(ROOT / "data", out / "data" / "alert" / "alert.json")
     treasury_site.write_treasury(ROOT / "data", out / "data" / "treasury.json")
+    insider_site.write_insider(ROOT / "data", out / "data" / "insider" / "insider.json")
     mops_site.write_mops(ROOT / "data", out / "data" / "mops" / "mops.json")
     fin_site.write_fin(ROOT / "data", out / "data" / "fin")
     margin_site.write_margin(ROOT / "data", out / "data" / "margin")

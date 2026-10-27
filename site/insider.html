@@ -28,7 +28,7 @@
   .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
   .brand-mark{font-family:'Noto Serif TC',serif; font-size:22px; font-weight:700;}
   .brand-sub{font-size:12px; color:var(--text-faint);}
-  nav.links{display:flex; gap:20px; font-size:14px;}
+  nav.links{display:flex; gap:16px; font-size:14px; white-space:nowrap;}
   nav.links a{text-decoration:none; color:var(--text-muted);}
   nav.links a:hover{color:var(--brass);}
   nav.links a[aria-current="page"]{color:var(--brass);}
@@ -114,6 +114,8 @@
   .sub-row td{background:var(--panel-2); font-size:12.5px; padding-top:6px; padding-bottom:6px;}
   .sub-row td:first-child{padding-left:28px;}
   .caret{display:inline-block; width:12px; color:var(--text-faint); font-size:10px;}
+  td.person{white-space:normal; min-width:9em; line-height:1.4;}
+  td.person .role{display:block; font-size:11.5px; color:var(--text-faint);}
   .who{font-size:12.5px; color:var(--text-muted); white-space:normal; min-width:14em;}
   .tag.sell{border-color:var(--fall); color:var(--fall);}
   .tag.buy{border-color:var(--rise); color:var(--rise);}
@@ -250,6 +252,7 @@ const yi = v => v == null || !isFinite(v) || !v ? "–" : Math.abs(v) >= 1e8 ? (
 const local = d => new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
 const TODAY = local(new Date());
 const addDays = (d, n) => { const t = new Date(d + "T00:00:00"); t.setDate(t.getDate() + n); return local(t); };
+const per = p => (p || "").split("~").map(md).join("～");
 const md = d => d ? (d.slice(0, 4) === TODAY.slice(0, 4) ? d.slice(5) : d) : "–";
 
 let D, PX = {}, PXDATE = "", TR = [], PRE = [], PLG = [];
@@ -273,10 +276,10 @@ function renderPre(){
     const pc = r.held ? r.shares / r.held * 100 : null;
     const k = KIND(r.method);
     return `<tr><td class="mono">${md(r.date)}</td><td>${stockCell(r)}</td>
-      <td><span class="sname">${esc(short(r.name))}</span><span class="faint" style="font-size:12px;margin-left:6px">${esc(short(r.role))}</span></td>
+      <td class="person"><span class="sname">${esc(short(r.name))}</span><span class="role">${esc(short(r.role))}</span></td>
       <td><span class="tag ${k === "mkt" ? "sell" : ""}">${esc(r.method.replace(/\(每日得轉讓股數限制\)/, ""))}</span></td>
       <td class="n mono">${lots(r.shares)}</td><td class="n mono">${pc != null ? pc.toFixed(pc >= 10 ? 0 : 1) + "%" : "–"}</td>
-      <td class="n mono">${yi(money(r.code, r.shares))}</td><td class="mono hide-s faint">${esc(r.period || "")}</td>
+      <td class="n mono">${yi(money(r.code, r.shares))}</td><td class="mono hide-s faint">${esc(per(r.period))}</td>
       <td class="hide-s faint" style="font-size:12.5px">${esc(short(r.transferee) || "")}</td></tr>`;
   }).join("") || `<tr><td colspan="9" class="empty">${S.q ? "這檔股票沒有事前申報" : "這段期間沒有資料"}</td></tr>`;
   document.getElementById("p-more").hidden = rows.length <= P.n;
@@ -293,7 +296,7 @@ function renderPledge(){
   document.getElementById("g-body").innerHTML = rows.slice(0, G.n).map(r => {
     const pc = r.pledged_pct != null ? r.pledged_pct : r.held ? r.pledged / r.held * 100 : null;
     return `<tr><td class="mono">${md(r.date)}</td><td>${stockCell(r)}</td>
-      <td><span class="sname">${esc(short(r.name))}</span><span class="faint" style="font-size:12px;margin-left:6px">${esc(short(r.role))}</span></td>
+      <td class="person"><span class="sname">${esc(short(r.name))}</span><span class="role">${esc(short(r.role))}</span></td>
       <td><span class="tag ${isAdd(r) ? "sell" : "buy"}">${esc(r.kind)}</span></td>
       <td class="n mono">${lots(r.shares)}</td><td class="n mono">${yi(money(r.code, r.shares))}</td>
       <td class="n mono">${r.pledged ? lots(r.pledged) + " 張" : "–"}${pc != null ? `<span class="faint">（${pc.toFixed(0)}%）</span>` : ""}</td>
