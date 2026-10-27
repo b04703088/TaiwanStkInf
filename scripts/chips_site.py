@@ -12,6 +12,7 @@
 import csv
 import json
 import shutil
+from datetime import date, timedelta
 from pathlib import Path
 
 MARKET_N = 120
@@ -217,4 +218,11 @@ def write_chips(data_dir, out_dir):
     (out / "chips.json").write_text(dump(payload), encoding="utf-8")
     for code, s in per.items():
         (out / "s" / f"{code}.json").write_text(dump(s), encoding="utf-8")
+    prices = sorted(Path(data_dir).glob("[0-9][0-9][0-9][0-9]/[0-9]*.csv"), key=lambda p: p.name)
+    if prices and payload["date"].replace("-", "") < (date.fromisoformat(_iso(prices[-1].stem)) - timedelta(days=7)).strftime("%Y%m%d"):
+        return None  # 籌碼資料落後股價一週以上：不放進選股頁，免得用舊籌碼配新股價
     return SCREEN_COLS, screen
+
+
+def _iso(stem):
+    return f"{stem[:4]}-{stem[4:6]}-{stem[6:]}"
