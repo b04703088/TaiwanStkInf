@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>內部人｜潮汐</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0E1620; --panel:#141F2B; --panel-2:#182531;
+    --line:rgba(232,237,242,0.09); --line-strong:rgba(232,237,242,0.16);
+    --text:#E8EDF2; --text-muted:#8B99A6; --text-faint:#5C6B79;
+    --brass:#C6A15B; --brass-soft:rgba(198,161,91,0.14); --rise:#E1594F; --fall:#3FAE72;
+    --radius-s:3px; --radius-m:6px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--ink); color:var(--text);
+    font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
+  h1,h2{font-family:'Noto Serif TC',serif; margin:0; font-weight:700;}
+  h2{font-size:20px;}
+  .mono{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+  a{color:inherit;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
+  header.site{position:sticky; top:0; z-index:40; background:rgba(14,22,32,0.88); backdrop-filter:blur(10px); border-bottom:1px solid var(--line);}
+  .nav-row{display:flex; align-items:center; justify-content:space-between; padding:16px 28px;}
+  .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
+  .brand-mark{font-family:'Noto Serif TC',serif; font-size:22px; font-weight:700;}
+  .brand-sub{font-size:12px; color:var(--text-faint);}
+  nav.links{display:flex; gap:16px; font-size:14px; white-space:nowrap;}
+  nav.links a{text-decoration:none; color:var(--text-muted);}
+  nav.links a:hover{color:var(--brass);}
+  nav.links a[aria-current="page"]{color:var(--brass);}
+  .nav-cta{font-size:13px; color:var(--ink); background:var(--brass); padding:8px 16px; border-radius:var(--radius-s); text-decoration:none; font-weight:500;}
+  .page-head{padding:56px 0 8px;}
+  .eyebrow{font-size:13px; color:var(--brass); margin-bottom:10px;}
+  h1{font-size:32px;}
+  .desc{color:var(--text-muted); font-size:14.5px; margin:12px 0 0; max-width:52em;}
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden; margin-top:28px;}
+  .stat{background:var(--panel); padding:16px 20px;}
+  .stat .k{font-size:12.5px; color:var(--text-muted);}
+  .stat .v{font-size:26px; margin-top:2px;}
+  .stat .s{font-size:12px; color:var(--text-faint);}
+  section.block{margin-top:48px;}
+  .block-head{display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin-bottom:14px; flex-wrap:wrap;}
+  .hint{font-size:12.5px; color:var(--text-faint);}
+  .up{color:var(--rise);} .down{color:var(--fall);} .flat{color:var(--text-muted);}
+  .faint{color:var(--text-faint);}
+  .muted{color:var(--text-muted);}
+
+  .stock .px{font-size:15px;}
+  .kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-top:16px; padding-top:14px; border-top:1px solid var(--line);}
+  .kpi .k{font-size:12px; color:var(--text-muted);}
+  .kpi .v{font-size:20px; margin-top:2px;}
+  .kpi .s{font-size:12px; color:var(--text-faint); margin-top:2px;}
+  .views{display:flex; height:8px; border-radius:2px; overflow:hidden; margin-top:8px; background:var(--line);}
+  .views i{display:block; height:100%;}
+  .views .b{background:var(--rise);} .views .n{background:var(--text-faint);} .views .r{background:var(--fall);}
+
+  /* 表格 */
+  .tbl-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius-m);}
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  th, td{padding:9px 12px; border-bottom:1px solid var(--line); text-align:left; white-space:nowrap;}
+  th{font-size:12px; color:var(--text-muted); font-weight:500; background:var(--panel); position:sticky; top:0;}
+  td.n, th.n{text-align:right;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr.click{cursor:pointer;}
+  tbody tr.click:hover td{background:var(--panel);}
+  td.wrap-cell{white-space:normal; min-width:18em;}
+  .sname{font-weight:500;}
+  .sname .mono{font-size:11.5px; color:var(--text-faint); margin-left:6px; font-weight:500;}
+  .mini{display:inline-flex; width:72px; height:6px; border-radius:2px; overflow:hidden; background:var(--line); vertical-align:middle; margin-right:6px;}
+  .mini i{display:block; height:100%;}
+  .mini .b{background:var(--rise);} .mini .n{background:var(--text-faint);} .mini .r{background:var(--fall);}
+  .tag{display:inline-block; font-size:11.5px; padding:1px 7px; border-radius:var(--radius-s); border:1px solid var(--line-strong); color:var(--text-muted); margin-right:8px;}
+  .tag.rep{border-color:var(--brass); color:var(--brass);}
+  .ttl{display:block; font-size:12px; color:var(--text-faint); margin-top:2px; text-decoration:none; overflow:hidden; text-overflow:ellipsis; max-width:46em;}
+  .ttl:hover{color:var(--brass);}
+
+  .toolbar{display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin-bottom:12px;}
+  .chips{display:flex; flex-wrap:wrap; gap:6px;}
+  .chips button{background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:5px 11px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .chips button[aria-pressed="true"]{border-color:var(--brass); color:var(--brass);}
+  .tag.act{border-color:var(--brass); color:var(--brass);}
+  .tag.pend{border-style:dashed;}
+  .pos{font-size:11.5px; margin-left:6px;}
+  .bar{display:inline-block; width:64px; height:6px; border-radius:2px; background:var(--line); vertical-align:middle; margin-right:6px; overflow:hidden;}
+  .bar i{display:block; height:100%; background:var(--brass);}
+  .filter{background:var(--panel); border:1px solid var(--line-strong); color:var(--text); padding:6px 11px; border-radius:var(--radius-s); font:inherit; font-size:13px; width:12em;}
+  .filter:focus{outline:none; border-color:var(--brass);}
+  .more{display:block; margin:14px auto 0; background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:7px 18px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .more:hover{color:var(--brass); border-color:var(--brass);}
+  .more[hidden]{display:none;}
+  .brk{font-size:12.5px; line-height:1.5;}
+  td.brk-cell{white-space:normal; min-width:13em;}
+  .brk .tag{margin-right:4px; font-size:11px; padding:0 5px;}
+  .tag.hi{border-color:var(--rise); color:var(--rise);}
+  .tag.sus{border-style:dashed;}
+  th[data-k]{cursor:pointer; user-select:none;}
+  th[data-k]:hover{color:var(--brass);}
+  th[data-k] .arr{font-size:10px; margin-left:3px; color:var(--brass);}
+  .empty{padding:20px 0; color:var(--text-faint); font-size:13.5px;}
+  .note{font-size:12.5px; color:var(--text-faint); margin-top:18px; line-height:1.8;}
+  footer.site{padding:48px 0; margin-top:64px; border-top:1px solid var(--line);}
+  @media (max-width:860px){
+    .nav-row{padding:14px 16px; flex-wrap:wrap; row-gap:10px;}
+    nav.links{order:3; width:100%; gap:20px; overflow-x:auto; white-space:nowrap; font-size:13.5px; scrollbar-width:none;}
+    .wrap{padding:0 16px;}
+    .stats, .kpis{grid-template-columns:repeat(2,1fr);} h1{font-size:26px;}
+    .hide-s{display:none;}
+    td.wrap-cell{min-width:14em;}
+  }
+  .sub-row td{background:var(--panel-2); font-size:12.5px; padding-top:6px; padding-bottom:6px;}
+  .sub-row td:first-child{padding-left:28px;}
+  .caret{display:inline-block; width:12px; color:var(--text-faint); font-size:10px;}
+  td.person{white-space:normal; min-width:9em; line-height:1.4;}
+  td.person .role{display:block; font-size:11.5px; color:var(--text-faint);}
+  .who{font-size:12.5px; color:var(--text-muted); white-space:normal; min-width:14em;}
+  .tag.sell{border-color:var(--fall); color:var(--fall);}
+  .tag.buy{border-color:var(--rise); color:var(--rise);}
+  .search-row{display:flex; gap:10px; align-items:center; margin-top:22px; flex-wrap:wrap;}
+  .search-row .filter{width:16em;}
+  .clear{background:none; border:none; color:var(--text-faint); cursor:pointer; font:inherit; font-size:13px;}
+  .clear:hover{color:var(--brass);}
+  .clear[hidden]{display:none;}
+  @media (max-width:860px){ .search-row .filter{width:100%;} }
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="nav-row">
+    <a href="index.html" class="brand"><span class="brand-mark">潮汐</span><span class="brand-sub">籌碼觀測站</span></a>
+    <nav class="links">
+      <a href="index.html">首頁</a>
+      <a href="ranking.html">成交排行</a>
+      <a href="industry.html">產業分類</a>
+      <a href="broker.html">分點籌碼</a>
+      <a href="etf.html">ETF持股</a>
+      <a href="cb.html">CB詢圈</a>
+      <a href="treasury.html">庫藏股</a>
+      <a href="insider.html" aria-current="page">內部人</a>
+      <a href="margin.html">融資融券</a>
+      <a href="analyst.html">外資報告</a>
+      <a href="alert.html">處置注意</a>
+      <a href="news.html">重大訊息</a>
+      <a href="fin.html">財報</a>
+      <a href="kline.html">K線</a>
+      <a href="index.html#quant">量化策略</a>
+      <a href="health.html">資料健檢</a>
+    </nav>
+    <a href="index.html#cta" class="nav-cta">開始追蹤</a>
+  </div>
+</header>
+<main class="wrap">
+  <section class="page-head">
+    <div class="eyebrow">內部人</div>
+    <h1>董監事、經理人、大股東的買賣與質押</h1>
+    <p class="desc" id="sub">載入中…</p>
+    <div class="search-row">
+      <input class="filter" id="q" type="search" placeholder="查個股：代號、名稱或申報人" autocomplete="off" aria-label="查個股">
+      <button class="clear" id="q-clear" hidden>清除</button>
+      <span class="hint" id="q-hint"></span>
+    </div>
+    <div class="stats" id="stats"></div>
+  </section>
+
+  <section class="block" id="pre">
+    <div class="block-head"><h2>事前申報：預定轉讓持股</h2><span class="hint" id="p-hint"></span></div>
+    <p class="desc" style="margin:0 0 14px">內部人要在市場上賣股、贈與或交付信託，得在轉讓前 3 天先申報。「一般交易」「鉅額」是準備在市場上賣，最直接；
+      「洽特定人」是賣給特定對象；贈與、信託多半是家族財產安排，不一定是看壞。</p>
+    <div class="toolbar">
+      <div class="chips" id="p-kind">
+        <button data-v="mkt" aria-pressed="true">市場賣出</button>
+        <button data-v="deal" aria-pressed="false">洽特定人</button>
+        <button data-v="gift" aria-pressed="false">贈與／信託</button>
+        <button data-v="all" aria-pressed="false">全部</button>
+      </div>
+      <div class="chips" id="p-days">
+        <button data-v="7" aria-pressed="false">近 7 天</button>
+        <button data-v="30" aria-pressed="true">近 30 天</button>
+        <button data-v="0" aria-pressed="false">全部</button>
+      </div>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>申報日</th><th>股票</th><th>申報人</th><th>方式</th><th class="n">預定張數</th><th class="n">佔持股</th>
+        <th class="n">約金額</th><th class="hide-s">轉讓期間</th><th class="hide-s">受讓人</th></tr></thead>
+      <tbody id="p-body"></tbody>
+    </table></div>
+    <button class="more" id="p-more" hidden>顯示更多</button>
+  </section>
+
+  <section class="block" id="month">
+    <div class="block-head"><h2>每月持股異動：實際買賣與質押</h2><span class="hint" id="m-hint"></span></div>
+    <p class="desc" style="margin:0 0 14px">內部人每月 15 日前申報上個月的持股變化（事後申報），這裡是實際成交的結果。
+      「集中市場」是在盤中買賣；「其他」是贈與、繼承、信託、員工認股等。點公司看每位申報人。</p>
+    <div class="toolbar">
+      <div class="chips" id="m-month"></div>
+      <div class="chips" id="m-view">
+        <button data-v="buy" aria-pressed="true">淨買進</button>
+        <button data-v="sell" aria-pressed="false">淨賣出</button>
+        <button data-v="all" aria-pressed="false">全部</button>
+      </div>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>股票</th><th class="n">集中買進</th><th class="n">集中賣出</th><th class="n">淨買賣（張）</th><th class="n">約金額</th>
+        <th class="n hide-s">其他增減</th><th>申報人</th></tr></thead>
+      <tbody id="m-body"></tbody>
+    </table></div>
+    <button class="more" id="m-more" hidden>顯示更多</button>
+  </section>
+
+  <section class="block" id="pledge" hidden>
+    <div class="block-head"><h2>設質／解質</h2><span class="hint" id="g-hint"></span></div>
+    <p class="desc" style="margin:0 0 14px">內部人把股票質押給銀行、券商借錢（設質），或還錢拿回股票（解質），每月申報。
+      設質比例高的董監，股價大跌時可能被追繳、斷頭；大量解質有時是準備賣股或轉讓的前兆。點公司看是誰設質。</p>
+    <div class="toolbar">
+      <div class="chips" id="g-month"></div>
+      <div class="chips" id="g-view">
+        <button data-v="add" aria-pressed="true">設質</button>
+        <button data-v="sub" aria-pressed="false">解質</button>
+        <button data-v="pct" aria-pressed="false">董監設質比例高</button>
+      </div>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>股票</th><th class="n">董監設質</th><th class="n">董監解質</th><th class="n">約金額</th>
+        <th class="n">董監累計設質</th><th class="n hide-s">經理人＋大股東設質</th><th>申報人</th></tr></thead>
+      <tbody id="g-body"></tbody>
+    </table></div>
+    <button class="more" id="g-more" hidden>顯示更多</button>
+  </section>
+
+  <p class="note">
+    資料來源：公開資訊觀測站「內部人持股異動事後申報表」與「董監事、經理人及大股東質權設定彙總表」（每月，上月資料約當月 20～22 日齊全）、證交所／櫃買中心「每日內部人持股轉讓事前申報表」。<br>
+    事後申報只查當月內部人持股或質押有變動的公司；設質／解質的公司排行只算董監事（彙總表的分類），經理人與大股東另列累計設質；同一人兼多個身分只算一次；夫妻都是內部人時，配偶那列跟本人重複，加總時略過。張數＝股數 ÷ 1,000，只算普通股。<br>
+    約金額＝張數 × 最新收盤價，只是概算，實際成交價看當時股價。事前申報是「預定」，期限內不一定賣完，也可能完全沒賣，要對照之後的事後申報。資料僅供參考，不構成投資建議。
+  </p>
+</main>
+<footer class="site"><div class="wrap"><p class="note" style="margin:0">資料僅供參考。</p></div></footer>
+<script>
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const cls = v => v == null ? "flat" : v > 0 ? "up" : v < 0 ? "down" : "flat";
+const lots = s => s == null ? "–" : (s / 1000).toLocaleString("zh-TW", {maximumFractionDigits: s && Math.abs(s) < 10000 ? 1 : 0});
+const slots = s => !s ? "0" : (s > 0 ? "+" : "−") + lots(Math.abs(s));
+const yi = v => v == null || !isFinite(v) || !v ? "–" : Math.abs(v) >= 1e8 ? (v / 1e8).toFixed(Math.abs(v) >= 1e10 ? 0 : 1) + " 億" : Math.round(v / 1e4).toLocaleString("zh-TW") + " 萬";
+const local = d => new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
+const TODAY = local(new Date());
+const addDays = (d, n) => { const t = new Date(d + "T00:00:00"); t.setDate(t.getDate() + n); return local(t); };
+const per = p => (p || "").split("~").map(md).join("～");
+const md = d => d ? (d.slice(0, 4) === TODAY.slice(0, 4) ? d.slice(5) : d) : "–";
+
+let D, PX = {}, NAME = {}, PXDATE = "", TR = [], PRE = [], PLG = [];
+const S = {q: ""}, P = {kind: "mkt", days: 30, n: 50}, G = {month: "", view: "add", n: 50, open: new Set()}, M = {month: "", view: "buy", n: 50, open: new Set()};
+
+function objs(t){ return (t?.rows || []).map(r => Object.fromEntries(t.cols.map((k, i) => [k, r[i]]))); }
+const stockCell = r => `<a href="#s=${esc(r.code)}" class="sname" data-s="${esc(r.code)}" style="text-decoration:none">${esc(r.company)}<span class="mono">${esc(r.code)}</span></a>${r.market === "otc" ? '<span class="faint" style="font-size:11px;margin-left:4px">櫃</span>' : ""}`;
+const short = s => (s || "").replace(/本人/g, "").replace(/之法人代表人/g, "代表人").replace(/股份有限公司|有限公司/g, "");
+const qmatch = r => !S.q || r.code === S.q || r.code.startsWith(S.q) || (r.company || "").toLowerCase().includes(S.q) || (r.name || "").toLowerCase().includes(S.q);
+const money = (code, sh) => PX[code] && sh ? sh * PX[code] : null;
+
+/* 事前申報 */
+const KIND = m => /一般交易|鉅額|盤後/.test(m) ? "mkt" : /特定人/.test(m) ? "deal" : /贈與|信託/.test(m) ? "gift" : "other";
+function renderPre(){
+  const since = P.days && !S.q ? addDays(TODAY, -P.days) : "";
+  const rows = PRE.filter(r => r.date >= since && (P.kind === "all" || KIND(r.method) === P.kind) && qmatch(r));
+  const shown = rows.slice(0, P.n);
+  const tot = rows.reduce((s, r) => s + (money(r.code, r.shares) || 0), 0);
+  document.getElementById("p-hint").textContent = `${rows.length} 筆` + (tot ? `，合計約 ${yi(tot)}` : "");
+  document.getElementById("p-body").innerHTML = shown.map(r => {
+    const pc = r.held ? r.shares / r.held * 100 : null;
+    const k = KIND(r.method);
+    return `<tr><td class="mono">${md(r.date)}</td><td>${stockCell(r)}</td>
+      <td class="person"><span class="sname">${esc(short(r.name))}</span><span class="role">${esc(short(r.role))}</span></td>
+      <td><span class="tag ${k === "mkt" ? "sell" : ""}">${esc(r.method.replace(/\(每日得轉讓股數限制\)/, ""))}</span></td>
+      <td class="n mono">${lots(r.shares)}</td><td class="n mono">${pc != null ? pc.toFixed(pc >= 10 ? 0 : 1) + "%" : "–"}</td>
+      <td class="n mono">${yi(money(r.code, r.shares))}</td><td class="mono hide-s faint">${esc(per(r.period))}</td>
+      <td class="hide-s faint" style="font-size:12.5px">${esc(short(r.transferee) || "")}</td></tr>`;
+  }).join("") || `<tr><td colspan="9" class="empty">${S.q ? "這檔股票沒有事前申報" : "這段期間沒有資料"}</td></tr>`;
+  document.getElementById("p-more").hidden = rows.length <= P.n;
+}
+
+/* 設質／解質：質權設定彙總表（公司）＋事後申報（每人） */
+const pctTxt = v => v == null ? "" : `<span class="faint">（${(+v).toFixed(v >= 10 ? 0 : 1)}%）</span>`;
+function renderPledge(){
+  if (!PLG.length) return;
+  const keep = S.q ? r => true : {add: r => r.ds_padd > 0, sub: r => r.ds_psub > 0, pct: r => (r.ds_ppct || 0) >= 20}[G.view];
+  const key = {add: r => -(money(r.code, r.ds_padd) ?? r.ds_padd / 1e3), sub: r => -(money(r.code, r.ds_psub) ?? r.ds_psub / 1e3), pct: r => -r.ds_ppct}[G.view];
+  const rows = PLG.filter(r => (S.q ? true : r.month === G.month) && keep(r) && qmatch(r))
+    .sort((a, b) => S.q ? (b.month.localeCompare(a.month) || key(a) - key(b)) : key(a) - key(b));
+  const add = rows.reduce((s, r) => s + r.ds_padd, 0), sub = rows.reduce((s, r) => s + r.ds_psub, 0);
+  document.getElementById("g-hint").textContent = `${rows.length} 家` + (G.view === "pct" ? "，董監設質 ≥ 20% 持股" : `，設質 ${lots(add)} 張、解質 ${lots(sub)} 張`);
+  document.getElementById("g-body").innerHTML = rows.slice(0, G.n).map(r => {
+    const k = "g|" + r.month + "|" + r.code, open = G.open.has(k);
+    const ppl = TR.filter(t => t.month === r.month && t.code === r.code && (t.pledge_add || t.pledge_sub));
+    const names = ppl.filter(t => !t.dup).map(t => short(t.name));
+    const amt = money(r.code, G.view === "sub" ? r.ds_psub : r.ds_padd);
+    const head = `<tr class="click" data-k="${esc(k)}"><td><span class="caret">${ppl.length ? (open ? "▾" : "▸") : ""}</span>${stockCell(r)}${S.q ? `<span class="mono faint" style="margin-left:8px;font-size:12px">${r.month}</span>` : ""}</td>
+      <td class="n mono ${r.ds_padd ? "up" : "faint"}">${r.ds_padd ? lots(r.ds_padd) : "–"}</td>
+      <td class="n mono ${r.ds_psub ? "down" : "faint"}">${r.ds_psub ? lots(r.ds_psub) : "–"}</td>
+      <td class="n mono">${yi(amt)}</td>
+      <td class="n mono">${r.ds_pledged ? lots(r.ds_pledged) + " 張" : "–"}${r.ds_pledged ? pctTxt(r.ds_ppct) : ""}</td>
+      <td class="n mono hide-s">${r.mm_pledged ? lots(r.mm_pledged) + " 張" + pctTxt(r.mm_ppct) : "–"}</td>
+      <td class="who">${names.length ? esc(names.slice(0, 3).join("、")) + (names.length > 3 ? `<span class="faint"> 等 ${names.length} 人</span>` : "") : '<span class="faint">–</span>'}</td></tr>`;
+    return head + (open ? ppl.map(t => `<tr class="sub-row"><td class="person"><span class="sname">${esc(short(t.name))}</span><span class="role">${esc(short(t.role))}${t.dup ? `（同 ${esc(t.dup)}）` : ""}</span></td>
+      <td class="n mono up">${t.pledge_add ? lots(t.pledge_add) : ""}</td><td class="n mono down">${t.pledge_sub ? lots(t.pledge_sub) : ""}</td>
+      <td class="n mono">${yi(money(t.code, t.pledge_add || t.pledge_sub))}</td>
+      <td class="n mono">${lots(t.pledged)} 張${t.held_now ? pctTxt(t.pledged / t.held_now * 100) : ""}</td><td class="hide-s"></td>
+      <td class="faint">持股 ${lots(t.held_now)} 張</td></tr>`).join("") : "");
+  }).join("") || `<tr><td colspan="7" class="empty">${S.q ? "這檔股票最近幾個月董監沒有設質／解質" : "沒有資料"}</td></tr>`;
+  document.getElementById("g-more").hidden = rows.length <= G.n;
+  document.querySelectorAll("#g-body tr.click").forEach(tr => tr.onclick = e => {
+    if (e.target.closest("a")) return;
+    const k = tr.dataset.k; G.open.has(k) ? G.open.delete(k) : G.open.add(k); renderPledge();
+  });
+  document.getElementById("g-month").style.display = document.getElementById("g-view").style.display = S.q ? "none" : "";
+}
+
+/* 每月事後申報：公司彙總 */
+function companies(rows){
+  const by = new Map();
+  for (const r of rows){
+    const k = r.month + "|" + r.code;
+    let c = by.get(k);
+    if (!c) by.set(k, c = {month: r.month, code: r.code, company: r.company, market: r.market, buy: 0, sell: 0, other: 0, padd: 0, psub: 0, people: []});
+    c.people.push(r);
+    if (r.dup) continue;
+    c.buy += r.buy_mkt; c.sell += r.sell_mkt; c.other += r.buy_other - r.sell_other;
+    c.padd += r.pledge_add; c.psub += r.pledge_sub;
+  }
+  for (const c of by.values()){ c.net = c.buy - c.sell; c.amt = money(c.code, c.net); }
+  return [...by.values()];
+}
+const VIEW = {
+  buy: [c => c.net > 0, c => -(c.amt ?? c.net)], sell: [c => c.net < 0, c => (c.amt ?? c.net)],
+  all: [c => true, c => -Math.abs(c.amt ?? c.net)],
+};
+function personRow(r){
+  const net = r.buy_mkt - r.sell_mkt, oth = r.buy_other - r.sell_other;
+  return `<tr class="sub-row"><td class="person"><span class="sname">${esc(short(r.name))}</span><span class="role">${esc(short(r.role))}${r.dup ? `<span title="夫妻都是內部人，跟 ${esc(r.dup)} 本人那列是同一筆，不重複加總">（同 ${esc(r.dup)}，不加總）</span>` : ""}</span></td>
+    <td class="n mono">${r.buy_mkt ? lots(r.buy_mkt) : "–"}</td><td class="n mono">${r.sell_mkt ? lots(r.sell_mkt) : "–"}</td>
+    <td class="n mono ${cls(net)}">${net ? slots(net) : "–"}</td><td class="n mono ${cls(net)}">${yi(money(r.code, net))}</td>
+    <td class="n mono hide-s">${oth ? slots(oth) : "–"}</td>
+    <td class="faint">持股 ${lots(r.held_prev)} → ${lots(r.held_now)} 張${r.pledged ? `，質押 ${lots(r.pledged)} 張（${(r.held_now ? r.pledged / r.held_now * 100 : 0).toFixed(0)}%）` : ""}${r.note ? `，${esc(r.note)}` : ""}</td></tr>`;
+}
+function renderMonth(){
+  const [keep, key] = VIEW[M.view];
+  const src = TR.filter(r => (S.q ? true : r.month === M.month) && qmatch(r));
+  const list = companies(src).filter(keep).sort((a, b) => S.q ? (b.month.localeCompare(a.month) || key(a) - key(b)) : key(a) - key(b));
+  const shown = list.slice(0, M.n);
+  const tot = list.reduce((s, c) => s + (c.amt || 0), 0);
+  document.getElementById("m-hint").textContent = `${list.length} 家` + (M.view === "buy" || M.view === "sell" ? `，合計約 ${yi(Math.abs(tot))}` : "");
+  document.getElementById("m-body").innerHTML = shown.map(c => {
+    const k = c.month + "|" + c.code, open = M.open.has(k);
+    const names = c.people.filter(r => !r.dup).sort((a, b) => Math.abs(b.buy_mkt - b.sell_mkt) - Math.abs(a.buy_mkt - a.sell_mkt)).slice(0, 3).map(r => short(r.name));
+    const head = `<tr class="click" data-k="${esc(k)}"><td><span class="caret">${open ? "▾" : "▸"}</span>${stockCell(c)}${S.q ? `<span class="mono faint" style="margin-left:8px;font-size:12px">${c.month}</span>` : ""}</td>
+      <td class="n mono">${c.buy ? lots(c.buy) : "–"}</td><td class="n mono">${c.sell ? lots(c.sell) : "–"}</td>
+      <td class="n mono ${cls(c.net)}">${c.net ? slots(c.net) : "–"}</td><td class="n mono ${cls(c.net)}">${yi(c.amt)}</td>
+      <td class="n mono hide-s">${c.other ? slots(c.other) : "–"}</td>
+      <td class="who">${esc(names.join("、"))}${c.people.length > names.length ? `<span class="faint"> 等 ${c.people.filter(r => !r.dup).length} 人</span>` : ""}</td></tr>`;
+    return head + (open ? c.people.map(personRow).join("") : "");
+  }).join("") || `<tr><td colspan="7" class="empty">${S.q ? "這檔股票最近幾個月沒有內部人持股異動" : "沒有資料"}</td></tr>`;
+  document.getElementById("m-more").hidden = list.length <= M.n;
+  document.querySelectorAll("#m-body tr.click").forEach(tr => tr.onclick = e => {
+    if (e.target.closest("a")) return;
+    const k = tr.dataset.k; M.open.has(k) ? M.open.delete(k) : M.open.add(k); renderMonth();
+  });
+  document.getElementById("m-month").style.display = S.q ? "none" : "";
+}
+
+function renderStats(){
+  const cs = companies(TR.filter(r => r.month === M.month));
+  const nb = cs.filter(c => c.net > 0), ns = cs.filter(c => c.net < 0);
+  const since = addDays(TODAY, -30);
+  const pre = PRE.filter(r => r.date >= since && KIND(r.method) === "mkt");
+  const preAmt = pre.reduce((s, r) => s + (money(r.code, r.shares) || 0), 0);
+  const pm = PLG.filter(r => r.month === G.month);
+  const padd = pm.reduce((s, r) => s + r.ds_padd, 0), psub = pm.reduce((s, r) => s + r.ds_psub, 0);
+  const stat = (k, v, s) => `<div class="stat"><div class="k">${k}</div><div class="v mono">${v}</div><div class="s">${s}</div></div>`;
+  document.getElementById("stats").innerHTML =
+    stat(`${M.month} 集中市場淨買進`, `${nb.length} 家`, `約 ${yi(nb.reduce((s, c) => s + (c.amt || 0), 0))}`) +
+    stat(`${M.month} 集中市場淨賣出`, `${ns.length} 家`, `約 ${yi(-ns.reduce((s, c) => s + (c.amt || 0), 0))}`) +
+    stat("近 30 天申報市場賣出", `${pre.length} 筆`, `${new Set(pre.map(r => r.code)).size} 家，約 ${yi(preAmt)}`) +
+    stat(`${G.month || M.month} 董監設質／解質`, `${lots(padd)}／${lots(psub)}`, `張，設質 ${pm.filter(r => r.ds_padd).length} 家、解質 ${pm.filter(r => r.ds_psub).length} 家`);
+}
+
+function renderAll(){ renderPre(); renderPledge(); renderMonth(); }
+function setQ(v){
+  S.q = (v || "").trim().toLowerCase(); P.n = G.n = M.n = 50; M.open.clear(); G.open.clear();
+  document.getElementById("q").value = v || "";
+  document.getElementById("q-clear").hidden = !S.q;
+  const hit = S.q && [...TR, ...PRE, ...PLG].find(r => r.code === S.q);
+  document.getElementById("q-hint").textContent = S.q ? (hit ? `${hit.company} ${hit.code}：顯示所有日期與月份` : "顯示所有日期與月份") : "";
+  if (S.q){  // 查個股：看全部種類
+    P.kind = "all"; M.view = "all";
+    for (const [id, v] of [["p-kind", "all"], ["m-view", "all"]]) document.querySelectorAll(`#${id} button`).forEach(b => b.setAttribute("aria-pressed", b.dataset.v === v));
+  }
+  if (S.q && hit) for (const c of companies(TR.filter(r => r.code === S.q))){ M.open.add(c.month + "|" + c.code); G.open.add("g|" + c.month + "|" + c.code); }
+  try { history.replaceState(null, "", S.q ? "#s=" + encodeURIComponent(v.trim()) : location.pathname); } catch (e) {}
+  renderAll();
+}
+
+function chips(id, obj, key, render, parse = v => v){
+  const box = document.getElementById(id);
+  box.querySelectorAll("button").forEach(b => b.onclick = () => {
+    box.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+    obj[key] = parse(b.dataset.v); obj.n = 50; render();
+  });
+}
+
+Promise.all([
+  fetch("data/insider/insider.json", {cache: "no-cache"}).then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); }),
+  fetch("data/days.json", {cache: "no-cache"}).then(r => r.json()).then(days => {
+    PXDATE = days[days.length - 1];
+    return fetch(`data/daily/${PXDATE}.json`, {cache: "no-cache"}).then(r => r.json());
+  }).catch(() => null),
+]).then(([d, px]) => {
+  D = d; TR = objs(D.trades); PRE = objs(D.transfer); PLG = objs(D.pledge);
+  if (px){ const ci = Object.fromEntries(px.columns.map((k, i) => [k, i])); for (const r of px.rows){ const c = +r[ci.close]; if (c) PX[r[ci.code]] = c; NAME[r[ci.code]] = r[ci.name]; } }
+  for (const r of [...TR, ...PRE]) NAME[r.code] ||= r.company;
+  M.month = D.months[0] || ""; G.month = (D.pmonths || [])[0] || "";
+  for (const r of PLG){ const n = NAME[r.code]; if (n) r.company = n; }
+  document.getElementById("g-month").innerHTML = (D.pmonths || []).map((m, i) => `<button data-v="${m}" aria-pressed="${i === 0}">${+m.slice(5)} 月</button>`).join("");
+  document.getElementById("m-month").innerHTML = D.months.map((m, i) => `<button data-v="${m}" aria-pressed="${i === 0}">${+m.slice(5)} 月</button>`).join("");
+  document.getElementById("pledge").hidden = !PLG.length;
+  const first = PRE.length ? PRE[PRE.length - 1].date : "–";
+  document.getElementById("sub").textContent = `上市櫃公司董監事、經理人、持股 10% 以上大股東的買賣與質押：事前申報（預定賣出、贈與、信託）每天更新，申報日 ${first} 起；` +
+    `實際買賣與設質解質看每月申報，目前有 ${D.months.slice(-1)[0] || "–"}～${D.months[0] || "–"}。約金額用 ${PXDATE || "最新"} 收盤概算。`;
+  renderStats(); renderAll();
+  chips("p-kind", P, "kind", renderPre); chips("p-days", P, "days", renderPre, Number);
+  chips("g-month", G, "month", () => { G.open.clear(); renderPledge(); });
+  chips("g-view", G, "view", () => { G.open.clear(); renderPledge(); });
+  chips("m-month", M, "month", () => { M.open.clear(); renderStats(); renderMonth(); });
+  chips("m-view", M, "view", () => { M.open.clear(); renderMonth(); });
+  document.getElementById("p-more").onclick = () => { P.n += 50; renderPre(); };
+  document.getElementById("g-more").onclick = () => { G.n += 50; renderPledge(); };
+  document.getElementById("m-more").onclick = () => { M.n += 50; renderMonth(); };
+  const q = document.getElementById("q");
+  q.oninput = () => setQ(q.value);
+  document.getElementById("q-clear").onclick = () => setQ("");
+  document.addEventListener("click", e => { const a = e.target.closest("a[data-s]"); if (a){ e.preventDefault(); setQ(a.dataset.s); window.scrollTo({top: 0, behavior: "smooth"}); } });
+  const s = new URLSearchParams(location.hash.slice(1)).get("s");
+  if (s) setQ(s);
+}).catch(e => { console.error(e); document.getElementById("sub").textContent = "資料載入失敗"; });
+</script>
+<script>(function(){var a=document.querySelector('nav.links a[aria-current="page"]');if(a&&a.parentNode.scrollWidth>a.parentNode.clientWidth){a.parentNode.scrollLeft=a.offsetLeft-a.parentNode.offsetLeft-16;}})();</script>
+</body>
+</html>
