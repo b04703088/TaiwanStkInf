@@ -33,6 +33,7 @@
       ["cb.html", "CB詢圈", "含行事曆", [/^cb-/]],
     ]],
     ["個股研究", [
+      ["stock.html", "綜合查詢", "一檔股票最近的所有動作", null, "輸入一檔股票，把重訊、處置、內部人、庫藏股、CB、ETF 換股、外資報告、分點大單集中成一條時間軸"],
       ["kline.html", "K線"],
       ["fin.html", "財報"],
       ["analyst.html", "外資報告"],
@@ -53,6 +54,7 @@
     futures: "臺灣期貨交易所", broker: "富邦證券券商分點進出", watch: "富邦證券券商分點進出", local: "富邦證券券商分點進出",
     margin: "證交所、櫃買中心融資融券", insider: "公開資訊觀測站內部人申報", news: "公開資訊觀測站重大訊息與行事曆",
     alert: "證交所、櫃買中心處置及注意股公告", treasury: "公開資訊觀測站庫藏股；富邦證券分點", cb: "公開資訊觀測站、金管會、證交所、櫃買中心",
+    stock: "本站各頁資料彙整（公開資訊觀測站、證交所、櫃買中心、集保、各投信、富邦證券分點、鉅亨網）",
     kline: "證交所、櫃買中心每日收盤行情（還原權息自算）", fin: "公開資訊觀測站月營收與季報", analyst: "鉅亨網（FactSet 共識、外資報告）",
     etf: "各投信官網每日持股、證交所 ETF 淨值揭露、集保結算所", calendar: "臺灣指數公司、MSCI、富時", health: "本站各項資料抓取紀錄",
   };
@@ -292,7 +294,7 @@
   modal.hidden = true;
   modal.innerHTML = '<div class="gs-box" role="dialog" aria-modal="true" aria-label="搜尋個股">' +
     '<div class="gs-in">' + ICON + '<input type="search" placeholder="代號或名稱，例如 2330、台積電" autocomplete="off" enterkeyhint="go" aria-label="股票代號或名稱"><button type="button">Esc</button></div>' +
-    '<div class="gs-list"></div><div class="gs-tip">Enter 開 K 線・↑↓ 選擇・☆ 加入自選（存在這台裝置）</div></div>';
+    '<div class="gs-list"></div><div class="gs-tip">Enter 看綜合查詢・↑↓ 選擇・☆ 加入自選（存在這台裝置）</div></div>';
   document.body ? document.body.appendChild(modal) : document.addEventListener("DOMContentLoaded", function () { document.body.appendChild(modal); });
   var input = modal.querySelector("input"), list = modal.querySelector(".gs-list");
   var STOCKS = null, NAMES = {}, hits = [], sel = 0;
@@ -309,7 +311,7 @@
   var row = function (x, i) {
     var on = Watch.has(x[0]);
     return '<div class="gs-row' + (i === sel ? " on" : "") + '" data-i="' + i + '">' +
-      '<a class="gs-main" href="kline.html#s=' + encodeURIComponent(x[0]) + '"><b>' + esc(x[0]) + "</b>" + esc(x[1]) + "<small>" + (MKT[x[2]] || esc(x[2] || "")) + "</small></a>" +
+      '<a class="gs-main" href="stock.html#s=' + encodeURIComponent(x[0]) + '"><b>' + esc(x[0]) + "</b>" + esc(x[1]) + "<small>" + (MKT[x[2]] || esc(x[2] || "")) + "</small></a>" +
       '<button type="button" class="gs-star" data-code="' + esc(x[0]) + '" aria-pressed="' + on + '" title="' + (on ? "移出自選" : "加入自選") + '">' + (on ? "★" : "☆") + "</button>" +
       '<div class="gs-links">' + LINKS.map(function (l) { return '<a href="' + l[1] + encodeURIComponent(x[0]) + '">' + l[0] + "</a>"; }).join("") + "</div></div>";
   };
@@ -319,7 +321,7 @@
     if (!q) {
       hits = Watch.list().map(function (c) { return NAMES[c] || [c, "", ""]; });
       list.innerHTML = hits.length ? '<div class="gs-head">我的自選 ' + hits.length + " 檔</div>" + hits.map(row).join("")
-        : '<div class="gs-empty">輸入股票代號或名稱，直接跳到 K 線、財報、分點等頁面。<br>按 ☆ 可以把常看的股票加入自選，首頁會列出自選股的最新漲跌。</div>';
+        : '<div class="gs-empty">輸入股票代號或名稱，看它最近的重訊、籌碼、內部人等所有動作，或直接跳到 K 線、財報、分點。<br>按 ☆ 可以把常看的股票加入自選，首頁會列出自選股的最新漲跌。</div>';
       return;
     }
     var exact = [], pre = [], name = [];
@@ -371,7 +373,7 @@
     } else if (e.key === "Enter" && hits[sel]) {
       e.preventDefault();
       closeSearch();
-      go("kline.html#s=" + encodeURIComponent(hits[sel][0]));
+      go("stock.html#s=" + encodeURIComponent(hits[sel][0]));
     } else if (e.key === "Escape") {
       closeSearch();
     }
