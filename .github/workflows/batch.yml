@@ -9,6 +9,11 @@ name: Fetch batch
 #   晚上 21:40  融資融券、MOPS 公告、分析師、庫藏股＋買回期間分點、三大法人／借券／當沖、期交所籌碼、盤後數字摘要
 #   週末只跑：早上 分析師、MOPS 公告、集保股權分散；傍晚 財報、內部人；晚上 分析師
 # 每日股價、券商分點、ETF 由 cron-job.org 準時觸發且有先後關係，不在這裡。
+#
+# GitHub 排程常延遲 3～6 小時（10/28 晚班拖到隔天 00:24 才跑，盤後判讀跟著晚）。
+# 所以平日改成接在 ETF 後面跑：ETF 由 cron-job.org 準時在 08:15／18:17／21:17 觸發，
+# 跑完就帶起這裡對應的時段，並等到原本的 08:30／18:40／21:40 才開始抓。
+# 原本的排程留著當備援：延遲的排程若發現同一時段 8 小時內已經 commit 過就跳過。
 on:
   schedule:
     - cron: "30 0 * * 1-5"    # 台北 08:30 平日
@@ -17,6 +22,9 @@ on:
     - cron: "40 10 * * 0,6"   # 台北 18:40 週末
     - cron: "40 13 * * 1-5"   # 台北 21:40 平日
     - cron: "40 13 * * 0,6"   # 台北 21:40 週末
+  workflow_run:
+    workflows: ["Fetch ETF holdings"]
+    types: [completed]
   workflow_dispatch:
     inputs:
       slot:
@@ -38,6 +46,8 @@ concurrency:
 
 jobs:
   fetch:
+    # 只接 cron-job.org 準時觸發的 ETF；ETF 自己的排程也常延遲，不接
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.event == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 180
     steps:
@@ -50,9 +60,11 @@ jobs:
       - name: Pick jobs for this slot
         id: s
         env:
+          EVENT: ${{ github.event_name }}
           CRON: ${{ github.event.schedule }}
           IN_SLOT: ${{ inputs.slot }}
           IN_WEEKEND: ${{ inputs.weekend }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           case "$CRON" in
             "30 0 "*)  slot=morning ;;
@@ -62,8 +74,31 @@ jobs:
           esac
           if [ -n "$CRON" ]; then
             case "$CRON" in *"0,6") wk=0 ;; *) wk=1 ;; esac
+          elif [ "$EVENT" = "workflow_run" ]; then
+            [ "$(TZ=Asia/Taipei date +%u)" -ge 6 ] && wk=0 || wk=1
           else
             [ "$IN_WEEKEND" = "true" ] && wk=0 || wk=1
+          fi
+
+          if [ "$EVENT" = "workflow_run" ]; then
+            # 依台北時間對應時段，等到原本的開抓時間（資料公布時間沒變）
+            hm=$((10#$(TZ=Asia/Taipei date +%H%M)))
+            if   [ $hm -ge 700 ]  && [ $hm -lt 1000 ]; then slot=morning; at=830
+            elif [ $hm -ge 1700 ] && [ $hm -lt 2000 ]; then slot=evening; at=1840
+            elif [ $hm -ge 2030 ] && [ $hm -lt 2330 ]; then slot=night;   at=2140
+            else echo "台北 $hm 不在任何時段，跳過"; echo "slot=skip" >> "$GITHUB_OUTPUT"; exit 0
+            fi
+            if [ $hm -lt $at ]; then
+              wait=$(( ($at/100*60 + $at%100) - ($hm/100*60 + $hm%100) ))
+              echo "等 $wait 分鐘到 $at 再抓"; sleep $(( wait * 60 ))
+            fi
+          elif [ -n "$CRON" ]; then
+            # 延遲的排程：同一時段 8 小時內已經 commit 過就不再跑
+            since=$(date -u -d '8 hours ago' +%Y-%m-%dT%H:%M:%SZ)
+            if gh api "repos/$GITHUB_REPOSITORY/commits?sha=${{ github.event.repository.default_branch }}&since=$since&per_page=100" \
+                 --jq '.[].commit.message' | grep -q "^data: batch $slot "; then
+              echo "$slot 8 小時內已跑過，跳過"; echo "slot=skip" >> "$GITHUB_OUTPUT"; exit 0
+            fi
           fi
           dom=$(TZ=Asia/Taipei date +%-d)
           on() { echo "$1=1" >> "$GITHUB_OUTPUT"; }
