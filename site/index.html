@@ -222,11 +222,18 @@
   }
 
   /* ---------- 首頁（暫時版） ---------- */
-  .home{padding:88px 0 40px;}
+  .home{padding:32px 0 40px;}
+  .title-row{display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:6px 24px; margin-bottom:6px;}
+  .dir{display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:24px; margin-top:14px;}
+  .dir h3{font-size:13px; font-weight:500; color:var(--text-muted); margin:0 0 6px;}
+  .dir a{display:block; padding:7px 0; text-decoration:none; color:var(--text);}
+  .dir a b{display:block; font-size:14.5px; font-weight:500;}
+  .dir a span{display:block; font-size:12.5px; color:var(--text-faint); line-height:1.5;}
+  .dir a:hover b{text-decoration:underline; text-underline-offset:3px;}
+  @media (max-width: 860px){ .dir{grid-template-columns:1fr 1fr; gap:20px 16px;} }
   .home .eyebrow{font-size:13px; color:var(--brass); margin-bottom:10px;}
-  .home h1{font-size:36px;}
+  .home h1{margin:0;}
   .home .lede{color:var(--text-muted); font-size:15px; margin:14px 0 32px;}
-  .home h1{margin-bottom:4px;}
   .quick{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line);
     border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden;}
   .quick a{background:var(--panel); padding:22px 22px 24px; text-decoration:none; transition:background .15s ease;}
@@ -321,16 +328,15 @@
   .cb-new small{display:block; color:var(--text-faint); font-size:12px;}
   @media (max-width: 860px){ .cb-grid{grid-template-columns:1fr; gap:8px;} .cb-new{grid-template-columns:92px 38px minmax(0,1fr);} }
   @media (max-width: 860px){
-    .home{padding:48px 0 24px;}
-    .home h1{font-size:28px;}
+    .home{padding:20px 0 24px;}
     .quick{grid-template-columns:1fr 1fr;}
   }
 
   /* 資料日期 */
-  .asof{display:flex; flex-wrap:wrap; gap:10px 28px; margin:14px 0 4px; padding:12px 16px; background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--brass); border-radius:var(--radius-s);}
+  .asof{display:flex; flex-wrap:wrap; gap:4px 24px;}
   .asof div{display:flex; align-items:baseline; gap:8px;}
   .asof span{font-size:12.5px; color:var(--text-muted);}
-  .asof b{font-family:'IBM Plex Mono',monospace; font-size:19px; font-weight:600; color:var(--text);}
+  .asof b{font-family:'IBM Plex Mono',monospace; font-size:15px; font-weight:500; color:var(--text);}
   .asof small{font-size:12px; color:var(--text-faint);}
   .asof small.stale{color:var(--brass);}
   /* 我的自選 */
@@ -361,14 +367,14 @@
   /* 可摺疊區塊 */
   details.fold > summary{cursor:pointer; list-style:none; flex-wrap:wrap;}
   details.fold > summary::-webkit-details-marker{display:none;}
-  details.fold > summary h2::before{content:""; display:inline-block; width:7px; height:7px; border-right:2px solid var(--brass); border-bottom:2px solid var(--brass); transform:rotate(-45deg); margin:0 12px 3px 2px; transition:transform .15s ease;}
+  details.fold > summary h2::before{content:""; display:inline-block; width:7px; height:7px; border-right:2px solid var(--text-muted); border-bottom:2px solid var(--text-muted); transform:rotate(-45deg); margin:0 12px 3px 2px; transition:transform .15s ease;}
   details.fold[open] > summary h2::before{transform:rotate(45deg);}
-  details.fold > summary:hover h2{color:var(--brass);}
+  details.fold > summary:hover h2{color:var(--text-muted);}
   .fold-sum{flex:1; font-size:13px; color:var(--text-muted);}
   details.fold[open] .fold-sum{visibility:hidden;}
   details.fold + details.fold{margin-top:28px;}
   @media (max-width: 860px){
-    .asof{gap:6px 20px;} .asof b{font-size:16px;}
+    .asof{gap:2px 18px;} .asof b{font-size:14px;}
     .bw-sum div b{font-size:17px;}
     .my-card{flex-basis:150px;}
     .fold-sum{flex-basis:100%; order:3; padding-left:21px;}
@@ -391,11 +397,12 @@
 <main>
   <section class="home">
     <div class="wrap">
-      <div class="eyebrow">潮汐 · 籌碼觀測站</div>
-      <h1>今天要先看的重點</h1>
-      <div class="asof" id="asof" hidden>
-        <div><span>資料日期</span><b id="asofDay"></b><small id="asofNote"></small></div>
-        <div><span>網站更新</span><b id="asofBuilt"></b><small>台北時間</small></div>
+      <div class="title-row">
+        <h1>今日重點</h1>
+        <div class="asof" id="asof" hidden>
+          <div><span>資料日期</span><b id="asofDay"></b><small id="asofNote"></small></div>
+          <div><span>網站更新</span><b id="asofBuilt"></b><small>台北時間</small></div>
+        </div>
       </div>
 
       <div class="my" id="my">
@@ -437,22 +444,33 @@
         </div>
       </details>
 
-      <div class="block-head" style="margin-top:48px"><h2>資料頁</h2></div>
-      <div class="quick">
-        <a href="ranking.html"><b>成交排行</b><span>當日成交金額排行、市場資金集中度</span></a>
-        <a href="industry.html"><b>產業分類</b><span>個股屬於哪些細產業、今日細產業強弱</span></a>
-        <a href="broker.html"><b>分點籌碼</b><span>全市場前 15 大分點、重點分點加總排行</span></a>
-        <a href="etf.html"><b>ETF持股</b><span>個股被哪些 ETF 持有、每日持股變化、AUM 排行、指數行事曆、換股時長</span></a>
-        <a href="cb.html"><b>CB詢圈</b><span>可轉債從董事會、送件到詢圈、掛牌的時間軸</span></a>
-        <a href="alert.html"><b>處置注意</b><span>處置中、明天可能處置與每日注意股</span></a>
-        <a href="chips.html"><b>法人籌碼</b><span>三大法人買賣超與連買、借券賣出增減、當沖比率、集保千張大戶週增減</span></a>
-        <a href="futures.html"><b>期權籌碼</b><span>外資台指期與選擇權未平倉、P/C Ratio、前十大交易人</span></a>
-        <a href="screen.html"><b>選股</b><span>技術面、營收財報、籌碼條件混搭篩選；除權息與填息紀錄</span></a>
-        <a href="margin.html"><b>融資融券</b><span>是不是在殺融資：大盤融資餘額與估計維持率、個股融資增減與斷頭壓力</span></a>
-        <a href="treasury.html"><b>庫藏股</b><span>公司買回自家股票：執行中的計畫、價格區間、實際買回結果</span></a>
-        <a href="news.html"><b>重大訊息</b><span>股東會、法說會、除權息行事曆，個股時間軸與關注清單，每天上市櫃重訊</span></a>
-        <a href="fin.html"><b>財報</b><span>個股月營收、季報趨勢，月營收 YoY 與創新高、EPS 成長排行</span></a>
-        <a href="health.html"><b>資料健檢</b><span>每天的資料是否都有正確抓到</span></a>
+      <div class="block-head" style="margin-top:48px"><h2>所有資料頁</h2></div>
+      <div class="dir">
+        <div><h3>市場總覽</h3>
+          <a href="ranking.html"><b>成交排行</b><span>成交金額排行、族群資金流向</span></a>
+          <a href="industry.html"><b>產業分類</b><span>細產業歸屬與今日強弱</span></a>
+          <a href="screen.html"><b>選股</b><span>技術、財報、籌碼條件混搭</span></a></div>
+        <div><h3>籌碼動向</h3>
+          <a href="broker.html"><b>分點籌碼</b><span>前 15 大、重點分點、地方主力</span></a>
+          <a href="chips.html"><b>法人籌碼</b><span>法人、借券、當沖、千張大戶</span></a>
+          <a href="futures.html"><b>期權籌碼</b><span>台指期與選擇權未平倉、P/C</span></a>
+          <a href="margin.html"><b>融資融券</b><span>融資維持率、斷頭壓力</span></a>
+          <a href="insider.html"><b>內部人</b><span>申報轉讓、持股與質押變化</span></a></div>
+        <div><h3>公司事件</h3>
+          <a href="news.html"><b>重大訊息</b><span>重訊、股東會、法說會、除權息</span></a>
+          <a href="alert.html"><b>處置注意</b><span>處置中、明天可能處置</span></a>
+          <a href="treasury.html"><b>庫藏股</b><span>執行中計畫與實際買回</span></a>
+          <a href="cb.html"><b>CB詢圈</b><span>董事會到掛牌的時間軸</span></a></div>
+        <div><h3>個股研究</h3>
+          <a href="stock.html"><b>綜合查詢</b><span>一檔股票最近的所有動作</span></a>
+          <a href="kline.html"><b>K線</b><span>還原價、籌碼副圖、事件標註</span></a>
+          <a href="fin.html"><b>財報</b><span>月營收、季報、EPS 成長</span></a>
+          <a href="analyst.html"><b>外資報告</b><span>FactSet 共識與目標價</span></a></div>
+        <div><h3>ETF</h3>
+          <a href="etf.html"><b>ETF持股</b><span>每日持股變化、換股時長</span></a>
+          <a href="etf.html#aum"><b>ETF規模</b><span>AUM、折溢價、受益人數</span></a>
+          <a href="calendar.html"><b>指數行事曆</b><span>臺灣指數公司、MSCI、富時</span></a>
+          <a href="health.html"><b>資料健檢</b><span>每天的資料有沒有抓到</span></a></div>
       </div>
     </div>
   </section>
