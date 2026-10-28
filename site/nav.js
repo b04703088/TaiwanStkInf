@@ -8,7 +8,7 @@
     theme = t;
     document.documentElement.setAttribute("data-theme", t);
     var m = document.querySelector('meta[name="theme-color"]');
-    if (m) m.content = t === "light" ? "#F6F7F8" : "#0F1012";
+    if (m) m.content = t === "light" ? "#F6F7F8" : "#101419";
   };
   setTheme(theme);
 
@@ -80,11 +80,11 @@
   .gnav .side{margin-left:auto; font-size:12.5px; color:var(--text-faint);}
   .gnav .side:hover, .gnav .side[aria-current]{color:var(--text);}
   .gnav-btn{display:none;}
-  /* 外觀（2026-10 改版）：中性深色底、單一黑體、強調色只用在資料上；各頁 :root 的同名變數由這裡蓋過 */
+  /* 外觀（2026-10 改版）：低彩度深海藍底、單一黑體、強調色只用在資料上；各頁 :root 的同名變數由這裡蓋過 */
   html[data-theme="dark"]{
-    --ink:#0F1012; --panel:#17181B; --panel-2:#1F2024; --active:#26282C;
-    --line:rgba(255,255,255,.08); --line-strong:rgba(255,255,255,.15);
-    --text:#ECEDEE; --text-muted:#AEB2B7; --text-faint:#8E939A;
+    --ink:#101419; --panel:#171C22; --panel-2:#1E242B; --active:#262D35;
+    --line:rgba(220,235,255,.08); --line-strong:rgba(220,235,255,.15);
+    --text:#E6EBF0; --text-muted:#A9B2BC; --text-faint:#8B95A0;
     --brass:#C9A45E; --brass-dim:#8A7240; --brass-soft:rgba(201,164,94,.14); --rise:#EB5B50; --fall:#3DB474;
     color-scheme:dark;
   }
