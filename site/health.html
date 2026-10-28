@@ -3,30 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#0E1620">
+<meta name="theme-color" content="#101419">
 <title>資料健檢｜潮汐</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#0E1620; --panel:#141F2B; --panel-2:#182531;
+    --ink:#101419; --panel:#171C22; --panel-2:#1E242B;
     --line:rgba(232,237,242,0.09); --line-strong:rgba(232,237,242,0.16);
-    --text:#E8EDF2; --text-muted:#8B99A6; --text-faint:#5C6B79;
+    --text:#E8EDF2; --text-muted:#A9B2BC; --text-faint:#8B95A0;
     --brass:#C6A15B; --rise:#E1594F; --fall:#3FAE72; --warn:#D9A441;
     --radius-s:3px; --radius-m:6px;
   }
   *{box-sizing:border-box;}
   body{margin:0; background:var(--ink); color:var(--text);
     font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
-  h1,h2{font-family:'Noto Serif TC',serif; margin:0; font-weight:700;}
+  h1,h2{font-family:'Noto Sans TC',sans-serif; margin:0; font-weight:700;}
   .mono{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
   a{color:inherit;}
   .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
-  header.site{position:sticky; top:0; z-index:40; background:rgba(14,22,32,0.88); backdrop-filter:blur(10px); border-bottom:1px solid var(--line);}
+  header.site{position:sticky; top:0; z-index:40; background:#101419; border-bottom:1px solid var(--line);}
   .nav-row{display:flex; align-items:center; justify-content:space-between; padding:16px 28px;}
   .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
-  .brand-mark{font-family:'Noto Serif TC',serif; font-size:22px; font-weight:700;}
+  .brand-mark{font-family:'Noto Sans TC',sans-serif; font-size:22px; font-weight:700;}
   .brand-sub{font-size:12px; color:var(--text-faint);}
   .page-head{padding:56px 0 28px;}
   .eyebrow{font-size:13px; color:var(--brass); margin-bottom:10px;}
@@ -39,7 +39,7 @@
   .v.ok{color:var(--fall);} .v.warn{color:var(--warn);} .v.error{color:var(--rise);}
   .filters{display:flex; gap:8px; margin:32px 0 14px; flex-wrap:wrap;}
   .filters button{background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:6px 14px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
-  .filters button[aria-pressed="true"]{border-color:var(--brass); color:var(--brass);}
+  .filters button[aria-pressed="true"]{border-color:var(--text-faint); color:var(--text);}
   .tbl{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius-m);}
   table{width:100%; border-collapse:collapse; font-size:13.5px;}
   th,td{padding:10px 14px; text-align:left; border-bottom:1px solid var(--line); white-space:nowrap;}
@@ -72,7 +72,6 @@
 <script src="nav.js"></script>
 <main class="wrap">
   <section class="page-head">
-    <div class="eyebrow">資料健檢</div>
     <h1>每天的資料都有抓到嗎？</h1>
     <p class="desc" id="sub">載入中…</p>
     <div class="stats">

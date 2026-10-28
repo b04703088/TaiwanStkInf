@@ -3,31 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#0E1620">
+<meta name="theme-color" content="#101419">
 <title>重大訊息｜潮汐</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#0E1620; --panel:#141F2B; --panel-2:#182531;
+    --ink:#101419; --panel:#171C22; --panel-2:#1E242B;
     --line:rgba(232,237,242,0.09); --line-strong:rgba(232,237,242,0.16);
-    --text:#E8EDF2; --text-muted:#8B99A6; --text-faint:#5C6B79;
+    --text:#E8EDF2; --text-muted:#A9B2BC; --text-faint:#8B95A0;
     --brass:#C6A15B; --brass-soft:rgba(198,161,91,0.14); --rise:#E1594F; --fall:#3FAE72;
     --radius-s:3px; --radius-m:6px;
   }
   *{box-sizing:border-box;}
   body{margin:0; background:var(--ink); color:var(--text);
     font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
-  h1,h2{font-family:'Noto Serif TC',serif; margin:0; font-weight:700;}
+  h1,h2{font-family:'Noto Sans TC',sans-serif; margin:0; font-weight:700;}
   h2{font-size:20px;}
   .mono{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
   a{color:inherit;}
   .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
-  header.site{position:sticky; top:0; z-index:40; background:rgba(14,22,32,0.88); backdrop-filter:blur(10px); border-bottom:1px solid var(--line);}
+  header.site{position:sticky; top:0; z-index:40; background:#101419; border-bottom:1px solid var(--line);}
   .nav-row{display:flex; align-items:center; justify-content:space-between; padding:16px 28px;}
   .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
-  .brand-mark{font-family:'Noto Serif TC',serif; font-size:22px; font-weight:700;}
+  .brand-mark{font-family:'Noto Sans TC',sans-serif; font-size:22px; font-weight:700;}
   .brand-sub{font-size:12px; color:var(--text-faint);}
   .page-head{padding:56px 0 8px;}
   .eyebrow{font-size:13px; color:var(--brass); margin-bottom:10px;}
@@ -74,13 +74,13 @@
   .toolbar{display:flex; flex-wrap:wrap; gap:12px 14px; align-items:center; margin-bottom:12px;}
   .chips{display:flex; flex-wrap:wrap; gap:6px;}
   .chips button{background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:5px 11px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
-  .chips button[aria-pressed="true"]{border-color:var(--brass); color:var(--brass);}
+  .chips button[aria-pressed="true"]{border-color:var(--text-faint); color:var(--text);}
   .chips button .c{font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--text-faint); margin-left:4px;}
   .find{background:var(--panel); border:1px solid var(--line-strong); color:var(--text); padding:7px 12px; border-radius:var(--radius-m); font:inherit; font-size:14px; width:240px; max-width:100%;}
-  .find:focus{outline:none; border-color:var(--brass);}
+  .find:focus{outline:none; border-color:var(--text-faint);}
   label.tog{font-size:13px; color:var(--text-muted); display:inline-flex; align-items:center; gap:6px; cursor:pointer;}
   .more{display:block; margin:14px auto 0; background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:7px 18px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
-  .more:hover{color:var(--brass); border-color:var(--brass);}
+  .more:hover{color:var(--text); border-color:var(--text-faint);}
   .empty{padding:20px 0; color:var(--text-faint); font-size:13.5px;}
   .note{font-size:12.5px; color:var(--text-faint); margin-top:18px; line-height:1.8;}
 
@@ -108,13 +108,13 @@
   /* 查個股 */
   .search{position:relative; max-width:460px;}
   .search input{width:100%; background:var(--panel); border:1px solid var(--line-strong); color:var(--text); padding:11px 14px; border-radius:var(--radius-m); font:inherit; font-size:15px;}
-  .search input:focus{outline:none; border-color:var(--brass);}
+  .search input:focus{outline:none; border-color:var(--text-faint);}
   .sugg{position:absolute; left:0; right:0; top:calc(100% + 4px); background:var(--panel-2); border:1px solid var(--line-strong); border-radius:var(--radius-m); z-index:10; overflow:hidden;}
   .sugg div{padding:8px 14px; cursor:pointer; font-size:14px;}
   .sugg div:hover, .sugg div.on{background:var(--brass-soft);}
   .watch{display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; align-items:center; font-size:13px; color:var(--text-muted);}
   .watch .w{display:inline-flex; align-items:center; gap:6px; border:1px solid var(--line-strong); border-radius:var(--radius-s); padding:3px 4px 3px 9px; cursor:pointer;}
-  .watch .w:hover{border-color:var(--brass);}
+  .watch .w:hover{border-color:var(--text-faint);}
   .watch .w .x{color:var(--text-faint); padding:0 5px; cursor:pointer;}
   .watch .w .x:hover{color:var(--rise);}
   .panel{margin-top:16px; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-m); padding:18px 20px;}
@@ -122,7 +122,7 @@
   .panel .nm{font-size:20px; font-weight:700;}
   .panel .nm .mono{font-size:14px; color:var(--text-muted); margin-left:8px; font-weight:500;}
   .star{background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:6px 14px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
-  .star.on{border-color:var(--brass); color:var(--brass);}
+  .star.on{border-color:var(--text-faint); color:var(--text);}
   .tl{list-style:none; margin:0; padding:0;}
   .tl li{display:grid; grid-template-columns:92px 86px 1fr; gap:10px; padding:8px 0; border-top:1px solid var(--line); font-size:13.5px; align-items:baseline;}
   .tl li.fut .dt{color:var(--brass);}
@@ -134,7 +134,7 @@
   .wst{color:var(--brass); margin-right:4px;}
   .sum{display:block; font-size:12px; color:var(--text-muted); margin-top:3px; white-space:normal;}
   a.lnk{color:var(--text-faint); font-size:12px; margin-left:6px;}
-  a.lnk:hover{color:var(--brass);}
+  a.lnk:hover{color:var(--text);}
   footer.site{padding:48px 0; margin-top:64px; border-top:1px solid var(--line);}
   @media (max-width:860px){
     .nav-row{padding:14px 16px; flex-wrap:wrap; row-gap:10px;}
@@ -172,7 +172,6 @@
 <script src="nav.js"></script>
 <main class="wrap">
   <section class="page-head">
-    <div class="eyebrow">重大訊息</div>
     <h1>股東會、法說會與公司重訊</h1>
     <p class="desc" id="sub">載入中…</p>
     <div class="stats" id="stats"></div>

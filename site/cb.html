@@ -3,31 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#0E1620">
+<meta name="theme-color" content="#101419">
 <title>CB詢圈｜潮汐</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#0E1620; --panel:#141F2B; --panel-2:#182531;
+    --ink:#101419; --panel:#171C22; --panel-2:#1E242B;
     --line:rgba(232,237,242,0.09); --line-strong:rgba(232,237,242,0.16);
-    --text:#E8EDF2; --text-muted:#8B99A6; --text-faint:#5C6B79;
+    --text:#E8EDF2; --text-muted:#A9B2BC; --text-faint:#8B95A0;
     --brass:#C6A15B; --brass-soft:rgba(198,161,91,0.14); --rise:#E1594F; --fall:#3FAE72; --warn:#D9A441; --sky:#6FA8DC;
     --radius-s:3px; --radius-m:6px;
   }
   *{box-sizing:border-box;}
   body{margin:0; background:var(--ink); color:var(--text);
     font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
-  h1,h2{font-family:'Noto Serif TC',serif; margin:0; font-weight:700;}
+  h1,h2{font-family:'Noto Sans TC',sans-serif; margin:0; font-weight:700;}
   h2{font-size:20px;}
   .mono{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
   a{color:inherit;}
   .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
-  header.site{position:sticky; top:0; z-index:40; background:rgba(14,22,32,0.88); backdrop-filter:blur(10px); border-bottom:1px solid var(--line);}
+  header.site{position:sticky; top:0; z-index:40; background:#101419; border-bottom:1px solid var(--line);}
   .nav-row{display:flex; align-items:center; justify-content:space-between; padding:16px 28px;}
   .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
-  .brand-mark{font-family:'Noto Serif TC',serif; font-size:22px; font-weight:700;}
+  .brand-mark{font-family:'Noto Sans TC',sans-serif; font-size:22px; font-weight:700;}
   .brand-sub{font-size:12px; color:var(--text-faint);}
   .page-head{padding:56px 0 8px;}
   .eyebrow{font-size:13px; color:var(--brass); margin-bottom:10px;}
@@ -84,13 +84,13 @@
   /* 全部案件 */
   .toolbar{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
   .toolbar button{background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:6px 12px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
-  .toolbar button[aria-pressed="true"]{border-color:var(--brass); color:var(--brass);}
+  .toolbar button[aria-pressed="true"]{border-color:var(--text-faint); color:var(--text);}
   .toolbar input{background:var(--panel); border:1px solid var(--line-strong); color:var(--text); padding:6px 10px; border-radius:var(--radius-s); font:inherit; font-size:13px; width:180px;}
   .tbl{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius-m); margin-top:12px;}
   table{width:100%; border-collapse:collapse; font-size:13px;}
   th,td{padding:9px 12px; text-align:left; border-bottom:1px solid var(--line); white-space:nowrap;}
   th{font-weight:500; color:var(--text-muted); font-size:12px; background:var(--panel); cursor:pointer; user-select:none;}
-  th.sorted{color:var(--brass);}
+  th.sorted{color:var(--text);}
   td.num,th.num{text-align:right;}
   tbody tr:hover{background:var(--panel);}
   tr:last-child td{border-bottom:none;}
@@ -112,9 +112,9 @@
   .subtabs{display:flex; gap:6px; margin-top:28px; border-bottom:1px solid var(--line); overflow-x:auto; scrollbar-width:none;}
   .subtabs a{padding:10px 16px; font-size:14px; color:var(--text-muted); text-decoration:none; border-bottom:2px solid transparent; margin-bottom:-1px; white-space:nowrap;}
   .subtabs a:hover{color:var(--text);}
-  .subtabs a[aria-current="page"]{color:var(--brass); border-bottom-color:var(--brass);}
+  .subtabs a[aria-current="page"]{color:var(--text); border-bottom-color:var(--text);}
   .subtabs a .n{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--text-faint); margin-left:4px;}
-  .subtabs a[aria-current="page"] .n{color:var(--brass);}
+  .subtabs a[aria-current="page"] .n{color:var(--text);}
   [data-view]{display:none;}
   [data-view].on{display:block;}
 
@@ -153,7 +153,7 @@
   .cell{background:var(--ink); min-height:112px; padding:6px 6px 8px; cursor:pointer; display:flex; flex-direction:column; gap:3px; min-width:0;}
   .cell:hover{background:var(--panel);}
   .cell.out{background:#0B121A;} .cell.out .dn{color:var(--text-faint); opacity:.5;}
-  .cell.we{background:#101921;}
+  .cell.we{background:var(--ink);}
   .cell.sel{box-shadow:inset 0 0 0 1px var(--brass);}
   .cell .dn{font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--text-muted); display:flex; justify-content:space-between;}
   .cell.today .dn b{color:var(--ink); background:var(--brass); border-radius:3px; padding:0 5px;}
@@ -200,7 +200,6 @@
 <script src="nav.js"></script>
 <main class="wrap">
   <section class="page-head">
-    <div class="eyebrow">CB 詢圈</div>
     <h1 id="title">可轉債從圈購到掛牌</h1>
     <p class="desc" id="sub">載入中…</p>
     <nav class="subtabs" aria-label="CB詢圈子頁">

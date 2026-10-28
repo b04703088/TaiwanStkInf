@@ -3,30 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#0E1620">
+<meta name="theme-color" content="#101419">
 <title>指數行事曆｜潮汐</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#0E1620; --panel:#141F2B; --panel-2:#182531;
+    --ink:#101419; --panel:#171C22; --panel-2:#1E242B;
     --line:rgba(232,237,242,0.09); --line-strong:rgba(232,237,242,0.16);
-    --text:#E8EDF2; --text-muted:#8B99A6; --text-faint:#5C6B79;
+    --text:#E8EDF2; --text-muted:#A9B2BC; --text-faint:#8B95A0;
     --brass:#C6A15B; --brass-soft:rgba(198,161,91,0.14); --rise:#E1594F; --fall:#3FAE72;
     --radius-s:3px; --radius-m:6px;
   }
   *{box-sizing:border-box;}
   body{margin:0; background:var(--ink); color:var(--text);
     font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
-  h1,h2{font-family:'Noto Serif TC',serif; margin:0; font-weight:700;}
+  h1,h2{font-family:'Noto Sans TC',sans-serif; margin:0; font-weight:700;}
   .mono{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
   a{color:inherit;}
   .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
-  header.site{position:sticky; top:0; z-index:40; background:rgba(14,22,32,0.88); backdrop-filter:blur(10px); border-bottom:1px solid var(--line);}
+  header.site{position:sticky; top:0; z-index:40; background:#101419; border-bottom:1px solid var(--line);}
   .nav-row{display:flex; align-items:center; justify-content:space-between; padding:16px 28px;}
   .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
-  .brand-mark{font-family:'Noto Serif TC',serif; font-size:22px; font-weight:700;}
+  .brand-mark{font-family:'Noto Sans TC',sans-serif; font-size:22px; font-weight:700;}
   .brand-sub{font-size:12px; color:var(--text-faint);}
   .page-head{padding:56px 0 8px;}
   .feature-head{display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:end;}
@@ -48,7 +48,7 @@
   .seg{display:inline-flex; border:1px solid var(--line-strong); border-radius:var(--radius-s); overflow:hidden;}
   .seg button{background:none; border:none; color:var(--text-muted); padding:6px 12px; cursor:pointer; font:inherit; font-size:13px;}
   .seg button + button{border-left:1px solid var(--line-strong);}
-  .seg button[aria-pressed="true"]{background:var(--brass); color:var(--ink);}
+  .seg button[aria-pressed="true"]{background:var(--active); color:var(--text);}
   .toolbar input{margin-left:auto; background:var(--panel); border:1px solid var(--line-strong); color:var(--text); padding:6px 10px; border-radius:var(--radius-s); font:inherit; font-size:13px; width:200px;}
   .legend{display:flex; gap:18px; flex-wrap:wrap; font-size:12px; color:var(--text-muted); margin-bottom:10px;}
   .legend span{display:inline-flex; align-items:center; gap:6px;}
@@ -59,18 +59,18 @@
   .tabs{display:flex; gap:28px; border-bottom:1px solid var(--line-strong); margin-top:36px; overflow-x:auto; scrollbar-width:none;}
   .tabs a{white-space:nowrap; text-decoration:none; color:var(--text-muted); font-size:15px; padding:10px 0 12px; border-bottom:2px solid transparent; margin-bottom:-1px;}
   .tabs a:hover{color:var(--text);}
-  .tabs a[aria-selected="true"]{color:var(--text); border-bottom-color:var(--brass); font-weight:500;}
+  .tabs a[aria-selected="true"]{color:var(--text); border-bottom-color:var(--text); font-weight:500;}
   @media (max-width:860px){ .tabs{gap:20px;} }
   /* 月曆 */
   :root{--violet:#A087DC; --sky:#5FA8D3; --sky-soft:rgba(95,168,211,.14); --rise-soft:rgba(225,89,79,.13);}
   .cal{display:grid; grid-template-columns:repeat(5,minmax(0,1fr)) minmax(0,.42fr) minmax(0,.42fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden;}
   .cal .wd{background:var(--panel-2); font-size:12px; color:var(--text-muted); padding:7px 10px;}
   .cell{background:var(--panel); min-height:118px; padding:7px 8px 8px; cursor:pointer; position:relative; min-width:0; text-align:left; border:none; color:inherit; font:inherit; display:flex; flex-direction:column; gap:3px;}
-  .cell:hover{background:#192736;}
-  .cell.other{background:#111b25;} .cell.other .dn{color:var(--text-faint);}
-  .cell.wkend{background:#111b25; min-height:0;}
-  .cell.hol{background:repeating-linear-gradient(135deg,#121c26 0 6px,#141f2b 6px 12px);}
-  .cell.sel{outline:2px solid var(--brass); outline-offset:-2px; z-index:1;}
+  .cell:hover{background:var(--panel-2);}
+  .cell.other{background:var(--ink);} .cell.other .dn{color:var(--text-faint);}
+  .cell.wkend{background:var(--ink); min-height:0;}
+  .cell.hol{background:repeating-linear-gradient(135deg,var(--panel) 0 6px,var(--panel-2) 6px 12px);}
+  .cell.sel{outline:2px solid var(--text-muted); outline-offset:-2px; z-index:1;}
   .dn{font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--text-muted); display:flex; justify-content:space-between; gap:6px;}
   .cell.today .dn b{background:var(--brass); color:var(--ink); border-radius:3px; padding:0 5px;}
   .dn small{font-family:'Noto Sans TC',sans-serif; font-size:10.5px; color:var(--text-faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
@@ -99,7 +99,7 @@
   .tag-est{font-size:10.5px; color:var(--text-muted); border:1px dashed var(--text-faint); border-radius:2px; padding:0 5px; margin-left:6px;}
   .chips{display:flex; flex-wrap:wrap; gap:6px;}
   .chip{font-size:12px; background:var(--panel-2); border:1px solid var(--line); border-radius:3px; padding:2px 7px; white-space:nowrap; text-decoration:none;}
-  a.chip:hover{border-color:var(--brass);}
+  a.chip:hover{border-color:var(--text-faint);}
   .chip b{font-family:'IBM Plex Mono',monospace; font-weight:500; margin-right:4px;}
   .chip small{color:var(--text-faint); margin-left:4px;}
   .res{grid-column:1/-1; font-size:12.5px; color:var(--text-muted);}
@@ -154,7 +154,6 @@
   <section class="page-head">
     <div class="feature-head">
       <div>
-        <div class="eyebrow">ETF持股</div>
         <h1>ETF 怎麼換股，資金就怎麼流</h1>
       </div>
       <p class="desc">指數行事曆：臺灣指數公司、富時合編（臺灣50、高股息…）與 MSCI 臺灣指數的審核公告日、生效日，
