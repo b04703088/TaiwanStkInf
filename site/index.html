@@ -378,6 +378,52 @@
     .my-card{flex-basis:150px;}
     .fold-sum{flex-basis:100%; order:3; padding-left:21px;}
   }
+  /* ---------- 內部人新動作 ---------- */
+  .ia{margin-top:30px;}
+  .ia-head{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; border-bottom:1px solid var(--line-strong); padding-bottom:8px;}
+  .ia-head h2{font-size:17px;}
+  .ia-head .fold-sum{flex:1;}
+  .ia-head .fold-sum b{color:var(--brass); font-weight:600;}
+  .ia-head a{font-size:13px; color:var(--text-muted); text-decoration:none;}
+  .ia-head a:hover{color:var(--text);}
+  .ia-bar{display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin:10px 0 4px;}
+  .ia-bar button{background:none; border:1px solid var(--line-strong); border-radius:var(--radius-s); color:var(--text-muted); font:inherit; font-size:12.5px; padding:3px 10px; cursor:pointer;}
+  .ia-bar button:hover{color:var(--text); border-color:var(--text-faint);}
+  .ia-bar button[aria-pressed="true"]{color:var(--text); border-color:var(--brass-dim); background:var(--panel-2);}
+  .ia-bar button small{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-faint); margin-left:4px;}
+  .ia-bar button small em{font-style:normal; color:var(--brass); margin-left:5px;}
+  .ia-bar .ia-read{margin-left:auto;}
+  .ia-item{display:grid; grid-template-columns:52px 64px minmax(0,1fr) auto; gap:4px 12px; align-items:baseline; padding:10px 0 10px 10px; border-bottom:1px solid var(--line); border-left:2px solid transparent; text-decoration:none; color:inherit; font-size:13.5px;}
+  .ia-item:hover{background:var(--panel);}
+  .ia-item.new{border-left-color:var(--brass);}
+  .ia-item .d{font-family:'IBM Plex Mono',monospace; color:var(--text-muted); font-size:13.5px;}
+  .ia-item.new .d{color:var(--brass);}
+  .ia-item .k{font-size:12px; color:var(--text-faint); white-space:nowrap;}
+  .ia-item .k.tr{color:#9CCBE8;} .ia-item .k.pl{color:#C3B1F0;}
+  .ia-item .nm{font-weight:500;}
+  .ia-item .nm b{font-family:'IBM Plex Mono',monospace; font-weight:500; font-size:12px; color:var(--text-faint); margin-left:5px;}
+  .ia-item .tx{color:var(--text-muted);}
+  .ia-item .tx .up{color:var(--rise);} .ia-item .tx .dn{color:var(--fall);}
+  .ia-item small{display:block; color:var(--text-faint); font-size:12px; margin-top:2px;}
+  .ia-item .amt{font-family:'IBM Plex Mono',monospace; font-size:13px; text-align:right; white-space:nowrap; color:var(--text-muted);}
+  .ia-tag{display:inline-block; font-size:11px; line-height:1.5; padding:0 5px; border-radius:3px; margin-left:6px; vertical-align:1px; white-space:nowrap;}
+  .ia-tag.fam{color:#E8B4D0; border:1px solid rgba(232,180,208,.45);}
+  .ia-tag.mine{color:var(--brass); border:1px solid var(--brass-dim);}
+  .ia-tag.nw{background:var(--brass); color:var(--ink); font-weight:700;}
+  html[data-theme="light"] .ia-item .k.tr{color:#2F6E96;} html[data-theme="light"] .ia-item .k.pl{color:#6A50B0;}
+  html[data-theme="light"] .ia-tag.fam{color:#A3406F; border-color:rgba(163,64,111,.45);}
+  .ia-more{display:block; width:100%; margin-top:8px; background:none; border:1px dashed var(--line-strong); border-radius:var(--radius-s); color:var(--text-muted); font:inherit; font-size:13px; padding:7px; cursor:pointer;}
+  .ia-more:hover{color:var(--text);}
+  .ia-foot{font-size:12px; color:var(--text-faint); margin:8px 0 0;}
+  @media (max-width: 860px){
+    .ia-item{grid-template-columns:44px minmax(0,1fr) auto; padding-left:8px;}
+    .ia-item .k{grid-column:2; grid-row:1;}
+    .ia-item .bd{grid-column:1/-1;}
+    .ia-item .amt{grid-column:3; grid-row:1;}
+    .ia-bar .ia-read{margin-left:0;}
+    .ia-head .fold-sum{flex-basis:100%; order:3; padding-left:0;}
+    .ia-head a{margin-left:auto;}
+  }
 </style>
 </head>
 <body>
@@ -407,6 +453,19 @@
       <div class="my" id="my">
         <div class="my-head"><h2>我的自選</h2><button type="button" class="my-add" id="myAdd">＋ 搜尋加入 <kbd>/</kbd></button></div>
         <div id="myBody"><p class="my-empty">還沒有自選股。按右上角「搜尋個股」或鍵盤 <kbd>/</kbd>，在股票旁按 ☆ 就會出現在這裡（只存在這台裝置的瀏覽器）。</p></div>
+      </div>
+
+      <div class="ia" id="ia" hidden>
+        <div class="ia-head"><h2>內部人新動作</h2><span class="fold-sum" id="iaSum"></span><a href="insider.html">內部人頁 →</a></div>
+        <div class="ia-bar" id="iaBar" role="group" aria-label="篩選">
+          <button type="button" data-f="key" aria-pressed="true">重點<small></small></button>
+          <button type="button" data-f="mine" aria-pressed="false">自選<small></small></button>
+          <button type="button" data-f="fam" aria-pressed="false">配偶・子女<small></small></button>
+          <button type="button" data-f="all" aria-pressed="false">全部<small></small></button>
+          <button type="button" class="ia-read" id="iaRead">全部標為已讀</button>
+        </div>
+        <div id="iaList"></div>
+        <p class="ia-foot" id="iaFoot"></p>
       </div>
 
       <div class="bw" id="bw" hidden>
@@ -659,6 +718,117 @@
     console.error(e);
     $("cbNote").textContent = "讀取 CB 資料失敗，請重新整理頁面。";
   }
+})();
+</script>
+<script>
+// 內部人新動作：事前申報轉讓（近 30 天）＋最新一個月的事後申報；已讀存在 localStorage，自選股排前面
+(async function () {
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const today = new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);
+  const md = d => `${+d.slice(5, 7)}/${+d.slice(8, 10)}`;
+  const lots = v => Math.round(Math.abs(v) / 1000).toLocaleString("zh-TW");
+  const yi = v => !v ? "" : v >= 1e8 ? (v / 1e8).toLocaleString("zh-TW", { maximumFractionDigits: 1 }) + " 億" : Math.round(v / 1e4).toLocaleString("zh-TW") + " 萬";
+  const SKEY = "tide.insider.seen";
+  let A;
+  try { A = await (await fetch("data/insider/alerts.json", { cache: "no-cache" })).json(); } catch (e) { return; }
+  const items = [
+    ...A.transfer.map(x => ({ ...x, t: "t", score: x.amt })),
+    ...A.monthly.map(x => ({ ...x, t: "m", score: (x.mamt || 0) + (x.pamt || 0),
+      famAct: x.who.some(w => w[5] && (Math.abs(w[2]) + Math.abs(w[4])) * (x.px || 0) >= 5e6) })),
+  ];
+  const keys = new Set(items.map(x => x.key));
+
+  // 第一次來：近 7 天的申報轉讓和最新月份算「新」，更早的當作看過
+  let seen;
+  try { seen = JSON.parse(localStorage.getItem(SKEY)); } catch (e) {}
+  if (!Array.isArray(seen)) {
+    const wk = new Date(Date.parse(today) - 7 * 864e5).toISOString().slice(0, 10);
+    seen = items.filter(x => x.t === "t" && x.date < wk).map(x => x.key);
+  }
+  seen = new Set(seen.filter(k => keys.has(k)));
+  const save = () => { try { localStorage.setItem(SKEY, JSON.stringify([...seen])); } catch (e) {} };
+  save();
+
+  const watch = () => new Set(window.TideWatch ? window.TideWatch.list() : []);
+  // 重點：自選股全列；申報轉讓 1,000 萬以上（信託多半是限制型股票，不算）或配偶子女；
+  //       每月申報市場買賣或質押 1 億以上，或配偶子女自己買賣／質押 500 萬以上
+  const isKey = (x, W) => W.has(x.code) || (x.t === "t" ? (x.amt >= 1e7 && !/信託/.test(x.method)) || x.fam
+    : x.mamt >= 1e8 || x.pamt >= 1e8 || x.famAct);
+  const FILTERS = { key: isKey, mine: (x, W) => W.has(x.code), fam: x => x.fam, all: () => true };
+  let filter = "key", shown = 8;
+  try { filter = localStorage.getItem("tide.insider.filter") || "key"; } catch (e) {}
+  if (!FILTERS[filter]) filter = "key";
+
+  const fam = '<span class="ia-tag fam">配偶・子女</span>';
+  const sgn = (v, up, dn) => v > 0 ? `<span class="up">${up} ${lots(v)} 張</span>` : v < 0 ? `<span class="dn">${dn} ${lots(v)} 張</span>` : "";
+  function row(x, W) {
+    const nw = !seen.has(x.key), mine = W.has(x.code);
+    const name = `<span class="nm">${esc(x.company)}<b>${esc(x.code)}</b></span>${mine ? '<span class="ia-tag mine">自選</span>' : ""}`
+      + (x.fam ? fam : "") + (nw ? '<span class="ia-tag nw">新</span>' : "");
+    let d, k, body, amt;
+    if (x.t === "t") {
+      d = md(x.date); k = '<span class="k tr">申報轉讓</span>';
+      body = `${name}<div class="tx">${esc(x.role)} ${esc(x.name)}・${esc(x.method)}・<span class="dn">${lots(x.shares)} 張</span></div>`
+        + `<small>轉讓期間 ${esc(x.period || "–")}${x.transferee ? `・受讓人 ${esc(x.transferee)}` : ""}</small>`;
+      amt = yi(x.amt);
+    } else {
+      d = `${+x.month.slice(5)}月`;
+      const pledgeOnly = !x.buy && !x.sell && !x.oin && !x.oout;
+      k = pledgeOnly ? '<span class="k pl">質押</span>' : '<span class="k">持股異動</span>';
+      const bits = [];
+      if (x.buy || x.sell) bits.push(`市場${x.buy ? ` <span class="up">買 ${lots(x.buy)} 張</span>` : ""}${x.sell ? ` <span class="dn">賣 ${lots(x.sell)} 張</span>` : ""}`);
+      if (x.oin || x.oout) bits.push(`其他${x.oin ? `增 ${lots(x.oin)}` : ""}${x.oin && x.oout ? "、" : ""}${x.oout ? `減 ${lots(x.oout)}` : ""} 張`);
+      if (x.padd || x.psub) bits.push(`${x.padd ? `設質 ${lots(x.padd)}` : ""}${x.padd && x.psub ? "、" : ""}${x.psub ? `解質 ${lots(x.psub)}` : ""} 張`);
+      const who = x.who.map(w => {
+        const acts = [sgn(w[2], "買", "賣"), w[3] ? `其他${w[3] > 0 ? "增" : "減"} ${lots(w[3])} 張` : "", w[4] ? `${w[4] > 0 ? "設質" : "解質"} ${lots(w[4])} 張` : ""].filter(Boolean).join("、");
+        return `${esc(w[0])}${w[5] ? "（配偶・子女）" : ""} ${acts}`;
+      }).join("；");
+      body = `${name}<div class="tx">${bits.join("；")}</div>${who ? `<small>${who}</small>` : ""}`;
+      amt = yi(x.mamt || x.pamt || x.amt);
+    }
+    return `<a class="ia-item${nw ? " new" : ""}" href="insider.html#s=${encodeURIComponent(x.code)}" data-key="${esc(x.key)}">
+      <span class="d">${d}</span>${k}<span class="bd">${body}</span><span class="amt">${amt ? "約 " + amt : ""}</span></a>`;
+  }
+
+  function render() {
+    const W = watch();
+    const order = (a, b) => (seen.has(a.key) - seen.has(b.key)) || (W.has(b.code) - W.has(a.code))
+      || (a.t === b.t ? (a.t === "t" ? b.date.localeCompare(a.date) || b.score - a.score : b.score - a.score) : a.t === "t" ? -1 : 1);
+    const list = items.filter(x => FILTERS[filter](x, W)).sort(order);
+    document.querySelectorAll("#iaBar [data-f]").forEach(b => {
+      const f = b.dataset.f, n = items.filter(x => FILTERS[f](x, W)), nn = n.filter(x => !seen.has(x.key)).length;
+      b.setAttribute("aria-pressed", f === filter);
+      b.querySelector("small").innerHTML = n.length + (nn ? `<em>${nn} 新</em>` : "");
+    });
+    const nNew = items.filter(x => !seen.has(x.key) && isKey(x, W)).length;
+    const nMine = items.filter(x => W.has(x.code)).length;
+    $("iaSum").innerHTML = (nNew ? `<b>${nNew} 筆新動作</b>` : "沒有新動作") + (W.size ? `・自選股 ${nMine} 筆` : "");
+    $("iaList").innerHTML = list.length ? list.slice(0, shown).map(x => row(x, W)).join("")
+      + (list.length > shown ? `<button type="button" class="ia-more" id="iaMore">再顯示 ${Math.min(20, list.length - shown)} 筆（共 ${list.length} 筆）</button>` : "")
+      : `<p class="wk-empty">${filter === "mine" ? (W.size ? "自選股近期沒有內部人動作。" : "還沒有自選股，按右上角「搜尋個股」加入。") : "沒有符合的動作。"}</p>`;
+    $("iaRead").hidden = !items.some(x => !seen.has(x.key));
+  }
+
+  $("iaBar").addEventListener("click", e => {
+    const b = e.target.closest("[data-f]");
+    if (!b) return;
+    filter = b.dataset.f; shown = 8;
+    try { localStorage.setItem("tide.insider.filter", filter); } catch (e) {}
+    render();
+  });
+  $("iaRead").addEventListener("click", () => { items.forEach(x => seen.add(x.key)); save(); render(); });
+  $("iaList").addEventListener("click", e => {
+    if (e.target.id === "iaMore") { shown += 20; render(); return; }
+    const a = e.target.closest(".ia-item");
+    if (a) { seen.add(a.dataset.key); save(); }
+  });
+  document.addEventListener("tide:watch", render);
+  addEventListener("storage", e => { if (e.key === "tide.watch" || e.key === SKEY) render(); });
+  $("iaFoot").textContent = `「申報轉讓」是近 30 天的事前申報（預定在市場賣出、贈與、信託…）；「持股異動」「質押」是 ${A.month ? +A.month.slice(5) + " 月" : "最新一個月"}的每月事後申報，`
+    + "含配偶、未成年子女，隔月中下旬陸續公布。重點＝自選股、配偶子女有動作、申報轉讓 1,000 萬以上（不含信託）、每月市場買賣或質押 1 億以上。金額＝股數 × 最新收盤，僅供參考。點進去或按「全部標為已讀」就不再標新；已讀紀錄只存在這台裝置的瀏覽器。";
+  render();
+  $("ia").hidden = false;
 })();
 </script>
 <script>

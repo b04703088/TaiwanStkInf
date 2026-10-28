@@ -54,6 +54,38 @@ class InsiderSiteTest(unittest.TestCase):
         self.assertEqual(out["pmonths"], ["2026-09"])
         self.assertEqual({r["market"] for r in pl}, {"sii"})
 
+    def test_alerts(self):
+        with tempfile.TemporaryDirectory() as d:
+            ins = Path(d) / "insider"
+            tcols = S.TRADES
+            base = dict.fromkeys(tcols, "0")
+            _w(ins / "trades" / "202608.csv", tcols, [dict(base, month="2026-08", code="1101", name="舊", buy_mkt="9000")])
+            _w(ins / "trades" / "202609.csv", tcols, [
+                dict(base, month="2026-09", code="2383", company="台光電", role="董事", name="甲(配偶/子女)",
+                     sell_mkt="20000", note="", dup=""),
+                dict(base, month="2026-09", code="2383", company="台光電", role="董事長", name="乙", buy_mkt="5000",
+                     pledge_add="1000", note="", dup=""),
+                dict(base, month="2026-09", code="2383", company="台光電", role="董事長", name="乙重複", buy_mkt="5000",
+                     note="", dup="Y"),
+                dict(base, month="2026-09", code="9999", company="小", role="董事", name="丙", buy_mkt="1000",
+                     note="", dup=""),  # 金額太小 → 不列
+                dict(base, month="2026-09", code="2330", company="台積電", role="董事", name="丁", note="", dup="")])
+            _w(ins / "transfer" / "2026.csv", S.TRANSFER, [
+                {"date": "2026-10-20", "code": "2383", "role": "董事配偶", "name": "戊", "method": "贈與", "shares": "1000"},
+                {"date": "2026-08-01", "code": "2383", "name": "太舊", "shares": "1"}])
+            _w(Path(d) / "2026" / "20261027.csv", ["code", "close"], [{"code": "2383", "close": "1000"},
+                                                                      {"code": "9999", "close": "10"}])
+            a = S.build_alerts(d, today=date(2026, 10, 28))
+        self.assertEqual(a["month"], "2026-09")
+        self.assertEqual(len(a["transfer"]), 1)
+        t = a["transfer"][0]
+        self.assertEqual((t["fam"], t["amt"], t["key"]), (True, 1000000, "t:2026-10-20:2383:戊:1000"))
+        self.assertEqual([g["code"] for g in a["monthly"]], ["2383"])
+        g = a["monthly"][0]
+        self.assertEqual((g["buy"], g["sell"], g["padd"], g["fam"], g["mamt"], g["pamt"]),
+                         (5000, 20000, 1000, True, 25000000, 1000000))
+        self.assertEqual(g["who"][0], ["甲", "董事", -20000, 0, 0, True])
+
 
 if __name__ == "__main__":
     unittest.main()
