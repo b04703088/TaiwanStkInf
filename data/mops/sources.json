@@ -1,26 +1,28 @@
 {
- "generated": "2026-10-28 14:10",
+ "generated": "2026-10-29 00:26",
  "fetched_days": 2,
  "left_days": 0,
- "news": 333,
+ "news": 430,
  "cats": {
-  "other": 54,
-  "fin": 40,
-  "capital": 57,
-  "call": 32,
-  "ma": 52,
-  "board": 23,
-  "hr": 36,
-  "shm": 12,
-  "legal": 10,
-  "buyback": 4,
-  "clarify": 6,
-  "div": 4,
-  "attn": 3
+  "other": 81,
+  "div": 7,
+  "fin": 65,
+  "capital": 64,
+  "hr": 51,
+  "ma": 62,
+  "call": 28,
+  "board": 42,
+  "shm": 8,
+  "buyback": 5,
+  "legal": 5,
+  "clarify": 4,
+  "attn": 8
  },
  "exright": 148,
- "calls": 230,
- "events": 27,
- "unparsed": [],
+ "calls": 242,
+ "events": 20,
+ "unparsed": [
+  "3718中光電投控 2026-10-28"
+ ],
  "errors": []
 }
