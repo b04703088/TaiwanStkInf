@@ -17,6 +17,7 @@
   data/alert/alert.json              處置股、注意股（見 scripts/alert_site.py）
   data/treasury.json                 庫藏股買回計畫與進度（見 scripts/treasury_site.py）
   data/insider/insider.json          內部人事前申報、每月持股異動與設質解質（見 scripts/insider_site.py）
+  data/insider/alerts.json           首頁「內部人新動作」：近 30 天申報轉讓＋最新月份異動（含配偶、未成年子女）
   data/mops/mops.json                重大訊息、股東會／法說會行事曆（見 scripts/mops_site.py）
   data/fin/index.json, s/<代號>.json  財報：月營收與季報（見 scripts/fin_site.py）
   data/margin/market.json, stocks.json, s/<代號>.json  融資融券、估計維持率（見 scripts/margin_site.py）
