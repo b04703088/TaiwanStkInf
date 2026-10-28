@@ -13,7 +13,7 @@ from collections import defaultdict
 from datetime import date, timedelta
 from pathlib import Path
 
-BACK_DAYS = 120          # 往回收幾天的動作
+BACK_DAYS = 365          # 往回收幾天的動作（K 線頁事件標註也用）
 WATCH_MIN_AMT = 5000     # 重點分點單日買賣超至少幾仟元才列（500 萬）
 ACTIVE_MIN_LOTS = 50     # 主動 ETF 單次加減碼至少幾張才列
 LOCAL_TOP = 3            # 地方主力：只列該分點當天前幾大買超

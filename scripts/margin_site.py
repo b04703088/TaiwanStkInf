@@ -19,7 +19,7 @@ import json
 from pathlib import Path
 
 FIN_RATIO = 0.6       # 融資成數
-SERIES_N = 120        # 個股走勢保留天數
+SERIES_N = 250        # 個股走勢保留天數（K 線頁副圖也用，約一年）
 MARKET_N = 250        # 大盤走勢保留天數
 COST_WARMUP = 250     # 估計成本最多往回看幾天
 

@@ -80,7 +80,28 @@
   .empty{padding:20px 0; color:var(--text-faint); font-size:13.5px;}
   .note{font-size:12.5px; color:var(--text-faint); margin-top:18px; line-height:1.8;}
   footer.site{padding:48px 0; margin-top:64px; border-top:1px solid var(--line);}
-  :root{--ma5:#E8C77A; --ma20:#6FA8DC; --ma60:#B48EAD;}
+  :root{--ma5:#E8C77A; --ma20:#6FA8DC; --ma60:#B48EAD;
+    /* 事件類別色（同個股綜合查詢） */
+    --k-news:#6FA8DC; --k-alert:#E1594F; --k-insider:#B58BE0; --k-treasury:#3FAE72; --k-cb:#E39B4B;
+    --k-etf:#4FB8B0; --k-analyst:#C6A15B; --k-broker:#8B99A6; --k-div:#D47FA6; --k-meet:#6FA8DC;}
+  html[data-theme="light"]{
+    --k-news:#2F6EA8; --k-alert:#C2332A; --k-insider:#7B4FB0; --k-treasury:#16884E; --k-cb:#B5651D;
+    --k-etf:#1E847C; --k-analyst:#946C25; --k-broker:#5E6B78; --k-div:#A8457A; --k-meet:#2F6EA8;}
+  .toolbar.sub{margin:0 0 8px; padding-top:0; border-top:none; gap:6px 10px;}
+  .toolbar .lbl{font-size:12px; color:var(--text-faint); min-width:2.5em;}
+  .chips button i{display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:5px; vertical-align:1px;}
+  .chips button[aria-pressed="false"] i{opacity:.35;}
+  .chips button .n{color:var(--text-faint); font-size:11.5px; margin-left:3px;}
+  .soon{display:flex; flex-wrap:wrap; gap:6px 14px; font-size:12.5px; color:var(--text-muted); margin-top:12px;}
+  .soon b{font-weight:500; color:var(--text);}
+  .soon .k{color:var(--kc); margin-right:4px;}
+  .evd{margin-top:12px; border:1px solid var(--line); border-radius:var(--radius-m); padding:10px 14px; font-size:13px; min-height:44px;}
+  .evd .h{font-size:12.5px; color:var(--text-faint); margin-bottom:4px;}
+  .evd .row{display:grid; grid-template-columns:auto 1fr auto; gap:2px 10px; padding:6px 0; border-top:1px solid var(--line); align-items:baseline;}
+  .evd .row:first-of-type{border-top:none;}
+  .evd .tg{font-size:11.5px; color:var(--kc); border:1px solid var(--kc); border-radius:var(--radius-s); padding:0 5px; white-space:nowrap;}
+  .evd .d{grid-column:2 / 4; color:var(--text-muted); font-size:12.5px;}
+  .evd a{color:var(--brass); text-decoration:none; font-size:12.5px; white-space:nowrap;}
   @media (max-width:860px){
     .nav-row{padding:14px 16px; flex-wrap:wrap; row-gap:10px;}
     .wrap{padding:0 16px;}
@@ -101,7 +122,7 @@
 <main class="wrap">
   <section class="page-head">
     <div class="eyebrow">K線</div>
-    <h1>還原 K 線</h1>
+    <h1>K 線・籌碼・事件</h1>
     <p class="desc" id="sub">載入中…</p>
   </section>
 
@@ -116,6 +137,8 @@
   <p class="note">
     還原價：把除權息、減資、變更面額、ETF 分割造成的基準價跳動還原回去，最新一天的價格不變，越早的價格依之後每次事件的「參考價 ÷ 前收盤」連乘調整；成交量反向調整（分割前的 1 張換算成現在的張數）。
     事件與參考價來自證交所、櫃買中心的除權除息計算結果表、減資／變更面額／ETF 分割恢復買賣參考價（2022 年起）。K 線圖下方的「息、權、減、面、分」標記事件發生日，滑過可看說明。<br>
+    副圖：外資（含外資自營商）、投信、自營商買賣超為張數，金色線是畫面最左邊那根起算的累計買賣超；週K、月K 為該期加總。融資融券、借券為期末餘額（張），千張大戶為集保每週持股比例。籌碼資料約一年（法人與借券 2025/10 起、融資券 2025/07 起），張數沒有隨除權還原。<br>
+    標註：K 棒上方的圓點是個股綜合查詢收錄的事件（近一年）——內＝內部人申報／每月持股異動／質押、庫＝庫藏股、處／注／出＝處置、注意股、出關、法／股＝法說會、股東會、債＝可轉債、指＝ETF 換股與指數審核、評＝外資報告、分＝重點分點大額買賣、訊＝重大訊息。一根 K 棒同類事件只畫一顆，滑過或點一下看全部。<br>
     操作：滑鼠滾輪縮放、拖曳左右移動；手機可左右拖曳，用上方按鈕切換區間。資料僅供參考，不構成投資建議。
   </p>
 </main>
@@ -133,9 +156,25 @@ const MK = {TWSE: "上市", TPEx: "上櫃"};
 const EV_MARK = {"除息": "息", "除權": "權", "除權息": "權", "減資": "減", "面額變更": "面", "分割": "分", "反分割": "分"};
 const MAS = [[5, "--ma5"], [20, "--ma20"], [60, "--ma60"]];
 const RANGES = [["3", "3 個月"], ["6", "6 個月"], ["12", "1 年"], ["36", "3 年"], ["0", "全部"]];
+// 副圖：價格下面一層一層疊
+const PANELS = [["vol", "成交量"], ["f", "外資"], ["t", "投信"], ["dl", "自營商"], ["mg", "融資／融券"], ["sbl", "借券餘額"], ["big", "千張大戶"]];
+// 事件標註（data/stock/s 的類別）；除權息已經在 K 線底部用「息、權」標
+const EVK = [["insider", "內部人", "內"], ["treasury", "庫藏股", "庫"], ["alert", "處置注意", "處"], ["meet", "股東會／法說", "法"],
+  ["cb", "可轉債", "債"], ["etf", "ETF／指數", "指"], ["analyst", "外資報告", "評"], ["broker", "重點分點", "分"], ["news", "重訊", "訊"]];
+const EVNAME = {...Object.fromEntries(EVK.map(k => [k[0], k[1]])), div: "除權息"};
+const evLetter = e => e[1] === "alert" ? (e[2].startsWith("注意") ? "注" : e[2].startsWith("出關") ? "出" : e[2].startsWith("可能") ? "警" : "處")
+  : e[1] === "meet" ? (e[2].includes("法說") ? "法" : "股") : (EVK.find(k => k[0] === e[1]) || [0, 0, "・"])[2];
+const SUMK = ["f", "t", "dl"], LASTK = ["sbl", "fin", "sht", "big"];
+const load = (k, def) => { try { const v = JSON.parse(localStorage.getItem(k)); return Array.isArray(v) ? v : def; } catch (e){ return def; } };
+const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+const getJSON = u => fetch(u, {cache: "no-cache"}).then(r => r.ok ? r.json() : null).catch(() => null);
+const di = s => +String(s).replaceAll("-", "");
+const lTxt = v => v == null ? "–" : Math.abs(v) >= 1e5 ? (v / 1e4).toFixed(Math.abs(v) >= 1e6 ? 0 : 1) + "萬" : Math.round(v).toLocaleString("zh-TW");
+const sl = v => v == null ? "–" : (v > 0 ? "+" : "") + lTxt(v);
 
-let IDX, NAMES = {}, S = null;
-const V = {adj: true, per: "d", range: "6"};
+let IDX, NAMES = {}, S = null, XD = {}, BIG = [], SEV = [], SOON = [];
+const V = {adj: true, per: "d", range: "6",
+  panels: load("tide.kline.panels", ["vol", "f", "t"]), evk: load("tide.kline.ev", ["insider", "treasury", "alert", "meet", "cb", "etf"])};
 let BARS = [], s0 = 0, s1 = 0, hover = -1;
 
 /* ---------- 資料：還原、週月 K、均線 ---------- */
@@ -145,7 +184,13 @@ function daily(){
   for (let i = n - 1; i >= 0; i--){
     while (j >= 0 && ev[j][0] > S.d[i]){ cum *= ev[j][1]; j--; }
     const f = V.adj ? cum : 1;
-    out[i] = {d: S.d[i], d0: S.d[i], o: S.o[i] * f, h: S.h[i] * f, l: S.l[i] * f, c: S.c[i] * f, v: S.v[i] / f, f, ev: []};
+    out[i] = {d: S.d[i], d0: S.d[i], o: S.o[i] * f, h: S.h[i] * f, l: S.l[i] * f, c: S.c[i] * f, v: S.v[i] / f, f, ev: [], sev: [], ...XD[S.d[i]]};
+  }
+  // 千張大戶是週資料：每天沿用最近一週的數字
+  let k = -1;
+  for (const r of out){
+    while (k + 1 < BIG.length && BIG[k + 1][0] <= r.d) k++;
+    if (k >= 0) r.big = BIG[k][1];
   }
   return out;
 }
@@ -160,8 +205,12 @@ function group(rows){
   let cur = null, k0 = null;
   for (const r of rows){
     const k = key(r.d);
-    if (k !== k0){ cur = {...r, ev: []}; out.push(cur); k0 = k; }
-    else { cur.h = Math.max(cur.h, r.h); cur.l = Math.min(cur.l, r.l); cur.c = r.c; cur.v += r.v; cur.d = r.d; }
+    if (k !== k0){ cur = {...r, ev: [], sev: []}; out.push(cur); k0 = k; }
+    else {
+      cur.h = Math.max(cur.h, r.h); cur.l = Math.min(cur.l, r.l); cur.c = r.c; cur.v += r.v; cur.d = r.d;
+      for (const x of SUMK) if (r[x] != null) cur[x] = (cur[x] || 0) + r[x];   // 買賣超：加總
+      for (const x of LASTK) if (r[x] != null) cur[x] = r[x];                  // 餘額：取期末
+    }
   }
   return out;
 }
@@ -172,6 +221,11 @@ function build(){
   for (const e of S.ev){
     while (i < bars.length && bars[i].d < e[0]) i++;
     if (i < bars.length) bars[i].ev.push(e);
+  }
+  i = 0;
+  for (const e of SEV){
+    while (i < bars.length && bars[i].d < e[5]) i++;
+    if (i < bars.length) bars[i].sev.push(e);
   }
   for (const [n] of MAS){
     let sum = 0;
@@ -202,40 +256,41 @@ function niceStep(x){
 }
 function draw(){
   const box = $("kbox"); if (!box) return;
-  const W = box.clientWidth, H = innerWidth < 860 ? 340 : 440, dpr = devicePixelRatio || 1;
+  const mob = innerWidth < 860, pans = PANELS.filter(p => V.panels.includes(p[0]));
+  const R = 58, T = 8, XB = 20, EVH = 18, PH = mob ? 250 : 330, SUBH = mob ? 72 : 86;
+  const W = box.clientWidth, H = T + PH + pans.length * SUBH + XB, dpr = devicePixelRatio || 1;
   if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)){ cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cv.style.height = H + "px"; }
   const x = cv.getContext("2d");
   x.setTransform(dpr, 0, 0, dpr, 0, 0);
   x.clearRect(0, 0, W, H);
-  const R = 58, T = 8, XB = 20, EVH = 18, pw = W - R, ph = Math.round((H - XB) * 0.74) - T, vt = T + ph + 8, vh = H - XB - vt;
+  const pw = W - R, bot = T + PH + pans.length * SUBH;
   const vis = BARS.slice(s0, s1), n = vis.length;
   if (!n){ return; }
   const bw = pw / n;
-  let lo = Infinity, hi = -Infinity, vmax = 0;
+  const shown = b => b.sev.filter(e => V.evk.includes(e[1]));
+  const evOn = vis.some(b => shown(b).length);
+  let lo = Infinity, hi = -Infinity;
   for (const b of vis){
-    lo = Math.min(lo, b.l); hi = Math.max(hi, b.h); vmax = Math.max(vmax, b.v);
+    lo = Math.min(lo, b.l); hi = Math.max(hi, b.h);
     for (const [m] of MAS){ const v = b["ma" + m]; if (v != null){ lo = Math.min(lo, v); hi = Math.max(hi, v); } }
   }
   if (lo === hi){ lo *= 0.98; hi *= 1.02; }
   const pad = (hi - lo) * 0.06; lo -= pad; hi += pad;
-  const py0 = T, py1 = T + ph - EVH;   // 最下面留一條放事件標記
+  const py0 = T + (evOn ? 30 : 0), py1 = T + PH - EVH;   // 上面留給事件圓點、最下面留一條放還原事件標記
   const Y = v => py0 + (hi - v) / (hi - lo) * (py1 - py0);
-  const VY = v => vt + vh - (vmax ? v / vmax * vh : 0);
   const X = i => (i + 0.5) * bw;
-  G = {W, H, R, T, pw, ph, vt, vh, bw, Y, lo, hi, py0, py1, n};
-  const line = css("--line"), faint = css("--text-faint"), rise = css("--rise"), fall = css("--fall"), muted = css("--text-muted");
+  G = {W, H, R, T, pw, bw, Y, lo, hi, py0, py1, n, bot};
+  const line = css("--line"), faint = css("--text-faint"), rise = css("--rise"), fall = css("--fall"), muted = css("--text-muted"), brass = css("--brass");
   x.font = "10.5px 'IBM Plex Mono', monospace";
   // 格線與價格軸
   const step = niceStep((hi - lo) / 5);
   x.strokeStyle = line; x.fillStyle = faint; x.lineWidth = 1; x.textAlign = "left"; x.textBaseline = "middle";
   for (let v = Math.ceil(lo / step) * step; v <= hi; v += step){
     const y = Math.round(Y(v)) + 0.5;
-    if (y < py0 || y > py1) continue;
+    if (y < T || y > py1) continue;
     x.beginPath(); x.moveTo(0, y); x.lineTo(pw, y); x.stroke();
     x.fillText(pTxt(v), pw + 6, y);
   }
-  x.beginPath(); x.moveTo(0, vt - 3.5); x.lineTo(pw, vt - 3.5); x.stroke();
-  x.fillText(vTxt(vmax), pw + 6, vt + 6);
   // 時間軸：先標年初，再補月初（日K）／季初（週K），太擠就跳過
   x.textAlign = "center"; x.textBaseline = "alphabetic";
   const cand = [];
@@ -252,22 +307,19 @@ function draw(){
     const xx = X(i);
     if (used.some(u => Math.abs(u - xx) < 60)) continue;
     used.push(xx);
-    x.strokeStyle = line; x.beginPath(); x.moveTo(Math.round(xx) + 0.5, py0); x.lineTo(Math.round(xx) + 0.5, vt + vh); x.stroke();
+    x.strokeStyle = line; x.beginPath(); x.moveTo(Math.round(xx) + 0.5, T); x.lineTo(Math.round(xx) + 0.5, bot); x.stroke();
     const t = String(d);
     x.fillStyle = pri ? faint : muted; x.fillText(pri ? t.slice(4, 6) + "月" : t.slice(0, 4), xx, H - 5);
   }
-  // K 棒與量
+  // K 棒
   const body = Math.max(1, Math.min(14, bw * 0.68));
+  const colOf = b => b.c === b.o && b.pc != null && b.c === b.pc ? muted : (b.c > b.o || (b.c === b.o && b.pc != null && b.c >= b.pc)) ? rise : fall;
   for (let i = 0; i < n; i++){
-    const b = vis[i], up = b.c > b.o || (b.c === b.o && b.pc != null && b.c >= b.pc), col = b.c === b.o && b.pc != null && b.c === b.pc ? muted : up ? rise : fall;
-    const cx = Math.round(X(i)) + 0.5;
+    const b = vis[i], col = colOf(b), cx = Math.round(X(i)) + 0.5;
     x.strokeStyle = col; x.fillStyle = col;
     x.beginPath(); x.moveTo(cx, Y(b.h)); x.lineTo(cx, Y(b.l)); x.stroke();
     const yo = Y(b.o), yc = Y(b.c);
     x.fillRect(cx - body / 2, Math.min(yo, yc), body, Math.max(1, Math.abs(yc - yo)));
-    x.globalAlpha = 0.55;
-    x.fillRect(cx - body / 2, VY(b.v), body, vt + vh - VY(b.v));
-    x.globalAlpha = 1;
   }
   // 均線
   x.lineWidth = 1.2;
@@ -282,9 +334,8 @@ function draw(){
     x.stroke();
   }
   x.lineWidth = 1;
-  // 事件標記
+  // 還原事件（息、權、減…）標在價格區最下面
   x.font = "11px 'Noto Sans TC', sans-serif"; x.textAlign = "center"; x.textBaseline = "middle";
-  const brass = css("--brass");
   for (let i = 0; i < n; i++){
     if (!vis[i].ev.length) continue;
     const cx = X(i), cy = py1 + EVH / 2 + 1, t = EV_MARK[vis[i].ev[vis[i].ev.length - 1][2]] || "權";
@@ -292,21 +343,111 @@ function draw(){
     x.beginPath(); x.roundRect ? x.roundRect(cx - 8, cy - 8, 16, 16, 3) : x.rect(cx - 8, cy - 8, 16, 16); x.fill(); x.stroke();
     x.fillStyle = brass; x.fillText(t, cx, cy + 0.5);
   }
+  // 事件圓點：K 棒最高價上方，一種類別一顆往上疊
+  const rr = Math.max(3, Math.min(7.5, bw / 2 - 0.5)), letters = rr >= 6;
+  x.font = `${rr >= 7 ? 10.5 : 9.5}px 'Noto Sans TC', sans-serif`;
+  for (let i = 0; i < n; i++){
+    const es = shown(vis[i]); if (!es.length) continue;
+    const kinds = [];
+    for (const e of es) if (!kinds.some(k => k[1] === e[1])) kinds.push(e);
+    const on = hover - s0 === i;
+    kinds.forEach((e, k) => {
+      const cy = Math.max(T + rr, Y(vis[i].h) - rr - 4 - k * (rr * 2 + 2)), cx = X(i);
+      x.fillStyle = css("--k-" + e[1]);
+      x.beginPath(); x.arc(cx, cy, rr, 0, Math.PI * 2); x.fill();
+      if (on){ x.strokeStyle = css("--text"); x.lineWidth = 1.5; x.stroke(); x.lineWidth = 1; }
+      if (letters){ x.fillStyle = css("--ink"); x.fillText(evLetter(e), cx, cy + 0.5); }
+    });
+  }
+  // 副圖
+  const hb = BARS[hover >= s0 && hover < s1 ? hover : s1 - 1];
+  pans.forEach(([k, name], j) => panel(x, k, name, vis, hb, T + PH + j * SUBH, SUBH, {X, bw, body, pw, W, colOf}));
   // 十字線
   if (hover >= s0 && hover < s1){
     const i = hover - s0, cx = Math.round(X(i)) + 0.5;
     x.strokeStyle = css("--line-strong"); x.setLineDash([3, 3]);
-    x.beginPath(); x.moveTo(cx, py0); x.lineTo(cx, vt + vh); x.stroke();
+    x.beginPath(); x.moveTo(cx, T); x.lineTo(cx, bot); x.stroke();
     if (G.my != null && G.my >= py0 && G.my <= py1){
       const yy = Math.round(G.my) + 0.5, v = hi - (G.my - py0) / (py1 - py0) * (hi - lo);
       x.beginPath(); x.moveTo(0, yy); x.lineTo(pw, yy); x.stroke();
       x.setLineDash([]);
       x.fillStyle = css("--panel-2"); x.fillRect(pw + 1, yy - 9, R - 2, 18);
-      x.fillStyle = css("--text"); x.font = "10.5px 'IBM Plex Mono', monospace"; x.textAlign = "left"; x.fillText(pTxt(v), pw + 6, yy);
+      x.fillStyle = css("--text"); x.font = "10.5px 'IBM Plex Mono', monospace"; x.textAlign = "left"; x.textBaseline = "middle"; x.fillText(pTxt(v), pw + 6, yy);
     }
     x.setLineDash([]);
   }
   info();
+}
+// 一層副圖：上面 16px 是標題列（名稱＋游標那根的數字），下面畫圖
+function panel(x, k, name, vis, hb, top, h, o){
+  const {X, bw, body, pw, W} = o, y0 = top + 18, y1 = top + h - 4, n = vis.length;
+  const faint = css("--text-faint"), muted = css("--text-muted"), rise = css("--rise"), fall = css("--fall"), brass = css("--brass");
+  x.strokeStyle = css("--line-strong"); x.beginPath(); x.moveTo(0, top + 0.5); x.lineTo(W, top + 0.5); x.stroke();
+  const label = [];   // [文字, 顏色]
+  const axis = (a, b) => {   // 右邊刻度：上、下兩個數字
+    x.font = "10px 'IBM Plex Mono', monospace"; x.fillStyle = faint; x.textAlign = "left"; x.textBaseline = "middle";
+    x.fillText(a, pw + 6, y0 + 4); if (b != null) x.fillText(b, pw + 6, y1 - 3);
+  };
+  const lineOf = (vals, col, dash) => {
+    const v = vals.filter(z => z != null); if (!v.length) return null;
+    let a = Math.min(...v), b = Math.max(...v);
+    if (a === b){ const p = Math.abs(a) * 0.01 || 1; a -= p; b += p; }
+    const Yp = z => y1 - (z - a) / (b - a) * (y1 - y0);
+    x.strokeStyle = col; x.fillStyle = col; x.lineWidth = 1.4; x.setLineDash(dash || []); x.beginPath();
+    let on = false;
+    vals.forEach((z, i) => { if (z == null){ on = false; return; } on ? x.lineTo(X(i), Yp(z)) : x.moveTo(X(i), Yp(z)); on = true; });
+    x.stroke(); x.setLineDash([]); x.lineWidth = 1;
+    if (v.length === 1){ const i = vals.findIndex(z => z != null); x.beginPath(); x.arc(X(i), Yp(vals[i]), 2.5, 0, Math.PI * 2); x.fill(); }
+    return [a, b];
+  };
+  const none = msg => { x.font = "12px 'Noto Sans TC', sans-serif"; x.fillStyle = faint; x.textAlign = "center"; x.textBaseline = "middle"; x.fillText(msg, pw / 2, (y0 + y1) / 2); };
+  if (k === "vol"){
+    const vmax = Math.max(0, ...vis.map(b => b.v));
+    x.globalAlpha = 0.55;
+    vis.forEach((b, i) => { const hh = vmax ? b.v / vmax * (y1 - y0) : 0; x.fillStyle = o.colOf(b); x.fillRect(Math.round(X(i)) + 0.5 - body / 2, y1 - hh, body, hh); });
+    x.globalAlpha = 1;
+    axis(vTxt(vmax));
+    label.push([`${name} ${vTxt(hb && hb.v)} 張`, muted]);
+  } else if (SUMK.includes(k)){
+    const vals = vis.map(b => b[k]);
+    if (vals.every(v => v == null)) none("這段期間沒有法人資料（2025/10 起）");
+    else {
+      const m = Math.max(1, ...vals.map(v => Math.abs(v || 0))), zy = (y0 + y1) / 2, sc = (y1 - y0) / 2 / m;
+      x.strokeStyle = css("--line-strong"); x.beginPath(); x.moveTo(0, Math.round(zy) + 0.5); x.lineTo(pw, Math.round(zy) + 0.5); x.stroke();
+      vals.forEach((v, i) => { if (!v) return; x.fillStyle = v > 0 ? rise : fall; x.fillRect(Math.round(X(i)) + 0.5 - body / 2, v > 0 ? zy - v * sc : zy, body, Math.max(1, Math.abs(v) * sc)); });
+      // 區間累計（從畫面最左邊那根開始加）
+      let c = 0; const cum = vals.map(v => v == null ? null : (c += v));
+      lineOf(cum, brass);
+      axis(lTxt(m), "-" + lTxt(m));
+      const hi = hb ? vis.indexOf(hb) : -1, cumAt = hi >= 0 ? cum.slice(0, hi + 1).filter(z => z != null).pop() : null;
+      label.push([`${name}${V.per === "d" ? "" : V.per === "w" ? "（週）" : "（月）"} `, muted], [`${sl(hb && hb[k])}`, hb && hb[k] > 0 ? rise : hb && hb[k] < 0 ? fall : muted], [" 張", muted]);
+      if (cumAt != null) label.push([`　區間累計 ${sl(cumAt)}`, brass]);
+    }
+  } else if (k === "mg"){
+    const fin = vis.map(b => b.fin), sht = vis.map(b => b.sht);
+    if (fin.every(v => v == null)) none("這段期間沒有融資融券資料（2025/07 起）");
+    else {
+      const r = lineOf(fin, brass); lineOf(sht, css("--ma20"));
+      if (r) axis(lTxt(r[1]), lTxt(r[0]));
+      label.push(["融資 ", muted], [`${lTxt(hb && hb.fin)}`, brass], ["　融券 ", muted], [`${lTxt(hb && hb.sht)}`, css("--ma20")], [" 張", muted]);
+    }
+  } else if (k === "sbl"){
+    const vals = vis.map(b => b.sbl);
+    if (vals.every(v => v == null)) none("這段期間沒有借券資料（2025/10 起）");
+    else { const r = lineOf(vals, css("--ma60")); if (r) axis(lTxt(r[1]), lTxt(r[0])); label.push([`${name} `, muted], [lTxt(hb && hb.sbl), css("--ma60")], [" 張", muted]); }
+  } else if (k === "big"){
+    const vals = vis.map(b => b.big);
+    if (vals.every(v => v == null)) none("集保大戶每週更新，資料累積中");
+    else {
+      const r = lineOf(vals, css("--k-insider"));
+      if (r) axis(r[1].toFixed(2) + "%", r[0].toFixed(2) + "%");
+      label.push([`${name}持股 `, muted], [hb && hb.big != null ? hb.big.toFixed(2) + "%" : "–", css("--k-insider")]);
+      if (BIG.length < 4) label.push([`　（集保自 ${dTxt(BIG[0][0]).slice(5)} 起每週累積）`, faint]);
+    }
+  }
+  x.font = "11.5px 'Noto Sans TC', sans-serif"; x.textAlign = "left"; x.textBaseline = "middle";
+  let lx = 4;
+  for (const [t, c] of label){ x.fillStyle = c; x.fillText(t, lx, top + 10); lx += x.measureText(t).width; }
 }
 function info(){
   const el = $("info"); if (!el) return;
@@ -318,6 +459,22 @@ function info(){
     + `<span>量 <b>${vTxt(b.v)}</b> 張</span>`
     + MAS.map(([m]) => `<span class="ma${m}">MA${m} <b>${pTxt(b["ma" + m])}</b></span>`).join("")
     + b.ev.map(e => `<span class="ev">${dTxt(e[0])} ${esc(e[2])}${e[4] ? ` 現金 ${e[4]} 元` : ""}${e[3] ? `・${esc(e[3])}` : ""}</span>`).join("");
+}
+// 圖下方的事件明細：滑到（或點到）有圓點的 K 棒才換內容，讓滑鼠可以移下來點連結
+function evDetail(b){
+  const el = $("evd"); if (!el) return;
+  const es = b ? b.sev.filter(e => V.evk.includes(e[1])) : [];
+  if (b && !es.length) return;
+  if (!es.length){
+    const cnt = BARS.reduce((s, x) => s + x.sev.filter(e => V.evk.includes(e[1])).length, 0);
+    el.innerHTML = `<div class="h">${cnt ? `圖上的圓點是事件（共 ${cnt} 筆），滑過或點一下那根 K 棒看內容。` : SEV.length ? "勾選上方「標註」的類別，事件會標在 K 線上。" : "這檔近一年沒有收錄到重訊、內部人、處置、庫藏股等事件。"}</div>`;
+    return;
+  }
+  const dl = V.per === "d" ? dTxt(b.d) : `${dTxt(b.d0)}–${dTxt(b.d).slice(5)}`;
+  el.innerHTML = `<div class="h">${dl}${V.per === "d" ? "" : V.per === "w" ? " 這週" : " 這個月"}的事件</div>` + es.map(e =>
+    `<div class="row" style="--kc:var(--k-${e[1]})"><span class="tg">${esc(EVNAME[e[1]] || e[1])}</span><span>${V.per === "d" ? "" : `<span class="mono faint">${e[0].slice(5)}</span> `}${esc(e[2])}</span>`
+    + (e[4] ? `<a href="${esc(e[4])}"${/^https?:/.test(e[4]) ? ' target="_blank" rel="noopener"' : ""}>明細 →</a>` : "<span></span>")
+    + (e[3] ? `<div class="d">${esc(e[3])}</div>` : "") + "</div>").join("");
 }
 
 /* ---------- 互動 ---------- */
@@ -336,12 +493,12 @@ function bindChart(){
     }
     hover = Math.min(s1 - 1, Math.max(s0, idxAt(e.clientX)));
     G.my = e.clientY - r.top;
-    draw();
+    draw(); evDetail(BARS[hover]);
   };
   cv.onpointerdown = e => {
     drag = {x: e.clientX, s0, s1};
     if (e.pointerType === "mouse") cv.setPointerCapture(e.pointerId);
-    hover = Math.min(s1 - 1, Math.max(s0, idxAt(e.clientX))); G.my = e.clientY - cv.getBoundingClientRect().top; draw();
+    hover = Math.min(s1 - 1, Math.max(s0, idxAt(e.clientX))); G.my = e.clientY - cv.getBoundingClientRect().top; draw(); evDetail(BARS[hover]);
   };
   cv.onpointerup = cv.onpointercancel = () => { drag = null; };
   cv.onpointerleave = e => { drag = null; if (e.pointerType === "mouse"){ hover = -1; G.my = null; draw(); } };
@@ -358,11 +515,40 @@ function bindChart(){
 function chipRow(id, opts, cur){
   return `<div class="chips" id="${id}">${opts.map(([v, t]) => `<button data-v="${v}" aria-pressed="${v === cur}">${t}</button>`).join("")}</div>`;
 }
+// 籌碼（chips/s、margin/s）照日期攤平成 {YYYYMMDD: {f, t, dl, sbl, fin, sht}}；事件（stock/s）分成已發生／即將發生
+function extras(C, M, E){
+  XD = {}; BIG = []; SEV = []; SOON = [];
+  const put = (d, k, v) => { if (v != null) (XD[d] ||= {})[k] = v; };
+  if (C){
+    C.d.forEach((d, i) => { const k = di(d); put(k, "f", C.f[i]); put(k, "t", C.t[i]); put(k, "dl", C.dl[i]); put(k, "sbl", C.sbl[i]); });
+    BIG = (C.w || []).map((w, i) => [di(w), C.p1000[i]]).filter(x => x[1] != null);
+  }
+  if (M){
+    const ci = M.cols.indexOf("date"), fi = M.cols.indexOf("fin"), si = M.cols.indexOf("sht");
+    for (const r of M.rows){ const k = di(r[ci]); put(k, "fin", r[fi]); put(k, "sht", r[si]); }
+  }
+  const last = S.d[S.d.length - 1];
+  for (const e of (E && E.ev) || []){
+    const r = [...e, di(e[0])];
+    if (r[5] > last) SOON.push(r);
+    else if (e[1] !== "div") SEV.push(r);
+  }
+  SEV.sort((a, b) => a[5] - b[5]); SOON.sort((a, b) => a[5] - b[5]);
+}
+function multiRow(id, opts, on){
+  return `<div class="chips" id="${id}">${opts.map(([v, t, c, n]) => `<button data-v="${v}" aria-pressed="${on.includes(v)}">${c ? `<i style="background:var(${c})"></i>` : ""}${t}${n != null ? `<span class="n">${n}</span>` : ""}</button>`).join("")}</div>`;
+}
+let seq = 0;
 async function showStock(code){
-  const el = $("stock");
+  const el = $("stock"), my = ++seq;
   el.innerHTML = `<div class="empty">載入中…</div>`;
-  try { S = await fetch(`data/kline/s/${encodeURIComponent(code)}.json`, {cache: "no-cache"}).then(r => { if (!r.ok) throw r.status; return r.json(); }); }
-  catch (e){ S = null; el.innerHTML = `<div class="empty">${esc(code)} 沒有股價資料</div>`; return; }
+  const [K, C, M, E] = await Promise.all(["kline", "chips", "margin", "stock"].map(k => getJSON(`data/${k}/s/${encodeURIComponent(code)}.json`)));
+  if (my !== seq) return;
+  S = K;
+  if (!S){ el.innerHTML = `<div class="empty">${esc(code)} 沒有股價資料</div>`; return; }
+  extras(C, M, E);
+  const cnt = {}; for (const e of SEV) cnt[e[1]] = (cnt[e[1]] || 0) + 1;
+  const evOpts = EVK.filter(k => cnt[k[0]]).map(([k, t]) => [k, t, "--k-" + k, cnt[k]]);
   const n = S.c.length, last = S.c[n - 1], prev = n > 1 ? S.c[n - 2] : null;
   // 前一天若是事件日之前，漲跌要跟參考價比：用還原後的前收
   let pf = 1; for (const e of S.ev) if (e[0] > S.d[n - 2] && e[0] <= S.d[n - 1]) pf *= e[1];
@@ -375,18 +561,29 @@ async function showStock(code){
       ${chipRow("c-per", [["d", "日K"], ["w", "週K"], ["m", "月K"]], V.per)}
       ${chipRow("c-rng", RANGES, V.range)}
     </div>
+    <div class="toolbar sub"><span class="lbl">副圖</span>${multiRow("c-pan", PANELS, V.panels)}</div>
+    <div class="toolbar sub"><span class="lbl">標註</span>${evOpts.length ? multiRow("c-evk", evOpts, V.evk) : `<span class="hint">近一年沒有收錄到事件</span>`}</div>
     <div class="info" id="info"></div>
     <div class="kbox" id="kbox"></div>
+    ${SOON.length ? `<div class="soon"><span class="faint">接下來</span>${SOON.slice(0, 6).map(e => `<span style="--kc:var(--k-${e[1]})"><span class="k">●</span><b class="mono">${e[0].slice(5).replace("-", "/")}</b> ${esc(e[2])}</span>`).join("")}</div>` : ""}
+    <div class="evd" id="evd"></div>
     <div id="evs"></div>
   </div>`;
   const chip = (id, fn) => $(id).querySelectorAll("button").forEach(b => b.onclick = () => {
     $(id).querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); fn(b.dataset.v);
   });
   chip("c-adj", v => { V.adj = v === "1"; const keep = [s0, s1]; build(); [s0, s1] = keep; draw(); });
-  chip("c-per", v => { V.per = v; build(); setRange(); draw(); });
+  chip("c-per", v => { V.per = v; build(); setRange(); draw(); evDetail(null); });
   chip("c-rng", v => { V.range = v; setRange(); draw(); });
+  const multi = (id, key, store) => { const box = $(id); if (box) box.querySelectorAll("button").forEach(b => b.onclick = () => {
+    const v = b.dataset.v, on = !V[key].includes(v);
+    V[key] = on ? [...V[key], v] : V[key].filter(x => x !== v);
+    b.setAttribute("aria-pressed", on); save(store, V[key]); draw(); evDetail(null);
+  }); };
+  multi("c-pan", "panels", "tide.kline.panels");
+  multi("c-evk", "evk", "tide.kline.ev");
   build(); setRange(); hover = -1;
-  bindChart(); draw(); events();
+  bindChart(); draw(); evDetail(null); events();
   history.replaceState(null, "", "#s=" + code);
 }
 function events(){
@@ -436,10 +633,11 @@ function setupSearch(){
 }
 
 let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(draw, 100); });
+document.addEventListener("tide:theme", () => draw());
 addEventListener("hashchange", () => { const s = new URLSearchParams(location.hash.slice(1)).get("s"); if (s && (!S || s !== S.code)) pickStock(s); });
 fetch("data/kline/index.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
   IDX = d; IDX.stocks.forEach(([c, nm]) => NAMES[c] = nm);
-  $("sub").textContent = `上市櫃 ${IDX.stocks.length} 檔股票與 ETF 的日、週、月 K 線，可切換還原價與原始價。資料自 2022 年起，更新至 ${dTxt(IDX.last)}。`;
+  $("sub").textContent = `上市櫃 ${IDX.stocks.length} 檔股票與 ETF 的日、週、月 K 線，可切換還原價與原始價，下方疊法人、融資券、借券、千張大戶副圖，K 棒上標註內部人、庫藏股、處置、法說會等事件。資料自 2022 年起，更新至 ${dTxt(IDX.last)}。`;
   setupSearch();
   const s = new URLSearchParams(location.hash.slice(1)).get("s");
   pickStock(s && NAMES[s] ? s : "2330");

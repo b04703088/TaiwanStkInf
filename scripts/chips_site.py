@@ -16,7 +16,7 @@ from datetime import date, timedelta
 from pathlib import Path
 
 MARKET_N = 120
-SERIES_N = 120
+SERIES_N = 250          # 個股走勢保留天數（K 線頁副圖也用，約一年）
 LOOK = 60           # 算排行、連買要讀幾天
 ROW_COLS = ["code", "name", "market", "close", "value",
             "f1", "f5", "f20", "fs", "t1", "t5", "t20", "ts", "d1", "d5", "d20", "ds", "i1", "i5", "i20", "is",
