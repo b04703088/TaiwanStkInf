@@ -73,18 +73,20 @@
 <main class="wrap">
   <section class="page-head">
     <h1>盤後摘要</h1>
-    <p class="desc">每個交易日晚上整理大盤位置、法人與期權籌碼、融資、族群強弱，加上一段研究員角度的判讀。資料分析，不是投資建議。</p>
+    <p class="desc">每個交易日晚上整理大盤位置、法人與期權籌碼、融資、族群強弱，加上一段研究員角度的判讀；隔天早上 8 點再補美股、Fed 與夜盤的早盤更新。資料分析，不是投資建議。</p>
   </section>
   <div class="bar">
     <button id="prev" aria-label="前一天">‹</button>
     <select id="day" aria-label="日期"></select>
     <button id="next" aria-label="後一天">›</button>
   </div>
+  <div id="amWrap" hidden><p class="sec-t">隔天早盤更新（08:00）</p>
+  <div class="card" id="am"></div></div>
   <p class="sec-t">判讀</p>
   <div class="card" id="note"><div class="md"><p class="faint">載入中…</p></div></div>
   <p class="sec-t">數字</p>
   <div class="md" id="num"></div>
-  <p class="note">買賣超金額為股數×收盤價估算，含 ETF。族群報酬取成分股中位數；產業鏈分類來自產業價值鏈平台。數字在晚上法人與融資資料進來後自動產生，判讀約 23:00 前後補上。</p>
+  <p class="note">買賣超金額為股數×收盤價估算，含 ETF。族群報酬取成分股中位數；產業鏈分類來自產業價值鏈平台。數字在晚上法人與融資資料進來後自動產生，判讀約 23:50 補上；隔天早上 8 點再依美股、Fed 與夜盤補一段早盤更新。</p>
 </main>
 <footer class="site"><div class="wrap"><p class="note" style="margin:0">本頁於每次網站重建時產生。</p></div></footer>
 <script>
@@ -132,7 +134,10 @@ async function show(d){
   document.getElementById("next").disabled = k <= 0;
   try { history.replaceState(null, "", "#" + d); } catch (e) {}
   const get = u => fetch(u, {cache:"no-cache"}).then(r => r.ok ? r.text() : null).catch(() => null);
-  const [num, note] = await Promise.all([get(`data/digest/${d}.md`), days[k].note ? get(`data/digest/notes/${d}.md`) : null]);
+  const [num, note, am] = await Promise.all([get(`data/digest/${d}.md`), days[k].note ? get(`data/digest/notes/${d}.md`) : null,
+    days[k].am ? get(`data/digest/notes/${d}-am.md`) : null]);
+  document.getElementById("amWrap").hidden = !am;
+  document.getElementById("am").innerHTML = am ? `<div class="md">${md(am)}</div>` : "";
   document.getElementById("num").innerHTML = num ? md(num) : '<p class="faint">數字摘要載入失敗</p>';
   const n = document.getElementById("note");
   n.className = note ? "card" : "card empty";
