@@ -165,7 +165,7 @@ def build(data_dir):
         return None
     tracker = CostTracker()
     last_close = {}
-    series = {}       # key -> list of [date, close, fin, sht, ratio, ul]
+    series = {}       # key -> list of [date, close, fin, sht, ratio, ul, ul_lim]（ul 不限用途擔保張數、ul_lim 限額張數）
     pledge = {}       # date -> 不限用途借貸擔保品
     for i, (d, rows, closes) in enumerate(days):
         tracker.step(rows, closes, last_close)
@@ -177,7 +177,7 @@ def build(data_dir):
                 a = tracker.avg.get(k)
                 ratio = round(c / (a * FIN_RATIO) * 100) if c and a and (_f(r.get("fin_bal")) or 0) > 0 else None
                 series.setdefault(k, []).append([d, c, _f(r.get("fin_bal")), _f(r.get("sht_bal")), ratio,
-                                                 _f(pl.get(k, {}).get("ul_bal"))])
+                                                 _f(pl.get(k, {}).get("ul_bal")), _f(pl.get(k, {}).get("ul_limit"))])
 
     def at(n):
         return days[-1 - n] if len(days) > n else None
@@ -254,5 +254,5 @@ def write_margin(data_dir, out_dir):
     dump(out_dir / "market.json", payload["market"])
     dump(out_dir / "stocks.json", payload["stocks"])
     for code, rows in payload["series"].items():
-        dump(out_dir / "s" / f"{code}.json", {"cols": ["date", "close", "fin", "sht", "ratio", "ul"], "rows": rows})
+        dump(out_dir / "s" / f"{code}.json", {"cols": ["date", "close", "fin", "sht", "ratio", "ul", "ul_lim"], "rows": rows})
     return payload

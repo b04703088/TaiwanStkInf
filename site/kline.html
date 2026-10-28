@@ -137,7 +137,7 @@
   <p class="note">
     還原價：把除權息、減資、變更面額、ETF 分割造成的基準價跳動還原回去，最新一天的價格不變，越早的價格依之後每次事件的「參考價 ÷ 前收盤」連乘調整；成交量反向調整（分割前的 1 張換算成現在的張數）。
     事件與參考價來自證交所、櫃買中心的除權除息計算結果表、減資／變更面額／ETF 分割恢復買賣參考價（2022 年起）。K 線圖下方的「息、權、減、面、分」標記事件發生日，滑過可看說明。<br>
-    副圖：外資（含外資自營商）、投信、自營商買賣超為張數，金色線是畫面最左邊那根起算的累計買賣超；週K、月K 為該期加總。融資融券、借券為期末餘額（張），千張大戶為集保每週持股比例。籌碼資料約一年（法人與借券 2025/10 起、融資券 2025/07 起），張數沒有隨除權還原。<br>
+    副圖：外資（含外資自營商）、投信、自營商買賣超為張數，金色線是畫面最左邊那根起算的累計買賣超；週K、月K 為該期加總。融資融券、借券、不限用途借貸（拿股票質押借錢的擔保張數；限額＝證交所公告該股可擔保上限）為期末餘額（張），千張大戶為集保每週持股比例。籌碼資料約一年（法人與借券 2025/10 起、融資券 2025/07 起），張數沒有隨除權還原。<br>
     標註：K 線下方的事件帶一類一條（右邊寫類別），有事件的那根畫色塊，夠寬時寫小字——內部人：轉＝申報轉讓、異＝每月持股異動、質＝董監質押；處置注意：處＝處置、注＝注意股、出＝出關、警＝可能被處置；法說會：法＝法說會、股＝股東會；庫藏股：決＝董事會決議、完＝買回結束；可轉債：決／效／詢／掛；ETF指數：增＝納入／加碼、減＝剔除／減碼；外資報告：升／降／評；重點分點：買／賣。滑過或點一下看全部內容。<br>
     操作：滑鼠滾輪縮放、拖曳左右移動；手機可左右拖曳，用上方按鈕切換區間。資料僅供參考，不構成投資建議。
   </p>
@@ -157,7 +157,7 @@ const EV_MARK = {"除息": "息", "除權": "權", "除權息": "權", "減資":
 const MAS = [[5, "--ma5"], [20, "--ma20"], [60, "--ma60"]];
 const RANGES = [["3", "3 個月"], ["6", "6 個月"], ["12", "1 年"], ["36", "3 年"], ["0", "全部"]];
 // 副圖：價格下面一層一層疊
-const PANELS = [["vol", "成交量"], ["f", "外資"], ["t", "投信"], ["dl", "自營商"], ["mg", "融資／融券"], ["sbl", "借券餘額"], ["big", "千張大戶"]];
+const PANELS = [["vol", "成交量"], ["f", "外資"], ["t", "投信"], ["dl", "自營商"], ["mg", "融資／融券"], ["sbl", "借券餘額"], ["ul", "不限用途借貸"], ["big", "千張大戶"]];
 // 事件標註（data/stock/s 的類別）；除權息已經在 K 線底部用「息、權」標
 const EVK = [["insider", "內部人", "內部人"], ["treasury", "庫藏股", "庫藏股"], ["alert", "處置注意", "處置注意"], ["meet", "股東會／法說", "法說會"],
   ["cb", "可轉債", "可轉債"], ["etf", "ETF／指數", "ETF指數"], ["analyst", "外資報告", "外資報告"], ["broker", "重點分點", "重點分點"], ["news", "重訊", "重訊"]];
@@ -177,7 +177,7 @@ const evLetter = e => {
     default: return "訊";
   }
 };
-const SUMK = ["f", "t", "dl"], LASTK = ["sbl", "fin", "sht", "big"];
+const SUMK = ["f", "t", "dl"], LASTK = ["sbl", "fin", "sht", "ul", "ul_lim", "big"];
 const load = (k, def) => { try { const v = JSON.parse(localStorage.getItem(k)); return Array.isArray(v) ? v : def; } catch (e){ return def; } };
 const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
 const getJSON = u => fetch(u, {cache: "no-cache"}).then(r => r.ok ? r.json() : null).catch(() => null);
@@ -458,6 +458,16 @@ function panel(x, k, name, vis, hb, top, h, o){
     const vals = vis.map(b => b.sbl);
     if (vals.every(v => v == null)) none("這段期間沒有借券資料（2025/10 起）");
     else { const r = lineOf(vals, css("--ma60")); if (r) axis(lTxt(r[1]), lTxt(r[0])); label.push([`${name} `, muted], [lTxt(hb && hb.sbl), css("--ma60")], [" 張", muted]); }
+  } else if (k === "ul"){
+    const vals = vis.map(b => b.ul);
+    if (vals.every(v => v == null)) none("這段期間沒有不限用途借貸資料");
+    else {
+      const col = css("--k-cb"), r = lineOf(vals, col);
+      if (r) axis(lTxt(r[1]), lTxt(r[0]));
+      const u = hb && hb.ul, lim = hb && hb.ul_lim;
+      label.push(["不限用途擔保 ", muted], [lTxt(u), col], [" 張", muted]);
+      if (lim) label.push([`　限額 ${lTxt(lim)} 張，已用 `, faint], [`${(u / lim * 100).toFixed(1)}%`, u / lim >= 0.8 ? rise : col]);
+    }
   } else if (k === "big"){
     const vals = vis.map(b => b.big);
     if (vals.every(v => v == null)) none("集保大戶每週更新，資料累積中");
@@ -547,8 +557,12 @@ function extras(C, M, E){
     BIG = (C.w || []).map((w, i) => [di(w), C.p1000[i]]).filter(x => x[1] != null);
   }
   if (M){
-    const ci = M.cols.indexOf("date"), fi = M.cols.indexOf("fin"), si = M.cols.indexOf("sht");
-    for (const r of M.rows){ const k = di(r[ci]); put(k, "fin", r[fi]); put(k, "sht", r[si]); }
+    const ci = M.cols.indexOf("date"), fi = M.cols.indexOf("fin"), si = M.cols.indexOf("sht"), ui = M.cols.indexOf("ul"), li = M.cols.indexOf("ul_lim");
+    for (const r of M.rows){
+      const k = di(r[ci]); put(k, "fin", r[fi]); put(k, "sht", r[si]);
+      if (ui >= 0) put(k, "ul", r[ui]);
+      if (li >= 0) put(k, "ul_lim", r[li]);
+    }
   }
   const last = S.d[S.d.length - 1];
   for (const e of (E && E.ev) || []){
