@@ -3,22 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#0E1620">
+<meta name="theme-color" content="#0F1012">
 <title>ETF持股｜潮汐</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
   /* ===== 與首頁 tide-chip-dashboard.html 相同的設計變數 ===== */
   :root{
-    --ink:#0E1620;
-    --panel:#141F2B;
-    --panel-2:#182531;
+    --ink:#0F1012;
+    --panel:#17181B;
+    --panel-2:#1F2024;
     --line:rgba(232,237,242,0.09);
     --line-strong:rgba(232,237,242,0.16);
     --text:#E8EDF2;
-    --text-muted:#8B99A6;
-    --text-faint:#5C6B79;
+    --text-muted:#AEB2B7;
+    --text-faint:#8E939A;
     --brass:#C6A15B;
     --brass-dim:#8A7240;
     --rise:#E1594F;
@@ -32,10 +32,10 @@
     font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;
     line-height:1.6; -webkit-font-smoothing:antialiased;
   }
-  h1,h2,h3{font-family:'Noto Serif TC',serif; margin:0; font-weight:700; letter-spacing:0.01em;}
+  h1,h2,h3{font-family:'Noto Sans TC',sans-serif; margin:0; font-weight:700; letter-spacing:0.01em;}
   .mono{font-family:'IBM Plex Mono','SFMono-Regular',monospace; font-variant-numeric:tabular-nums;}
   a{color:inherit;}
-  a:focus-visible, button:focus-visible{outline:2px solid var(--brass); outline-offset:3px;}
+  a:focus-visible, button:focus-visible{outline:2px solid var(--text-muted); outline-offset:3px;}
   .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
   .up{color:var(--rise);}
   .down{color:var(--fall);}
@@ -44,12 +44,12 @@
   /* ---------- nav（同首頁） ---------- */
   header.site{
     position:sticky; top:0; z-index:40;
-    background:rgba(14,22,32,0.88); backdrop-filter:blur(10px);
+    background:#0F1012;
     border-bottom:1px solid var(--line);
   }
   .nav-row{display:flex; align-items:center; justify-content:space-between; padding:16px 28px;}
   .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
-  .brand-mark{font-family:'Noto Serif TC',serif; font-size:22px; font-weight:700; color:var(--text);}
+  .brand-mark{font-family:'Noto Sans TC',sans-serif; font-size:22px; font-weight:700; color:var(--text);}
   .brand-sub{font-size:12px; color:var(--text-faint);}
 
   /* ---------- page head（沿用 feature-head） ---------- */
@@ -69,7 +69,7 @@
     background:none; border:none; color:var(--text-muted); cursor:pointer;
     padding:7px 12px; font-size:14px; font-family:inherit;
   }
-  .date-nav button:hover:not(:disabled){color:var(--brass);}
+  .date-nav button:hover:not(:disabled){color:var(--text);}
   .date-nav button:disabled{color:var(--text-faint); cursor:default;}
   .date-nav .date-label{
     padding:7px 14px; color:var(--text); font-size:14px;
@@ -92,12 +92,12 @@
     box-shadow:0 16px 40px rgba(0,0,0,0.45);
   }
   .cal-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;}
-  .cal-title{font-family:'Noto Serif TC',serif; font-size:15px; font-weight:700;}
+  .cal-title{font-family:'Noto Sans TC',sans-serif; font-size:15px; font-weight:700;}
   .cal-head button{
     background:none; border:none; color:var(--text-muted); cursor:pointer;
     font-size:16px; padding:4px 10px; border-radius:var(--radius-s); font-family:inherit;
   }
-  .cal-head button:hover:not(:disabled){color:var(--brass); background:var(--panel-2);}
+  .cal-head button:hover:not(:disabled){color:var(--text); background:var(--panel-2);}
   .cal-head button:disabled{color:var(--text-faint); opacity:.4; cursor:default;}
   .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:2px;}
   .cal-wd{font-size:11px; color:var(--text-faint); text-align:center; padding:4px 0 6px;}
@@ -105,13 +105,13 @@
     height:36px; border:none; background:none; border-radius:var(--radius-s);
     color:var(--text); cursor:pointer; font-size:13px; position:relative;
   }
-  .cal-day:hover:not(:disabled){background:var(--panel-2); color:var(--brass);}
+  .cal-day:hover:not(:disabled){background:var(--panel-2); color:var(--text);}
   .cal-day:disabled{color:var(--text-faint); opacity:.45; cursor:default;}
   .cal-day.latest::after{
     content:""; position:absolute; left:50%; bottom:5px; width:4px; height:4px; margin-left:-2px;
     border-radius:50%; background:var(--brass);
   }
-  .cal-day.sel{background:var(--brass); color:var(--ink); font-weight:600;}
+  .cal-day.sel{background:var(--active); color:var(--text); font-weight:600;}
   .cal-day.sel::after{background:var(--ink);}
   .cal-foot{
     display:flex; justify-content:space-between; align-items:center; gap:10px;
@@ -122,7 +122,7 @@
     background:none; border:1px solid var(--line-strong); color:var(--text-muted);
     border-radius:var(--radius-s); padding:4px 10px; font-size:12px; cursor:pointer; font-family:inherit;
   }
-  .cal-foot button:hover{color:var(--brass); border-color:var(--brass);}
+  .cal-foot button:hover{color:var(--text); border-color:var(--text-faint);}
   .source-tag{font-size:12px; color:var(--text-faint);}
 
   /* ---------- 市場摘要（沿用 quant-grid 的 1px 格線） ---------- */
@@ -152,13 +152,13 @@
   }
   .seg button:last-child{border-right:none;}
   .seg button:hover{color:var(--text);}
-  .seg button[aria-pressed="true"]{background:var(--brass); color:var(--ink); font-weight:500;}
+  .seg button[aria-pressed="true"]{background:var(--active); color:var(--text); font-weight:500;}
   .search{
     background:var(--panel); border:1px solid var(--line-strong); border-radius:var(--radius-s);
     color:var(--text); font-family:inherit; font-size:13px; padding:8px 12px; width:200px;
   }
   .search::placeholder{color:var(--text-faint);}
-  .search:focus{outline:none; border-color:var(--brass);}
+  .search:focus{outline:none; border-color:var(--text-faint);}
 
   /* ---------- 排行表（沿用 table.chips） ---------- */
   .table-wrap{overflow-x:auto;}
@@ -181,7 +181,7 @@
   }
   .value-cell{display:flex; align-items:center; justify-content:flex-end; gap:12px;}
   .bar-track{width:120px; height:5px; background:var(--panel-2); border-radius:3px; overflow:hidden;}
-  .bar-fill{height:100%; background:linear-gradient(90deg,var(--brass-dim),var(--brass));}
+  .bar-fill{height:100%; background:var(--brass);}
   .share{color:var(--text-muted); font-size:12.5px;}
   [hidden]{display:none !important;}
   .empty{padding:48px 0; text-align:center; color:var(--text-faint); font-size:14px;}
@@ -190,7 +190,7 @@
     background:transparent; color:var(--text); border:1px solid var(--line-strong);
     padding:10px 22px; border-radius:var(--radius-s); font-size:14px; cursor:pointer; font-family:inherit;
   }
-  .btn-ghost:hover{border-color:var(--brass); color:var(--brass);}
+  .btn-ghost:hover{border-color:var(--text-faint); color:var(--text);}
 
   footer.site{padding:64px 0 56px; margin-top:72px; border-top:1px solid var(--line);}
   .foot-note{font-size:12.5px; color:var(--text-faint); max-width:40em; line-height:1.7; margin:0;}
@@ -226,7 +226,7 @@
     border-bottom:2px solid transparent; margin-bottom:-1px;
   }
   .tabs a:hover{color:var(--text);}
-  .tabs a[aria-selected="true"]{color:var(--text); border-bottom-color:var(--brass); font-weight:500;}
+  .tabs a[aria-selected="true"]{color:var(--text); border-bottom-color:var(--text); font-weight:500;}
   .page-head{padding-bottom:0;}
   .panel{padding-top:28px;}
   .panel-note{font-size:13px; color:var(--text-faint); margin:0 0 20px; max-width:62em; line-height:1.7;}
@@ -248,13 +248,13 @@
     color:var(--text); font-family:inherit; font-size:13px; padding:6px 10px; cursor:pointer;
     display:inline-flex; gap:8px; align-items:baseline;
   }
-  .chip:hover{border-color:var(--brass);}
+  .chip:hover{border-color:var(--text-faint);}
   .chip .n{color:var(--brass); font-size:12px;}
   .chip .c{color:var(--text-faint); font-size:11.5px;}
 
   /* ---------- 標籤 ---------- */
   .kind{font-size:10.5px; border-radius:2px; padding:0 5px; margin-left:8px; vertical-align:1px; border:1px solid var(--line-strong); color:var(--text-faint);}
-  .kind.active{color:var(--brass); border-color:var(--brass-dim);}
+  .kind.active{color:var(--text); border-color:var(--brass-dim);}
   .pill{display:inline-block; font-size:11.5px; padding:1px 8px; border-radius:10px; line-height:1.6; white-space:nowrap;}
   .pill.new{background:rgba(225,89,79,.16); color:var(--rise);}
   .pill.add{background:rgba(225,89,79,.09); color:var(--rise);}
@@ -286,9 +286,9 @@
     all:unset; cursor:pointer; display:inline-flex; align-items:center; gap:4px; color:inherit;
   }
   th[data-sort] button:hover{color:var(--text);}
-  th[data-sort] button:focus-visible{outline:2px solid var(--brass); outline-offset:2px;}
+  th[data-sort] button:focus-visible{outline:2px solid var(--text-muted); outline-offset:2px;}
   th[data-sort] button::after{content:"↕"; font-size:10px; opacity:.35;}
-  th[aria-sort="ascending"] button, th[aria-sort="descending"] button{color:var(--brass);}
+  th[aria-sort="ascending"] button, th[aria-sort="descending"] button{color:var(--text);}
   th[aria-sort="ascending"] button::after{content:"▲"; opacity:1;}
   th[aria-sort="descending"] button::after{content:"▼"; opacity:1;}
   .mode{font-size:11px; color:var(--text-faint); border:1px solid var(--line-strong); border-radius:2px; padding:1px 6px; vertical-align:3px;}
@@ -327,7 +327,7 @@
   .etf-chip b{font-family:'IBM Plex Mono',monospace; font-weight:500; color:var(--text); margin-right:6px;}
   .etf-chip small{color:var(--text-faint); margin-left:6px;}
   button.etf-chip{cursor:pointer;}
-  button.etf-chip:hover{border-color:var(--brass); color:var(--brass);}
+  button.etf-chip:hover{border-color:var(--text-faint); color:var(--text);}
   .tip-row .none{color:var(--text-faint); font-size:12.5px;}
   .tip-res{grid-column:1 / -1; display:flex; flex-direction:column; gap:4px; font-size:13px; margin-top:2px;}
   .tip-res .lbl{display:inline-block; min-width:44px; font-size:12px; margin-right:6px;}
@@ -345,7 +345,7 @@
   /* ---------- 主動式買賣超 ---------- */
   .act-chips{display:flex; flex-wrap:wrap; gap:6px; margin:0 0 18px;}
   .act-chips button{background:none; border:1px solid var(--line-strong); color:var(--text-muted); border-radius:999px; padding:4px 11px; font:inherit; font-size:12.5px; cursor:pointer;}
-  .act-chips button[aria-pressed="true"]{border-color:var(--brass); color:var(--brass);}
+  .act-chips button[aria-pressed="true"]{border-color:var(--text-faint); color:var(--text);}
   .act-chips button.all{border-style:dashed;}
   .who{font-size:12px; color:var(--text-muted); white-space:normal;}
   .who span{margin-right:10px; white-space:nowrap;}
@@ -370,7 +370,6 @@
     <div class="wrap">
       <div class="feature-head">
         <div>
-          <div class="eyebrow">ETF持股</div>
           <h1>ETF 怎麼換股，資金就怎麼流</h1>
         </div>
         <p class="desc">追蹤 <span id="etfCount">50</span> 檔台股 ETF（含主動式）每天公告的完整持股。查一檔股票被哪些 ETF 持有，查前一交易日到最新一交易日哪些 ETF 買賣了哪些股票，或看全體上市櫃 ETF 的規模排行與資金流向。</p>

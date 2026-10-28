@@ -3,22 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#0E1620">
+<meta name="theme-color" content="#0F1012">
 <title>成交排行｜潮汐</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
   /* ===== 與首頁 tide-chip-dashboard.html 相同的設計變數 ===== */
   :root{
-    --ink:#0E1620;
-    --panel:#141F2B;
-    --panel-2:#182531;
+    --ink:#0F1012;
+    --panel:#17181B;
+    --panel-2:#1F2024;
     --line:rgba(232,237,242,0.09);
     --line-strong:rgba(232,237,242,0.16);
     --text:#E8EDF2;
-    --text-muted:#8B99A6;
-    --text-faint:#5C6B79;
+    --text-muted:#AEB2B7;
+    --text-faint:#8E939A;
     --brass:#C6A15B;
     --brass-dim:#8A7240;
     --rise:#E1594F;
@@ -32,10 +32,10 @@
     font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;
     line-height:1.6; -webkit-font-smoothing:antialiased;
   }
-  h1,h2,h3{font-family:'Noto Serif TC',serif; margin:0; font-weight:700; letter-spacing:0.01em;}
+  h1,h2,h3{font-family:'Noto Sans TC',sans-serif; margin:0; font-weight:700; letter-spacing:0.01em;}
   .mono{font-family:'IBM Plex Mono','SFMono-Regular',monospace; font-variant-numeric:tabular-nums;}
   a{color:inherit;}
-  a:focus-visible, button:focus-visible{outline:2px solid var(--brass); outline-offset:3px;}
+  a:focus-visible, button:focus-visible{outline:2px solid var(--text-muted); outline-offset:3px;}
   .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
   .up{color:var(--rise);}
   .down{color:var(--fall);}
@@ -44,12 +44,12 @@
   /* ---------- nav（同首頁） ---------- */
   header.site{
     position:sticky; top:0; z-index:40;
-    background:rgba(14,22,32,0.88); backdrop-filter:blur(10px);
+    background:#0F1012;
     border-bottom:1px solid var(--line);
   }
   .nav-row{display:flex; align-items:center; justify-content:space-between; padding:16px 28px;}
   .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
-  .brand-mark{font-family:'Noto Serif TC',serif; font-size:22px; font-weight:700; color:var(--text);}
+  .brand-mark{font-family:'Noto Sans TC',sans-serif; font-size:22px; font-weight:700; color:var(--text);}
   .brand-sub{font-size:12px; color:var(--text-faint);}
 
   /* ---------- page head（沿用 feature-head） ---------- */
@@ -69,7 +69,7 @@
     background:none; border:none; color:var(--text-muted); cursor:pointer;
     padding:7px 12px; font-size:14px; font-family:inherit;
   }
-  .date-nav button:hover:not(:disabled){color:var(--brass);}
+  .date-nav button:hover:not(:disabled){color:var(--text);}
   .date-nav button:disabled{color:var(--text-faint); cursor:default;}
   .date-nav .date-label{
     padding:7px 14px; color:var(--text); font-size:14px;
@@ -92,12 +92,12 @@
     box-shadow:0 16px 40px rgba(0,0,0,0.45);
   }
   .cal-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;}
-  .cal-title{font-family:'Noto Serif TC',serif; font-size:15px; font-weight:700;}
+  .cal-title{font-family:'Noto Sans TC',sans-serif; font-size:15px; font-weight:700;}
   .cal-head button{
     background:none; border:none; color:var(--text-muted); cursor:pointer;
     font-size:16px; padding:4px 10px; border-radius:var(--radius-s); font-family:inherit;
   }
-  .cal-head button:hover:not(:disabled){color:var(--brass); background:var(--panel-2);}
+  .cal-head button:hover:not(:disabled){color:var(--text); background:var(--panel-2);}
   .cal-head button:disabled{color:var(--text-faint); opacity:.4; cursor:default;}
   .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:2px;}
   .cal-wd{font-size:11px; color:var(--text-faint); text-align:center; padding:4px 0 6px;}
@@ -105,13 +105,13 @@
     height:36px; border:none; background:none; border-radius:var(--radius-s);
     color:var(--text); cursor:pointer; font-size:13px; position:relative;
   }
-  .cal-day:hover:not(:disabled){background:var(--panel-2); color:var(--brass);}
+  .cal-day:hover:not(:disabled){background:var(--panel-2); color:var(--text);}
   .cal-day:disabled{color:var(--text-faint); opacity:.45; cursor:default;}
   .cal-day.latest::after{
     content:""; position:absolute; left:50%; bottom:5px; width:4px; height:4px; margin-left:-2px;
     border-radius:50%; background:var(--brass);
   }
-  .cal-day.sel{background:var(--brass); color:var(--ink); font-weight:600;}
+  .cal-day.sel{background:var(--active); color:var(--text); font-weight:600;}
   .cal-day.sel::after{background:var(--ink);}
   .cal-foot{
     display:flex; justify-content:space-between; align-items:center; gap:10px;
@@ -122,7 +122,7 @@
     background:none; border:1px solid var(--line-strong); color:var(--text-muted);
     border-radius:var(--radius-s); padding:4px 10px; font-size:12px; cursor:pointer; font-family:inherit;
   }
-  .cal-foot button:hover{color:var(--brass); border-color:var(--brass);}
+  .cal-foot button:hover{color:var(--text); border-color:var(--text-faint);}
   .source-tag{font-size:12px; color:var(--text-faint);}
 
   /* ---------- 市場摘要（沿用 quant-grid 的 1px 格線） ---------- */
@@ -147,7 +147,7 @@
   .subtabs{display:flex; gap:6px; margin-top:28px; border-bottom:1px solid var(--line);}
   .subtabs a{padding:10px 16px; font-size:14px; color:var(--text-muted); text-decoration:none; border-bottom:2px solid transparent; margin-bottom:-1px;}
   .subtabs a:hover{color:var(--text);}
-  .subtabs a[aria-current="page"]{color:var(--brass); border-bottom-color:var(--brass);}
+  .subtabs a[aria-current="page"]{color:var(--text); border-bottom-color:var(--text);}
   .date-bar{margin-top:24px;}
   .toolbar{
     display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;
@@ -161,13 +161,13 @@
   }
   .seg button:last-child{border-right:none;}
   .seg button:hover{color:var(--text);}
-  .seg button[aria-pressed="true"]{background:var(--brass); color:var(--ink); font-weight:500;}
+  .seg button[aria-pressed="true"]{background:var(--active); color:var(--text); font-weight:500;}
   .search{
     background:var(--panel); border:1px solid var(--line-strong); border-radius:var(--radius-s);
     color:var(--text); font-family:inherit; font-size:13px; padding:8px 12px; width:200px;
   }
   .search::placeholder{color:var(--text-faint);}
-  .search:focus{outline:none; border-color:var(--brass);}
+  .search:focus{outline:none; border-color:var(--text-faint);}
 
   /* ---------- 排行表（沿用 table.chips） ---------- */
   .table-wrap{overflow-x:auto;}
@@ -190,7 +190,7 @@
   }
   .value-cell{display:flex; align-items:center; justify-content:flex-end; gap:12px;}
   .bar-track{width:120px; height:5px; background:var(--panel-2); border-radius:3px; overflow:hidden;}
-  .bar-fill{height:100%; background:linear-gradient(90deg,var(--brass-dim),var(--brass));}
+  .bar-fill{height:100%; background:var(--brass);}
   .share{color:var(--text-muted); font-size:12.5px;}
   [hidden]{display:none !important;}
   .empty{padding:48px 0; text-align:center; color:var(--text-faint); font-size:14px;}
@@ -199,7 +199,7 @@
     background:transparent; color:var(--text); border:1px solid var(--line-strong);
     padding:10px 22px; border-radius:var(--radius-s); font-size:14px; cursor:pointer; font-family:inherit;
   }
-  .btn-ghost:hover{border-color:var(--brass); color:var(--brass);}
+  .btn-ghost:hover{border-color:var(--text-faint); color:var(--text);}
 
   footer.site{padding:64px 0 56px; margin-top:72px; border-top:1px solid var(--line);}
   .foot-note{font-size:12.5px; color:var(--text-faint); max-width:40em; line-height:1.7; margin:0;}
@@ -240,7 +240,6 @@
     <div class="wrap">
       <div class="feature-head">
         <div>
-          <div class="eyebrow">成交金額排行</div>
           <h1>今天的錢，流向哪裡</h1>
         </div>
         <p class="desc">依當日成交金額排序上市、上櫃個股與 ETF。成交金額集中在哪幾檔，往往比漲跌幅更早說明市場的注意力在哪裡。</p>
