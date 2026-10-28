@@ -137,8 +137,8 @@
   <p class="note">
     還原價：把除權息、減資、變更面額、ETF 分割造成的基準價跳動還原回去，最新一天的價格不變，越早的價格依之後每次事件的「參考價 ÷ 前收盤」連乘調整；成交量反向調整（分割前的 1 張換算成現在的張數）。
     事件與參考價來自證交所、櫃買中心的除權除息計算結果表、減資／變更面額／ETF 分割恢復買賣參考價（2022 年起）。K 線圖下方的「息、權、減、面、分」標記事件發生日，滑過可看說明。<br>
-    副圖：外資（含外資自營商）、投信、自營商買賣超為張數，金色線是畫面最左邊那根起算的累計買賣超；週K、月K 為該期加總。融資融券、借券為期末餘額（張），千張大戶為集保每週持股比例。籌碼資料約一年（法人與借券 2025/10 起、融資券 2025/07 起），張數沒有隨除權還原。<br>
-    標註：K 棒上方的圓點是個股綜合查詢收錄的事件（近一年）——內＝內部人申報／每月持股異動／質押、庫＝庫藏股、處／注／出＝處置、注意股、出關、法／股＝法說會、股東會、債＝可轉債、指＝ETF 換股與指數審核、評＝外資報告、分＝重點分點大額買賣、訊＝重大訊息。一根 K 棒同類事件只畫一顆，滑過或點一下看全部。<br>
+    副圖：外資（含外資自營商）、投信、自營商買賣超為張數，金色線是畫面最左邊那根起算的累計買賣超；週K、月K 為該期加總。融資融券、借券、不限用途借貸（拿股票質押借錢的擔保張數；限額＝證交所公告該股可擔保上限）為期末餘額（張），千張大戶為集保每週持股比例。籌碼資料約一年（法人與借券 2025/10 起、融資券 2025/07 起），張數沒有隨除權還原。<br>
+    標註：K 線下方的事件帶一類一條（右邊寫類別），有事件的那根畫色塊，夠寬時寫小字——內部人：轉＝申報轉讓、異＝每月持股異動、質＝董監質押；處置注意：處＝處置、注＝注意股、出＝出關、警＝可能被處置；法說會：法＝法說會、股＝股東會；庫藏股：決＝董事會決議、完＝買回結束；可轉債：決／效／詢／掛；ETF指數：增＝納入／加碼、減＝剔除／減碼；外資報告：升／降／評；重點分點：買／賣。滑過或點一下看全部內容。<br>
     操作：滑鼠滾輪縮放、拖曳左右移動；手機可左右拖曳，用上方按鈕切換區間。資料僅供參考，不構成投資建議。
   </p>
 </main>
@@ -157,14 +157,27 @@ const EV_MARK = {"除息": "息", "除權": "權", "除權息": "權", "減資":
 const MAS = [[5, "--ma5"], [20, "--ma20"], [60, "--ma60"]];
 const RANGES = [["3", "3 個月"], ["6", "6 個月"], ["12", "1 年"], ["36", "3 年"], ["0", "全部"]];
 // 副圖：價格下面一層一層疊
-const PANELS = [["vol", "成交量"], ["f", "外資"], ["t", "投信"], ["dl", "自營商"], ["mg", "融資／融券"], ["sbl", "借券餘額"], ["big", "千張大戶"]];
+const PANELS = [["vol", "成交量"], ["f", "外資"], ["t", "投信"], ["dl", "自營商"], ["mg", "融資／融券"], ["sbl", "借券餘額"], ["ul", "不限用途借貸"], ["big", "千張大戶"]];
 // 事件標註（data/stock/s 的類別）；除權息已經在 K 線底部用「息、權」標
-const EVK = [["insider", "內部人", "內"], ["treasury", "庫藏股", "庫"], ["alert", "處置注意", "處"], ["meet", "股東會／法說", "法"],
-  ["cb", "可轉債", "債"], ["etf", "ETF／指數", "指"], ["analyst", "外資報告", "評"], ["broker", "重點分點", "分"], ["news", "重訊", "訊"]];
+const EVK = [["insider", "內部人", "內部人"], ["treasury", "庫藏股", "庫藏股"], ["alert", "處置注意", "處置注意"], ["meet", "股東會／法說", "法說會"],
+  ["cb", "可轉債", "可轉債"], ["etf", "ETF／指數", "ETF指數"], ["analyst", "外資報告", "外資報告"], ["broker", "重點分點", "重點分點"], ["news", "重訊", "重訊"]];
 const EVNAME = {...Object.fromEntries(EVK.map(k => [k[0], k[1]])), div: "除權息"};
-const evLetter = e => e[1] === "alert" ? (e[2].startsWith("注意") ? "注" : e[2].startsWith("出關") ? "出" : e[2].startsWith("可能") ? "警" : "處")
-  : e[1] === "meet" ? (e[2].includes("法說") ? "法" : "股") : (EVK.find(k => k[0] === e[1]) || [0, 0, "・"])[2];
-const SUMK = ["f", "t", "dl"], LASTK = ["sbl", "fin", "sht", "big"];
+// 事件帶上的小字：同一條帶裡再分是哪一種
+const evLetter = e => {
+  const t = e[2];
+  switch (e[1]){
+    case "alert": return t.startsWith("注意") ? "注" : t.startsWith("出關") ? "出" : t.startsWith("可能") ? "警" : "處";
+    case "meet": return t.includes("法說") ? "法" : "股";
+    case "insider": return t.includes("轉讓") ? "轉" : t.includes("質押") ? "質" : "異";
+    case "treasury": return t.includes("決議") ? "決" : "完";
+    case "cb": return t.includes("掛牌") ? "掛" : t.includes("董事會") ? "決" : t.includes("生效") ? "效" : "詢";
+    case "etf": return t.includes("剔除") || t.includes("刪除") || t.includes("減碼") ? "減" : "增";
+    case "analyst": return t.includes("調降") || /→.*-/.test(t) ? "降" : t.includes("調升") ? "升" : "評";
+    case "broker": return t.includes("賣超") && !t.includes("買超") ? "賣" : t.includes("買超") && !t.includes("賣超") ? "買" : "分";
+    default: return "訊";
+  }
+};
+const SUMK = ["f", "t", "dl"], LASTK = ["sbl", "fin", "sht", "ul", "ul_lim", "big"];
 const load = (k, def) => { try { const v = JSON.parse(localStorage.getItem(k)); return Array.isArray(v) ? v : def; } catch (e){ return def; } };
 const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
 const getJSON = u => fetch(u, {cache: "no-cache"}).then(r => r.ok ? r.json() : null).catch(() => null);
@@ -258,17 +271,17 @@ function draw(){
   const box = $("kbox"); if (!box) return;
   const mob = innerWidth < 860, pans = PANELS.filter(p => V.panels.includes(p[0]));
   const R = 58, T = 8, XB = 20, EVH = 18, PH = mob ? 250 : 330, SUBH = mob ? 72 : 86;
-  const W = box.clientWidth, H = T + PH + pans.length * SUBH + XB, dpr = devicePixelRatio || 1;
+  // 事件帶：K 線下面一類一條（只列這檔有、且有勾選的類別），高度固定不隨畫面區間跳動
+  const lanes = EVK.filter(k => V.evk.includes(k[0]) && SEV.some(e => e[1] === k[0])), LH = mob ? 18 : 20, LT = T + PH, LB = LT + lanes.length * LH + (lanes.length ? 4 : 0);
+  const W = box.clientWidth, H = LB + pans.length * SUBH + XB, dpr = devicePixelRatio || 1;
   if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)){ cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cv.style.height = H + "px"; }
   const x = cv.getContext("2d");
   x.setTransform(dpr, 0, 0, dpr, 0, 0);
   x.clearRect(0, 0, W, H);
-  const pw = W - R, bot = T + PH + pans.length * SUBH;
+  const pw = W - R, bot = LB + pans.length * SUBH;
   const vis = BARS.slice(s0, s1), n = vis.length;
   if (!n){ return; }
   const bw = pw / n;
-  const shown = b => b.sev.filter(e => V.evk.includes(e[1]));
-  const evOn = vis.some(b => shown(b).length);
   let lo = Infinity, hi = -Infinity;
   for (const b of vis){
     lo = Math.min(lo, b.l); hi = Math.max(hi, b.h);
@@ -276,7 +289,7 @@ function draw(){
   }
   if (lo === hi){ lo *= 0.98; hi *= 1.02; }
   const pad = (hi - lo) * 0.06; lo -= pad; hi += pad;
-  const py0 = T + (evOn ? 30 : 0), py1 = T + PH - EVH;   // 上面留給事件圓點、最下面留一條放還原事件標記
+  const py0 = T, py1 = T + PH - EVH;   // 最下面留一條放還原事件標記
   const Y = v => py0 + (hi - v) / (hi - lo) * (py1 - py0);
   const X = i => (i + 0.5) * bw;
   G = {W, H, R, T, pw, bw, Y, lo, hi, py0, py1, n, bot};
@@ -343,25 +356,35 @@ function draw(){
     x.beginPath(); x.roundRect ? x.roundRect(cx - 8, cy - 8, 16, 16, 3) : x.rect(cx - 8, cy - 8, 16, 16); x.fill(); x.stroke();
     x.fillStyle = brass; x.fillText(t, cx, cy + 0.5);
   }
-  // 事件圓點：K 棒最高價上方，一種類別一顆往上疊
-  const rr = Math.max(3, Math.min(7.5, bw / 2 - 0.5)), letters = rr >= 6;
-  x.font = `${rr >= 7 ? 10.5 : 9.5}px 'Noto Sans TC', sans-serif`;
-  for (let i = 0; i < n; i++){
-    const es = shown(vis[i]); if (!es.length) continue;
-    const kinds = [];
-    for (const e of es) if (!kinds.some(k => k[1] === e[1])) kinds.push(e);
-    const on = hover - s0 === i;
-    kinds.forEach((e, k) => {
-      const cy = Math.max(T + rr, Y(vis[i].h) - rr - 4 - k * (rr * 2 + 2)), cx = X(i);
-      x.fillStyle = css("--k-" + e[1]);
-      x.beginPath(); x.arc(cx, cy, rr, 0, Math.PI * 2); x.fill();
-      if (on){ x.strokeStyle = css("--text"); x.lineWidth = 1.5; x.stroke(); x.lineWidth = 1; }
-      if (letters){ x.fillStyle = css("--ink"); x.fillText(evLetter(e), cx, cy + 0.5); }
+  // 事件帶：每條右邊寫類別，有事件的那根畫色塊（夠寬就寫小字）
+  if (lanes.length){
+    const on = hover - s0, w = Math.max(5, Math.min(18, bw - 1));
+    x.strokeStyle = css("--line-strong"); x.beginPath(); x.moveTo(0, LT + 0.5); x.lineTo(W, LT + 0.5); x.stroke();
+    if (on >= 0 && on < n){ x.fillStyle = css("--brass-soft"); x.fillRect(X(on) - bw / 2, LT + 1, bw, lanes.length * LH); }
+    lanes.forEach(([k, , short], j) => {
+      const y0 = LT + 2 + j * LH, cy = y0 + LH / 2, col = css("--k-" + k);
+      x.strokeStyle = line; x.beginPath(); x.moveTo(0, Math.round(cy) + 0.5); x.lineTo(pw, Math.round(cy) + 0.5); x.stroke();
+      x.font = "11px 'Noto Sans TC', sans-serif"; x.textAlign = "left"; x.textBaseline = "middle"; x.fillStyle = col;
+      x.fillText(short, pw + 6, cy + 0.5);
+      x.font = "bold 10px 'Noto Sans TC', sans-serif"; x.textAlign = "center";
+      const has = vis.map(b => b.sev.filter(e => e[1] === k));
+      for (let i = 0; i < n; i++){
+        const es = has[i]; if (!es.length) continue;
+        // 離最近的同類事件夠遠就把色塊放寬到放得下一個字
+        let gap = 99;
+        for (let d = 1; d * bw < 18 && d < gap; d++) if ((i - d >= 0 && has[i - d].length) || (i + d < n && has[i + d].length)) gap = d;
+        const free = gap * bw - 2;
+        const ww = Math.max(w, Math.min(16, free)), lt = ww >= 11;
+        const cx = X(i), hh = LH - 5;
+        x.fillStyle = col; x.beginPath(); x.roundRect ? x.roundRect(cx - ww / 2, cy - hh / 2, ww, hh, 3) : x.rect(cx - ww / 2, cy - hh / 2, ww, hh); x.fill();
+        if (i === on){ x.strokeStyle = css("--text"); x.lineWidth = 1.5; x.stroke(); x.lineWidth = 1; }
+        if (lt){ x.fillStyle = css("--ink"); x.fillText(es.length > 1 && ww >= 16 ? evLetter(es[0]) + es.length : evLetter(es[0]), cx, cy + 0.5); }
+      }
     });
   }
   // 副圖
   const hb = BARS[hover >= s0 && hover < s1 ? hover : s1 - 1];
-  pans.forEach(([k, name], j) => panel(x, k, name, vis, hb, T + PH + j * SUBH, SUBH, {X, bw, body, pw, W, colOf}));
+  pans.forEach(([k, name], j) => panel(x, k, name, vis, hb, LB + j * SUBH, SUBH, {X, bw, body, pw, W, colOf}));
   // 十字線
   if (hover >= s0 && hover < s1){
     const i = hover - s0, cx = Math.round(X(i)) + 0.5;
@@ -435,6 +458,17 @@ function panel(x, k, name, vis, hb, top, h, o){
     const vals = vis.map(b => b.sbl);
     if (vals.every(v => v == null)) none("這段期間沒有借券資料（2025/10 起）");
     else { const r = lineOf(vals, css("--ma60")); if (r) axis(lTxt(r[1]), lTxt(r[0])); label.push([`${name} `, muted], [lTxt(hb && hb.sbl), css("--ma60")], [" 張", muted]); }
+  } else if (k === "ul"){
+    const vals = vis.map(b => b.ul);
+    if (vals.every(v => v == null)) none("這段期間沒有不限用途借貸資料");
+    else {
+      // 餘額用自己的刻度看趨勢；限額通常是餘額的好幾倍，只寫在標題列
+      const col = css("--k-cb"), r = lineOf(vals, col);
+      if (r) axis(lTxt(r[1]), lTxt(r[0]));
+      const u = hb && hb.ul, lim = hb && hb.ul_lim;
+      label.push(["餘額 ", muted], [lTxt(u), col], [" 張", muted]);
+      if (lim) label.push([`　限額 ${lTxt(lim)} 張　已用 `, muted], [`${(u / lim * 100).toFixed(1)}%`, u / lim >= 0.8 ? rise : col]);
+    }
   } else if (k === "big"){
     const vals = vis.map(b => b.big);
     if (vals.every(v => v == null)) none("集保大戶每週更新，資料累積中");
@@ -467,7 +501,7 @@ function evDetail(b){
   if (b && !es.length) return;
   if (!es.length){
     const cnt = BARS.reduce((s, x) => s + x.sev.filter(e => V.evk.includes(e[1])).length, 0);
-    el.innerHTML = `<div class="h">${cnt ? `圖上的圓點是事件（共 ${cnt} 筆），滑過或點一下那根 K 棒看內容。` : SEV.length ? "勾選上方「標註」的類別，事件會標在 K 線上。" : "這檔近一年沒有收錄到重訊、內部人、處置、庫藏股等事件。"}</div>`;
+    el.innerHTML = `<div class="h">${cnt ? `K 線下方每條色帶是一類事件（共 ${cnt} 筆），滑過或點一下那根 K 棒看內容。` : SEV.length ? "勾選上方「標註」的類別，事件會一類一條排在 K 線下方。" : "這檔近一年沒有收錄到重訊、內部人、處置、庫藏股等事件。"}</div>`;
     return;
   }
   const dl = V.per === "d" ? dTxt(b.d) : `${dTxt(b.d0)}–${dTxt(b.d).slice(5)}`;
@@ -524,8 +558,12 @@ function extras(C, M, E){
     BIG = (C.w || []).map((w, i) => [di(w), C.p1000[i]]).filter(x => x[1] != null);
   }
   if (M){
-    const ci = M.cols.indexOf("date"), fi = M.cols.indexOf("fin"), si = M.cols.indexOf("sht");
-    for (const r of M.rows){ const k = di(r[ci]); put(k, "fin", r[fi]); put(k, "sht", r[si]); }
+    const ci = M.cols.indexOf("date"), fi = M.cols.indexOf("fin"), si = M.cols.indexOf("sht"), ui = M.cols.indexOf("ul"), li = M.cols.indexOf("ul_lim");
+    for (const r of M.rows){
+      const k = di(r[ci]); put(k, "fin", r[fi]); put(k, "sht", r[si]);
+      if (ui >= 0) put(k, "ul", r[ui]);
+      if (li >= 0) put(k, "ul_lim", r[li]);
+    }
   }
   const last = S.d[S.d.length - 1];
   for (const e of (E && E.ev) || []){
