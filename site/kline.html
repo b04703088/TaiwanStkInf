@@ -462,22 +462,12 @@ function panel(x, k, name, vis, hb, top, h, o){
     const vals = vis.map(b => b.ul);
     if (vals.every(v => v == null)) none("這段期間沒有不限用途借貸資料");
     else {
-      // 餘額（面積）跟限額（虛線）用同一個從 0 起算的刻度，一眼看出離上限多近
-      const col = css("--k-cb"), lc = css("--text-muted"), lims = vis.map(b => b.ul_lim);
-      const top = Math.max(1, ...vals.map(v => v || 0), ...lims.map(v => v || 0)) * 1.05, Yu = v => y1 - v / top * (y1 - y0);
-      const pts = vals.map((v, i) => [i, v]).filter(p => p[1] != null);
-      x.globalAlpha = 0.3; x.fillStyle = col; x.beginPath(); x.moveTo(X(pts[0][0]), y1);
-      for (const [i, v] of pts) x.lineTo(X(i), Yu(v));
-      x.lineTo(X(pts[pts.length - 1][0]), y1); x.closePath(); x.fill();
-      x.globalAlpha = 1; x.strokeStyle = col; x.lineWidth = 1.4; x.beginPath();
-      let on = false; vals.forEach((v, i) => { if (v == null){ on = false; return; } on ? x.lineTo(X(i), Yu(v)) : x.moveTo(X(i), Yu(v)); on = true; }); x.stroke();
-      x.strokeStyle = lc; x.setLineDash([4, 3]); x.beginPath(); on = false;
-      lims.forEach((v, i) => { if (v == null){ on = false; return; } on ? x.lineTo(X(i), Yu(v)) : x.moveTo(X(i), Yu(v)); on = true; }); x.stroke();
-      x.setLineDash([]); x.lineWidth = 1;
-      axis(lTxt(top / 1.05), "0");
+      // 餘額用自己的刻度看趨勢；限額通常是餘額的好幾倍，只寫在標題列
+      const col = css("--k-cb"), r = lineOf(vals, col);
+      if (r) axis(lTxt(r[1]), lTxt(r[0]));
       const u = hb && hb.ul, lim = hb && hb.ul_lim;
       label.push(["餘額 ", muted], [lTxt(u), col], [" 張", muted]);
-      if (lim) label.push(["　限額 ", muted], [lTxt(lim), lc], [" 張（虛線，同刻度）　已用 ", muted], [`${(u / lim * 100).toFixed(1)}%`, u / lim >= 0.8 ? rise : col]);
+      if (lim) label.push([`　限額 ${lTxt(lim)} 張　已用 `, muted], [`${(u / lim * 100).toFixed(1)}%`, u / lim >= 0.8 ? rise : col]);
     }
   } else if (k === "big"){
     const vals = vis.map(b => b.big);
