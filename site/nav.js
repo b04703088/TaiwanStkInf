@@ -12,6 +12,12 @@
   };
   setTheme(theme);
 
+  /* 單獨一個頁簽、不放下拉選單的頁面（接在「首頁」後面） */
+  var TOP = [
+    ["digest.html", "盤後摘要", "每晚的大盤、籌碼、族群強弱數字與判讀"],
+    ["stock.html", "個股查詢", "輸入一檔股票，把重訊、處置、內部人、庫藏股、CB、ETF 換股、外資報告、分點大單集中成一條時間軸"],
+  ];
+
   var GROUPS = [
     ["市場總覽", [
       ["ranking.html", "成交排行", "含族群資金流向", ["flow"]],
@@ -33,7 +39,6 @@
       ["cb.html", "CB詢圈", "含行事曆", [/^cb-/]],
     ]],
     ["個股研究", [
-      ["stock.html", "綜合查詢", "一檔股票最近的所有動作", null, "輸入一檔股票，把重訊、處置、內部人、庫藏股、CB、ETF 換股、外資報告、分點大單集中成一條時間軸"],
       ["kline.html", "K線"],
       ["fin.html", "財報"],
       ["analyst.html", "外資報告"],
@@ -54,6 +59,7 @@
     futures: "臺灣期貨交易所", broker: "富邦證券券商分點進出", watch: "富邦證券券商分點進出", local: "富邦證券券商分點進出",
     margin: "證交所、櫃買中心融資融券", insider: "公開資訊觀測站內部人申報", news: "公開資訊觀測站重大訊息與行事曆",
     alert: "證交所、櫃買中心處置及注意股公告", treasury: "公開資訊觀測站庫藏股；富邦證券分點", cb: "公開資訊觀測站、金管會、證交所、櫃買中心",
+    digest: "本站各頁資料彙整（證交所、櫃買中心、臺灣期貨交易所、產業價值鏈平台）；判讀參考公開新聞",
     stock: "本站各頁資料彙整（公開資訊觀測站、證交所、櫃買中心、集保、各投信、富邦證券分點、鉅亨網）",
     kline: "證交所、櫃買中心每日收盤行情（還原權息自算）", fin: "公開資訊觀測站月營收與季報", analyst: "鉅亨網（FactSet 共識、外資報告）",
     etf: "各投信官網每日持股、證交所 ETF 淨值揭露、集保結算所", calendar: "臺灣指數公司、MSCI、富時", health: "本站各項資料抓取紀錄",
@@ -201,6 +207,9 @@
 
   var mobileNow = window.matchMedia("(max-width:860px)").matches;
   var html = '<a class="home" href="index.html"' + cur(path === "index") + ">首頁</a>";
+  TOP.forEach(function (t) {
+    html += '<a class="home" href="' + t[0] + '" title="' + t[2] + '"' + cur(hit(t[0])) + ">" + t[1] + "</a>";
+  });
   GROUPS.forEach(function (g) {
     var on = false, items = g[1].map(function (it) {
       var h = hit(it[0], it[3]);
