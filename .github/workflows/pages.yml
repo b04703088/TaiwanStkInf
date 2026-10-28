@@ -42,6 +42,7 @@ on:
       - "scripts/futures_site.py"
       - "scripts/insider_site.py"
       - "scripts/stock_site.py"
+      - "scripts/digest_site.py"
       - ".github/workflows/pages.yml"
   workflow_dispatch: {}
 
