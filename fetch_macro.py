@@ -6,10 +6,12 @@
       TWD=X（美元兌台幣）、DX-Y.NYB（美元指數）、^TNX（美 10 年債殖利率）、^VIX
   FRED CSV                 https://fred.stlouisfed.org/graph/fredgraph.csv?id=<series>
       BAMLH0A0HYM2（高收益債利差 OAS）、BAMLC0A0CM（投資級債利差 OAS）
+      FRED 從 GitHub runner 常逾時，所以另抓 HYG（高收益債 ETF）、IEF（7-10 年美債 ETF），
+      用 HYG÷IEF 當信用利差的替代（比值跌＝高收益債相對公債走弱＝利差擴大）
       Yahoo 抓不到時改用 FRED：DEXTAUS、DTWEXBGS（廣義美元指數）、DGS10、VIXCLS
 
 輸出 data/macro/daily.csv：date, series, value, source
-  series：usdtwd、dxy、us10y（%）、vix、hy_oas（%）、ig_oas（%）
+  series：usdtwd、dxy、us10y（%）、vix、hy_oas（%）、ig_oas（%）、hyg、ief
   每次抓近 2 年並覆蓋重疊日期，所以重跑沒關係。
 
 用法：python fetch_macro.py
@@ -37,12 +39,14 @@ SERIES = {
     "vix": [("yahoo", "^VIX"), ("fred", "VIXCLS")],
     "hy_oas": [("fred", "BAMLH0A0HYM2")],
     "ig_oas": [("fred", "BAMLC0A0CM")],
+    "hyg": [("yahoo", "HYG")],
+    "ief": [("yahoo", "IEF")],
 }
 
 
-def get(url):
+def get(url, timeout=30):
     req = urllib.request.Request(url, headers={"User-Agent": UA})
-    with urllib.request.urlopen(req, timeout=30) as r:
+    with urllib.request.urlopen(req, timeout=timeout) as r:
         return r.read().decode("utf-8")
 
 
@@ -61,12 +65,13 @@ def yahoo(sym):
 
 
 def fred(sid):
-    text = get(f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={sid}")
+    start = f"{datetime.now().year - 2}-01-01"
+    text = get(f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={sid}&cosd={start}", timeout=90)
     out = {}
     for row in list(csv.reader(io.StringIO(text)))[1:]:
         if len(row) == 2 and row[1] not in ("", "."):
             out[row[0]] = float(row[1])
-    return {d: v for d, v in out.items() if d >= f"{datetime.now().year - 2}-01-01"}
+    return {d: v for d, v in out.items() if d >= start}
 
 
 def main():
