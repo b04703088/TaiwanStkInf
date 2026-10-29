@@ -45,6 +45,8 @@ on:
       - "scripts/digest_site.py"
       - "scripts/newhigh_site.py"
       - "scripts/limitup_site.py"
+      - "scripts/alert_site.py"
+      - "scripts/attention_model.py"
       - ".github/workflows/pages.yml"
   workflow_dispatch: {}
 
