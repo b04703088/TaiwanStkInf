@@ -4,7 +4,7 @@
   data/digest/latest.md     最新一份（同內容）
 
 內容：加權指數位置與均線、外資／投信現貨買賣超（近 10 日）、台指期外資未平倉、P/C、
-前十大交易人、融資餘額、處置／注意股熱度、族群（官方產業與產業鏈節點）5／20 日強弱與
+前十大交易人、融資餘額、資金水龍頭燈號（見 liquidity.py）、處置／注意股熱度、族群（官方產業與產業鏈節點）5／20 日強弱與
 法人 10 日買賣超、外資／投信個股買賣超前段、20 日強勢股。
 
 用法：python scripts/digest.py [--date YYYYMMDD]
@@ -15,6 +15,8 @@ import glob
 from pathlib import Path
 
 import pandas as pd
+
+import liquidity
 
 D = Path("data")
 OUT = D / "digest"
@@ -143,6 +145,13 @@ def main():
     am = att.groupby(att.date.str[:7]).size().tail(4)
     out.append("- 處置股公告每月：" + "、".join(f"{k} {v}" for k, v in dm.items())
                + "；注意股每月：" + "、".join(f"{k} {v}" for k, v in am.items()))
+
+    # ── 資金水龍頭 ──
+    px = load_px(D / day[:4] / f"{day}.csv")[["code", "close"]]
+    px["close"] = pd.to_numeric(px.close, errors="coerce")
+    chain = pd.read_csv(D / "industry" / "chain.csv", dtype={"code": str}).drop_duplicates(["code", "node"])
+    tap, _ = liquidity.section(day, iso, px.dropna(), f_sum, chain)
+    out += tap
 
     # ── 個股與族群 ──
     def four(f):
