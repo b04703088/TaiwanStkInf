@@ -147,8 +147,7 @@
   <section class="block" style="margin-top:32px">
     <div class="block-head"><h2>領先族群</h2>
       <div class="chips" id="lvl">
-        <button data-v="off" aria-pressed="true">官方產業</button>
-        <button data-v="ind" aria-pressed="false">產業鏈</button>
+        <button data-v="ind" aria-pressed="true">產業鏈</button>
         <button data-v="sub" aria-pressed="false">細分族群</button>
       </div>
     </div>
@@ -195,9 +194,10 @@ const dTxt = d => d ? `${String(d).slice(4, 6)}/${String(d).slice(6)}` : "–";
 const median = a => { if (!a.length) return null; const s = [...a].sort((x, y) => x - y), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
 const Watch = window.TideWatch || {list: () => []};
 
-const S = {per: 5, kind: "hi", minv: 0.5, lvl: "off", grp: null, mine: false, q: "", sort: "n", desc: true, n: 60,
+const S = {per: 5, kind: "hi", minv: 0.5, lvl: "ind", grp: null, mine: false, q: "", sort: "n", desc: true, n: 60,
            gsort: "hits", gdesc: true, gn: 15};
-let D, ROWS = [], ND = 0;
+let D, ROWS = [], ND = 0, TAGS;
+const indOf = r => { const t = TAGS[S.lvl][r.i] || TAGS.ind[r.i]; return t ? {txt: t.slice(0, 2).join("、") + (t.length > 2 ? "…" : ""), all: t.join("、")} : {txt: (TAGS.off[r.i] || [""])[0], all: ""}; };
 
 function hits(r){
   const from = ND - S.per;
@@ -273,7 +273,7 @@ function renderStocks(){
   $("pick").innerHTML = S.grp ? `<span class="pick">族群：${esc(D.groups[S.grp.lvl][S.grp.gi][0])}<button type="button" aria-label="清除">✕</button></span>` : "";
   if (S.grp) $("pick").querySelector("button").onclick = () => { S.grp = null; renderGroups(); renderStocks(); };
   $("hint").textContent = `${rows.length} 檔・${S.per === 1 ? "今天" : `近 ${S.per} 日`}創${S.kind === "hi" ? " 52 週" : " 2022 年以來"}新高`;
-  $("head").innerHTML = `<tr><th>股票</th><th class="hide-s">產業</th>${COLS.map(([c, t, , hs]) =>
+  $("head").innerHTML = `<tr><th>股票</th><th class="hide-s">${S.lvl === "sub" ? "細分族群" : "產業鏈"}</th>${COLS.map(([c, t, , hs]) =>
     `<th class="n${hs ? " hide-s" : ""}${c === k ? " sorted" : ""}" data-k="${c}">${t}${c === k ? (S.desc ? " ↓" : " ↑") : ""}</th>`).join("")}<th class="hide-s">近 15 日</th></tr>`;
   $("head").querySelectorAll("th[data-k]").forEach(th => th.onclick = () => {
     if (S.sort === th.dataset.k) S.desc = !S.desc; else { S.sort = th.dataset.k; S.desc = true; }
@@ -281,7 +281,7 @@ function renderStocks(){
   });
   $("body").innerHTML = rows.slice(0, S.n).map(r => `<tr>
     <td><span class="sname"><a href="stock.html#s=${encodeURIComponent(r.code)}">${esc(r.name)}<span class="mono">${esc(r.code)}</span></a></span>${mine.has(r.code) ? `<span class="star" title="自選">★</span>` : ""}${S.kind === "hi" && r.ath.includes(ND - 1) ? `<span class="tag ath" title="今天收盤是 2022 年以來最高">22 年來新高</span>` : ""}</td>
-    <td class="hide-s muted">${esc(r.ind)}</td>
+    <td class="hide-s muted" title="${esc(indOf(r).all)}">${esc(indOf(r).txt)}</td>
     ${COLS.map(([, , f, hs]) => `<td class="n mono${hs ? " hide-s" : ""}">${f(r)}</td>`).join("")}
     <td class="hide-s">${dots(r)}</td></tr>`).join("")
     || `<tr><td colspan="${COLS.length + 3}" class="empty">${S.mine ? "自選股這段期間沒有創新高（按右上角搜尋 ☆ 加入自選）" : "沒有符合條件的股票"}</td></tr>`;
@@ -339,16 +339,19 @@ function loadHash(){
   const m = Object.fromEntries(location.hash.slice(1).split("&").map(x => x.split("=")));
   if (["1", "5", "20", "60"].includes(m.p)) S.per = +m.p;
   if (["hi", "ath"].includes(m.k)) S.kind = m.k;
-  if (["off", "ind", "sub"].includes(m.g)) S.lvl = m.g;
+  if (["ind", "sub"].includes(m.g)) S.lvl = m.g;
   [["per", S.per], ["kind", S.kind], ["lvl", S.lvl]].forEach(([id, v]) =>
     $(id).querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === String(v))));
 }
 
 fetch("data/newhigh.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
   D = d; ND = d.days.length;
-  const off = {};
-  d.groups.off.forEach(([name, , ix]) => ix.forEach(i => off[i] = name));
-  ROWS = d.rows.map((r, i) => Object.assign(Object.fromEntries(d.cols.map((k, j) => [k, r[j]])), {i, ind: off[i] || ""}));
+  /* 個股的族群欄跟著族群表的層級（產業鏈／細分族群）；沒有產業鏈資料的才用官方產業別 */
+  const tags = {off: {}, ind: {}, sub: {}};
+  Object.entries(d.groups).forEach(([lv, gs]) => gs.forEach(([name, , ix]) => ix.forEach(i => (tags[lv][i] ||= []).push(name))));
+  Object.values(tags).forEach(m => Object.values(m).forEach(t => t.sort((x, y) => x.startsWith("其他") - y.startsWith("其他"))));
+  TAGS = tags;
+  ROWS = d.rows.map((r, i) => Object.assign(Object.fromEntries(d.cols.map((k, j) => [k, r[j]])), {i}));
   const dd = String(d.date), b = d.breadth, last = ND - 1;
   const recent = k => ROWS.filter(r => r[k].some(j => j > last - 5)).length;
   $("sub").textContent = `${dd.slice(0, 4)}/${dd.slice(4, 6)}/${dd.slice(6)} 收盤・${ROWS.length} 檔上市櫃普通股。看哪些股票在創新高，以及哪些族群創高的家數最多、比例最高。點族群可以只看那個族群的股票。`;
