@@ -154,8 +154,44 @@
     <div class="block-head"><h2>明天可能處置</h2><span class="hint" id="near-hint"></span></div>
     <p class="desc" style="margin:0 0 12px; font-size:13.5px">下一個交易日只要再被列一次注意（款次符合「明天被列」欄），就會被公布處置、再隔一天開始處置。依交易所處置標準由注意紀錄推算，並對照交易所公布的「注意累計次數異常」名單。</p>
     <div class="tbl-wrap"><table>
-      <thead><tr><th>股票</th><th>差一次就達到</th><th>明天被列</th><th class="n">連續</th><th class="n">近 10 日</th><th class="n">近 30 日</th><th class="hide-s">交易所名單</th></tr></thead>
+      <thead><tr><th>股票</th><th>差一次就達到</th><th>明天被列</th><th>明天收盤觸發</th><th class="n">歷史命中</th><th class="n">連續</th><th class="n">近 10 日</th><th class="n">近 30 日</th><th class="hide-s">交易所名單</th></tr></thead>
       <tbody id="near-body"></tbody>
+    </table></div>
+  </section>
+
+  <section class="block" id="near2">
+    <div class="block-head"><h2>後天可能處置</h2><span class="hint" id="near2-hint"></span></div>
+    <p class="desc" style="margin:0 0 12px; font-size:13.5px">再被列兩次注意才會處置的股票。「兩天還要漲」＝明後兩天合計還要漲多少，6 日累積才會超過第一款門檻（上市 32%、上櫃 30%）；負數表示不漲也會到。</p>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>股票</th><th>還要被列</th><th class="n">收盤</th><th class="n">6 日累積</th><th class="n">兩天還要漲</th><th class="n">歷史命中</th></tr></thead>
+      <tbody id="near2-body"></tbody>
+    </table></div>
+  </section>
+
+  <section class="block" id="track">
+    <div class="block-head"><h2>預測對帳</h2><span class="hint" id="track-hint"></span></div>
+    <p class="desc" style="margin:0 0 12px; font-size:13.5px">每天用本站反推的第一～四款規則，拿當天收盤資料推算誰會被列注意，再對照交易所實際公告。精確＝推算會中的裡面真的被公告的比例；涵蓋＝實際被公告的裡面有推算到的比例。下面逐筆列出不一致的股票，方便檢查規則。</p>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>款次</th><th class="n">上市 精確</th><th class="n">上市 涵蓋</th><th class="n hide-s">上市 誤判／漏抓</th><th class="n">上櫃 精確</th><th class="n">上櫃 涵蓋</th><th class="n hide-s">上櫃 誤判／漏抓</th></tr></thead>
+      <tbody id="track-stats"></tbody>
+    </table></div>
+    <div class="sub-h">處置名單對帳</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>名單日</th><th class="n">名單</th><th>隔天處置（命中）</th><th>沒處置</th><th>不在名單卻處置</th></tr></thead>
+      <tbody id="track-disp"></tbody>
+    </table></div>
+    <div class="sub-h">注意股逐筆不一致</div>
+    <div class="toolbar">
+      <div class="chips" id="track-day"></div>
+      <div class="chips" id="track-kind">
+        <button data-v="" aria-pressed="true">全部</button>
+        <button data-v="fp" aria-pressed="false">誤判（推算會中、沒公告）</button>
+        <button data-v="fn" aria-pressed="false">漏抓（有公告、沒推算到）</button>
+      </div>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>股票</th><th>類型</th><th>款</th><th class="n">收盤</th><th class="n">漲跌</th><th class="n">6 日累積</th><th class="n">6 日價差</th><th class="n">偏離全體</th><th class="n">偏離同類</th><th class="n">30／60／90 日</th><th class="n">量倍數</th><th class="n">週轉</th><th class="n">本益比</th><th>實際公告</th></tr></thead>
+      <tbody id="track-body"></tbody>
     </table></div>
   </section>
 
@@ -208,7 +244,8 @@
   <p class="note">
     資料來源：臺灣證券交易所「公布處置有價證券」「公布注意有價證券」「注意累計次數異常」，證券櫃檯買賣中心「處置有價證券」「公布注意有價證券」「注意累計次數異常」，每個交易日盤後更新。只列股票與 ETF，不含權證、可轉債。<br>
     「撮合」是處置期間人工撮合的間隔（約每 N 分鐘一次）；第一次處置多為 2–5 分鐘，第二次（再次）處置多為 20–25 分鐘並需預收款券。「狀態」「還剩」以台北今天日期判斷（含今天，扣除週末與已知休市日）；出關日是處置迄日後的第一個開盤日。「處置期間漲跌」＝最新收盤（已結束則為迄日收盤）÷ 處置前一個交易日收盤 − 1，收盤每個交易日盤後更新。<br>
-    「明天可能處置」依證交所、櫃買中心處置標準推算：連續 3 個營業日第一款，或連續 5 個營業日、最近 10 個營業日內 6 日、最近 30 個營業日內 12 日達第一至八款注意，就會被處置（上次處置公布前的注意不再計算）。用 2025 年起的資料回測，這套算法與實際處置公告完全吻合；名單上的股票隔天不一定會再被列注意，所以不一定會處置。「連續」「近 10／30 日」是本站依注意公告日數（以有公告的交易日計）算出的次數，僅供參考，實際是否處置以交易所公告為準。資料僅供參考，不構成投資建議。
+    「明天可能處置」依證交所、櫃買中心處置標準推算：連續 3 個營業日第一款，或連續 5 個營業日、最近 10 個營業日內 6 日、最近 30 個營業日內 12 日達第一至八款注意，就會被處置（上次處置公布前的注意不再計算）。用 2025 年起的資料回測，這套算法與實際處置公告完全吻合；名單上的股票隔天不一定會再被列注意，所以不一定會處置。「連續」「近 10／30 日」是本站依注意公告日數（以有公告的交易日計）算出的次數，僅供參考，實際是否處置以交易所公告為準。<br>
+    「明天收盤觸發」「後天可能處置」「預測對帳」用本站依交易所「第四條異常標準之詳細數據及除外情形」反推的第一～四款規則推算：6 日累積漲跌幅是每日漲跌幅相加，起迄漲幅以除權息還原，偏離門檻同時比全體與同類股平均。觸發價只看第一款、假設偏離條件成立；第五～八款（券商集中度、本益比淨值比、券資比、存託憑證溢價）沒有資料，不在推算內。「歷史命中」是過去 120 個交易日同一分級的名單隔天（後天）實際被處置的比例。資料僅供參考，不構成投資建議。
   </p>
 </main>
 <footer class="site"><div class="wrap"><p class="note" style="margin:0">資料僅供參考。</p></div></footer>
@@ -220,7 +257,7 @@ const md = d => d ? (d.slice(0, 4) === TODAY.slice(0, 4) ? d.slice(5).replace("-
 const addDays = (d, n) => { const t = new Date(d + "T00:00:00Z"); t.setUTCDate(t.getUTCDate() + n); return t.toISOString().slice(0, 10); };
 const objs = t => t.rows.map(r => Object.fromEntries(t.cols.map((k, i) => [k, r[i]])));
 
-let D, DISP = [], ATT = [], NEAR = [], CAND = [], HIT = {}, DAYIDX = {};
+let D, M = null, DISP = [], ATT = [], NEAR = [], CAND = [], HIT = {}, DAYIDX = {};
 const name = c => D.names[c] || c;
 const A = {day: "", min: 1, n: 60}, H = {days: 30, mk: "", n: 60};
 
@@ -295,7 +332,10 @@ function renderNow(){
 const RULE = {s1: "連續 3 日第一款", s8: "連續 5 日", n10: "10 日內 6 次", n30: "30 日內 12 次"};
 function renderNear(){
   const off = Object.fromEntries(NEAR.map(r => [r.market + r.code, r]));
-  const rows = CAND.map(r => ({...r, off: off[r.market + r.code]}));
+  const mm = Object.fromEntries((M ? objs(M.next) : []).map(r => [r.market + r.code, r]));
+  const rows = CAND.map(r => ({...r, off: off[r.market + r.code], m: mm[r.market + r.code]}));
+  const ord = {lock: 0, flat: 1, 3: 2, 6: 3, 10: 4, far: 5, na: 6};
+  rows.sort((a, b) => (ord[a.m?.bucket] ?? 7) - (ord[b.m?.bucket] ?? 7));
   for (const r of NEAR) if (!CAND.some(c => c.market === r.market && c.code === r.code)) rows.push({market: r.market, code: r.code, rules: "", off: r});
   const rate = D.cand.total ? Math.round(D.cand.hit / D.cand.total * 100) : null;
   document.getElementById("near-hint").textContent = `${rows.length} 檔・${md(D.cand.date)} 收盤後${rate != null ? `・過去 ${D.cand.total} 次名單中 ${rate}% 隔天被處置` : ""}`;
@@ -303,10 +343,78 @@ function renderNear(){
     <td>${stockCell(r.code, r.market)}</td>
     <td>${r.rules ? r.rules.split(";").map(k => `<span class="tag soon">${RULE[k]}</span>`).join("") : `<span class="faint">–</span>`}</td>
     <td>${r.need === "1" ? "第一款（漲跌幅）" : r.need ? "第一至八款任一" : `<span class="faint">–</span>`}</td>
+    <td>${trigCell(r)}</td><td class="n">${rateCell(M?.next, r.m?.bucket)}</td>
     <td class="n">${r.s8 != null ? cnt(r.s8, 2, 4) : "–"}</td><td class="n">${r.n10 != null ? cnt(r.n10, 4, 5) : "–"}</td><td class="n">${r.n30 != null ? cnt(r.n30, 9, 11) : "–"}</td>
     <td class="hide-s reason">${r.off ? esc(r.off.situation) : ""}</td></tr>`).join("")
-    || `<tr><td colspan="7" class="empty">目前沒有差一次注意就會處置的股票</td></tr>`;
+    || `<tr><td colspan="9" class="empty">目前沒有差一次注意就會處置的股票</td></tr>`;
   bindRows("#near-body");
+}
+
+
+/* 規則模型（model.json）：觸發價、分級命中率、對帳 */
+const pctTxt = v => v == null ? "–" : (v > 0 ? "+" : "") + (+v).toFixed(1) + "%";
+const BUCKET = {lock: "已鎖定", flat: "平盤就中", 3: "再 0–3%", 6: "再 3–6%", 10: "再 6–10%", far: "停板也不夠", na: "–"};
+function rateCell(t, b){
+  const v = t?.rate?.[b];
+  return v && v[1] ? `<span class="mono" title="過去 ${t.days} 個交易日 ${v[1]} 次">${Math.round(v[0] / v[1] * 100)}%</span>` : `<span class="faint">–</span>`;
+}
+function trigCell(r){
+  const m = r.m;
+  if (!m) return `<span class="faint">–</span>`;
+  const up = m.dir !== "dn", p = up ? m.up : m.dn, px = up ? m.up_px : m.dn_px;
+  let t;
+  if (m.bucket === "lock") t = `<span class="tag disp" style="margin:0">${up ? "跌停" : "漲停"}也會中</span>`;
+  else if (m.bucket === "far") t = `<span class="faint">${up ? "漲停" : "跌停"}也不夠</span>`;
+  else t = `收 ${up ? "≥" : "≤"} <span class="mono">${num(px)}</span> <span class="mono ${p > 0 ? "up" : "down"}">${pctTxt(p)}</span>`;
+  const turn = M.rules?.[r.market]?.turn;
+  if (r.need !== "1" && m.k34 != null && m.k34 < 10 && up)
+    t += `<div class="reason">或漲 ${pctTxt(Math.max(m.k34, -10))} 且週轉 ≥ ${turn}%（第四款，今日 ${m.turn == null ? "–" : (+m.turn).toFixed(1) + "%"}）</div>`;
+  return t;
+}
+function renderNear2(){
+  const sec = document.getElementById("near2");
+  if (!M){ sec.hidden = true; return; }
+  const rows = objs(M.next2);
+  document.getElementById("near2-hint").textContent = `${rows.length} 檔・${md(M.date)} 收盤後`;
+  document.getElementById("near2-body").innerHTML = rows.map(r => `<tr class="click" data-c="${r.code}">
+    <td>${stockCell(r.code, r.market)}</td><td>${r.need === "1" ? "連 2 天第一款" : "2 次第一至八款"}</td>
+    <td class="n mono">${num(r.close)}</td><td class="n mono ${r.s6 > 0 ? "up" : r.s6 < 0 ? "down" : ""}">${pctTxt(r.s6)}</td>
+    <td class="n mono">${r.two <= 0 ? `<span class="tag disp" style="margin:0">不用漲</span>` : pctTxt(r.two)}</td>
+    <td class="n">${rateCell(M.next2, r.bucket)}</td></tr>`).join("")
+    || `<tr><td colspan="6" class="empty">目前沒有再兩次就處置的股票</td></tr>`;
+  bindRows("#near2-body");
+}
+const T = {day: "", kind: ""};
+const ATTINFO = {};
+function renderTrack(){
+  const sec = document.getElementById("track");
+  if (!M){ sec.hidden = true; return; }
+  const st = M.stats, pc = (a, b) => b ? Math.round(a / b * 100) + "%" : "–";
+  document.getElementById("track-hint").textContent = `近 ${st.days} 個交易日（${md(st.from)} 起）`;
+  const cell = v => `<td class="n mono">${pc(v[0], v[0] + v[1])}</td><td class="n mono">${pc(v[0], v[0] + v[2])}</td><td class="n mono faint hide-s">${v[1]}／${v[2]}</td>`;
+  document.getElementById("track-stats").innerHTML = ["1", "2", "3", "4"].map(k =>
+    `<tr><td>第${"一二三四"[k - 1]}款</td>${cell(st.by["上市"][k])}${cell(st.by["上櫃"][k])}</tr>`).join("");
+  const nm = c => esc(M.names[c] || name(c));
+  const list = (cs, cls) => cs.length ? cs.map(c => `<span class="${cls}">${nm(c)}</span>`).join("、") : `<span class="faint">–</span>`;
+  document.getElementById("track-disp").innerHTML = M.disp.slice().reverse().map(r => `<tr>
+    <td class="mono">${md(r.date)}</td><td class="n mono">${r.hit.length + r.miss.length}</td>
+    <td class="wrap-cell">${list(r.hit, "up")}</td><td class="wrap-cell reason">${list(r.miss, "")}</td><td class="wrap-cell">${list(r.surprise, "")}</td></tr>`).join("")
+    || `<tr><td colspan="5" class="empty">沒有資料</td></tr>`;
+  const day = M.track.days.find(d => d.date === T.day) || M.track.days.at(-1);
+  if (!day){ document.getElementById("track-body").innerHTML = `<tr><td colspan="14" class="empty">沒有資料</td></tr>`; return; }
+  const cs = day.cases.map(r => Object.fromEntries(M.track.cols.map((k, i) => [k, r[i]]))).filter(r => !T.kind || r.kind === T.kind);
+  const kindTxt = {fp: `<span class="tag soon" style="margin:0">誤判</span>`, fn: `<span class="tag disp" style="margin:0">漏抓</span>`, mix: `<span class="tag" style="margin:0">款次不同</span>`};
+  const cl = s => s ? s.split("/").map(x => x.split("").map(k => `第${"一二三四"[k - 1]}款`).join("、")).join(" → 實際 ") : "";
+  const sg = v => `<td class="n mono ${v > 0 ? "up" : v < 0 ? "down" : ""}">${v == null ? "–" : (+v).toFixed(1)}</td>`;
+  document.getElementById("track-body").innerHTML = cs.map(r => `<tr class="click" data-c="${r.code}">
+    <td>${stockCell(r.code, r.market)}</td><td>${kindTxt[r.kind]}</td><td>${cl(r.clause)}</td>
+    <td class="n mono">${num(r.close)}</td>${sg(r.pct)}${sg(r.s6)}${sg(r.gap6)}${sg(r.dm6)}${sg(r.di6)}
+    <td class="n mono">${[r.r30, r.r60, r.r90].map(v => v == null ? "–" : Math.round(v)).join("／")}</td>
+    <td class="n mono">${r.vx == null ? "–" : (+r.vx).toFixed(1)}</td><td class="n mono">${r.turn == null ? "–" : (+r.turn).toFixed(1) + "%"}</td>
+    <td class="n mono">${r.pe == null ? "–" : r.pe < 0 ? "負" : (+r.pe).toFixed(0)}</td>
+    <td class="wrap-cell reason">${esc(ATTINFO[day.date + r.code] || "")}</td></tr>`).join("")
+    || `<tr><td colspan="14" class="empty">這天推算與公告完全一致</td></tr>`;
+  bindRows("#track-body");
 }
 
 function renderAtt(){
@@ -398,8 +506,11 @@ function chips(id, obj, key, render, parse = v => v){
   });
 }
 
-fetch("data/alert/alert.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
-  D = d; DISP = objs(D.disp); ATT = objs(D.att); NEAR = objs(D.near); CAND = D.cand ? objs(D.cand) : [];
+Promise.all([
+  fetch("data/alert/alert.json", {cache: "no-cache"}).then(r => r.json()),
+  fetch("data/alert/model.json", {cache: "no-cache"}).then(r => r.ok ? r.json() : null).catch(() => null),
+]).then(([d, m]) => {
+  D = d; M = m; DISP = objs(D.disp); ATT = objs(D.att); NEAR = objs(D.near); CAND = D.cand ? objs(D.cand) : [];
   D.days.forEach((x, i) => DAYIDX[x] = i);
   HOL = new Set(D.holidays || []);
   for (const r of ATT) (HIT[r.code] ||= new Set()).add(r.date);
@@ -407,7 +518,14 @@ fetch("data/alert/alert.json", {cache: "no-cache"}).then(r => r.json()).then(d =
   document.getElementById("att-day").innerHTML = D.days.slice(-5).reverse()
     .map(x => `<button data-v="${x}" aria-pressed="${x === A.day}">${md(x)}</button>`).join("");
   document.getElementById("sub").textContent = `上市櫃處置股、注意股與明天可能處置的股票，資料更新至 ${md(D.generated)}。點任一列可看該股的處置與注意紀錄。`;
-  renderStats(); renderExit(); renderNow(); renderNear(); renderAtt(); renderHist(); setupSearch();
+  for (const r of ATT) ATTINFO[r.date + r.code] = (r.clauses ? clauseTxt(r.clauses) + "：" : "") + r.info;
+  if (M){
+    T.day = M.track.days.at(-1)?.date || "";
+    document.getElementById("track-day").innerHTML = M.track.days.slice(-10).reverse()
+      .map(x => `<button data-v="${x.date}" aria-pressed="${x.date === T.day}">${md(x.date)}・${x.cases.length}</button>`).join("");
+  }
+  renderStats(); renderExit(); renderNow(); renderNear(); renderNear2(); renderTrack(); renderAtt(); renderHist(); setupSearch();
+  if (M){ chips("track-day", T, "day", renderTrack); chips("track-kind", T, "kind", renderTrack); }
   chips("exit-n", X, "k", renderExit, Number);
   chips("att-day", A, "day", renderAtt);
   chips("att-min", A, "min", renderAtt, Number);

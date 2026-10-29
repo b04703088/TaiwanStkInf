@@ -15,6 +15,7 @@
   data/broker/local.json             地方分點（排除外資、凱基-台北、總公司）買賣超金額排行，近 1／5／10／20 日
   data/analyst/analyst.json          FactSet 共識與外資報告（見 scripts/analyst_site.py）
   data/alert/alert.json              處置股、注意股（見 scripts/alert_site.py）
+  data/alert/model.json              注意股規則推算：觸發價、後天名單、對帳（見 scripts/attention_model.py）
   data/treasury.json                 庫藏股買回計畫與進度（見 scripts/treasury_site.py）
   data/insider/insider.json          內部人事前申報、每月持股異動與設質解質（見 scripts/insider_site.py）
   data/mops/mops.json                重大訊息、股東會／法說會行事曆（見 scripts/mops_site.py）
@@ -81,6 +82,7 @@ import rebalance_site  # noqa: E402
 import calendar_site  # noqa: E402
 import analyst_site  # noqa: E402
 import alert_site  # noqa: E402
+import attention_model  # noqa: E402
 import treasury_site  # noqa: E402
 import insider_site  # noqa: E402
 import mops_site  # noqa: E402
@@ -152,6 +154,7 @@ def build(out: Path, days: int) -> list[str]:
     calendar_site.write_calendar(ROOT / "data", ROOT, out / "data" / "calendar.json")
     analyst_site.write_analyst(ROOT / "data", out / "data" / "analyst" / "analyst.json")
     alert_site.write_alert(ROOT / "data", out / "data" / "alert" / "alert.json")
+    attention_model.write_model(ROOT / "data", out / "data" / "alert" / "model.json")
     treasury_site.write_treasury(ROOT / "data", out / "data" / "treasury.json")
     insider_site.write_insider(ROOT / "data", out / "data" / "insider" / "insider.json")
     mops_site.write_mops(ROOT / "data", out / "data" / "mops" / "mops.json")
