@@ -44,6 +44,7 @@ on:
       - "scripts/stock_site.py"
       - "scripts/digest_site.py"
       - "scripts/newhigh_site.py"
+      - "scripts/limitup_site.py"
       - ".github/workflows/pages.yml"
   workflow_dispatch: {}
 
