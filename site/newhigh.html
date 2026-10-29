@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101419">
+<title>創新高｜潮汐</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#101419; --panel:#171C22; --panel-2:#1E242B;
+    --line:rgba(232,237,242,0.09); --line-strong:rgba(232,237,242,0.16);
+    --text:#E8EDF2; --text-muted:#A9B2BC; --text-faint:#8B95A0;
+    --brass:#C6A15B; --brass-soft:rgba(198,161,91,0.14); --rise:#E1594F; --fall:#3FAE72;
+    --radius-s:3px; --radius-m:6px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--ink); color:var(--text);
+    font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
+  h1,h2{font-family:'Noto Sans TC',sans-serif; margin:0; font-weight:700;}
+  h2{font-size:20px;}
+  .mono{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+  a{color:inherit;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
+  header.site{position:sticky; top:0; z-index:40; background:#101419; border-bottom:1px solid var(--line);}
+  .nav-row{display:flex; align-items:center; justify-content:space-between; padding:16px 28px;}
+  .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
+  .brand-mark{font-family:'Noto Sans TC',sans-serif; font-size:22px; font-weight:700;}
+  .brand-sub{font-size:12px; color:var(--text-faint);}
+  .page-head{padding:56px 0 8px;}
+  h1{font-size:32px;}
+  .desc{color:var(--text-muted); font-size:14.5px; margin:12px 0 0; max-width:52em;}
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden; margin-top:28px;}
+  .stat{background:var(--panel); padding:16px 20px;}
+  .stat .k{font-size:12.5px; color:var(--text-muted);}
+  .stat .v{font-size:26px; margin-top:2px;}
+  .stat .s{font-size:12px; color:var(--text-faint);}
+  section.block{margin-top:48px;}
+  .block-head{display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin-bottom:14px; flex-wrap:wrap;}
+  .hint{font-size:12.5px; color:var(--text-faint);}
+  .up{color:var(--rise);} .down{color:var(--fall);} .flat{color:var(--text-muted);}
+  .faint{color:var(--text-faint);} .muted{color:var(--text-muted);}
+
+  .tbl-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius-m);}
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  th, td{padding:9px 12px; border-bottom:1px solid var(--line); text-align:left; white-space:nowrap;}
+  th{font-size:12px; color:var(--text-muted); font-weight:500; background:var(--panel); position:sticky; top:0;}
+  td.n, th.n{text-align:right;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr.click{cursor:pointer;}
+  tbody tr.click:hover td{background:var(--panel);}
+  tbody tr.on td{background:var(--brass-soft);}
+  th[data-k]{cursor:pointer; user-select:none;} th[data-k]:hover{color:var(--text);} th.sorted{color:var(--text);}
+  .sname{font-weight:500;}
+  .sname a{text-decoration:none;} .sname a:hover{color:var(--text);}
+  .sname .mono{font-size:11.5px; color:var(--text-faint); margin-left:6px; font-weight:500;}
+  .tag{display:inline-block; font-size:11px; padding:0 5px; border-radius:var(--radius-s); border:1px solid var(--line-strong); color:var(--text-muted); margin-left:6px;}
+  .tag.ath{border-color:var(--rise); color:var(--rise);}
+  .star{color:var(--brass); margin-left:4px; font-size:12px;}
+  .gpath{display:block; font-size:11.5px; color:var(--text-faint);}
+  .show-s{display:none;}
+  .leaders{white-space:normal; min-width:14em; font-size:12.5px; color:var(--text-muted);}
+  .bar{display:inline-block; width:64px; height:6px; background:var(--line); border-radius:2px; vertical-align:middle; margin-right:8px; overflow:hidden;}
+  .bar i{display:block; height:100%; background:var(--rise);}
+  .dots{display:inline-flex; gap:2px; vertical-align:middle;}
+  .dots i{display:block; width:5px; height:12px; border-radius:1px; background:var(--line);}
+  .dots i.h{background:var(--rise);} .dots i.a{background:var(--rise); box-shadow:inset 0 -4px 0 var(--brass);}
+
+  .toolbar{display:flex; flex-wrap:wrap; gap:10px 18px; align-items:center; margin-top:28px;}
+  .chips{display:flex; flex-wrap:wrap; gap:6px;}
+  .chips button{background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:5px 11px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .chips button[aria-pressed="true"]{border-color:var(--text-faint); color:var(--text);}
+  .chk-in{font-size:13px; color:var(--text-muted); display:flex; align-items:center; gap:6px;}
+  .filter{background:var(--panel); border:1px solid var(--line-strong); color:var(--text); padding:6px 11px; border-radius:var(--radius-s); font:inherit; font-size:13px; width:12em;}
+  .filter:focus{outline:none; border-color:var(--text-faint);}
+  .pick{display:inline-flex; align-items:center; gap:8px; font-size:13px; background:var(--brass-soft); color:var(--text); padding:4px 10px; border-radius:var(--radius-s);}
+  .pick button{background:none; border:none; color:var(--text-muted); cursor:pointer; font:inherit; padding:0;}
+  .more{display:block; margin:14px auto 0; background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:7px 18px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .more:hover{color:var(--text); border-color:var(--text-faint);}
+  .empty{padding:20px 12px; color:var(--text-faint); font-size:13.5px;}
+  .note{font-size:12.5px; color:var(--text-faint); margin-top:18px; line-height:1.8;}
+
+  .chart{position:relative; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-m); padding:14px 16px 6px;}
+  .chart svg{display:block; width:100%; height:180px;}
+  .chart .axis{font-size:10.5px; fill:var(--text-faint); font-family:'IBM Plex Mono',monospace;}
+  .legend{display:flex; gap:16px; font-size:12px; color:var(--text-muted); margin-bottom:6px; flex-wrap:wrap;}
+  .legend i{display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:5px; vertical-align:-1px;}
+  .tip{position:absolute; pointer-events:none; background:var(--ink); border:1px solid var(--line-strong); border-radius:var(--radius-s); padding:8px 10px; font-size:12px; min-width:130px; box-shadow:0 4px 16px rgba(0,0,0,.4); display:none; z-index:5;}
+  .tip .d{color:var(--text-muted); margin-bottom:4px;}
+  .tip .r{display:flex; gap:12px; justify-content:space-between; white-space:nowrap;}
+  .tip .r b{font-weight:500; font-family:'IBM Plex Mono',monospace;}
+  footer.site{padding:48px 0; margin-top:64px; border-top:1px solid var(--line);}
+  @media (max-width:860px){
+    .nav-row{padding:14px 16px; flex-wrap:wrap; row-gap:10px;}
+    .wrap{padding:0 16px;}
+    .stats{grid-template-columns:repeat(2,1fr);} h1{font-size:26px;}
+    .hide-s{display:none;}
+    .chart svg{height:150px;}
+    .show-s{display:block;}
+  }
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="nav-row">
+    <a href="index.html" class="brand"><span class="brand-mark">潮汐</span><span class="brand-sub">籌碼觀測站</span></a>
+    <nav class="gnav"></nav>
+  </div>
+</header>
+<script src="nav.js"></script>
+<main class="wrap">
+  <section class="page-head">
+    <h1>誰在創新高：個股與族群</h1>
+    <p class="desc" id="sub">載入中…</p>
+    <div class="stats" id="stats"></div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>每天創新高、新低家數</h2><span class="hint">近 60 個交易日・新高、新低各自刻度</span></div>
+    <div class="chart" id="chart">
+      <div class="legend"><span><i style="background:var(--rise)"></i>創 52 週新高</span><span><i style="background:var(--fall)"></i>創 52 週新低</span></div>
+      <svg id="svg" preserveAspectRatio="none"></svg>
+      <div class="tip" id="tip"></div>
+    </div>
+  </section>
+
+  <div class="toolbar">
+    <div class="chips" id="per">
+      <button data-v="1" aria-pressed="false">今天</button>
+      <button data-v="5" aria-pressed="true">近 5 日</button>
+      <button data-v="20" aria-pressed="false">近 20 日</button>
+      <button data-v="60" aria-pressed="false">近 60 日</button>
+    </div>
+    <div class="chips" id="kind">
+      <button data-v="hi" aria-pressed="true">52 週新高</button>
+      <button data-v="ath" aria-pressed="false">2022 年以來新高</button>
+    </div>
+    <div class="chips" id="minv">
+      <button data-v="0" aria-pressed="false">成交不限</button>
+      <button data-v="0.5" aria-pressed="true">日均 5 千萬以上</button>
+      <button data-v="3" aria-pressed="false">3 億以上</button>
+    </div>
+  </div>
+
+  <section class="block" style="margin-top:32px">
+    <div class="block-head"><h2>領先族群</h2>
+      <div class="chips" id="lvl">
+        <button data-v="off" aria-pressed="true">官方產業</button>
+        <button data-v="ind" aria-pressed="false">產業鏈</button>
+        <button data-v="sub" aria-pressed="false">細分族群</button>
+      </div>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead id="g-head"></thead>
+      <tbody id="g-body"></tbody>
+    </table></div>
+    <button class="more" id="g-more" hidden>顯示更多</button>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>創新高個股</h2><span class="hint" id="hint"></span></div>
+    <div class="toolbar" style="margin:0 0 12px">
+      <span id="pick"></span>
+      <label class="chk-in"><input type="checkbox" id="mine"> 只看自選</label>
+      <input class="filter" id="q" type="search" placeholder="代號或名稱" autocomplete="off" aria-label="搜尋">
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead id="head"></thead>
+      <tbody id="body"></tbody>
+    </table></div>
+    <button class="more" id="more" hidden>顯示更多</button>
+    <p class="note">
+      用還原收盤價計算（除權息、減資不會讓高點斷掉）。「創 52 週新高」＝當天收盤是含當天在內最近 250 個交易日的最高；「2022 年以來新高」＝收盤高於本站資料起點（2022 年 1 月）以來每一天，資料不夠早，所以不是真正的上市以來新高。
+      只算上市櫃普通股，上市未滿 250 個交易日的新股不列入。族群「比例」＝期間內創新高家數 ÷ 族群內符合成交條件的家數；成交以近 20 日平均成交金額計。
+      近 15 日欄位：紅格是那天創新高，紅格底部金線是同時創 2022 年以來新高。資料僅供參考，不構成投資建議。
+    </p>
+  </section>
+</main>
+<footer class="site"><div class="wrap"><p class="note" style="margin:0">資料僅供參考。</p></div></footer>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fx = (v, d = 1) => v == null ? "–" : (+v).toLocaleString("zh-TW", {minimumFractionDigits: d, maximumFractionDigits: d});
+const cls = v => v == null ? "faint" : v > 0 ? "up" : v < 0 ? "down" : "flat";
+const pct = v => `<span class="${cls(v)}">${v == null ? "–" : `${v > 0 ? "+" : ""}${(+v).toFixed(Math.abs(v) >= 100 ? 0 : 1)}%`}</span>`;
+const dTxt = d => d ? `${String(d).slice(4, 6)}/${String(d).slice(6)}` : "–";
+const median = a => { if (!a.length) return null; const s = [...a].sort((x, y) => x - y), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+const Watch = window.TideWatch || {list: () => []};
+
+const S = {per: 5, kind: "hi", minv: 0.5, lvl: "off", grp: null, mine: false, q: "", sort: "n", desc: true, n: 60,
+           gsort: "hits", gdesc: true, gn: 15};
+let D, ROWS = [], ND = 0;
+
+function hits(r){
+  const from = ND - S.per;
+  return r[S.kind].filter(j => j >= from);
+}
+
+function universe(){ return ROWS.filter(r => (r.value ?? 0) >= S.minv); }
+
+/* 族群 */
+function groupRows(){
+  const live = new Set(universe().map(r => r.i));
+  return D.groups[S.lvl].map(([name, path, ix], gi) => {
+    const mem = ix.filter(i => live.has(i)).map(i => ROWS[i]);
+    const hit = mem.filter(r => r.h.length);
+    return {gi, name, path, n: mem.length, hits: hit.length, rate: mem.length ? hit.length / mem.length * 100 : 0,
+            r20: median(mem.map(r => r.r20).filter(v => v != null)),
+            lead: hit.sort((a, b) => b.value - a.value).slice(0, 4)};
+  }).filter(g => g.n >= 3 && g.hits >= 1);
+}
+
+function renderGroups(){
+  const gs = groupRows().sort((a, b) => ((b[S.gsort] ?? -1e9) - (a[S.gsort] ?? -1e9)) * (S.gdesc ? 1 : -1) || b.rate - a.rate);
+  const cols = [["hits", "創高家數"], ["rate", "比例"], ["r20", "族群 20 日漲幅"]];
+  $("g-head").innerHTML = `<tr><th>族群</th>${cols.map(([k, t], i) =>
+    `<th class="n${i === 2 ? " hide-s" : ""}${k === S.gsort ? " sorted" : ""}" data-k="${k}">${t}${k === S.gsort ? (S.gdesc ? " ↓" : " ↑") : ""}</th>`).join("")}<th class="hide-s">領頭股（成交大到小）</th></tr>`;
+  $("g-head").querySelectorAll("th[data-k]").forEach(th => th.onclick = () => {
+    if (S.gsort === th.dataset.k) S.gdesc = !S.gdesc; else { S.gsort = th.dataset.k; S.gdesc = true; }
+    renderGroups();
+  });
+  $("g-body").innerHTML = gs.slice(0, S.gn).map(g => `<tr class="click${S.grp && S.grp.lvl === S.lvl && S.grp.gi === g.gi ? " on" : ""}" data-g="${g.gi}">
+    <td><b style="font-weight:500">${esc(g.name)}</b>${S.lvl === "sub" ? `<span class="gpath">${esc(g.path)}</span>` : ""}<span class="gpath show-s">${g.lead.slice(0, 3).map(r => esc(r.name)).join("、")}</span></td>
+    <td class="n mono">${g.hits}<span class="faint"> / ${g.n}</span></td>
+    <td class="n mono"><span class="bar"><i style="width:${Math.min(100, g.rate)}%"></i></span>${fx(g.rate, 0)}%</td>
+    <td class="n mono hide-s">${pct(g.r20)}</td>
+    <td class="leaders hide-s">${g.lead.map(r => esc(r.name)).join("、")}</td></tr>`).join("")
+    || `<tr><td colspan="5" class="empty">這段期間沒有族群創新高</td></tr>`;
+  $("g-more").hidden = gs.length <= S.gn;
+  $("g-body").querySelectorAll("tr[data-g]").forEach(tr => tr.onclick = () => {
+    const gi = +tr.dataset.g;
+    S.grp = S.grp && S.grp.lvl === S.lvl && S.grp.gi === gi ? null : {lvl: S.lvl, gi};
+    S.n = 60; renderGroups(); renderStocks();
+    if (S.grp) $("pick").scrollIntoView({behavior: "smooth", block: "center"});
+  });
+}
+
+/* 個股 */
+const COLS = [
+  ["n", "創高天數", r => `${r.h.length}`],
+  ["last", "最近創高", r => dTxt(D.days[r.h[r.h.length - 1]]), 1],
+  ["close", "收盤", r => fx(r.close, r.close >= 1000 ? 0 : 2)],
+  ["chg", "漲跌", r => pct(r.chg)],
+  ["dist", "距高點", r => pct(r.dist)],
+  ["r20", "20 日", r => pct(r.r20)],
+  ["r60", "60 日", r => pct(r.r60), 1],
+  ["value", "日均成交（億）", r => fx(r.value, 1), 1],
+];
+function dots(r){
+  const hs = new Set(r.hi), as = new Set(r.ath);
+  let s = "";
+  for (let j = ND - 15; j < ND; j++) s += `<i class="${as.has(j) ? "a" : hs.has(j) ? "h" : ""}"></i>`;
+  return `<span class="dots" title="近 15 個交易日">${s}</span>`;
+}
+function renderStocks(){
+  const mine = new Set(Watch.list()), q = S.q.trim().toLowerCase();
+  const inGrp = S.grp ? new Set(D.groups[S.grp.lvl][S.grp.gi][2]) : null;
+  let rows = universe().filter(r => r.h.length && (!inGrp || inGrp.has(r.i)) && (!S.mine || mine.has(r.code))
+    && (!q || r.code.startsWith(q) || r.name.toLowerCase().includes(q)));
+  rows.forEach(r => { r.n = r.h.length; r.last = r.h[r.h.length - 1]; });
+  const k = S.sort;
+  rows.sort((a, b) => ((b[k] ?? -1e15) - (a[k] ?? -1e15)) * (S.desc ? 1 : -1) || b.last - a.last || b.value - a.value);
+  $("pick").innerHTML = S.grp ? `<span class="pick">族群：${esc(D.groups[S.grp.lvl][S.grp.gi][0])}<button type="button" aria-label="清除">✕</button></span>` : "";
+  if (S.grp) $("pick").querySelector("button").onclick = () => { S.grp = null; renderGroups(); renderStocks(); };
+  $("hint").textContent = `${rows.length} 檔・${S.per === 1 ? "今天" : `近 ${S.per} 日`}創${S.kind === "hi" ? " 52 週" : " 2022 年以來"}新高`;
+  $("head").innerHTML = `<tr><th>股票</th><th class="hide-s">產業</th>${COLS.map(([c, t, , hs]) =>
+    `<th class="n${hs ? " hide-s" : ""}${c === k ? " sorted" : ""}" data-k="${c}">${t}${c === k ? (S.desc ? " ↓" : " ↑") : ""}</th>`).join("")}<th class="hide-s">近 15 日</th></tr>`;
+  $("head").querySelectorAll("th[data-k]").forEach(th => th.onclick = () => {
+    if (S.sort === th.dataset.k) S.desc = !S.desc; else { S.sort = th.dataset.k; S.desc = true; }
+    renderStocks();
+  });
+  $("body").innerHTML = rows.slice(0, S.n).map(r => `<tr>
+    <td><span class="sname"><a href="stock.html#s=${encodeURIComponent(r.code)}">${esc(r.name)}<span class="mono">${esc(r.code)}</span></a></span>${mine.has(r.code) ? `<span class="star" title="自選">★</span>` : ""}${S.kind === "hi" && r.ath.includes(ND - 1) ? `<span class="tag ath" title="今天收盤是 2022 年以來最高">22 年來新高</span>` : ""}</td>
+    <td class="hide-s muted">${esc(r.ind)}</td>
+    ${COLS.map(([, , f, hs]) => `<td class="n mono${hs ? " hide-s" : ""}">${f(r)}</td>`).join("")}
+    <td class="hide-s">${dots(r)}</td></tr>`).join("")
+    || `<tr><td colspan="${COLS.length + 3}" class="empty">${S.mine ? "自選股這段期間沒有創新高（按右上角搜尋 ☆ 加入自選）" : "沒有符合條件的股票"}</td></tr>`;
+  $("more").hidden = rows.length <= S.n;
+}
+
+/* 新高／新低家數圖 */
+function chart(){
+  const svg = $("svg"), W = svg.clientWidth || 800, H = svg.clientHeight || 180, pad = 22, mid = H * 0.62;
+  const hi = D.breadth.hi, lo = D.breadth.lo, n = hi.length;
+  /* 新高、新低各用自己的刻度（新低偶爾一天暴增，會把新高壓扁），上下各標最大值 */
+  const mx = Math.max(...hi, 1), ml = Math.max(...lo, 1), sc = mx / (mid - 10), sl = ml / (H - mid - pad);
+  const bw = (W - 30) / n;
+  let s = `<line x1="30" x2="${W}" y1="${mid}" y2="${mid}" stroke="var(--line-strong)"/>`;
+  s += `<text class="axis" x="0" y="14">${mx}</text><text class="axis" x="0" y="${mid + 4}">0</text><text class="axis" x="0" y="${H - pad}">${ml}</text>`;
+  hi.forEach((v, i) => {
+    const x = 30 + i * bw + bw * 0.15, w = Math.max(1, bw * 0.7);
+    s += `<rect x="${x}" y="${mid - v / sc}" width="${w}" height="${v / sc}" fill="var(--rise)"/>`;
+    s += `<rect x="${x}" y="${mid + 1}" width="${w}" height="${lo[i] / sl}" fill="var(--fall)" opacity=".75"/>`;
+  });
+  [0, Math.floor(n / 3), Math.floor(n * 2 / 3), n - 1].forEach(i =>
+    s += `<text class="axis" x="${Math.min(W - 34, 30 + i * bw)}" y="${H - 4}">${dTxt(D.days[i])}</text>`);
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.innerHTML = s;
+  const tip = $("tip");
+  svg.onmousemove = e => {
+    const b = svg.getBoundingClientRect(), i = Math.floor((e.clientX - b.left - 30) / (b.width - 30) * n);
+    if (i < 0 || i >= n) { tip.style.display = "none"; return; }
+    tip.innerHTML = `<div class="d">${dTxt(D.days[i])}</div><div class="r"><span>52 週新高</span><b class="up">${hi[i]}</b></div>
+      <div class="r"><span>其中 2022 年來新高</span><b>${D.breadth.ath[i]}</b></div><div class="r"><span>52 週新低</span><b class="down">${lo[i]}</b></div>`;
+    tip.style.display = "block";
+    const x = e.clientX - b.left + 14;
+    tip.style.left = `${Math.min(x, b.width - tip.offsetWidth)}px`; tip.style.top = "30px";
+  };
+  svg.onmouseleave = () => tip.style.display = "none";
+}
+
+function render(){
+  ROWS.forEach(r => r.h = hits(r));
+  renderGroups(); renderStocks();
+}
+function chipBind(id, key, parse = v => v){
+  $(id).querySelectorAll("button").forEach(b => b.onclick = () => {
+    $(id).querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+    S[key] = parse(b.dataset.v); S.n = 60; S.gn = 15;
+    if (key === "lvl") S.grp = S.grp && S.grp.lvl === S.lvl ? S.grp : null;
+    saveHash(); render();
+  });
+}
+function saveHash(){
+  const h = `#p=${S.per}&k=${S.kind}&g=${S.lvl}`;
+  if (location.hash !== h) history.replaceState(null, "", h);
+}
+function loadHash(){
+  const m = Object.fromEntries(location.hash.slice(1).split("&").map(x => x.split("=")));
+  if (["1", "5", "20", "60"].includes(m.p)) S.per = +m.p;
+  if (["hi", "ath"].includes(m.k)) S.kind = m.k;
+  if (["off", "ind", "sub"].includes(m.g)) S.lvl = m.g;
+  [["per", S.per], ["kind", S.kind], ["lvl", S.lvl]].forEach(([id, v]) =>
+    $(id).querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === String(v))));
+}
+
+fetch("data/newhigh.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
+  D = d; ND = d.days.length;
+  const off = {};
+  d.groups.off.forEach(([name, , ix]) => ix.forEach(i => off[i] = name));
+  ROWS = d.rows.map((r, i) => Object.assign(Object.fromEntries(d.cols.map((k, j) => [k, r[j]])), {i, ind: off[i] || ""}));
+  const dd = String(d.date), b = d.breadth, last = ND - 1;
+  const recent = k => ROWS.filter(r => r[k].some(j => j > last - 5)).length;
+  $("sub").textContent = `${dd.slice(0, 4)}/${dd.slice(4, 6)}/${dd.slice(6)} 收盤・${ROWS.length} 檔上市櫃普通股。看哪些股票在創新高，以及哪些族群創高的家數最多、比例最高。點族群可以只看那個族群的股票。`;
+  const peak = Math.max(...b.hi.slice(-20)), pi = b.hi.lastIndexOf(peak);
+  $("stats").innerHTML = [
+    ["今天創 52 週新高", b.hi[last], `新低 ${b.lo[last]} 家`],
+    ["近 5 日創 52 週新高", recent("hi"), "期間內至少一天・不限成交"],
+    ["今天創 2022 年來新高", b.ath[last], `近 5 日 ${recent("ath")} 家`],
+    ["近 20 日高峰", peak, `${dTxt(d.days[pi])} 創高家數最多`],
+  ].map(([k, v, s]) => `<div class="stat"><div class="k">${k}</div><div class="v mono">${v}</div><div class="s">${s}</div></div>`).join("");
+  loadHash();
+  chipBind("per", "per", Number); chipBind("kind", "kind"); chipBind("minv", "minv", Number); chipBind("lvl", "lvl");
+  $("mine").onchange = e => { S.mine = e.target.checked; renderStocks(); };
+  $("q").oninput = e => { S.q = e.target.value.toLowerCase(); S.n = 60; renderStocks(); };
+  $("more").onclick = () => { S.n += 60; renderStocks(); };
+  $("g-more").onclick = () => { S.gn += 30; renderGroups(); };
+  document.addEventListener("tide:watch", renderStocks);
+  chart(); addEventListener("resize", chart);
+  render();
+}).catch(e => { $("sub").textContent = "資料載入失敗"; console.error(e); });
+</script>
+</body>
+</html>

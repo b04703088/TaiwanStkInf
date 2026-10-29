@@ -43,6 +43,7 @@ on:
       - "scripts/insider_site.py"
       - "scripts/stock_site.py"
       - "scripts/digest_site.py"
+      - "scripts/newhigh_site.py"
       - ".github/workflows/pages.yml"
   workflow_dispatch: {}
 
