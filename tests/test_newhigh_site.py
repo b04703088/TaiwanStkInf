@@ -29,6 +29,7 @@ class NewHighSiteTest(unittest.TestCase):
         self.assertEqual(lo, [3])
         self.assertEqual(ath, [4])
         self.assertEqual(info["dist"], 0)
+        self.assertEqual(info["vol"], 1000)
 
     def test_adjusted_by_events(self):
         # 第 290 天除權（因子 0.5）：原始價腰斬但還原後沒跌，之後漲回原始 60 → 還原後是新高

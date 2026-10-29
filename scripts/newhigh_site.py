@@ -4,7 +4,7 @@
     days     最近 DAYS 個交易日 [YYYYMMDD...]
     breadth  {"hi": [每天創 52 週新高家數], "lo": [創 52 週新低家數], "ath": [創 2022 年以來新高家數]}
     cols     rows 的欄位
-    rows     每檔一列（上市櫃普通股、最近 5 天有成交、至少有 250 天資料）
+    rows     每檔一列（上市櫃普通股、最近 5 天有成交、至少有 250 天資料）；value＝近 20 日平均成交金額（億），vol＝最新一天成交張數
                hi / ath 是 days 的索引：那天收盤創 52 週新高／2022 年以來新高
     groups   {"off": 官方產業別, "ind": 產業價值鏈產業, "sub": 產業價值鏈細類}，每個 [名稱, 路徑, [rows 索引...]]
 
@@ -22,7 +22,7 @@ import screen_site
 DAYS = 60
 WIN = 250
 STOCK = re.compile(r"^[1-9]\d{3}$")
-COLS = ["code", "name", "market", "close", "chg", "r5", "r20", "r60", "dist", "value", "hi", "ath"]
+COLS = ["code", "name", "market", "close", "chg", "r5", "r20", "r60", "dist", "value", "vol", "hi", "ath"]
 
 
 def _pct(a, b):
@@ -52,7 +52,7 @@ def scan(rows, events, days):
     ret = {n: _pct(last, c[-1 - n]) if len(c) > n else None for n in (1, 5, 20, 60)}
     val = [r[4] * r[5] * 1000 for r in rows[-20:]]
     info = {"close": rows[-1][4], "chg": ret[1], "r5": ret[5], "r20": ret[20], "r60": ret[60],
-            "dist": _pct(last, max(c[-WIN:])), "value": round(sum(val) / len(val) / 1e8, 2)}
+            "dist": _pct(last, max(c[-WIN:])), "value": round(sum(val) / len(val) / 1e8, 2), "vol": rows[-1][5]}
     return hi, lo, ath, info
 
 
@@ -73,7 +73,7 @@ def build(prices, days_all, events, ind):
                 arr[j] += 1
         ix[code] = len(rows)
         rows.append([code, s["name"], "上市" if s["market"] == "TWSE" else "上櫃"]
-                    + [info[k] for k in COLS[3:10]] + [hi, ath])
+                    + [info[k] for k in COLS[3:11]] + [hi, ath])
 
     groups = {"off": [], "ind": [], "sub": []}
     if ind:

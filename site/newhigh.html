@@ -162,6 +162,12 @@
   <section class="block">
     <div class="block-head"><h2>創新高個股</h2><span class="hint" id="hint"></span></div>
     <div class="toolbar" style="margin:0 0 12px">
+      <div class="chips" id="srt">
+        <button data-v="n" aria-pressed="true">創高天數</button>
+        <button data-v="vol" aria-pressed="false">成交量</button>
+        <button data-v="value" aria-pressed="false">成交金額</button>
+        <button data-v="r20" aria-pressed="false">20 日漲幅</button>
+      </div>
       <span id="pick"></span>
       <label class="chk-in"><input type="checkbox" id="mine"> 只看自選</label>
       <input class="filter" id="q" type="search" placeholder="代號或名稱" autocomplete="off" aria-label="搜尋">
@@ -173,7 +179,7 @@
     <button class="more" id="more" hidden>顯示更多</button>
     <p class="note">
       用還原收盤價計算（除權息、減資不會讓高點斷掉）。「創 52 週新高」＝當天收盤是含當天在內最近 250 個交易日的最高；「2022 年以來新高」＝收盤高於本站資料起點（2022 年 1 月）以來每一天，資料不夠早，所以不是真正的上市以來新高。
-      只算上市櫃普通股，上市未滿 250 個交易日的新股不列入。族群「比例」＝期間內創新高家數 ÷ 族群內符合成交條件的家數；成交以近 20 日平均成交金額計。
+      只算上市櫃普通股，上市未滿 250 個交易日的新股不列入。族群「比例」＝期間內創新高家數 ÷ 族群內符合成交條件的家數；成交門檻以近 20 日平均成交金額計；「成交量」是最新一天的成交張數。
       近 15 日欄位：紅格是那天創新高，紅格底部金線是同時創 2022 年以來新高。資料僅供參考，不構成投資建議。
     </p>
   </section>
@@ -246,6 +252,7 @@ const COLS = [
   ["dist", "距高點", r => pct(r.dist)],
   ["r20", "20 日", r => pct(r.r20)],
   ["r60", "60 日", r => pct(r.r60), 1],
+  ["vol", "成交量（張）", r => fx(r.vol, 0)],
   ["value", "日均成交（億）", r => fx(r.value, 1), 1],
 ];
 function dots(r){
@@ -261,6 +268,7 @@ function renderStocks(){
     && (!q || r.code.startsWith(q) || r.name.toLowerCase().includes(q)));
   rows.forEach(r => { r.n = r.h.length; r.last = r.h[r.h.length - 1]; });
   const k = S.sort;
+  $("srt").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === k));
   rows.sort((a, b) => ((b[k] ?? -1e15) - (a[k] ?? -1e15)) * (S.desc ? 1 : -1) || b.last - a.last || b.value - a.value);
   $("pick").innerHTML = S.grp ? `<span class="pick">族群：${esc(D.groups[S.grp.lvl][S.grp.gi][0])}<button type="button" aria-label="清除">✕</button></span>` : "";
   if (S.grp) $("pick").querySelector("button").onclick = () => { S.grp = null; renderGroups(); renderStocks(); };
@@ -353,6 +361,7 @@ fetch("data/newhigh.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
   ].map(([k, v, s]) => `<div class="stat"><div class="k">${k}</div><div class="v mono">${v}</div><div class="s">${s}</div></div>`).join("");
   loadHash();
   chipBind("per", "per", Number); chipBind("kind", "kind"); chipBind("minv", "minv", Number); chipBind("lvl", "lvl");
+  $("srt").querySelectorAll("button").forEach(b => b.onclick = () => { S.sort = b.dataset.v; S.desc = true; S.n = 60; renderStocks(); });
   $("mine").onchange = e => { S.mine = e.target.checked; renderStocks(); };
   $("q").oninput = e => { S.q = e.target.value.toLowerCase(); S.n = 60; renderStocks(); };
   $("more").onclick = () => { S.n += 60; renderStocks(); };
