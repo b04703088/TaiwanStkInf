@@ -1,4 +1,6 @@
 date,time,news_id,code,name,kind,year,analysts,prev,value,chg_pct,high,low,target,bull,neutral,bear,close,url
+2026-10-29,12:10,6640442,2303,聯電,eps,2026,20,7.49,7.42,-0.93,8,6.94,153,,,,,https://news.cnyes.com/news/id/6640442
+2026-10-29,12:10,6640441,2303,聯電,tp,,21,145,153,5.52,258,68.2,153,17,3,3,115.5,https://news.cnyes.com/news/id/6640441
 2026-10-29,08:10,6640171,3324,雙鴻,eps,2026,12,56.34,55.63,-1.26,58.8,51.29,1800,,,,,https://news.cnyes.com/news/id/6640171
 2026-10-29,08:10,6640170,4966,譜瑞-KY,eps,2026,15,33.81,31.97,-5.44,35.65,25.76,600,,,,,https://news.cnyes.com/news/id/6640170
 2026-10-29,08:10,6640169,2303,聯電,eps,2026,20,7.49,7.44,-0.67,8.15,6.94,150,,,,,https://news.cnyes.com/news/id/6640169
