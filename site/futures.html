@@ -136,6 +136,7 @@
   .chart{border:1px solid var(--line); border-radius:var(--radius-m); background:var(--panel); padding:10px 8px 4px;}
   .chart text{fill:var(--text-faint); font-size:11px; font-family:'IBM Plex Mono',monospace;}
   tbody tr.click{cursor:pointer;} tbody tr.click:hover td{background:var(--panel);}
+  tbody tr.settle td{background:var(--brass-soft);}
 </style>
 </head>
 <body>
@@ -170,7 +171,7 @@
       <button data-v="f_opt" aria-pressed="false">外資選擇權淨額</button>
     </div></div>
     <div class="chart" id="chart"></div>
-    <p class="hint" style="margin-top:8px">金色線是台指期近月收盤（右軸），用來對照籌碼變化與行情。</p>
+    <p class="hint" style="margin-top:8px">金色線是台指期近月收盤（右軸），用來對照籌碼變化與行情。灰色虛線是台指期<b class="muted" style="font-weight:500">月結算日</b>（每月第三個週三，遇休市順延）。<span id="nxt" style="display:block"></span></p>
   </section>
 
   <section class="block">
@@ -198,7 +199,7 @@ const cls = v => v == null ? "faint" : v > 0 ? "up" : v < 0 ? "down" : "flat";
 const sgn = (v, d = 0) => v == null ? `<span class="faint">–</span>` : `<span class="${cls(v)}">${v > 0 ? "+" : ""}${fx(v, d)}</span>`;
 const plain = (v, d = 0) => v == null ? `<span class="faint">–</span>` : fx(v, d);
 const dTxt = d => `${d.slice(5, 7)}/${d.slice(8)}`;
-let D, R = [];
+let D, R = [], SET = new Set();
 const S = {n: 60, ser: "f_oi", rows: 30};
 const NAMES = {f_oi: "外資台指期未平倉淨口數", t_oi: "投信台指期未平倉淨口數", d_oi: "自營商台指期未平倉淨口數", pc_oi: "P/C Ratio（未平倉，%）",
                top10i_net: "前十大特定法人淨部位（口）", f_opt: "外資選擇權淨額（億，買權＋賣權）"};
@@ -206,7 +207,7 @@ const NAMES = {f_oi: "外資台指期未平倉淨口數", t_oi: "投信台指期
 function chart(){
   const pts = R.slice(-S.n).map(r => ({d: r.date, v: S.ser === "f_opt" ? (r.f_call == null && r.f_put == null ? null : (r.f_call || 0) + (r.f_put || 0)) : r[S.ser], px: r.tx}));
   $("c-title").textContent = NAMES[S.ser];
-  const W = $("chart").clientWidth - 16 || 900, H = 240, L = 60, Rr = 56, T = 10, B = 22, pw = W - L - Rr, ph = H - T - B;
+  const W = $("chart").clientWidth - 16 || 900, H = 254, L = 60, Rr = 56, T = 24, B = 22, pw = W - L - Rr, ph = H - T - B;
   const vs = pts.map(p => p.v).filter(v => v != null), ps = pts.map(p => p.px).filter(v => v != null);
   if (!vs.length) { $("chart").innerHTML = `<div class="empty">沒有資料</div>`; return; }
   const line = S.ser === "pc_oi";
@@ -222,7 +223,10 @@ function chart(){
   pts.forEach((p, k) => {
     const x = L + k * bw;
     if (!line && p.v != null) { const y = Math.min(Y(p.v), Y(0)), h = Math.max(1, Math.abs(Y(p.v) - Y(0)));
-      g += `<rect x="${x + bw * .15}" y="${y}" width="${bw * .7}" height="${h}" fill="${p.v >= 0 ? "var(--rise)" : "var(--fall)"}" opacity=".85"><title>${p.d}　${fx(p.v, 1)}</title></rect>`; }
+      g += `<rect x="${x + bw * .15}" y="${y}" width="${bw * .7}" height="${h}" fill="${p.v >= 0 ? "var(--rise)" : "var(--fall)"}" opacity=".85"><title>${p.d}${SET.has(p.d) ? "（結算日）" : ""}　${fx(p.v, 1)}</title></rect>`; }
+    if (SET.has(p.d)) { const cx = x + bw / 2;
+      g += `<line x1="${cx}" x2="${cx}" y1="${T - 4}" y2="${T + ph}" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="3 3"/>`
+        + `<text x="${cx}" y="${T - 8}" text-anchor="middle" style="fill:var(--text-muted)">${W / pts.length < 4 ? "結" : "結算 " + dTxt(p.d)}</text>`; }
     if (k % Math.ceil(pts.length / 6) === 0) g += `<text x="${x}" y="${H - 6}">${dTxt(p.d)}</text>`;
   });
   if (ps.length) g += `<polyline fill="none" stroke="var(--brass)" stroke-width="1.6" points="${pts.map((p, k) => p.px == null ? "" : `${L + (k + .5) * bw},${PY(p.px)}`).join(" ")}"/>`;
@@ -231,7 +235,7 @@ function chart(){
 
 function table(){
   const rows = R.slice().reverse();
-  $("body").innerHTML = rows.slice(0, S.rows).map(r => `<tr><td class="mono">${dTxt(r.date)}</td><td class="n mono">${plain(r.tx)}</td><td class="n mono">${sgn(r.tx_chg)}</td>
+  $("body").innerHTML = rows.slice(0, S.rows).map(r => `<tr${SET.has(r.date) ? ' class="settle"' : ""}><td class="mono">${dTxt(r.date)}${SET.has(r.date) ? '<span class="tag mk">結算</span>' : ""}</td><td class="n mono">${plain(r.tx)}</td><td class="n mono">${sgn(r.tx_chg)}</td>
     <td class="n mono">${sgn(r.f_oi)}</td><td class="n mono">${sgn(r.f_oi_d)}</td><td class="n mono hide-s">${sgn(r.t_oi)}</td><td class="n mono hide-s">${sgn(r.d_oi)}</td>
     <td class="n mono hide-s">${sgn(r.f_call, 2)}</td><td class="n mono hide-s">${sgn(r.f_put, 2)}</td><td class="n mono">${plain(r.pc_oi, 1)}</td><td class="n mono hide-s">${sgn(r.top10i_net)}</td></tr>`).join("");
   $("more").hidden = rows.length <= S.rows;
@@ -244,6 +248,10 @@ function chipBind(id, key, parse, fn){
 
 fetch("data/futures.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
   D = d; R = d.rows.map(r => Object.fromEntries(d.cols.map((k, i) => [k, r[i]])));
+  SET = new Set(d.settle || []);
+  const N = d.next_settle;
+  if (N) $("nxt").innerHTML = SET.has(d.date) ? `今天（${dTxt(d.date)}）是結算日，下次 <b class="mono muted">${dTxt(N.date)}</b>。`
+    : `下次結算 <b class="mono muted">${dTxt(N.date)}</b>，還有 ${N.tdays} 個交易日。`;
   const L = R[R.length - 1], P = R[R.length - 6] || R[0];
   $("sub").textContent = `${d.date.replaceAll("-", "/")}・三大法人台指期與選擇權未平倉、Put/Call Ratio、大額交易人，每個交易日下午更新。`;
   $("stats").innerHTML = [

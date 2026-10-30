@@ -89,6 +89,22 @@ class FuturesTest(unittest.TestCase):
             self.assertEqual(rows[1]["f_oi_d"], 40)
 
 
+class SettleTest(unittest.TestCase):
+    def test_third_wed(self):
+        self.assertEqual(FS.third_wed(2026, 10).isoformat(), "2026-10-21")
+        self.assertEqual(FS.third_wed(2026, 7).isoformat(), "2026-07-15")
+
+    def test_shift_on_closed_day(self):
+        # 2026/2/18 春節休市：資料裡沒有 2/18～2/20，順延到 2/23
+        days = ["2026-02-10", "2026-02-11", "2026-02-23", "2026-02-24"]
+        out, nxt = FS.settle_dates(days, {})
+        self.assertIn("2026-02-23", out)
+        self.assertEqual(nxt["date"], "2026-03-18")
+        # 未來的結算日遇休市也順延
+        out, nxt = FS.settle_dates(["2026-11-17"], {"2026-11-18"})
+        self.assertEqual(nxt, {"date": "2026-11-19", "tdays": 1})
+
+
 class TdccTest(unittest.TestCase):
     def test_parse(self):
         lines = ["﻿資料日期,證券代號,持股分級,人數,股數,占集保庫存數比例%"]
