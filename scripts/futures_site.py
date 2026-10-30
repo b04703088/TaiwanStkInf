@@ -11,9 +11,13 @@
       top10_net, top10i_net 前十大交易人（全部月份）多空淨部位；其中特定法人
       top5n_net             近月前五大多空淨部位
       oi_all                台指期全市場未平倉口數
+    settle  台指期月結算日（每月第三個週三，遇休市順延到下一個交易日）：
+            資料期間內以實際有行情的日子判斷順延（颱風假也算進去），之後的用 data/calendar/holidays.csv 推估
+    next_settle  {date, tdays}  下一個結算日、距今還有幾個交易日（不含今天）
 """
 import csv
 import json
+from datetime import date, timedelta
 from pathlib import Path
 
 N = 250
@@ -36,7 +40,60 @@ def _read(p):
         return list(csv.DictReader(fp))
 
 
-def build(fut_dir, n=N):
+def third_wed(y, m):
+    d = date(y, m, 1)
+    return d + timedelta((2 - d.weekday()) % 7 + 14)
+
+
+def _closed(d, holidays):
+    return d.weekday() >= 5 or d.isoformat() in holidays or d.strftime("%m-%d") == "01-01"
+
+
+def settle_dates(dates, holidays=(), ahead=2):
+    """dates：有行情的交易日（由舊到新）。回傳涵蓋這段期間＋之後 ahead 個月的月結算日"""
+    if not dates:
+        return [], None
+    first, last = date.fromisoformat(dates[0]), date.fromisoformat(dates[-1])
+    known = set(dates)
+    out, nxt = [], None
+    y, m = first.year, first.month
+    while True:
+        d = third_wed(y, m)
+        if d < first:               # 資料起點之前的結算日不標
+            pass
+        elif d > last:
+            while _closed(d, holidays):
+                d += timedelta(1)
+            if nxt is None:
+                nxt = d
+            elif (d.year - last.year) * 12 + d.month - last.month > ahead:
+                break
+        else:
+            while d.isoformat() not in known and d <= last:
+                d += timedelta(1)
+            if d > last:            # 結算日落在最後一天之後（還沒抓到），當未來的處理
+                while _closed(d, holidays):
+                    d += timedelta(1)
+                nxt = nxt or d
+        if d >= first:
+            out.append(d.isoformat())
+        m += 1
+        if m > 12:
+            y, m = y + 1, 1
+    tdays = 0
+    d = last + timedelta(1)
+    while d <= nxt:
+        tdays += not _closed(d, holidays)
+        d += timedelta(1)
+    return out, {"date": nxt.isoformat(), "tdays": tdays}
+
+
+def load_holidays(data_dir):
+    p = Path(data_dir) / "calendar" / "holidays.csv"
+    return {r["date"] for r in _read(p)}
+
+
+def build(fut_dir, n=N, holidays=()):
     fut_dir = Path(fut_dir)
     inst, pcr, large, tx = (_read(fut_dir / f"{k}.csv") for k in ("inst", "pcr", "large", "tx"))
     if not inst:
@@ -75,11 +132,12 @@ def build(fut_dir, n=N):
                      x.get("f_call"), x.get("f_put"), x.get("pc_oi"), x.get("pc_vol"),
                      x.get("top10_net"), x.get("top10i_net"), x.get("top5n_net"), x.get("oi_all")])
         prev = f_oi
-    return {"date": dates[-1] if dates else None, "cols": COLS, "rows": rows}
+    settle, nxt = settle_dates(dates, holidays)
+    return {"date": dates[-1] if dates else None, "cols": COLS, "rows": rows, "settle": settle, "next_settle": nxt}
 
 
 def write_futures(data_dir, out_path):
-    payload = build(Path(data_dir) / "futures")
+    payload = build(Path(data_dir) / "futures", holidays=load_holidays(data_dir))
     if payload is None:
         return None
     Path(out_path).parent.mkdir(parents=True, exist_ok=True)
