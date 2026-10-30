@@ -1,0 +1,11 @@
+name: probe commod
+on:
+  push:
+    branches: [claude/project-thread-0cdbgt]
+    paths: [probe/**, .github/workflows/probe-commod.yml]
+jobs:
+  p:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python -u probe/probe.py
