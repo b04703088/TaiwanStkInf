@@ -7,6 +7,7 @@
   SEC EDGAR submissions    https://data.sec.gov/submissions/CIK<10 碼>.json
       過去財報日：8-K 申報且 items 含 2.02（Results of Operations）；受理時間 16:00（美東）以後＝盤後公布
   Nasdaq                   https://api.nasdaq.com/api/analyst/<symbol>/earnings-date
+      下一次財報日（預估或已公告）；SEC 抓不到時改用 /api/company/<symbol>/earnings-surprise 的最近 4 季
       下一次財報日（預估或已公告）；抓不到就只有過去的
 
 輸出
@@ -31,7 +32,7 @@ OUT = ROOT / "data" / "us"
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/126.0 Safari/537.36")
 # SEC 要求 User-Agent 帶聯絡方式
-SEC_UA = "TaiwanStkInf research (github.com/b04703088/TaiwanStkInf)"
+SEC_UA = "TaiwanStkInf research 41898282+github-actions[bot]@users.noreply.github.com"
 BASE = ["SPY", "QQQ", "^SOX", "TSM", "TWD=X"]
 NO_EARNINGS = {"SPY", "QQQ", "^SOX", "TWD=X"}
 
@@ -70,6 +71,16 @@ def yahoo(sym):
         out.append({"date": d, "symbol": sym, "open": round(o if o is not None else c, 4),
                     "high": round(h if h is not None else c, 4), "low": round(lo if lo is not None else c, 4),
                     "close": round(c, 4), "volume": qt["volume"][i] or 0})
+    # 收盤後幾小時內，當天的 K 棒常還沒進 timestamp，只在 meta 裡
+    m = res["meta"]
+    if m.get("regularMarketTime") and m.get("regularMarketPrice"):
+        d = datetime.fromtimestamp(m["regularMarketTime"] + off, timezone.utc).date().isoformat()
+        if out and d > out[-1]["date"]:
+            c = m["regularMarketPrice"]
+            out.append({"date": d, "symbol": sym, "open": round(m.get("regularMarketOpen") or c, 4),
+                        "high": round(m.get("regularMarketDayHigh") or c, 4),
+                        "low": round(m.get("regularMarketDayLow") or c, 4), "close": round(c, 4),
+                        "volume": m.get("regularMarketVolume") or 0})
     return out
 
 
@@ -125,6 +136,19 @@ def sec_dates(sym, ciks):
     return out
 
 
+def nasdaq_past(sym):
+    """SEC 抓不到時的備援：Nasdaq 最近 4 季公布日。"""
+    j = json.loads(get(f"https://api.nasdaq.com/api/company/{urllib.parse.quote(sym)}/earnings-surprise", timeout=20))
+    rows = (((j.get("data") or {}).get("earningsSurpriseTable") or {}).get("rows")) or []
+    out = []
+    for r in rows:
+        m = re.match(r"(\d{1,2})/(\d{1,2})/(\d{4})", r.get("dateReported") or "")
+        if m:
+            out.append({"symbol": sym, "date": f"{m.group(3)}-{int(m.group(1)):02d}-{int(m.group(2)):02d}",
+                        "time": "", "source": "nasdaq"})
+    return out
+
+
 def nasdaq_next(sym):
     j = json.loads(get(f"https://api.nasdaq.com/api/analyst/{urllib.parse.quote(sym)}/earnings-date", timeout=20))
     txt = ((j.get("data") or {}).get("announcement") or "")
@@ -158,8 +182,11 @@ def fetch_earnings(syms):
             print(f"{s} SEC 財報 {len(got)} 次，最近 {max((g['date'] for g in got), default='-')}")
             for g in got:
                 rows[(s, g["date"])] = g
+            if not got:
+                for g in nasdaq_past(s):
+                    rows.setdefault((s, g["date"]), g)
         except Exception as e:  # noqa: BLE001
-            print(f"{s} SEC 失敗：{e}")
+            print(f"{s} SEC／Nasdaq 過去財報失敗：{e}")
         time.sleep(0.3)  # SEC 限每秒 10 次
         try:
             n = nasdaq_next(s)
@@ -171,12 +198,12 @@ def fetch_earnings(syms):
         except Exception as e:  # noqa: BLE001
             print(f"{s} Nasdaq 失敗：{e}")
         time.sleep(0.5)
-    # 同一季 SEC 已經有實際日期，就拿掉相差 10 天內的 Nasdaq 舊預估
+    # 同一季 SEC 已經有實際日期，就拿掉相差 10 天內的 Nasdaq 日期
     sec = {(k[0], k[1]) for k, v in rows.items() if v["source"] == "sec"}
     for k, v in list(rows.items()):
-        if v["source"] == "nasdaq" and k[1] < today:
+        if v["source"] == "nasdaq":
             d = datetime.fromisoformat(k[1]).date()
-            if any(s == k[0] and abs((datetime.fromisoformat(x).date() - d).days) <= 10 for s, x in sec):
+            if any(s == k[0] and x != k[1] and abs((datetime.fromisoformat(x).date() - d).days) <= 10 for s, x in sec):
                 del rows[k]
     with p.open("w", newline="", encoding="utf-8") as fp:
         w = csv.DictWriter(fp, fieldnames=["symbol", "date", "time", "source"])
