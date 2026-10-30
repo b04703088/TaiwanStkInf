@@ -2,10 +2,16 @@ name: probe commod
 on:
   push:
     branches: [claude/project-thread-0cdbgt]
-    paths: [probe/**, .github/workflows/probe-commod.yml]
+    paths: [probe/probe.py, .github/workflows/probe-commod.yml]
+permissions:
+  contents: write
 jobs:
   p:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - run: python -u probe/probe.py
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add probe/out && git commit -qm "probe out" && git push
