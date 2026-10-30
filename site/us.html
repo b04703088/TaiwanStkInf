@@ -152,6 +152,8 @@
     <a href="#night" data-t="night" role="tab">昨夜美股</a>
     <a href="#map" data-t="map" role="tab">供應鏈地圖</a>
     <a href="#link" data-t="link" role="tab">連動排名</a>
+    <a href="#earn" data-t="earn" role="tab">財報季</a>
+    <a href="#peer" data-t="peer" role="tab">台美配對</a>
   </nav>
 
   <section class="block" data-p="night" style="margin-top:28px">
@@ -198,7 +200,50 @@
       <b>相關</b>＝原始報酬相關係數；<b>beta</b>＝美股漲 1%，台股平均漲幾 %；<b>超額相關</b>＝美股和台股都先扣掉跟那斯達克 100 一起漲跌的部分再算相關，
       越高代表這檔真的被當成這家大廠的代理標的，而不是跟著大盤動。<b>美漲／美跌</b>＝美股漲、跌的晚上，台股隔天平均漲跌。
       <b>隔兩日</b>＝美股漲跌對台股「再隔一天」的相關，正得明顯代表反應較慢、隔天還有延續。
-      排名依超額相關，列前 30 名加上供應鏈名單；一年樣本下 0.13 以下大多是雜訊（灰字）。標「供應鏈但連動低」的可留意補漲或基本面沒反映；「非供應鏈但連動高」多半是題材股。
+      排名依相關，列相關前 30 名、超額相關前 30 名加上供應鏈名單；一年樣本下 0.13 以下大多是雜訊（灰字）。
+      「供應鏈但連動低」＝相關低於前 400 大成交值股票的中位數，可留意基本面還沒反映或市場不買單；「非供應鏈但連動高」＝相關前 10 名卻不在名單上，多半是題材股，也可能是名單漏掉的供應商。
+    </p>
+  </section>
+  <section class="block" data-p="earn" style="margin-top:28px">
+    <div class="block-head"><h2>接下來的美股財報</h2><span class="hint">未來 45 天・Nasdaq 預估日，公司可能改期</span></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>日期</th><th>公司</th><th>時間</th><th class="n">還有</th><th class="hide-s">台股相關</th></tr></thead>
+      <tbody id="up-body"></tbody>
+    </table></div>
+    <div class="block-head" style="margin-top:40px"><h2 id="e-title"></h2><span class="hint" id="e-hint"></span></div>
+    <div class="stats" id="e-stats" style="margin:0 0 14px"></div>
+    <div class="chart" id="e-chart">
+      <div class="legend"><span>橫軸：美股財報反應</span><span>縱軸：台股供應鏈隔日平均漲跌</span></div>
+      <svg id="e-svg" preserveAspectRatio="none" style="height:220px"></svg>
+    </div>
+    <div class="tbl-wrap" style="margin-top:14px"><table>
+      <thead><tr><th>財報日</th><th class="n">美股反應</th><th class="n">公布前 5 日</th><th class="n">隔日跳空</th><th class="n">隔日漲跌</th><th class="n hide-s">5 日</th></tr></thead>
+      <tbody id="e-body"></tbody>
+    </table></div>
+    <div class="block-head" style="margin-top:32px"><h2>供應鏈個股：財報後隔日</h2><span class="hint">依平均漲跌排序</span></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>股票</th><th class="n">平均</th><th class="n">跟美股同向</th><th class="n">最近一次</th><th class="n hide-s">次數</th></tr></thead>
+      <tbody id="es-body"></tbody>
+    </table></div>
+    <p class="note">
+      美股反應：盤後公布＝隔天收盤對公布日收盤；盤前公布＝公布日對前一天。台股反應日＝公布日之後第一個台股交易日；盤後公布時台股比美股先開盤，台股反應的是盤後股價。
+      「公布前 5 日」＝台股反應日前一天收盤對再往前 5 個交易日，看有沒有先抬轎。供應鏈等權平均，還原權息。財報日從 Nasdaq 行事曆抓（2022 年起），時間沒標示的當成盤後。
+    </p>
+  </section>
+
+  <section class="block" data-p="peer" style="margin-top:28px">
+    <div class="block-head"><h2>台積電 ADR 溢價</h2><span class="hint" id="adr-hint"></span></div>
+    <div class="chart"><div class="legend"><span><i style="background:var(--text-faint)"></i>每日</span><span><i style="background:var(--text)"></i>20 日平均</span><span><i style="background:var(--brass)"></i>一年平均</span></div><svg id="adr-svg" preserveAspectRatio="none"></svg><div class="tip" id="adr-tip"></div></div>
+    <div class="block-head" style="margin-top:40px"><h2>台美同類股</h2><span class="hint">點欄位排序</span></div>
+    <div class="tbl-wrap"><table>
+      <thead id="p-head"></thead>
+      <tbody id="p-body"></tbody>
+    </table></div>
+    <p class="note">
+      ADR 溢價＝TSM ÷（台積電收盤 × 5 ÷ 美元兌台幣）− 1，同一個日曆日比（台股先收盤）。
+      <b>比值走勢</b>＝台股還原收盤換成美元 ÷ 前一晚美股收盤，120 天前＝100；往上＝台股相對強。
+      <b>偏離</b>＝今天的比值偏離近 60 日平均幾個標準差，超過 ±2 標色，可留意配對收斂（台股相對漲多或落後）。
+      <b>20 日差</b>＝台股 20 日漲跌減美股；<b>相關</b>＝近 60 日台股對前一晚美股的報酬相關。配對是主題相近，不代表彼此有客戶關係。
     </p>
   </section>
 </main>
@@ -212,7 +257,7 @@ const pct = (v, d = 1) => `<span class="${cls(v)}">${v == null ? "–" : `${v > 
 const md = s => s ? `${+String(s).replace(/-/g, "").slice(4, 6)}/${+String(s).replace(/-/g, "").slice(6, 8)}` : "–";
 const Watch = window.TideWatch || {list: () => []};
 const EXP = {"高": "h", "中": "", "低": "l"};
-const S = {t: "night", u: "NVDA", lf: "all", sort: "ce", desc: true, mq: ""};
+const S = {t: "night", u: "NVDA", lf: "all", sort: "c", desc: true, mq: ""};
 let D;
 
 const stockCell = c => { const t = D.tw[c] || [c]; const mine = new Set(Watch.list());
@@ -271,9 +316,9 @@ function map(){
     $("m-title").textContent = `${D.us[u][0]} 的台灣供應鏈（${new Set(supOf(u).map(r => r[2])).size} 檔、${m.size} 個節點）`;
     $("nodes").innerHTML = [...m].map(([node, rs]) => {
       const a1 = avg(rs.map(r => (D.tw[r[2]] || [])[2])), a5 = avg(rs.map(r => (D.tw[r[2]] || [])[3])), a20 = avg(rs.map(r => (D.tw[r[2]] || [])[4]));
-      return `<div class="node"><h3><span>${esc(node)}</span><span class="mono" style="font-size:13px">${pct(a1)}</span></h3>
+      return `<div class="node"><h3><span>${esc(node)}</span><span class="mono" style="font-size:13px" title="節點今日平均">${pct(a1)}</span></h3>
         <div class="avg">節點平均 5 日 ${pct(a5)}・20 日 ${pct(a20)}</div>
-        <table><tbody>${rs.map(r => { const t = D.tw[r[2]] || [];
+        <table><thead><tr><th style="padding:4px 0">股票</th><th class="n" style="padding:4px">今日</th><th class="n" style="padding:4px">5 日</th><th class="n hide-s" style="padding:4px 0">20 日</th></tr></thead><tbody>${rs.map(r => { const t = D.tw[r[2]] || [];
           return `<tr><td>${stockCell(r[2])} <span class="exp ${EXP[r[4]] ?? ""}">${esc(r[4])}</span><span class="role">${esc(r[3])}${r[5] ? `（${esc(r[5])}）` : ""}</span></td>
           <td class="n mono">${pct(t[2])}</td><td class="n mono">${pct(t[3])}</td><td class="n mono hide-s">${pct(t[4])}</td></tr>`; }).join("")}</tbody></table></div>`; }).join("");
   }
@@ -296,21 +341,101 @@ function link(){
   const u = S.u, sup = new Set((u === "^SOX" ? D.supply : supOf(u)).map(r => r[2]));
   $("l-title").textContent = `跟 ${D.us[u][0]} 連動最緊的台股`;
   let rows = (D.link[u] || []).map(r => ({code: r[0], c: r[1], b: r[2], ce: r[3], up: r[4], dn: r[5], lag: r[6], n: r[7], sup: sup.has(r[0])}));
-  const ranked = [...rows].sort((a, b) => (b.ce ?? -9) - (a.ce ?? -9));
+  const ranked = [...rows].sort((a, b) => b.c - a.c), med = (D.link_med || {})[u];
   const rank = new Map(ranked.map((r, i) => [r.code, i + 1]));
   rows = rows.filter(r => S.lf === "all" || (S.lf === "sup") === r.sup);
   const k = S.sort;
   rows.sort((a, b) => ((b[k] ?? -1e9) - (a[k] ?? -1e9)) * (S.desc ? 1 : -1));
   $("l-head").innerHTML = `<tr><th class="n">名次</th><th>股票</th>${LC.map(([c, t, , hs]) => `<th class="n${hs ? " hide-s" : ""}${c === k ? " sorted" : ""}" data-k="${c}">${t}${c === k ? (S.desc ? " ↓" : " ↑") : ""}</th>`).join("")}<th class="n hide-s">20 日</th></tr>`;
   $("l-head").querySelectorAll("th[data-k]").forEach(th => th.onclick = () => { if (S.sort === th.dataset.k) S.desc = !S.desc; else { S.sort = th.dataset.k; S.desc = true; } link(); });
-  const heat = v => v == null ? "–" : v < 0.13 ? `<span class="heat faint">${v.toFixed(2)}</span>` : `<span class="heat" style="background:rgba(198,161,91,${Math.max(0, Math.min(0.45, v * 0.9)).toFixed(2)})">${v.toFixed(2)}</span>`;
+  const heat = (v, k = 1) => v == null ? "–" : v * k < 0.13 ? `<span class="heat faint">${v.toFixed(2)}</span>` : `<span class="heat" style="background:rgba(198,161,91,${Math.max(0, Math.min(0.45, v * k * 0.6)).toFixed(2)})">${v.toFixed(2)}</span>`;
   $("l-body").innerHTML = rows.map(r => { const t = D.tw[r.code] || [];
-    const flag = r.sup ? (r.ce != null && r.ce < 0.13 ? `<span class="flag sup">供應鏈但連動低</span>` : `<span class="flag sup">供應鏈</span>`)
+    const flag = r.sup ? (med != null && r.c < med ? `<span class="flag sup">供應鏈但連動低</span>` : `<span class="flag sup">供應鏈</span>`)
       : (rank.get(r.code) <= 10 ? `<span class="flag">非供應鏈但連動高</span>` : "");
     return `<tr><td class="n mono faint">${rank.get(r.code)}</td><td>${stockCell(r.code)}${flag}</td>
-      <td class="n mono">${fx(r.c, 2)}</td><td class="n mono">${fx(r.b, 2)}</td><td class="n mono">${heat(r.ce)}</td>
+      <td class="n mono">${heat(r.c)}</td><td class="n mono">${fx(r.b, 2)}</td><td class="n mono">${heat(r.ce, 1.5)}</td>
       <td class="n mono hide-s">${pct(r.up, 2)}</td><td class="n mono hide-s">${pct(r.dn, 2)}</td><td class="n mono hide-s">${fx(r.lag, 2)}</td>
       <td class="n mono hide-s">${pct(t[4])}</td></tr>`; }).join("") || `<tr><td colspan="9" class="empty">沒有資料</td></tr>`;
+}
+
+function earn(){
+  const nodes = u => [...new Set(D.supply.filter(r => r[0] === u).map(r => r[1]))];
+  const today = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Taipei"})).setHours(0, 0, 0, 0);
+  const TM = {amc: "盤後", bmo: "盤前"};
+  $("up-body").innerHTML = (D.upcoming || []).map(([d, u, t, n]) => {
+    const left = Math.round((new Date(d + "T00:00:00") - today) / 864e5);
+    const tw = D.drivers.includes(u) ? `${nodes(u).length} 個節點・${new Set(D.supply.filter(r => r[0] === u).map(r => r[2])).size} 檔` :
+      (D.peers ? D.peers.pairs.filter(p => p[1] === u).map(p => (D.tw[p[0]] || [p[0]])[0]).join("、") : "");
+    return `<tr class="click${u === S.u ? " on" : ""}" data-u="${esc(u)}"><td class="mono">${md(d)}</td><td><b style="font-weight:500">${esc(n)}</b> <span class="mono faint">${esc(u)}</span></td>
+      <td>${TM[t] || "–"}</td><td class="n mono">${left <= 0 ? "今天" : left + " 天"}</td><td class="hide-s muted" style="white-space:normal">${esc(tw)}</td></tr>`; }).join("")
+    || `<tr><td colspan="5" class="empty">45 天內沒有財報</td></tr>`;
+  $("up-body").querySelectorAll("tr[data-u]").forEach(tr => tr.onclick = () => { if (D.drivers.includes(tr.dataset.u)) { S.u = tr.dataset.u; save(); render(); } });
+  const u = S.u, E = (D.earn || {})[u];
+  $("e-title").textContent = `${D.us[u][0]} 財報後，台股供應鏈怎麼走`;
+  if (!E || !E.ev.length) { $("e-hint").textContent = ""; $("e-stats").innerHTML = ""; $("e-svg").innerHTML = ""; $("e-body").innerHTML = `<tr><td colspan="6" class="empty">${u === "^SOX" ? "費城半導體沒有財報，選一家大廠" : "還沒有財報紀錄"}</td></tr>`; $("es-body").innerHTML = ""; return; }
+  const ev = E.ev, n = ev.length, a = k => avg(ev.map(r => r[k]));
+  const same = ev.filter(r => r[2] != null && r[5] != null && r[2] * r[5] > 0).length;
+  const nx = (D.upcoming || []).find(x => x[1] === u);
+  $("e-hint").textContent = `2022 年以來 ${n} 次` + (nx ? `・下次 ${md(nx[0])}` : "");
+  $("e-stats").innerHTML = [
+    ["公布前 5 日平均", pct(a(3)), `上漲 ${ev.filter(r => r[3] > 0).length}/${n} 次`],
+    ["隔日平均", pct(a(5)), `跳空平均 ${pct(a(4))}`],
+    ["跟美股同方向", `${same}/${n}`, `美股反應平均 ${pct(a(2))}`],
+    ["含當天 5 日平均", pct(a(6)), "隔日之後有沒有延續"],
+  ].map(([k, v, x]) => `<div class="stat"><div class="k">${k}</div><div class="v mono">${v}</div><div class="s">${x}</div></div>`).join("");
+  const svg = $("e-svg"), W = svg.clientWidth || 800, H = svg.clientHeight || 220, pd = 28;
+  const mx = Math.max(3, ...ev.map(r => Math.abs(r[2] || 0))) * 1.1, my = Math.max(2, ...ev.map(r => Math.abs(r[5] || 0))) * 1.1;
+  const X = v => pd + (v / mx + 1) / 2 * (W - 2 * pd), Y = v => H / 2 - v / my * (H / 2 - pd);
+  let g = `<line x1="${pd}" x2="${W - pd}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--line-strong)"/><line x1="${X(0)}" x2="${X(0)}" y1="${pd / 2}" y2="${H - pd / 2}" stroke="var(--line-strong)"/>`;
+  g += `<text class="axis" x="${W - pd - 60}" y="${Y(0) + 14}">美股 +${fx(mx, 0)}%</text><text class="axis" x="${X(0) + 6}" y="${pd / 2 + 8}">台股 +${fx(my, 1)}%</text>`;
+  ev.forEach((r, i) => { if (r[2] == null || r[5] == null) return;
+    const last = i === n - 1;
+    g += `<circle cx="${X(r[2])}" cy="${Y(r[5])}" r="${last ? 6 : 4.5}" fill="${r[5] > 0 ? "var(--rise)" : "var(--fall)"}" opacity="${last ? 1 : .7}" ${last ? 'stroke="var(--brass)" stroke-width="2"' : ""}><title>${r[0]}：美股 ${fx(r[2], 1)}%、台股 ${fx(r[5], 1)}%</title></circle>`;
+    if (last || Math.abs(r[5]) > my * 0.6) g += `<text class="axis" x="${X(r[2]) + 8}" y="${Y(r[5]) + 4}">${r[0].slice(2, 7).replace("-", "/")}</text>`; });
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.innerHTML = g;
+  const TM2 = t => t === "bmo" ? "盤前" : t === "amc" ? "盤後" : "";
+  $("e-body").innerHTML = [...ev].reverse().map(r => `<tr><td class="mono">${r[0]} <span class="faint">${TM2(r[1])}</span></td><td class="n mono">${pct(r[2])}</td><td class="n mono">${pct(r[3])}</td><td class="n mono">${pct(r[4])}</td><td class="n mono">${pct(r[5])}</td><td class="n mono hide-s">${pct(r[6])}</td></tr>`).join("");
+  $("es-body").innerHTML = Object.entries(E.s).sort((a, b) => b[1][0] - a[1][0]).map(([c, v]) => `<tr><td>${stockCell(c)}</td><td class="n mono">${pct(v[0])}</td>
+    <td class="n mono">${v[1] == null ? "–" : v[1] + "%"}</td><td class="n mono">${pct(v[3])}</td><td class="n mono hide-s">${v[2]}</td></tr>`).join("");
+}
+
+const PC = [["z", "偏離", 4], ["tw20", "台股 20 日", 5], ["us20", "美股 20 日", 6], ["d20", "20 日差", 7], ["corr", "相關", 8, 1]];
+function peer(){
+  const P = D.peers;
+  if (!P) { $("p-body").innerHTML = `<tr><td class="empty">沒有資料</td></tr>`; return; }
+  const A = P.adr;
+  if (A) {
+    $("adr-hint").innerHTML = `${md(A.d[A.d.length - 1])} ${pct(A.p[A.p.length - 1])}・一年平均 ${fx(A.avg, 1)}%・位於一年的第 ${A.pctile} 百分位`;
+    const svg = $("adr-svg"), W = svg.clientWidth || 800, H = svg.clientHeight || 180, pd = 22;
+    const lo = Math.min(...A.p), hi = Math.max(...A.p), n = A.p.length;
+    const X = i => 34 + i / (n - 1) * (W - 40), Y = v => pd / 2 + (hi - v) / (hi - lo || 1) * (H - pd * 1.5);
+    let g = `<line x1="34" x2="${W}" y1="${Y(A.avg)}" y2="${Y(A.avg)}" stroke="var(--brass)" stroke-dasharray="4 4" opacity=".7"/>`;
+    g += `<text class="axis" x="0" y="${Y(hi) + 4}">${fx(hi, 0)}%</text><text class="axis" x="0" y="${Y(lo)}">${fx(lo, 0)}%</text><text class="axis" x="0" y="${Y(A.avg) + 4}">${fx(A.avg, 0)}%</text>`;
+    const ma = A.p.map((_, i) => i < 19 ? null : avg(A.p.slice(i - 19, i + 1)));
+    g += `<polyline fill="none" stroke="var(--text-faint)" stroke-width="1" points="${A.p.map((v, i) => `${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(" ")}"/>`;
+    g += `<polyline fill="none" stroke="var(--text)" stroke-width="1.8" points="${ma.map((v, i) => v == null ? "" : `${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(" ")}"/>`;
+    [0, Math.floor(n / 2), n - 1].forEach(i => g += `<text class="axis" x="${Math.min(W - 56, X(i))}" y="${H - 2}">${A.d[i].slice(2).replace(/-/g, "/")}</text>`);
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.innerHTML = g;
+    const tip = $("adr-tip");
+    svg.onmousemove = e => { const b = svg.getBoundingClientRect(), i = Math.round((e.clientX - b.left - 34 * b.width / W) / (b.width * (W - 40) / W) * (n - 1));
+      if (i < 0 || i >= n) { tip.style.display = "none"; return; }
+      tip.innerHTML = `<div class="d">${A.d[i]}</div><div class="r"><span>溢價</span><b>${fx(A.p[i], 1)}%</b></div>`; tip.style.display = "block";
+      tip.style.left = `${Math.min(e.clientX - b.left + 14, b.width - tip.offsetWidth)}px`; tip.style.top = "20px"; };
+    svg.onmouseleave = () => tip.style.display = "none";
+  }
+  const k = S.psort || "z";
+  let rows = P.pairs.map(r => ({code: r[0], us: r[1], theme: r[2], note: r[3], z: r[4], tw20: r[5], us20: r[6], d20: r[7], corr: r[8]}));
+  rows.sort((a, b) => k === "z" ? Math.abs(b.z ?? 0) - Math.abs(a.z ?? 0) : ((b[k] ?? -1e9) - (a[k] ?? -1e9)) * (S.pdesc === false ? -1 : 1));
+  $("p-head").innerHTML = `<tr><th>台股</th><th>美股</th><th class="hide-s">主題</th><th>比值走勢</th>${PC.map(([c, t, , hs]) => `<th class="n${hs ? " hide-s" : ""}${c === k ? " sorted" : ""}" data-k="${c}">${t}${c === k ? " ↓" : ""}</th>`).join("")}</tr>`;
+  $("p-head").querySelectorAll("th[data-k]").forEach(th => th.onclick = () => { S.psort = th.dataset.k; peer(); });
+  const spark = arr => { if (!arr || arr.length < 2) return "";
+    const lo = Math.min(...arr), hi = Math.max(...arr), w = 110, h = 26;
+    const pts = arr.map((v, i) => `${(i / (arr.length - 1) * w).toFixed(1)},${(h - 2 - (v - lo) / (hi - lo || 1) * (h - 4)).toFixed(1)}`).join(" ");
+    return `<svg width="${w}" height="${h}" style="display:block"><polyline fill="none" stroke="${arr[arr.length - 1] >= 100 ? "var(--rise)" : "var(--fall)"}" stroke-width="1.3" points="${pts}"/></svg>`; };
+  const zc = z => z == null ? "–" : `<span class="${Math.abs(z) >= 2 ? (z > 0 ? "up" : "down") : "muted"}" style="${Math.abs(z) >= 2 ? "font-weight:600" : ""}">${z > 0 ? "+" : ""}${z.toFixed(1)}σ</span>`;
+  $("p-body").innerHTML = rows.map(r => `<tr><td>${stockCell(r.code)}</td><td><b style="font-weight:500">${esc(D.us[r.us] ? D.us[r.us][0] : r.us)}</b> <span class="mono faint">${esc(r.us)}</span></td>
+    <td class="hide-s muted">${esc(r.theme)}${r.note ? `<span class="role">${esc(r.note)}</span>` : ""}</td><td>${spark(P.series[`${r.code}/${r.us}`])}</td>
+    <td class="n mono">${zc(r.z)}</td><td class="n mono">${pct(r.tw20)}</td><td class="n mono">${pct(r.us20)}</td><td class="n mono">${pct(r.d20)}</td><td class="n mono hide-s">${fx(r.corr, 2)}</td></tr>`).join("");
 }
 
 function save(){ history.replaceState(null, "", `#${S.t}&u=${encodeURIComponent(S.u)}`); }
@@ -318,20 +443,21 @@ function render(){
   document.querySelectorAll(".tabs a").forEach(a => a.setAttribute("aria-selected", a.dataset.t === S.t));
   document.querySelectorAll("[data-p]").forEach(s => s.hidden = s.dataset.p !== S.t);
   $("drv").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.dataset.u === S.u));
-  ({night, map, link})[S.t]();
+  ({night, map, link, earn, peer})[S.t]();
 }
 
 fetch("data/us.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
   D = d;
   const h = location.hash.slice(1), t = h.split("&")[0], u = (h.match(/u=([^&]+)/) || [])[1];
-  if (["night", "map", "link"].includes(t)) S.t = t;
+  if (["night", "map", "link", "earn", "peer"].includes(t)) S.t = t;
   if (u && D.us[decodeURIComponent(u)]) S.u = decodeURIComponent(u);
-  $("sub").textContent = `美股 ${D.date_us} 收盤・台股 ${md(D.date_tw)} 收盤。美股大廠的台灣供應鏈、昨夜漲跌後台股通常怎麼走，以及哪些台股實際上跟得最緊。點上面的大廠切換。`;
+  $("sub").textContent = `美股 ${D.date_us} 收盤・台股 ${md(D.date_tw)} 收盤。美股大廠的台灣供應鏈、昨夜漲跌後台股通常怎麼走、哪些台股實際上跟得最緊、財報季反應，以及台美同類股比價。點上面的大廠切換。`;
   drivers();
   document.querySelectorAll(".tabs a").forEach(a => a.onclick = e => { e.preventDefault(); S.t = a.dataset.t; save(); render(); });
   $("lf").querySelectorAll("button").forEach(b => b.onclick = () => { $("lf").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); S.lf = b.dataset.v; link(); });
   $("mq").oninput = e => { S.mq = e.target.value; map(); };
   document.addEventListener("tide:watch", render);
+  addEventListener("resize", () => { if (S.t === "earn" || S.t === "peer") render(); });
   render();
 }).catch(e => { $("sub").textContent = "資料載入失敗"; console.error(e); });
 </script>

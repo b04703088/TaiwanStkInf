@@ -168,7 +168,8 @@ def build(out: Path, days: int) -> list[str]:
     digest_site.write_digest(ROOT / "data", out / "data" / "digest")
     newhigh_site.write_newhigh(ROOT / "data", out / "data" / "newhigh.json", prices=prices)
     limitup_site.write_limitup(ROOT / "data", out / "data" / "limitup.json")
-    us_site.write_us(ROOT / "data", ROOT, out / "data" / "us.json", prices=prices)
+    us_site.write_us(ROOT / "data", ROOT, out / "data" / "us.json", prices=prices,
+                     today=datetime.now(TPE).date().isoformat())
     chips = chips_site.write_chips(ROOT / "data", out / "data" / "chips")
     screen_site.write_screen(ROOT / "data", out / "data" / "screen", today=datetime.now(TPE).date(), prices=prices,
                              extra={"chips": chips} if chips else None)

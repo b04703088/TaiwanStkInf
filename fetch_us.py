@@ -73,9 +73,9 @@ def yahoo(sym):
         d = datetime.fromtimestamp(m["regularMarketTime"] + off, timezone.utc).date().isoformat()
         if out and d > out[-1]["date"]:
             c = m["regularMarketPrice"]
-            out.append({"date": d, "symbol": sym, "open": round(m.get("regularMarketOpen") or c, 4),
-                        "high": round(m.get("regularMarketDayHigh") or c, 4),
-                        "low": round(m.get("regularMarketDayLow") or c, 4), "close": round(c, 4),
+            r4 = lambda k: round(m[k], 4) if m.get(k) else ""  # noqa: E731  meta 常沒有開盤價，留空
+            out.append({"date": d, "symbol": sym, "open": r4("regularMarketOpen"),
+                        "high": r4("regularMarketDayHigh"), "low": r4("regularMarketDayLow"), "close": round(c, 4),
                         "volume": m.get("regularMarketVolume") or 0})
     return out
 
