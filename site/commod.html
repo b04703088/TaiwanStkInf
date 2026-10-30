@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101419">
+<title>原物料｜潮汐</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#101419; --panel:#171C22; --panel-2:#1E242B;
+    --line:rgba(232,237,242,0.09); --line-strong:rgba(232,237,242,0.16);
+    --text:#E8EDF2; --text-muted:#A9B2BC; --text-faint:#8B95A0;
+    --brass:#C6A15B; --brass-soft:rgba(198,161,91,0.14); --rise:#E1594F; --fall:#3FAE72;
+    --radius-s:3px; --radius-m:6px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--ink); color:var(--text);
+    font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
+  h1,h2{font-family:'Noto Sans TC',sans-serif; margin:0; font-weight:700;}
+  h2{font-size:20px;}
+  .mono{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+  a{color:inherit;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
+  header.site{position:sticky; top:0; z-index:40; background:#101419; border-bottom:1px solid var(--line);}
+  .nav-row{display:flex; align-items:center; justify-content:space-between; padding:16px 28px;}
+  .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
+  .brand-mark{font-family:'Noto Sans TC',sans-serif; font-size:22px; font-weight:700;}
+  .brand-sub{font-size:12px; color:var(--text-faint);}
+  .page-head{padding:56px 0 8px;}
+  h1{font-size:32px;}
+  .desc{color:var(--text-muted); font-size:14.5px; margin:12px 0 0; max-width:52em;}
+  section.block{margin-top:40px;}
+  .block-head{display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin-bottom:14px; flex-wrap:wrap;}
+  .hint{font-size:12.5px; color:var(--text-faint);}
+  .up{color:var(--rise);} .down{color:var(--fall);} .flat{color:var(--text-muted);}
+  .faint{color:var(--text-faint);} .muted{color:var(--text-muted);}
+
+  .tbl-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius-m);}
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  th, td{padding:9px 12px; border-bottom:1px solid var(--line); text-align:left; white-space:nowrap;}
+  th{font-size:12px; color:var(--text-muted); font-weight:500; background:var(--panel); position:sticky; top:0;}
+  td.n, th.n{text-align:right;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr.click{cursor:pointer;}
+  tbody tr.click:hover td{background:var(--panel);}
+  tbody tr.on td{background:var(--brass-soft);}
+  tr.sub td{background:var(--panel); font-size:12px; color:var(--text-faint); padding:6px 12px;}
+  th[data-k]{cursor:pointer; user-select:none;} th[data-k]:hover{color:var(--text);} th.sorted{color:var(--text);}
+  .iname{font-weight:500;}
+  .iname small{display:block; font-size:11.5px; color:var(--text-faint); font-weight:400;}
+  .sname{font-weight:500;}
+  .sname a{text-decoration:none;} .sname a:hover{color:var(--text);}
+  .sname .mono{font-size:11.5px; color:var(--text-faint); margin-left:6px; font-weight:500;}
+  .star{color:var(--brass); margin-left:4px; font-size:12px;}
+  .tag{display:inline-block; font-size:11px; padding:0 5px; border-radius:var(--radius-s); border:1px solid var(--line-strong); color:var(--text-muted); margin-left:6px; vertical-align:1px;}
+  .tag.hi{border-color:var(--rise); color:var(--rise);} .tag.lo{border-color:var(--fall); color:var(--fall);}
+  .tag.z{border-color:var(--brass); color:var(--brass);}
+  .eff{display:inline-block; font-size:11px; padding:0 5px; border-radius:var(--radius-s); border:1px solid var(--line-strong); color:var(--text-muted);}
+  .eff.g{border-color:var(--rise); color:var(--rise);}
+  .rng{display:inline-block; position:relative; width:72px; height:6px; background:var(--line); border-radius:3px; vertical-align:middle;}
+  .rng i{position:absolute; top:-3px; width:3px; height:12px; margin-left:-1px; border-radius:1px; background:var(--text);}
+  .grp{white-space:normal; min-width:9em; font-size:12.5px; color:var(--text-muted);}
+
+  .toolbar{display:flex; flex-wrap:wrap; gap:10px 18px; align-items:center; justify-content:space-between; margin-bottom:14px;}
+  .chips{display:flex; flex-wrap:wrap; gap:6px;}
+  .chips button{background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:5px 11px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .chips button[aria-pressed="true"]{border-color:var(--text-faint); color:var(--text);}
+  .empty{padding:20px 12px; color:var(--text-faint); font-size:13.5px;}
+  .note{font-size:12.5px; color:var(--text-faint); margin-top:18px; line-height:1.8;}
+
+  .movers{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden; margin-top:28px;}
+  .mv{background:var(--panel); padding:14px 18px;}
+  .mv .k{font-size:12.5px; color:var(--text-muted); margin-bottom:6px;}
+  .mv ul{list-style:none; margin:0; padding:0; font-size:13px;}
+  .mv li{display:flex; justify-content:space-between; gap:10px; padding:2px 0; cursor:pointer;}
+  .mv li:hover .nm{color:var(--text); text-decoration:underline;}
+  .mv .nm{color:var(--text-muted);}
+  .mv .none{color:var(--text-faint); font-size:12.5px;}
+
+  .tabs{display:flex; gap:28px; border-bottom:1px solid var(--line-strong); margin-top:36px; overflow-x:auto; scrollbar-width:none;}
+  .tabs a{white-space:nowrap; text-decoration:none; color:var(--text-muted); padding:10px 0; border-bottom:2px solid transparent; margin-bottom:-1px; font-size:15px;}
+  .tabs a:hover{color:var(--text);}
+  .tabs a[aria-selected="true"]{color:var(--text); border-bottom-color:var(--text); font-weight:500;}
+
+  .detail{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-m); padding:18px 20px; margin-bottom:28px;}
+  .dh{display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap;}
+  .dh h2 small{font-size:13px; font-weight:400; color:var(--text-faint); margin-left:8px;}
+  .dh .px{font-size:26px;}
+  .dh .px small{font-size:12.5px; color:var(--text-faint); margin-left:6px; font-family:'Noto Sans TC',sans-serif;}
+  .rets{display:flex; flex-wrap:wrap; gap:4px 18px; font-size:13px; color:var(--text-muted); margin-top:4px;}
+  .chart{position:relative; margin-top:12px;}
+  .chart svg{display:block; width:100%; height:220px;}
+  .chart .axis{font-size:10.5px; fill:var(--text-faint); font-family:'IBM Plex Mono',monospace;}
+  .tip{position:absolute; pointer-events:none; background:var(--ink); border:1px solid var(--line-strong); border-radius:var(--radius-s); padding:8px 10px; font-size:12px; min-width:120px; box-shadow:0 4px 16px rgba(0,0,0,.4); display:none; z-index:5;}
+  .tip .d{color:var(--text-muted); margin-bottom:2px;}
+  .tip b{font-weight:500; font-family:'IBM Plex Mono',monospace;}
+  .gcards{display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:12px; margin-top:16px;}
+  .gc{border:1px solid var(--line); border-radius:var(--radius-m); padding:12px 14px; background:var(--ink);}
+  .gc h3{font-size:14.5px; margin:0; font-weight:500; display:flex; justify-content:space-between; gap:8px; align-items:baseline;}
+  .gc .why{font-size:12px; color:var(--text-faint); margin:2px 0 6px;}
+  .gc .avg{font-size:12px; color:var(--text-muted); margin-bottom:6px;}
+  .gc table{font-size:13px;} .gc td, .gc th{padding:5px 4px; background:none;} .gc td:first-child, .gc th:first-child{padding-left:0;} .gc td:last-child, .gc th:last-child{padding-right:0;}
+  footer.site{padding:48px 0; margin-top:64px; border-top:1px solid var(--line);}
+  @media (max-width:860px){
+    .nav-row{padding:14px 16px; flex-wrap:wrap; row-gap:10px;}
+    .wrap{padding:0 16px;}
+    h1{font-size:26px;}
+    .hide-s{display:none;}
+    .movers{grid-template-columns:1fr;}
+    .chart svg{height:180px;}
+    th, td{padding:8px 8px;}
+    .tabs{gap:20px;}
+    .detail{padding:14px 14px;}
+    .gcards{grid-template-columns:1fr;}
+    .rng{width:48px;}
+  }
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="nav-row">
+    <a href="index.html" class="brand"><span class="brand-mark">潮汐</span><span class="brand-sub">籌碼觀測站</span></a>
+    <nav class="gnav"></nav>
+  </div>
+</header>
+<script src="nav.js"></script>
+<main class="wrap">
+  <section class="page-head">
+    <h1>原物料與運價：漲價誰受惠</h1>
+    <p class="desc" id="sub">載入中…</p>
+    <div class="movers" id="movers"></div>
+  </section>
+
+  <nav class="tabs" role="tablist">
+    <a href="#all" data-t="all" role="tab">報價總覽</a>
+    <a href="#map" data-t="map" role="tab">台股對照</a>
+  </nav>
+
+  <section class="block" data-p="all" style="margin-top:28px">
+    <div class="detail" id="detail"></div>
+    <div class="toolbar">
+      <div class="chips" id="cats"></div>
+      <span class="hint">點品項看走勢與對應台股・點欄位排序</span>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead id="i-head"></thead>
+      <tbody id="i-body"></tbody>
+    </table></div>
+    <p class="note">
+      國外期貨是近月連續合約（Yahoo Finance），中國期貨是主力連續合約（新浪財經），LME 是 3 個月期（新浪財經）；換月時價格會跳一下，看長期走勢時留意。
+      運價：<b>SCFI／CCFI</b> 每週五公布（上海航運交易所），<b>BDI</b> 每個倫敦交易日（波羅的海交易所，經鉅亨網）；週資料的「1 日」＝比上一期、「5 日」＝比上一期、「20 日」＝比 13 期前（約一季）。
+      記憶體現貨價（DRAMeXchange）是當天交易均價，現貨價通常領先合約價。
+      <b>52 週位置</b>＝現價在近一年最低到最高之間的位置，越靠右越接近一年高點。<b>異常</b>＝今天漲跌超過近 60 日日報酬 2 個標準差。
+      資料僅供參考，不構成投資建議。
+    </p>
+  </section>
+
+  <section class="block" data-p="map" style="margin-top:28px">
+    <div class="toolbar">
+      <div class="chips" id="mcats"></div>
+      <div class="chips" id="msort">
+        <button data-v="gap" aria-pressed="true">落差大的先</button>
+        <button data-v="c20" aria-pressed="false">原物料 20 日</button>
+        <button data-v="rho" aria-pressed="false">連動高的先</button>
+      </div>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead id="m-head"></thead>
+      <tbody id="m-body"></tbody>
+    </table></div>
+    <p class="note">
+      族群是依產業鏈與實際原料用途整理（config/commod_map.csv），不是官方產業分類。<b>受惠</b>＝報價漲對獲利有利（售價連動、庫存利益）；<b>成本</b>＝報價漲壓縮毛利，除非能轉嫁。
+      族群漲跌＝等權平均、還原權息。<b>落差</b>＝原物料 20 日漲跌對族群該有的方向（受惠同向、成本反向）減掉族群實際 20 日漲跌：正得多＝原物料已經動了、族群還沒跟上；負得多＝族群先跑了。
+      <b>連動</b>＝最近 120 個台股交易日，族群當天漲跌跟「前一個台股交易日之後、這天之前」的報價漲跌的相關係數；<b>報價漲時</b>＝報價上漲那幾天族群的平均漲跌。週資料（SCFI 等）不算連動。
+      相關 0.15 以下大多是雜訊，族群漲跌主要還是看大盤與自身基本面，參考就好。
+    </p>
+  </section>
+</main>
+<footer class="site"><div class="wrap"><p class="note" style="margin:0">資料僅供參考。</p></div></footer>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fx = (v, d = 1) => v == null ? "–" : (+v).toLocaleString("zh-TW", {minimumFractionDigits: d, maximumFractionDigits: d});
+const cls = v => v == null ? "faint" : v > 0 ? "up" : v < 0 ? "down" : "flat";
+const pct = (v, d = 1) => `<span class="${cls(v)}">${v == null ? "–" : `${v > 0 ? "+" : ""}${(+v).toFixed(d)}%`}</span>`;
+const md = s => s ? `${+String(s).replace(/-/g, "").slice(4, 6)}/${+String(s).replace(/-/g, "").slice(6, 8)}` : "–";
+const avg = xs => { xs = xs.filter(x => x != null); return xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null; };
+const dp = v => v == null ? 2 : Math.abs(v) >= 1000 ? 0 : Math.abs(v) >= 100 ? 1 : Math.abs(v) >= 10 ? 2 : 3;
+const Watch = window.TideWatch || {list: () => []};
+const S = {t: "all", cat: "全部", k: null, sort: null, desc: true, mcat: "全部", msort: "gap", span: 365};
+const RC = [["r0", "1 日", 0], ["r1", "5 日", 1], ["r2", "20 日", 2], ["r3", "60 日", 3, 1], ["r4", "1 年", 4, 1]];
+let D, I = {};
+
+const stockCell = c => { const t = D.tw[c] || [c]; const mine = new Set(Watch.list());
+  return `<span class="sname"><a href="stock.html#s=${encodeURIComponent(c)}">${esc(t[0])}</a><span class="mono">${esc(c)}</span></span>${mine.has(c) ? `<span class="star" title="自選">★</span>` : ""}`; };
+const tags = it => (it.pos >= 98 ? `<span class="tag hi">一年高</span>` : it.pos != null && it.pos <= 2 ? `<span class="tag lo">一年低</span>` : "")
+  + (it.z != null && Math.abs(it.z) >= 2 ? `<span class="tag z" title="今天漲跌是近 60 日波動的 ${Math.abs(it.z)} 倍">異常 ${it.z > 0 ? "+" : ""}${it.z}σ</span>` : "");
+const rng = p => p == null ? "–" : `<span class="rng" title="52 週位置 ${p}%"><i style="left:${p}%"></i></span>`;
+const groupsOf = k => D.groups.filter(g => g[0] === k);
+
+function movers(){
+  const its = D.items.filter(i => i.r[1] != null);
+  const up = [...its].sort((a, b) => b.r[1] - a.r[1]).slice(0, 5), dn = [...its].sort((a, b) => a.r[1] - b.r[1]).slice(0, 5);
+  const ex = D.items.filter(i => i.pos >= 98 || (i.pos != null && i.pos <= 2) || (i.z != null && Math.abs(i.z) >= 2)).slice(0, 6);
+  const li = (i, v) => `<li data-k="${esc(i.k)}"><span class="nm">${esc(i.name)}</span>${v}</li>`;
+  $("movers").innerHTML = `<div class="mv"><div class="k">5 日漲最多</div><ul>${up.map(i => li(i, `<span class="mono">${pct(i.r[1])}</span>`)).join("")}</ul></div>
+    <div class="mv"><div class="k">5 日跌最多</div><ul>${dn.map(i => li(i, `<span class="mono">${pct(i.r[1])}</span>`)).join("")}</ul></div>
+    <div class="mv"><div class="k">一年高低點・今日異常</div><ul>${ex.length ? ex.map(i => li(i, `<span>${tags(i)}</span>`)).join("") : `<li class="none">今天沒有</li>`}</ul></div>`;
+  $("movers").querySelectorAll("li[data-k]").forEach(l => l.onclick = () => { S.t = "all"; pick(l.dataset.k, true); });
+}
+
+function chips(id, key, after){
+  const cats = ["全部", ...D.cats.filter(c => D.items.some(i => i.cat === c))];
+  $(id).innerHTML = cats.map(c => `<button data-v="${esc(c)}" aria-pressed="${S[key] === c}">${esc(c)}</button>`).join("");
+  $(id).querySelectorAll("button").forEach(b => b.onclick = () => { S[key] = b.dataset.v; $(id).querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); after(); });
+}
+
+function table(){
+  let rows = D.items.filter(i => S.cat === "全部" || i.cat === S.cat);
+  if (S.sort) { const j = +S.sort.slice(1); rows = [...rows].sort((a, b) => ((b.r[j] ?? -1e9) - (a.r[j] ?? -1e9)) * (S.desc ? 1 : -1)); }
+  $("i-head").innerHTML = `<tr><th>品項</th><th class="n">報價</th>${RC.map(([c, t, , hs]) => `<th class="n${hs ? " hide-s" : ""}${S.sort === c ? " sorted" : ""}" data-k="${c}">${t}${S.sort === c ? (S.desc ? " ↓" : " ↑") : ""}</th>`).join("")}
+    <th class="hide-s">52 週位置</th><th class="hide-s">走勢（60 天）</th><th class="hide-s">對應台股</th></tr>`;
+  $("i-head").querySelectorAll("th[data-k]").forEach(th => th.onclick = () => { if (S.sort === th.dataset.k) S.desc = !S.desc; else { S.sort = th.dataset.k; S.desc = true; } table(); });
+  let last = null, html = "";
+  rows.forEach(i => {
+    if (!S.sort && S.cat === "全部" && i.cat !== last) { html += `<tr class="sub"><td colspan="10">${esc(i.cat)}</td></tr>`; last = i.cat; }
+    const gs = [...new Set(groupsOf(i.k).map(g => g[1]))];
+    html += `<tr class="click${i.k === S.k ? " on" : ""}" data-k="${esc(i.k)}"><td><span class="iname">${esc(i.name)}${tags(i)}<small>${esc(i.sub)}・${esc(i.src)}・${md(i.d)}</small></span></td>
+      <td class="n mono">${fx(i.p, dp(i.p))}<small class="faint" style="display:block;font-size:11px;font-family:'Noto Sans TC',sans-serif">${esc(i.unit)}</small></td>
+      ${RC.map(([, , j, hs]) => `<td class="n mono${hs ? " hide-s" : ""}">${pct(i.r[j])}</td>`).join("")}
+      <td class="hide-s">${rng(i.pos)}</td><td class="hide-s">${spark(i.k)}</td><td class="hide-s grp">${gs.map(esc).join("、") || "<span class=faint>–</span>"}</td></tr>`;
+  });
+  $("i-body").innerHTML = html || `<tr><td colspan="10" class="empty">沒有資料</td></tr>`;
+  $("i-body").querySelectorAll("tr[data-k]").forEach(tr => tr.onclick = () => pick(tr.dataset.k, true));
+}
+
+function spark(k){
+  const s = (D.series[k] || []).slice(-60).map(x => x[1]);
+  if (s.length < 2) return "";
+  const lo = Math.min(...s), hi = Math.max(...s), w = 96, h = 24;
+  const pts = s.map((v, i) => `${(i / (s.length - 1) * w).toFixed(1)},${(h - 2 - (v - lo) / (hi - lo || 1) * (h - 4)).toFixed(1)}`).join(" ");
+  return `<svg width="${w}" height="${h}" style="display:block"><polyline fill="none" stroke="${s[s.length - 1] >= s[0] ? "var(--rise)" : "var(--fall)"}" stroke-width="1.3" points="${pts}"/></svg>`;
+}
+
+function pick(k, scroll){
+  S.k = k; save();
+  if (S.t !== "all") { render(); }
+  detail(); $("i-body").querySelectorAll("tr[data-k]").forEach(tr => tr.classList.toggle("on", tr.dataset.k === k));
+  if (scroll) $("detail").scrollIntoView({behavior: "smooth", block: "start"});
+}
+
+function detail(){
+  const it = I[S.k]; if (!it) { $("detail").innerHTML = ""; return; }
+  const gs = groupsOf(it.k);
+  const wk = it.wk;
+  $("detail").innerHTML = `<div class="dh"><div><h2>${esc(it.name)}<small>${esc(it.cat)}・${esc(it.src)}</small></h2>
+      <div class="rets">${wk ? `<span>比上期 ${pct(it.r[0])}</span><span>一季 ${pct(it.r[2])}</span><span>一年 ${pct(it.r[4])}</span>`
+        : `<span>1 日 ${pct(it.r[0])}</span><span>5 日 ${pct(it.r[1])}</span><span>20 日 ${pct(it.r[2])}</span><span>60 日 ${pct(it.r[3])}</span><span>1 年 ${pct(it.r[4])}</span>`}
+        ${it.streak && Math.abs(it.streak) >= 3 ? `<span>連${it.streak > 0 ? "漲" : "跌"} ${Math.abs(it.streak)} ${wk ? "期" : "天"}</span>` : ""}</div></div>
+    <div style="text-align:right"><div class="px mono">${fx(it.p, dp(it.p))}<small>${esc(it.unit)}</small></div>
+      <div class="hint">${md(it.d)}・一年區間 ${fx(it.lo, dp(it.lo))}～${fx(it.hi, dp(it.hi))}</div></div></div>
+    <div class="toolbar" style="margin:12px 0 0"><div class="chips" id="span">${[[90, "3 個月"], [365, "1 年"], [800, "2 年"]].map(([v, t]) => `<button data-v="${v}" aria-pressed="${S.span === v}">${t}</button>`).join("")}</div></div>
+    <div class="chart"><svg id="c-svg" preserveAspectRatio="none"></svg><div class="tip" id="c-tip"></div></div>
+    ${gs.length ? `<div class="gcards">${gs.map(g => gcard(g)).join("")}</div>` : `<p class="hint" style="margin:14px 0 0">這個品項還沒有對應的台股族群。</p>`}`;
+  $("span").querySelectorAll("button").forEach(b => b.onclick = () => { S.span = +b.dataset.v; detail(); });
+  chart();
+}
+
+function gcard(g){
+  const [, name, eff, why, codes, g5, g20, rho, upAvg, n] = g;
+  const rows = codes.map(c => [c, D.tw[c] || []]).sort((a, b) => (b[1][4] ?? -1e9) - (a[1][4] ?? -1e9));
+  return `<div class="gc"><h3><span>${esc(name)} <span class="eff${eff === "受惠" ? " g" : ""}">${esc(eff)}</span></span><span class="mono" style="font-size:12.5px">${rho == null ? "" : `連動 ${fx(rho, 2)}`}</span></h3>
+    ${why ? `<div class="why">${esc(why)}</div>` : ""}
+    <div class="avg">族群 5 日 ${pct(g5)}・20 日 ${pct(g20)}${upAvg != null ? `・報價漲的日子平均 ${pct(upAvg, 2)}` : ""}</div>
+    <table><thead><tr><th>股票</th><th class="n">今日</th><th class="n">5 日</th><th class="n">20 日</th></tr></thead><tbody>
+    ${rows.map(([c, t]) => `<tr><td>${stockCell(c)}</td><td class="n mono">${pct(t[2])}</td><td class="n mono">${pct(t[3])}</td><td class="n mono">${pct(t[4])}</td></tr>`).join("")}</tbody></table></div>`;
+}
+
+function chart(){
+  const it = I[S.k], all = D.series[it.k] || [];
+  const cut = new Date(new Date(it.d).getTime() - S.span * 864e5).toISOString().slice(0, 10);
+  const s = all.filter(x => x[0] > cut); const n = s.length;
+  const svg = $("c-svg"); if (n < 2) { svg.innerHTML = ""; return; }
+  const W = svg.clientWidth || 800, H = svg.clientHeight || 220, L = 52, pd = 14;
+  const v = s.map(x => x[1]), lo = Math.min(...v), hi = Math.max(...v);
+  const X = i => L + i / (n - 1) * (W - L - 6), Y = y => pd + (hi - y) / (hi - lo || 1) * (H - pd * 2 - 12);
+  const col = v[n - 1] >= v[0] ? "var(--rise)" : "var(--fall)";
+  let g = "";
+  [hi, (hi + lo) / 2, lo].forEach(y => g += `<line x1="${L}" x2="${W}" y1="${Y(y)}" y2="${Y(y)}" stroke="var(--line)"/><text class="axis" x="0" y="${Y(y) + 4}">${fx(y, dp(y))}</text>`);
+  const ma = v.map((_, i) => i < 19 ? null : avg(v.slice(i - 19, i + 1)));
+  if (!it.wk) g += `<polyline fill="none" stroke="var(--text-faint)" stroke-width="1" stroke-dasharray="3 3" points="${ma.map((y, i) => y == null ? "" : `${X(i).toFixed(1)},${Y(y).toFixed(1)}`).join(" ")}"/>`;
+  g += `<polyline fill="none" stroke="${col}" stroke-width="1.6" points="${v.map((y, i) => `${X(i).toFixed(1)},${Y(y).toFixed(1)}`).join(" ")}"/>`;
+  [0, Math.floor((n - 1) / 2), n - 1].forEach((i, j) => g += `<text class="axis" x="${j === 2 ? W - 52 : j === 1 ? X(i) - 26 : L}" y="${H - 2}">${s[i][0].slice(2).replace(/-/g, "/")}</text>`);
+  g += `<line id="c-x" x1="0" x2="0" y1="${pd}" y2="${H - 14}" stroke="var(--line-strong)" style="display:none"/>`;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.innerHTML = g;
+  const tip = $("c-tip"), xl = $("c-x");
+  const move = cx => { const b = svg.getBoundingClientRect(), i = Math.round(((cx - b.left) * W / b.width - L) / (W - L - 6) * (n - 1));
+    if (i < 0 || i >= n) { tip.style.display = "none"; xl.style.display = "none"; return; }
+    xl.setAttribute("x1", X(i)); xl.setAttribute("x2", X(i)); xl.style.display = "";
+    tip.innerHTML = `<div class="d">${s[i][0]}</div><b>${fx(s[i][1], dp(s[i][1]))}</b> ${i ? pct(_p(s[i][1], s[i - 1][1]), 2) : ""}`; tip.style.display = "block";
+    tip.style.left = `${Math.min(Math.max(0, X(i) * b.width / W + 12), b.width - tip.offsetWidth)}px`; tip.style.top = "8px"; };
+  svg.onmousemove = e => move(e.clientX);
+  svg.ontouchmove = e => move(e.touches[0].clientX);
+  svg.onmouseleave = () => { tip.style.display = "none"; xl.style.display = "none"; };
+}
+const _p = (a, b) => b ? (a / b - 1) * 100 : null;
+
+function mapTab(){
+  const rows = D.groups.filter(g => S.mcat === "全部" || (I[g[0]] || {}).cat === S.mcat).map(g => {
+    const it = I[g[0]], c20 = it.r[2], sign = g[2] === "成本" ? -1 : 1;
+    return {g, it, c20, gap: c20 == null || g[6] == null ? null : sign * c20 - g[6]}; });
+  const k = S.msort;
+  rows.sort((a, b) => k === "gap" ? (b.gap ?? -1e9) - (a.gap ?? -1e9) : k === "c20" ? Math.abs(b.c20 ?? 0) - Math.abs(a.c20 ?? 0) : (b.g[7] ?? -9) - (a.g[7] ?? -9));
+  $("m-head").innerHTML = `<tr><th>原物料</th><th class="n">20 日</th><th>台股族群</th><th class="n">族群 5 日</th><th class="n">族群 20 日</th><th class="n">落差</th><th class="n hide-s">連動</th><th class="n hide-s">報價漲時</th><th class="hide-s">個股</th></tr>`;
+  $("m-body").innerHTML = rows.map(({g, it, c20, gap}) => `<tr class="click" data-k="${esc(it.k)}"><td><span class="iname">${esc(it.name)}<small>${esc(it.cat)}・${esc(it.sub)}</small></span></td>
+    <td class="n mono">${pct(c20)}</td><td>${esc(g[1])} <span class="eff${g[2] === "受惠" ? " g" : ""}">${esc(g[2])}</span>${g[3] ? `<small class="faint" style="display:block;font-size:11.5px;white-space:normal;max-width:18em">${esc(g[3])}</small>` : ""}</td>
+    <td class="n mono">${pct(g[5])}</td><td class="n mono">${pct(g[6])}</td>
+    <td class="n mono">${gap == null ? "–" : `<span class="${Math.abs(gap) >= 8 ? (gap > 0 ? "up" : "down") : "muted"}" style="${Math.abs(gap) >= 8 ? "font-weight:600" : ""}">${gap > 0 ? "+" : ""}${gap.toFixed(1)}</span>`}</td>
+    <td class="n mono hide-s ${g[7] != null && g[7] >= .15 ? "" : "faint"}">${fx(g[7], 2)}</td><td class="n mono hide-s">${pct(g[8], 2)}</td>
+    <td class="hide-s grp">${g[4].map(c => esc((D.tw[c] || [c])[0])).join("、")}</td></tr>`).join("") || `<tr><td colspan="9" class="empty">沒有資料</td></tr>`;
+  $("m-body").querySelectorAll("tr[data-k]").forEach(tr => tr.onclick = () => { S.t = "all"; pick(tr.dataset.k, true); render(); });
+}
+
+function save(){ history.replaceState(null, "", `#${S.t}${S.k ? `&k=${encodeURIComponent(S.k)}` : ""}`); }
+function render(){
+  document.querySelectorAll(".tabs a").forEach(a => a.setAttribute("aria-selected", a.dataset.t === S.t));
+  document.querySelectorAll("[data-p]").forEach(s => s.hidden = s.dataset.p !== S.t);
+  if (S.t === "all") { table(); detail(); } else mapTab();
+}
+
+fetch("data/commod.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
+  D = d; D.items.forEach(i => I[i.k] = i);
+  const h = location.hash.slice(1), t = h.split("&")[0], k = (h.match(/k=([^&]+)/) || [])[1];
+  if (["all", "map"].includes(t)) S.t = t;
+  S.k = k && I[decodeURIComponent(k)] ? decodeURIComponent(k) : ([...D.items].filter(i => i.r[1] != null).sort((a, b) => Math.abs(b.r[1]) - Math.abs(a.r[1]))[0] || D.items[0]).k;
+  const last = D.items.map(i => i.d).sort().pop();
+  $("sub").textContent = `${D.items.length} 項報價，最新到 ${last}；台股到 ${md(D.date_tw)}。能源、金屬、農產品、化工、航運運價與記憶體現貨，看漲跌幅、一年高低位置，並對照受惠或吃成本的台股族群。`;
+  movers();
+  chips("cats", "cat", table); chips("mcats", "mcat", mapTab);
+  $("msort").querySelectorAll("button").forEach(b => b.onclick = () => { S.msort = b.dataset.v; $("msort").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); mapTab(); });
+  document.querySelectorAll(".tabs a").forEach(a => a.onclick = e => { e.preventDefault(); S.t = a.dataset.t; save(); render(); });
+  document.addEventListener("tide:watch", render);
+  let rw = innerWidth; addEventListener("resize", () => { if (innerWidth !== rw && S.t === "all") { rw = innerWidth; chart(); } });
+  render();
+}).catch(e => { $("sub").textContent = "資料載入失敗"; console.error(e); });
+</script>
+</body>
+</html>

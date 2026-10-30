@@ -2,7 +2,7 @@ name: probe commod
 on:
   push:
     branches: [claude/project-thread-0cdbgt]
-    paths: [probe/probe.py, .github/workflows/probe-commod.yml]
+    paths: [fetch_commod.py, config/commod_items.csv, .github/workflows/probe-commod.yml]
 permissions:
   contents: write
 jobs:
@@ -10,8 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: python -u probe/probe.py
+      - run: python -u fetch_commod.py
       - run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add probe/out3 && git commit -qm "probe out" && git push
+          git add data/commod && git commit -qm "data: commod 回補（測試）" && git push
