@@ -8,13 +8,14 @@ permissions:
 jobs:
   run:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: {python-version: "3.12"}
-      - run: python -u fetch_us.py
+      - run: python -u fetch_us.py --earnings-since 2022-01-01
       - run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/us && git commit -q -m "data: us probe" && git push
-# rerun 2
+# rerun 3 backfill

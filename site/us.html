@@ -162,6 +162,7 @@
       <tbody id="n-body"></tbody>
     </table></div>
     <p class="note">
+      門檻＝3% 和 1.5 倍日報酬標準差取大的，波動大的股票（例如特斯拉）門檻較高，才不會天天都算大漲大跌。
       「今日」＝最新台股交易日的開盤跳空（開盤對前一天收盤）與收盤漲跌，台股日期在美股日期之後才算是對昨夜的反應。
       「大漲後／大跌後」＝2022 年以來這檔美股單日漲跌超過門檻後，台股下一個交易日的平均表現：跳空、當日、同向機率（台股跟美股同方向的比例）、含當天 5 日報酬。
       中間遇到台股連假、美股連續兩天以上才開盤的事件不算。還原權息計算。樣本少時參考就好，資料僅供參考，不構成投資建議。
@@ -193,11 +194,11 @@
       <tbody id="l-body"></tbody>
     </table></div>
     <p class="note">
-      最近 120 個台股交易日，每天台股收盤漲跌對上「前一晚」（台股前一個交易日之後到這天之前）美股的累積漲跌。
-      <b>相關</b>＝原始報酬相關係數；<b>beta</b>＝美股漲 1%，台股平均漲幾 %；<b>超額相關</b>＝扣掉大盤後（美股減 S&amp;P 500、台股減 0050）的相關，
+      最近 250 個台股交易日（約一年），每天台股收盤漲跌對上「前一晚」（台股前一個交易日之後到這天之前）美股的累積漲跌。
+      <b>相關</b>＝原始報酬相關係數；<b>beta</b>＝美股漲 1%，台股平均漲幾 %；<b>超額相關</b>＝美股和台股都先扣掉跟那斯達克 100 一起漲跌的部分再算相關，
       越高代表這檔真的被當成這家大廠的代理標的，而不是跟著大盤動。<b>美漲／美跌</b>＝美股漲、跌的晚上，台股隔天平均漲跌。
       <b>隔兩日</b>＝美股漲跌對台股「再隔一天」的相關，正得明顯代表反應較慢、隔天還有延續。
-      排名依超額相關，列前 30 名加上供應鏈名單。標「供應鏈但連動低」的可留意補漲或基本面沒反映；「非供應鏈但連動高」多半是題材股。
+      排名依超額相關，列前 30 名加上供應鏈名單；一年樣本下 0.13 以下大多是雜訊（灰字）。標「供應鏈但連動低」的可留意補漲或基本面沒反映；「非供應鏈但連動高」多半是題材股。
     </p>
   </section>
 </main>
@@ -221,7 +222,7 @@ const nodesOf = u => { const m = new Map(); supOf(u).forEach(r => { if (!m.has(r
 const avg = xs => { xs = xs.filter(x => x != null); return xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null; };
 
 function drivers(){
-  $("drv").innerHTML = [...D.drivers, "^SOX"].filter(u => D.us[u]).map(u => { const v = D.us[u], big = v[2] != null && Math.abs(v[2]) >= 3;
+  $("drv").innerHTML = [...D.drivers, "^SOX"].filter(u => D.us[u]).map(u => { const v = D.us[u], big = v[2] != null && Math.abs(v[2]) >= ((D.react[u] || {}).thr || 3);
     return `<button data-u="${esc(u)}" aria-pressed="${u === S.u}"><div class="k">${esc(v[0])}<span class="mono">${esc(u.replace("^", ""))}</span></div>
       <div class="v mono">${pct(v[2])}${big ? `<span class="big ${cls(v[2])}">${v[2] > 0 ? "大漲" : "大跌"}</span>` : ""}</div>
       <div class="s">5 日 ${pct(v[3])}・20 日 ${pct(v[4])}</div></button>`; }).join("");
@@ -300,12 +301,11 @@ function link(){
   rows = rows.filter(r => S.lf === "all" || (S.lf === "sup") === r.sup);
   const k = S.sort;
   rows.sort((a, b) => ((b[k] ?? -1e9) - (a[k] ?? -1e9)) * (S.desc ? 1 : -1));
-  const mid = ranked.length ? ranked[Math.min(ranked.length - 1, 29)].ce : 0;
   $("l-head").innerHTML = `<tr><th class="n">名次</th><th>股票</th>${LC.map(([c, t, , hs]) => `<th class="n${hs ? " hide-s" : ""}${c === k ? " sorted" : ""}" data-k="${c}">${t}${c === k ? (S.desc ? " ↓" : " ↑") : ""}</th>`).join("")}<th class="n hide-s">20 日</th></tr>`;
   $("l-head").querySelectorAll("th[data-k]").forEach(th => th.onclick = () => { if (S.sort === th.dataset.k) S.desc = !S.desc; else { S.sort = th.dataset.k; S.desc = true; } link(); });
-  const heat = v => v == null ? "–" : `<span class="heat" style="background:rgba(198,161,91,${Math.max(0, Math.min(0.45, v * 0.6)).toFixed(2)})">${v.toFixed(2)}</span>`;
+  const heat = v => v == null ? "–" : v < 0.13 ? `<span class="heat faint">${v.toFixed(2)}</span>` : `<span class="heat" style="background:rgba(198,161,91,${Math.max(0, Math.min(0.45, v * 0.9)).toFixed(2)})">${v.toFixed(2)}</span>`;
   $("l-body").innerHTML = rows.map(r => { const t = D.tw[r.code] || [];
-    const flag = r.sup ? (r.ce != null && r.ce < Math.min(0.15, mid) ? `<span class="flag sup">供應鏈但連動低</span>` : `<span class="flag sup">供應鏈</span>`)
+    const flag = r.sup ? (r.ce != null && r.ce < 0.13 ? `<span class="flag sup">供應鏈但連動低</span>` : `<span class="flag sup">供應鏈</span>`)
       : (rank.get(r.code) <= 10 ? `<span class="flag">非供應鏈但連動高</span>` : "");
     return `<tr><td class="n mono faint">${rank.get(r.code)}</td><td>${stockCell(r.code)}${flag}</td>
       <td class="n mono">${fx(r.c, 2)}</td><td class="n mono">${fx(r.b, 2)}</td><td class="n mono">${heat(r.ce)}</td>

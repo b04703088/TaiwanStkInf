@@ -26,6 +26,7 @@
   data/futures.json                  期貨選擇權籌碼：法人未平倉、P/C ratio、大額交易人（見 scripts/futures_site.py）
   data/digest/index.json, <日期>.md  盤後摘要：數字摘要與每晚判讀（見 scripts/digest_site.py）
   data/newhigh.json                  創新高：近 60 日創 52 週／2022 年以來新高的個股與族群（見 scripts/newhigh_site.py）
+  data/us.json                       美股連動：大廠台灣供應鏈、美股大漲大跌後台股隔日反應、連動排名（見 scripts/us_site.py）
   data/limitup.json                  漲停：近 20 日每天收漲停、觸及漲停的個股，連板與隔日表現（見 scripts/limitup_site.py）
   data/screen/screen.json, div.json   選股：技術面、營收財報、籌碼條件；除權息與填息（見 scripts/screen_site.py）
   data/stock/s/<代號>.json           個股綜合查詢：各頁資料裡跟這檔有關的動作（見 scripts/stock_site.py，要最後跑）
@@ -96,6 +97,7 @@ import stock_site  # noqa: E402
 import digest_site  # noqa: E402
 import newhigh_site  # noqa: E402
 import limitup_site  # noqa: E402
+import us_site  # noqa: E402
 
 TPE = timezone(timedelta(hours=8))
 BRAND_SUB = '<span class="brand-sub">籌碼觀測站</span>'
@@ -166,6 +168,7 @@ def build(out: Path, days: int) -> list[str]:
     digest_site.write_digest(ROOT / "data", out / "data" / "digest")
     newhigh_site.write_newhigh(ROOT / "data", out / "data" / "newhigh.json", prices=prices)
     limitup_site.write_limitup(ROOT / "data", out / "data" / "limitup.json")
+    us_site.write_us(ROOT / "data", ROOT, out / "data" / "us.json", prices=prices)
     chips = chips_site.write_chips(ROOT / "data", out / "data" / "chips")
     screen_site.write_screen(ROOT / "data", out / "data" / "screen", today=datetime.now(TPE).date(), prices=prices,
                              extra={"chips": chips} if chips else None)
