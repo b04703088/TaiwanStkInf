@@ -18,7 +18,7 @@ AAPL,2025-10-30,,nasdaq
 AAPL,2026-01-29,,nasdaq
 AAPL,2026-04-30,,nasdaq
 AAPL,2026-07-30,,nasdaq
-AAPL,2026-11-02,,nasdaq
+AAPL,2026-11-02,amc,nasdaq
 AMD,2022-02-01,,nasdaq
 AMD,2022-05-03,,nasdaq
 AMD,2022-08-02,,nasdaq
@@ -38,7 +38,7 @@ AMD,2025-11-04,,nasdaq
 AMD,2026-02-03,,nasdaq
 AMD,2026-05-05,,nasdaq
 AMD,2026-08-04,,nasdaq
-AMD,2026-11-03,,nasdaq
+AMD,2026-11-03,amc,nasdaq
 AMKR,2022-02-14,,nasdaq
 AMKR,2022-05-02,,nasdaq
 AMKR,2022-08-01,,nasdaq
@@ -78,6 +78,7 @@ AMZN,2025-10-30,,nasdaq
 AMZN,2026-02-05,,nasdaq
 AMZN,2026-04-29,,nasdaq
 AMZN,2026-07-30,,nasdaq
+AMZN,2026-10-29,amc,nasdaq
 ANET,2022-02-14,,nasdaq
 ANET,2022-05-02,,nasdaq
 ANET,2022-08-01,,nasdaq
@@ -97,7 +98,7 @@ ANET,2025-11-04,,nasdaq
 ANET,2026-02-12,amc,nasdaq
 ANET,2026-05-05,,nasdaq
 ANET,2026-08-04,,nasdaq
-ANET,2026-11-03,,nasdaq
+ANET,2026-11-03,amc,nasdaq
 AVGO,2022-03-03,,nasdaq
 AVGO,2022-05-26,,nasdaq
 AVGO,2022-09-01,,nasdaq
@@ -136,7 +137,7 @@ COHR,2025-11-05,,nasdaq
 COHR,2026-02-04,,nasdaq
 COHR,2026-05-06,,nasdaq
 COHR,2026-08-12,,nasdaq
-COHR,2026-11-04,,nasdaq
+COHR,2026-11-04,amc,nasdaq
 DELL,2022-02-24,,nasdaq
 DELL,2022-05-26,,nasdaq
 DELL,2022-08-25,,nasdaq
@@ -196,7 +197,7 @@ GFS,2025-11-12,,nasdaq
 GFS,2026-02-11,,nasdaq
 GFS,2026-05-05,,nasdaq
 GFS,2026-08-05,,nasdaq
-GFS,2026-11-04,,nasdaq
+GFS,2026-11-04,bmo,nasdaq
 GOOGL,2022-02-01,,nasdaq
 GOOGL,2022-04-26,,nasdaq
 GOOGL,2022-07-26,,nasdaq
@@ -276,7 +277,7 @@ LITE,2025-11-04,,nasdaq
 LITE,2026-02-03,,nasdaq
 LITE,2026-05-05,,nasdaq
 LITE,2026-08-11,,nasdaq
-LITE,2026-11-05,,nasdaq
+LITE,2026-11-05,amc,nasdaq
 META,2022-02-02,,nasdaq
 META,2022-04-27,,nasdaq
 META,2022-07-27,,nasdaq
@@ -396,7 +397,7 @@ QCOM,2025-11-05,,nasdaq
 QCOM,2026-02-04,,nasdaq
 QCOM,2026-04-29,,nasdaq
 QCOM,2026-07-29,,nasdaq
-QCOM,2026-11-04,,nasdaq
+QCOM,2026-11-04,amc,nasdaq
 SMCI,2022-02-01,,nasdaq
 SMCI,2022-05-03,,nasdaq
 SMCI,2022-08-09,,nasdaq
@@ -415,7 +416,7 @@ SMCI,2025-11-04,,nasdaq
 SMCI,2026-02-03,,nasdaq
 SMCI,2026-05-05,,nasdaq
 SMCI,2026-08-11,,nasdaq
-SMCI,2026-11-03,,nasdaq
+SMCI,2026-11-03,amc,nasdaq
 TER,2022-01-26,,nasdaq
 TER,2022-04-26,,nasdaq
 TER,2022-07-26,,nasdaq
