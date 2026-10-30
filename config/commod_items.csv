@@ -3,9 +3,7 @@ wti,WTI 原油,能源,原油,美元/桶,yahoo:CL=F,NYMEX 近月
 brent,布蘭特原油,能源,原油,美元/桶,yahoo:BZ=F,ICE 近月
 gasoline,汽油,能源,油品,美元/加侖,yahoo:RB=F,NYMEX RBOB
 natgas,天然氣,能源,天然氣,美元/百萬英熱,yahoo:NG=F,NYMEX Henry Hub
-coal,煤炭,能源,煤,美元/噸,yahoo:MTF=F,歐洲 API2
 coking_coal,焦煤,能源,煤,人民幣/噸,sina:JM0,大連主力
-uranium,鈾,能源,核能,美元/磅,yahoo:UX=F,UxC U3O8
 copper,銅,金屬,基本金屬,美元/噸,sinag:CAD,LME 3 個月
 aluminum,鋁,金屬,基本金屬,美元/噸,sinag:AHD,LME 3 個月
 nickel,鎳,金屬,基本金屬,美元/噸,sinag:NID,LME 3 個月

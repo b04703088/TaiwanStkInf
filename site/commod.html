@@ -116,7 +116,13 @@
     .detail{padding:14px 14px;}
     .gcards{grid-template-columns:1fr;}
     .rng{width:48px;}
+    .dh > div:last-child{text-align:left !important;}
+    .iname{white-space:normal; display:block; max-width:9.5em;}
+    .iname small .src{display:none;}
+    td small.unit{display:none !important;}
   }
+  .show-s{display:none;}
+  @media (max-width:860px){ .show-s{display:block;} }
 </style>
 </head>
 <body>
@@ -228,8 +234,8 @@ function table(){
   rows.forEach(i => {
     if (!S.sort && S.cat === "全部" && i.cat !== last) { html += `<tr class="sub"><td colspan="10">${esc(i.cat)}</td></tr>`; last = i.cat; }
     const gs = [...new Set(groupsOf(i.k).map(g => g[1]))];
-    html += `<tr class="click${i.k === S.k ? " on" : ""}" data-k="${esc(i.k)}"><td><span class="iname">${esc(i.name)}${tags(i)}<small>${esc(i.sub)}・${esc(i.src)}・${md(i.d)}</small></span></td>
-      <td class="n mono">${fx(i.p, dp(i.p))}<small class="faint" style="display:block;font-size:11px;font-family:'Noto Sans TC',sans-serif">${esc(i.unit)}</small></td>
+    html += `<tr class="click${i.k === S.k ? " on" : ""}" data-k="${esc(i.k)}"><td><span class="iname">${esc(i.name)}${tags(i)}<small>${esc(i.sub)}<span class="src">・${esc(i.src)}</span>・${md(i.d)}</small></span></td>
+      <td class="n mono">${fx(i.p, dp(i.p))}<small class="faint unit" style="display:block;font-size:11px;font-family:'Noto Sans TC',sans-serif">${esc(i.unit)}</small></td>
       ${RC.map(([, , j, hs]) => `<td class="n mono${hs ? " hide-s" : ""}">${pct(i.r[j])}</td>`).join("")}
       <td class="hide-s">${rng(i.pos)}</td><td class="hide-s">${spark(i.k)}</td><td class="hide-s grp">${gs.map(esc).join("、") || "<span class=faint>–</span>"}</td></tr>`;
   });
@@ -283,7 +289,10 @@ function chart(){
   const it = I[S.k], all = D.series[it.k] || [];
   const cut = new Date(new Date(it.d).getTime() - S.span * 864e5).toISOString().slice(0, 10);
   const s = all.filter(x => x[0] > cut); const n = s.length;
-  const svg = $("c-svg"); if (n < 2) { svg.innerHTML = ""; return; }
+  const svg = $("c-svg");
+  if (all.length < 10) { svg.style.display = "none"; svg.innerHTML = ""; svg.insertAdjacentHTML("afterend", `<p class="hint" id="c-few" style="margin:6px 0 0">這項沒有免費的歷史資料，從 ${all.length ? all[0][0] : "上線"} 起每天累積，資料滿兩週後才會有走勢圖與漲跌幅。</p>`); return; }
+  svg.style.display = "";
+  if (n < 2) { svg.innerHTML = ""; return; }
   const W = svg.clientWidth || 800, H = svg.clientHeight || 220, L = 52, pd = 14;
   const v = s.map(x => x[1]), lo = Math.min(...v), hi = Math.max(...v);
   const X = i => L + i / (n - 1) * (W - L - 6), Y = y => pd + (hi - y) / (hi - lo || 1) * (H - pd * 2 - 12);
@@ -314,10 +323,11 @@ function mapTab(){
     return {g, it, c20, gap: c20 == null || g[6] == null ? null : sign * c20 - g[6]}; });
   const k = S.msort;
   rows.sort((a, b) => k === "gap" ? (b.gap ?? -1e9) - (a.gap ?? -1e9) : k === "c20" ? Math.abs(b.c20 ?? 0) - Math.abs(a.c20 ?? 0) : (b.g[7] ?? -9) - (a.g[7] ?? -9));
-  $("m-head").innerHTML = `<tr><th>原物料</th><th class="n">20 日</th><th>台股族群</th><th class="n">族群 5 日</th><th class="n">族群 20 日</th><th class="n">落差</th><th class="n hide-s">連動</th><th class="n hide-s">報價漲時</th><th class="hide-s">個股</th></tr>`;
-  $("m-body").innerHTML = rows.map(({g, it, c20, gap}) => `<tr class="click" data-k="${esc(it.k)}"><td><span class="iname">${esc(it.name)}<small>${esc(it.cat)}・${esc(it.sub)}</small></span></td>
-    <td class="n mono">${pct(c20)}</td><td>${esc(g[1])} <span class="eff${g[2] === "受惠" ? " g" : ""}">${esc(g[2])}</span>${g[3] ? `<small class="faint" style="display:block;font-size:11.5px;white-space:normal;max-width:18em">${esc(g[3])}</small>` : ""}</td>
-    <td class="n mono">${pct(g[5])}</td><td class="n mono">${pct(g[6])}</td>
+  $("m-head").innerHTML = `<tr><th>原物料<span class="show-s">→ 台股族群</span></th><th class="n hide-s">20 日</th><th class="hide-s">台股族群</th><th class="n hide-s">族群 5 日</th><th class="n">族群 20 日</th><th class="n">落差</th><th class="n hide-s">連動</th><th class="n hide-s">報價漲時</th><th class="hide-s">個股</th></tr>`;
+  $("m-body").innerHTML = rows.map(({g, it, c20, gap}) => `<tr class="click" data-k="${esc(it.k)}"><td><span class="iname">${esc(it.name)}<small class="hide-s">${esc(it.cat)}・${esc(it.sub)}</small></span>
+      <span class="show-s" style="font-size:12.5px;color:var(--text-muted);white-space:normal">20 日 ${pct(c20)} → ${esc(g[1])} <span class="eff${g[2] === "受惠" ? " g" : ""}">${esc(g[2])}</span></span></td>
+    <td class="n mono hide-s">${pct(c20)}</td><td class="hide-s">${esc(g[1])} <span class="eff${g[2] === "受惠" ? " g" : ""}">${esc(g[2])}</span>${g[3] ? `<small class="faint" style="display:block;font-size:11.5px;white-space:normal;max-width:18em">${esc(g[3])}</small>` : ""}</td>
+    <td class="n mono hide-s">${pct(g[5])}</td><td class="n mono">${pct(g[6])}</td>
     <td class="n mono">${gap == null ? "–" : `<span class="${Math.abs(gap) >= 8 ? (gap > 0 ? "up" : "down") : "muted"}" style="${Math.abs(gap) >= 8 ? "font-weight:600" : ""}">${gap > 0 ? "+" : ""}${gap.toFixed(1)}</span>`}</td>
     <td class="n mono hide-s ${g[7] != null && g[7] >= .15 ? "" : "faint"}">${fx(g[7], 2)}</td><td class="n mono hide-s">${pct(g[8], 2)}</td>
     <td class="hide-s grp">${g[4].map(c => esc((D.tw[c] || [c])[0])).join("、")}</td></tr>`).join("") || `<tr><td colspan="9" class="empty">沒有資料</td></tr>`;
@@ -335,7 +345,7 @@ fetch("data/commod.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
   D = d; D.items.forEach(i => I[i.k] = i);
   const h = location.hash.slice(1), t = h.split("&")[0], k = (h.match(/k=([^&]+)/) || [])[1];
   if (["all", "map"].includes(t)) S.t = t;
-  S.k = k && I[decodeURIComponent(k)] ? decodeURIComponent(k) : ([...D.items].filter(i => i.r[1] != null).sort((a, b) => Math.abs(b.r[1]) - Math.abs(a.r[1]))[0] || D.items[0]).k;
+  S.k = k && I[decodeURIComponent(k)] ? decodeURIComponent(k) : ([...D.items].filter(i => i.r[1] != null && groupsOf(i.k).length).sort((a, b) => Math.abs(b.r[1]) - Math.abs(a.r[1]))[0] || D.items[0]).k;
   const last = D.items.map(i => i.d).sort().pop();
   $("sub").textContent = `${D.items.length} 項報價，最新到 ${last}；台股到 ${md(D.date_tw)}。能源、金屬、農產品、化工、航運運價與記憶體現貨，看漲跌幅、一年高低位置，並對照受惠或吃成本的台股族群。`;
   movers();

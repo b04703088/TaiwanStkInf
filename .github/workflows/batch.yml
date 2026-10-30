@@ -4,10 +4,10 @@ name: Fetch batch
 # 也省掉重複的 checkout／setup-python）。一支失敗不影響其他支，最後統一 commit 一次。
 # 原本各自的 workflow（mops、cb、analyst、treasury、alert、margin、financials、insider）只留手動回補。
 #
-#   早上 08:30  MOPS 公告、可轉債、分析師、庫藏股、處置股（盤前補抓）、融資融券（補抓）、國際金融、美股收盤
+#   早上 08:30  MOPS 公告、可轉債、分析師、庫藏股、處置股（盤前補抓）、融資融券（補抓）、國際金融、美股收盤、原物料
 #   傍晚 18:40  處置股＋還原事件、可轉債、MOPS 公告、財報、內部人（每月 18～28 日）
-#   晚上 21:40  融資融券、MOPS 公告、分析師、庫藏股＋買回期間分點、三大法人／借券／當沖、期交所籌碼、國際金融、盤後數字摘要
-#   週末只跑：早上 分析師、MOPS 公告、集保股權分散、美股收盤（週六補週五）；傍晚 財報、內部人；晚上 分析師
+#   晚上 21:40  融資融券、MOPS 公告、分析師、庫藏股＋買回期間分點、三大法人／借券／當沖、期交所籌碼、國際金融、原物料、盤後數字摘要
+#   週末只跑：早上 分析師、MOPS 公告、集保股權分散、美股收盤、原物料（週六補週五）；傍晚 財報、內部人；晚上 分析師
 # 每日股價、券商分點、ETF 由 cron-job.org 準時觸發且有先後關係，不在這裡。
 #
 # GitHub 排程常延遲 3～6 小時（10/28 晚班拖到隔天 00:24 才跑，盤後判讀跟著晚）。
@@ -107,6 +107,7 @@ jobs:
               on analyst; on mops; on us
               [ $wk = 0 ] && on tdcc
               [ $wk = 1 ] && on macro
+              on commod
               if [ $wk = 1 ]; then on cb; on treasury; on alert; on margin; fi ;;
             evening)
               on financials
@@ -114,7 +115,7 @@ jobs:
               if [ $wk = 1 ]; then on alert; on adjust; on cb; on mops; fi ;;
             night)
               on analyst
-              if [ $wk = 1 ]; then on margin; on mops; on treasury; on treasury_broker; on chips; on macro; fi ;;
+              if [ $wk = 1 ]; then on margin; on mops; on treasury; on treasury_broker; on chips; on macro; on commod; fi ;;
           esac
           echo "slot=$slot" >> "$GITHUB_OUTPUT"
           echo "時段 $slot，平日=$wk，日期 $dom"; cat "$GITHUB_OUTPUT"
@@ -195,6 +196,12 @@ jobs:
         continue-on-error: true
         # 給盤後摘要的資金水龍頭用；早上補美股收盤後的數字
         run: python -u fetch_macro.py
+
+      - name: 原物料、運價、記憶體現貨
+        if: always() && steps.s.outputs.commod == '1'
+        continue-on-error: true
+        # 原物料頁用；早上抓美國／倫敦收盤，晚上抓中國期貨日盤、BDI、DRAMeXchange 當天均價
+        run: python -u fetch_commod.py
 
       - name: 美股收盤、財報日
         if: always() && steps.s.outputs.us == '1'

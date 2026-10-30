@@ -3,7 +3,7 @@
   data/commod.json
     date_tw  最新台股交易日（YYYYMMDD）
     items    [{"k", "name", "cat", "unit", "src", "d": 最新報價日, "p": 收盤,
-               "r": [1 日, 5 日, 20 日, 60 日, 250 日 漲跌%], "hi", "lo": 52 週高低, "pos": 52 週位置 0～100,
+               "r": [1 日, 5 日, 20 日, 60 日, 1 年 漲跌%], "hi", "lo": 52 週高低, "pos": 52 週位置 0～100,
                "z": 今天漲跌是近 60 日日報酬標準差的幾倍, "streak": 連漲(+)／連跌(−)天數, "wk": 週資料}, ...]
                週資料（SCFI 等）的「1 日」是上一期、「5 日」是 4 期前、「20 日」是 13 期前，依 ROWS 換算
     series   {k: [[YYYY-MM-DD, 收盤], ...]}  近 SERIES_DAYS 天
@@ -18,6 +18,7 @@ import csv
 import json
 import math
 import statistics
+from bisect import bisect_right
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -26,6 +27,8 @@ import us_site
 
 SERIES_DAYS = 800   # 圖表保留的日曆天數（約 2 年）
 WIN = 120           # 相關係數用最近幾個台股交易日
+MIN_POS = 10        # 資料少於幾筆不算 52 週位置（SCFI、記憶體是上線後才開始累積）
+MIN_CORR = 60
 CATS = ["能源", "金屬", "農產品", "化工", "航運", "科技"]
 
 
@@ -65,11 +68,16 @@ def stats(dates, closes):
     wk = weekly(dates)
     steps = (1, 1, 4, 13, 52) if wk else (1, 5, 20, 60, 250)
     last = closes[-1]
-    r = [_r(_pct(last, closes[-1 - s])) if n > s else None for s in steps]
+    r = [_r(_pct(last, closes[-1 - s])) if n > s else None for s in steps[:4]]
+    # 1 年用日曆天：一年前那天（或之前最近一筆）的收盤；資料起點晚於一年前 7 天以上就不算
     cut = (date.fromisoformat(dates[-1]) - timedelta(days=365)).isoformat()
+    i = bisect_right(dates, cut) - 1
+    if i < 0 and dates[0] <= (date.fromisoformat(cut) + timedelta(days=7)).isoformat():
+        i = 0
+    r.append(_r(_pct(last, closes[i])) if i >= 0 and n > 1 else None)
     yr = [c for d, c in zip(dates, closes) if d > cut]
     hi, lo = max(yr), min(yr)
-    pos = _r((last - lo) / (hi - lo) * 100, 0) if hi > lo else None
+    pos = _r((last - lo) / (hi - lo) * 100, 0) if hi > lo and len(yr) >= MIN_POS else None
     rets = [closes[i] / closes[i - 1] - 1 for i in range(max(1, n - 61), n) if closes[i - 1]]
     z = None
     if not wk and len(rets) >= 30:
@@ -90,7 +98,7 @@ def build(prices, days, events, series, items, mapping):
     out_items, out_series = [], {}
     for it in items:
         k = it["key"]
-        if k not in series or len(series[k][0]) < 2:
+        if k not in series:
             continue
         d, c = series[k]
         s = stats(d, c)
@@ -120,7 +128,7 @@ def build(prices, days, events, series, items, mapping):
         g5 = [tw[c][3] for c in cs if tw[c][3] is not None]
         g20 = [tw[c][4] for c in cs if tw[c][4] is not None]
         rho, up, n = None, None, 0
-        if not have[k]["wk"] and cs:
+        if not have[k]["wk"] and cs and len(series[k][0]) >= MIN_CORR:
             cr = us_site.us_by_tw((series[k][0], None, series[k][1]), recent)
             xs, ys = [], []
             for i in range(1, len(recent)):
