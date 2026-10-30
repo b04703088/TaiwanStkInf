@@ -426,7 +426,7 @@ function peer(){
   const k = S.psort || "z";
   let rows = P.pairs.map(r => ({code: r[0], us: r[1], theme: r[2], note: r[3], z: r[4], tw20: r[5], us20: r[6], d20: r[7], corr: r[8]}));
   rows.sort((a, b) => k === "z" ? Math.abs(b.z ?? 0) - Math.abs(a.z ?? 0) : ((b[k] ?? -1e9) - (a[k] ?? -1e9)) * (S.pdesc === false ? -1 : 1));
-  $("p-head").innerHTML = `<tr><th>台股</th><th>美股</th><th class="hide-s">主題</th><th>比值走勢</th>${PC.map(([c, t, , hs]) => `<th class="n${hs ? " hide-s" : ""}${c === k ? " sorted" : ""}" data-k="${c}">${t}${c === k ? " ↓" : ""}</th>`).join("")}</tr>`;
+  $("p-head").innerHTML = `<tr><th>台股</th><th>美股</th><th class="hide-s">主題</th><th class="hide-s">比值走勢</th>${PC.map(([c, t, , hs]) => `<th class="n${hs ? " hide-s" : ""}${c === k ? " sorted" : ""}" data-k="${c}">${t}${c === k ? " ↓" : ""}</th>`).join("")}</tr>`;
   $("p-head").querySelectorAll("th[data-k]").forEach(th => th.onclick = () => { S.psort = th.dataset.k; peer(); });
   const spark = arr => { if (!arr || arr.length < 2) return "";
     const lo = Math.min(...arr), hi = Math.max(...arr), w = 110, h = 26;
@@ -434,7 +434,7 @@ function peer(){
     return `<svg width="${w}" height="${h}" style="display:block"><polyline fill="none" stroke="${arr[arr.length - 1] >= 100 ? "var(--rise)" : "var(--fall)"}" stroke-width="1.3" points="${pts}"/></svg>`; };
   const zc = z => z == null ? "–" : `<span class="${Math.abs(z) >= 2 ? (z > 0 ? "up" : "down") : "muted"}" style="${Math.abs(z) >= 2 ? "font-weight:600" : ""}">${z > 0 ? "+" : ""}${z.toFixed(1)}σ</span>`;
   $("p-body").innerHTML = rows.map(r => `<tr><td>${stockCell(r.code)}</td><td><b style="font-weight:500">${esc(D.us[r.us] ? D.us[r.us][0] : r.us)}</b> <span class="mono faint">${esc(r.us)}</span></td>
-    <td class="hide-s muted">${esc(r.theme)}${r.note ? `<span class="role">${esc(r.note)}</span>` : ""}</td><td>${spark(P.series[`${r.code}/${r.us}`])}</td>
+    <td class="hide-s muted">${esc(r.theme)}${r.note ? `<span class="role">${esc(r.note)}</span>` : ""}</td><td class="hide-s">${spark(P.series[`${r.code}/${r.us}`])}</td>
     <td class="n mono">${zc(r.z)}</td><td class="n mono">${pct(r.tw20)}</td><td class="n mono">${pct(r.us20)}</td><td class="n mono">${pct(r.d20)}</td><td class="n mono hide-s">${fx(r.corr, 2)}</td></tr>`).join("");
 }
 
