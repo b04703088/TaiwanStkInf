@@ -1,0 +1,57 @@
+key,name,cat,sub,unit,sources,label
+wti,WTI 原油,能源,原油,美元/桶,yahoo:CL=F,NYMEX 近月
+brent,布蘭特原油,能源,原油,美元/桶,yahoo:BZ=F,ICE 近月
+gasoline,汽油,能源,油品,美元/加侖,yahoo:RB=F,NYMEX RBOB
+natgas,天然氣,能源,天然氣,美元/百萬英熱,yahoo:NG=F,NYMEX Henry Hub
+coking_coal,焦煤,能源,煤,人民幣/噸,sina:JM0,大連主力
+copper,銅,金屬,基本金屬,美元/噸,sinag:CAD,LME 3 個月
+aluminum,鋁,金屬,基本金屬,美元/噸,sinag:AHD,LME 3 個月
+nickel,鎳,金屬,基本金屬,美元/噸,sinag:NID,LME 3 個月
+zinc,鋅,金屬,基本金屬,美元/噸,sinag:ZSD,LME 3 個月
+tin,錫,金屬,基本金屬,美元/噸,sinag:SND,LME 3 個月
+gold,黃金,金屬,貴金屬,美元/盎司,yahoo:GC=F,COMEX 近月
+silver,白銀,金屬,貴金屬,美元/盎司,yahoo:SI=F,COMEX 近月
+platinum,鉑金,金屬,貴金屬,美元/盎司,yahoo:PL=F,NYMEX 近月
+palladium,鈀金,金屬,貴金屬,美元/盎司,yahoo:PA=F,NYMEX 近月
+iron_ore,鐵礦砂,金屬,鋼鐵,人民幣/噸,sina:I0,大連主力
+rebar,螺紋鋼,金屬,鋼鐵,人民幣/噸,sina:RB0,上海主力
+cn_hrc,熱軋鋼捲（中國）,金屬,鋼鐵,人民幣/噸,sina:HC0,上海主力
+hrc,熱軋鋼捲（美國）,金屬,鋼鐵,美元/短噸,yahoo:HRC=F,CME 中西部
+stainless,不鏽鋼,金屬,鋼鐵,人民幣/噸,sina:SS0,上海主力
+lithium,碳酸鋰,金屬,新能源,人民幣/噸,sina:LC0,廣州主力
+polysilicon,多晶矽,金屬,新能源,人民幣/噸,sina:PS0,廣州主力
+silicon,工業矽,金屬,新能源,人民幣/噸,sina:SI0,廣州主力
+corn,玉米,農產品,穀物,美分/英斗,yahoo:ZC=F,CBOT 近月
+wheat,小麥,農產品,穀物,美分/英斗,yahoo:ZW=F,CBOT 近月
+soybean,黃豆,農產品,油籽,美分/英斗,yahoo:ZS=F,CBOT 近月
+soymeal,豆粕,農產品,油籽,美元/短噸,yahoo:ZM=F,CBOT 近月
+palm,棕櫚油,農產品,油籽,人民幣/噸,sina:P0,大連主力
+sugar,糖,農產品,軟性商品,美分/磅,yahoo:SB=F,ICE 11 號糖
+coffee,咖啡,農產品,軟性商品,美分/磅,yahoo:KC=F,ICE 阿拉比卡
+cocoa,可可,農產品,軟性商品,美元/噸,yahoo:CC=F,ICE 近月
+cotton,棉花,農產品,軟性商品,美分/磅,yahoo:CT=F,ICE 近月
+rubber,天然橡膠,農產品,軟性商品,人民幣/噸,sina:RU0,上海主力
+hogs,瘦肉豬,農產品,畜產,美分/磅,yahoo:HE=F,CME 近月
+pta,PTA,化工,聚酯,人民幣/噸,sina:TA0,鄭州主力
+eg,乙二醇,化工,聚酯,人民幣/噸,sina:EG0,大連主力
+pp,聚丙烯 PP,化工,塑膠,人民幣/噸,sina:PP0,大連主力
+pvc,PVC,化工,塑膠,人民幣/噸,sina:V0,大連主力
+methanol,甲醇,化工,基礎化學,人民幣/噸,sina:MA0,鄭州主力
+glass,玻璃,化工,基礎化學,人民幣/噸,sina:FG0,鄭州主力
+container_fut,集運指數（歐線）期貨,航運,貨櫃,點,sina:EC0,上海國際能源交易中心主力
+scfi,SCFI 上海出口貨櫃運價,航運,貨櫃,點,sse:scfi:综合指数 Comprehensive Index,上海航交所・每週五
+ccfi,CCFI 中國出口貨櫃運價,航運,貨櫃,點,sse:ccfi:中国出口集装箱运价综合指数,上海航交所・每週五
+ccfi_usw,CCFI 美西線,航運,貨櫃,點,sse:ccfi:美西航线 (W/C AMERICA SERVICE),上海航交所・每週五
+ccfi_eu,CCFI 歐洲線,航運,貨櫃,點,sse:ccfi:欧洲航线 (EUROPE SERVICE),上海航交所・每週五
+bdi,BDI 波羅的海乾散貨,航運,散裝,點,cnyes:BDI,波羅的海交易所
+bci,BCI 海岬型,航運,散裝,點,cnyes:BCI,波羅的海交易所
+bpi,BPI 巴拿馬型,航運,散裝,點,cnyes:BPI,波羅的海交易所
+bsi,BSI 超輕便型,航運,散裝,點,cnyes:BHMI,波羅的海交易所
+bdti,BDTI 原油油輪,航運,油輪,點,cnyes:BDTI,波羅的海交易所
+bcti,BCTI 成品油輪,航運,油輪,點,cnyes:BCTI,波羅的海交易所
+ddr5,DDR5 16Gb 現貨,科技,DRAM,美元/顆,dramx:DDR5 16Gb (2Gx8) 4800/5600,DRAMeXchange 每日均價
+ddr4_16,DDR4 16Gb 現貨,科技,DRAM,美元/顆,dramx:DDR4 16Gb (2Gx8) 3200,DRAMeXchange 每日均價
+ddr4_8,DDR4 8Gb 現貨,科技,DRAM,美元/顆,dramx:DDR4 8Gb (1Gx8) 3200,DRAMeXchange 每日均價
+ddr5_rdimm,DDR5 RDIMM 32GB 模組,科技,DRAM,美元/條,dramx:DDR5 RDIMM 32GB 4800/5600,DRAMeXchange 每週均價
+nand_512,NAND 512Gb TLC 晶圓,科技,NAND,美元/片,dramx:512Gb TLC,DRAMeXchange 每週均價
+nand_256,NAND 256Gb TLC 晶圓,科技,NAND,美元/片,dramx:256Gb TLC,DRAMeXchange 每週均價
