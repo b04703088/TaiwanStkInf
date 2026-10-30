@@ -68,6 +68,13 @@
   .info .ev{color:var(--brass);}
   .kbox{position:relative; margin-top:8px; touch-action:pan-y; user-select:none; -webkit-user-select:none; cursor:crosshair;}
   .kbox canvas{display:block; width:100%;}
+  /* 事件標記的浮動說明：滑過（手機點一下）事件帶色塊或「息、權」就出現 */
+  .ktip{position:absolute; z-index:5; display:none; pointer-events:none; width:max-content; max-width:min(320px, calc(100% - 16px)); padding:8px 11px; background:var(--panel-2); border:1px solid var(--line-strong); border-radius:var(--radius-s); box-shadow:0 8px 24px rgba(0,0,0,.35); font-size:12.5px; line-height:1.55; color:var(--text);}
+  .ktip .th{font-size:11.5px; color:var(--text-faint); margin-bottom:2px;}
+  .ktip .th b{color:var(--kc); font-weight:500; margin-right:6px;}
+  .ktip .it + .it{margin-top:5px; padding-top:5px; border-top:1px solid var(--line);}
+  .ktip .d{color:var(--text-muted); font-size:12px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;}
+  .ktip .more{color:var(--text-faint); font-size:11.5px; margin-top:4px;}
   .tbl-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius-m);}
   table{width:100%; border-collapse:collapse; font-size:13.5px;}
   th, td{padding:9px 12px; border-bottom:1px solid var(--line); text-align:left; white-space:nowrap;}
@@ -143,9 +150,9 @@
 
   <p class="note">
     還原價：把除權息、減資、變更面額、ETF 分割造成的基準價跳動還原回去，最新一天的價格不變，越早的價格依之後每次事件的「參考價 ÷ 前收盤」連乘調整；成交量反向調整（分割前的 1 張換算成現在的張數）。
-    事件與參考價來自證交所、櫃買中心的除權除息計算結果表、減資／變更面額／ETF 分割恢復買賣參考價（2022 年起）。K 線圖下方的「息、權、減、面、分」標記事件發生日，滑過可看說明。<br>
+    事件與參考價來自證交所、櫃買中心的除權除息計算結果表、減資／變更面額／ETF 分割恢復買賣參考價（2022 年起）。K 線圖下方的「息、權、減、面、分」標記事件發生日，滑過（手機點一下）會跳出說明。<br>
     副圖：外資（含外資自營商）、投信、自營商買賣超為張數，金色線是畫面最左邊那根起算的累計買賣超；週K、月K 為該期加總。融資融券、借券、不限用途借貸（拿股票質押借錢的擔保張數；限額＝證交所公告該股可擔保上限）為期末餘額（張），千張大戶為集保每週持股比例。籌碼資料約一年（法人與借券 2025/10 起、融資券 2025/07 起），張數沒有隨除權還原。<br>
-    標註：K 線下方的事件帶一類一條（右邊寫類別），有事件的那根畫色塊，夠寬時寫小字——內部人：轉＝申報轉讓、異＝每月持股異動、質＝董監質押；處置注意：處＝處置、注＝注意股、出＝出關、警＝可能被處置；法說會：法＝法說會、股＝股東會；庫藏股：決＝董事會決議、完＝買回結束；可轉債：決／效／詢／掛；ETF指數：增＝納入／加碼、減＝剔除／減碼；外資報告：升／降／評；重點分點：買／賣。滑過或點一下看全部內容。<br>
+    標註：K 線下方的事件帶一類一條（右邊寫類別），有事件的那根畫色塊，夠寬時寫小字——內部人：轉＝申報轉讓、異＝每月持股異動、質＝董監質押；處置注意：處＝處置、注＝注意股、出＝出關、警＝可能被處置；法說會：法＝法說會、股＝股東會；庫藏股：決＝董事會決議、完＝買回結束；可轉債：決／效／詢／掛；ETF指數：增＝納入／加碼、減＝剔除／減碼；外資報告：升／降／評；重點分點：買／賣。滑鼠移到色塊上（手機點一下）會跳出該事件說明，圖下方另列當天全部事件與連結。<br>
     操作：滑鼠滾輪縮放、拖曳左右移動；手機可左右拖曳，用上方按鈕切換區間。資料僅供參考，不構成投資建議。
   </p>
 </main>
@@ -299,7 +306,7 @@ function draw(){
   const py0 = T, py1 = T + PH - EVH;   // 最下面留一條放還原事件標記
   const Y = v => py0 + (hi - v) / (hi - lo) * (py1 - py0);
   const X = i => (i + 0.5) * bw;
-  G = {W, H, R, T, pw, bw, Y, lo, hi, py0, py1, n, bot};
+  G = {W, H, R, T, pw, bw, Y, lo, hi, py0, py1, n, bot, EVH, lanes, LT, LH, my: G.my};   // my＝游標高度，重畫時要留著
   const line = css("--line"), faint = css("--text-faint"), rise = css("--rise"), fall = css("--fall"), muted = css("--text-muted"), brass = css("--brass");
   x.font = "10.5px 'IBM Plex Mono', monospace";
   // 格線與價格軸
@@ -518,10 +525,45 @@ function evDetail(b){
     + (e[3] ? `<div class="d">${esc(e[3])}</div>` : "") + "</div>").join("");
 }
 
+// 浮動說明：游標在事件帶某一條（或價格區底部「息、權」那條）上，且附近有該類事件時顯示
+const tip = document.createElement("div"); tip.className = "ktip";
+function evTip(px, py){
+  const bt = G.py1 + 1, inAdj = py >= bt && py <= bt + G.EVH, j = Math.floor((py - G.LT - 2) / G.LH);
+  const lane = !inAdj && j >= 0 && j < G.lanes.length && px <= G.pw ? G.lanes[j] : null;
+  if (!inAdj && !lane || px > G.pw){ tip.style.display = "none"; return; }
+  // 色塊可能比 K 棒寬，往左右找最近一根有事件的
+  const i0 = Math.floor(px / G.bw) + s0, reach = Math.ceil(9 / G.bw);
+  const pick = b => inAdj ? b.ev : b.sev.filter(e => e[1] === lane[0]);
+  let b = null;
+  for (let d = 0; d <= reach && !b; d++) for (const i of d ? [i0 - d, i0 + d] : [i0])
+    if (i >= s0 && i < s1 && pick(BARS[i]).length){ b = BARS[i]; break; }
+  if (!b){ tip.style.display = "none"; return; }
+  const es = pick(b), per = V.per === "d" ? "" : V.per === "w" ? " 這週" : " 這個月";
+  const dl = V.per === "d" ? dTxt(b.d) : `${dTxt(b.d0)}–${dTxt(b.d).slice(5)}`;
+  let h;
+  if (inAdj) h = `<div class="th" style="--kc:var(--brass)"><b>還原事件</b>${dl}${per}</div>` + es.map(e =>
+    `<div class="it">${V.per === "d" ? "" : `<span class="mono faint">${dTxt(e[0]).slice(5)}</span> `}${esc(e[2])}${e[4] ? `・現金 ${e[4]} 元` : ""}${e[3] ? `<div class="d">${esc(e[3])}</div>` : ""}</div>`).join("");
+  else {
+    const MAX = 4;
+    h = `<div class="th" style="--kc:var(--k-${lane[0]})"><b>${esc(lane[1])}</b>${dl}${per}</div>` + es.slice(0, MAX).map(e =>
+      `<div class="it">${V.per === "d" ? "" : `<span class="mono faint">${e[0].slice(5)}</span> `}${esc(e[2])}${e[3] ? `<div class="d">${esc(e[3])}</div>` : ""}</div>`).join("")
+      + (es.length > MAX ? `<div class="more">還有 ${es.length - MAX} 筆，見圖下方明細</div>` : "");
+  }
+  tip.innerHTML = h; tip.style.display = "block";
+  // 預設放在游標左上方，放不下就換邊
+  const tw = tip.offsetWidth, th = tip.offsetHeight;
+  let l = px + 14; if (l + tw > G.W - 4) l = Math.max(4, px - 14 - tw);
+  let t = py - th - 12; if (t < 4) t = py + 18;
+  tip.style.left = l + "px"; tip.style.top = t + "px";
+}
+const hideTip = () => { tip.style.display = "none"; };
+// 手機點圖外面就收起說明
+document.addEventListener("pointerdown", e => { if (!tip.parentNode || !tip.parentNode.contains(e.target)) hideTip(); });
+
 /* ---------- 互動 ---------- */
 function bindChart(){
   const box = $("kbox");
-  box.appendChild(cv);
+  box.appendChild(cv); box.appendChild(tip); hideTip();
   const idxAt = cx => { const r = cv.getBoundingClientRect(); return Math.floor((cx - r.left) / G.bw) + s0; };
   let drag = null;
   cv.onpointermove = e => {
@@ -535,20 +577,22 @@ function bindChart(){
     hover = Math.min(s1 - 1, Math.max(s0, idxAt(e.clientX)));
     G.my = e.clientY - r.top;
     draw(); evDetail(BARS[hover]);
+    drag && e.pointerType !== "mouse" && Math.abs(drag.x - e.clientX) > 6 ? hideTip() : evTip(e.clientX - r.left, G.my);
   };
   cv.onpointerdown = e => {
     drag = {x: e.clientX, s0, s1};
     if (e.pointerType === "mouse") cv.setPointerCapture(e.pointerId);
     hover = Math.min(s1 - 1, Math.max(s0, idxAt(e.clientX))); G.my = e.clientY - cv.getBoundingClientRect().top; draw(); evDetail(BARS[hover]);
+    evTip(e.clientX - cv.getBoundingClientRect().left, G.my);
   };
   cv.onpointerup = cv.onpointercancel = () => { drag = null; };
-  cv.onpointerleave = e => { drag = null; if (e.pointerType === "mouse"){ hover = -1; G.my = null; draw(); } };
+  cv.onpointerleave = e => { drag = null; if (e.pointerType === "mouse"){ hover = -1; G.my = null; draw(); hideTip(); } };
   cv.onwheel = e => {
     e.preventDefault();
     const len = s1 - s0, at = Math.min(s1 - 1, Math.max(s0, idxAt(e.clientX))), k = (at - s0) / len;
     const nl = Math.max(12, Math.min(BARS.length, Math.round(len * (e.deltaY > 0 ? 1.15 : 0.87))));
     let a = Math.round(at - k * nl); a = Math.max(0, Math.min(BARS.length - nl, a));
-    s0 = a; s1 = a + nl; draw();
+    s0 = a; s1 = a + nl; draw(); hideTip();
   };
 }
 
