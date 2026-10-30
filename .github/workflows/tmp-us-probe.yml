@@ -8,14 +8,19 @@ permissions:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 300
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: {python-version: "3.12"}
-      - run: python -u fetch_us.py --earnings-since 2022-01-01
       - run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/us && git commit -q -m "data: us probe" && git push
-# rerun 3 backfill
+          for h in 2022-01-01:2022-06-30 2022-07-01:2022-12-31 2023-01-01:2023-06-30 2023-07-01:2023-12-31 \
+                   2024-01-01:2024-06-30 2024-07-01:2024-12-31 2025-01-01:2025-06-30 2025-07-01:2025-12-31 \
+                   2026-01-01:2026-06-30 2026-07-01:2026-12-15; do
+            python -u fetch_us.py --no-prices --earnings-since ${h%%:*} --earnings-until ${h##*:} || true
+            git add data/us && git commit -q -m "data: us earnings backfill ${h%%:*}" || true
+            git pull -q --rebase && git push -q || true
+          done
+# backfill 2

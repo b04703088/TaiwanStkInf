@@ -12,7 +12,7 @@
   data/us/daily.csv     date, symbol, open, high, low, close, volume（日期為交易所當地日期；每次抓近 5 年並覆蓋）
   data/us/earnings.csv  symbol, date, time, source   time：amc 盤後／bmo 盤前／空白＝不確定
 
-用法：python fetch_us.py [--no-earnings] [--earnings-since 2022-01-01]
+用法：python fetch_us.py [--no-earnings] [--no-prices] [--earnings-since 2022-01-01] [--earnings-until 2022-06-30]
 """
 import argparse
 import csv
@@ -113,13 +113,21 @@ def fetch_prices(syms):
 
 def nasdaq_day(d):
     """Nasdaq 財報行事曆某一天：{代號: amc／bmo／空白}。"""
-    j = json.loads(get(f"https://api.nasdaq.com/api/calendar/earnings?date={d}", timeout=30))
+    j = json.loads(get(f"https://api.nasdaq.com/api/calendar/earnings?date={d}", timeout=15))
     rows = ((j.get("data") or {}).get("rows")) or []
     return {r.get("symbol", "").upper(): TIME.get(r.get("time"), "") for r in rows}
 
 
-def fetch_earnings(syms, since, ahead=45):
-    """從 since 到今天之後 ahead 天，逐日查 Nasdaq 行事曆。未來的日期每次重抓（公司會改期）。"""
+def save_earnings(p, rows):
+    with p.open("w", newline="", encoding="utf-8") as fp:
+        w = csv.DictWriter(fp, fieldnames=["symbol", "date", "time", "source"])
+        w.writeheader()
+        for k in sorted(rows):
+            w.writerow(rows[k])
+
+
+def fetch_earnings(syms, since, until):
+    """從 since 到 until 逐日查 Nasdaq 行事曆，這段期間整段重建（未來日期每次重抓，公司會改期）。"""
     p = OUT / "earnings.csv"
     rows = {}
     if p.exists():
@@ -127,44 +135,48 @@ def fetch_earnings(syms, since, ahead=45):
             for r in csv.DictReader(fp):
                 rows[(r["symbol"], r["date"])] = r
     want = {s.upper() for s in syms} - NO_EARNINGS
-    today = datetime.now(timezone.utc).date()
-    rows = {k: v for k, v in rows.items() if k[1] < since.isoformat()}  # 查詢範圍內整段重建
-    d, n, fail = since, 0, 0
-    while d <= today + timedelta(days=ahead):
+    lo, hi = since.isoformat(), until.isoformat()
+    got_any = {}
+    d, n, fail, done = since, 0, 0, 0
+    while d <= until:
         if d.weekday() < 5:
             try:
-                got = nasdaq_day(d.isoformat())
-                for s in want & set(got):
-                    rows[(s, d.isoformat())] = {"symbol": s, "date": d.isoformat(), "time": got[s], "source": "nasdaq"}
-                    n += 1
+                day = nasdaq_day(d.isoformat())
+                got_any[d.isoformat()] = {s: day[s] for s in want & set(day)}
+                done += 1
             except Exception as e:  # noqa: BLE001
                 fail += 1
                 print(f"{d} 失敗：{e}")
-                if fail >= 10 and n == 0:
+                if fail >= 10 and done == 0:
                     print("Nasdaq 連續失敗，保留舊資料")
                     return
-            time.sleep(0.4)
+            time.sleep(0.3)
         d += timedelta(days=1)
-    with p.open("w", newline="", encoding="utf-8") as fp:
-        w = csv.DictWriter(fp, fieldnames=["symbol", "date", "time", "source"])
-        w.writeheader()
-        for k in sorted(rows):
-            w.writerow(rows[k])
-    print(f"wrote {p}（{len(rows)} 筆，這次查到 {n} 筆，失敗 {fail} 天）")
+    # 只有查成功的日子才換掉舊資料
+    rows = {k: v for k, v in rows.items() if not (lo <= k[1] <= hi and k[1] in got_any)}
+    for day, got in got_any.items():
+        for s, t in got.items():
+            rows[(s, day)] = {"symbol": s, "date": day, "time": t, "source": "nasdaq"}
+            n += 1
+    save_earnings(p, rows)
+    print(f"wrote {p}（{len(rows)} 筆；{lo}～{hi} 查了 {done} 天、{n} 筆，失敗 {fail} 天）")
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--no-earnings", action="store_true")
+    ap.add_argument("--no-prices", action="store_true")
     ap.add_argument("--earnings-since", help="財報日從哪天開始重查（預設 10 天前；回補用 2022-01-01）")
+    ap.add_argument("--earnings-until", help="查到哪天（預設 45 天後）")
     a = ap.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
     syms = symbols()
-    ok = fetch_prices(syms)
+    ok = 1 if a.no_prices else fetch_prices(syms)
     if not a.no_earnings:
-        since = (datetime.fromisoformat(a.earnings_since).date() if a.earnings_since
-                 else datetime.now(timezone.utc).date() - timedelta(days=10))
-        fetch_earnings(syms, since)
+        today = datetime.now(timezone.utc).date()
+        since = datetime.fromisoformat(a.earnings_since).date() if a.earnings_since else today - timedelta(days=10)
+        until = datetime.fromisoformat(a.earnings_until).date() if a.earnings_until else today + timedelta(days=45)
+        fetch_earnings(syms, since, until)
     if ok == 0:
         sys.exit(1)
 
