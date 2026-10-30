@@ -164,6 +164,14 @@
   .tx-hint{display:none; font-size:12px; color:var(--text-faint); margin:6px 0 4px; text-align:right;}
   .tx-hint.show{display:block;}
   .tx-hint::before{content:"← "; color:var(--brass);} .tx-hint::after{content:" →"; color:var(--brass);}
+  /* 表格排序（共用）：點欄位標題切換 大→小／小→大／原順序 */
+  th.ts{cursor:pointer; user-select:none; -webkit-user-select:none;}
+  th.ts:hover, th.ts.ts-on{color:var(--text);}
+  th.ts:focus-visible{outline:1px solid var(--brass); outline-offset:-2px;}
+  th.ts::after{content:"⇅"; margin-left:3px; font-size:.85em; opacity:.28;}
+  th.ts[aria-sort="descending"]::after{content:"▼"; opacity:1; color:var(--brass);}
+  th.ts[aria-sort="ascending"]::after{content:"▲"; opacity:1; color:var(--brass);}
+  tr.ts-hide{display:none;}
   /* 載入中骨架 */
   .skel-box{display:block; padding:6px 0;}
   .skel{display:block; height:12px; margin:9px 0; border-radius:3px; background:var(--panel-2);}
@@ -442,10 +450,129 @@
       foot.appendChild(p);
     }
     scanTables();
+    sortScan();
+    document.addEventListener("click", sortClick);
+    document.addEventListener("keydown", function (e) { if ((e.key === "Enter" || e.key === " ") && e.target.matches && e.target.matches("th.ts")) { e.preventDefault(); sortClick(e); } });
+    // 頁面重畫表格後馬上（畫面更新前）套回原本的排序
+    new MutationObserver(sortScan).observe(document.querySelector("main") || document.body, { childList: true, subtree: true });
     var t = 0;
     new MutationObserver(function () { clearTimeout(t); t = setTimeout(scanTables, 150); })
       .observe(document.querySelector("main") || document.body, { childList: true, subtree: true });
     addEventListener("resize", function () { clearTimeout(t); t = setTimeout(scanTables, 150); });
+  };
+
+
+  // ── 表格排序 ──
+  // 所有 <main> 裡有 <thead> 的表格都能點欄位標題排序：數字欄先大→小，文字欄先小→大，第三下回原順序。
+  // 頁面自己做排序的表格（標題有 data-k／data-sort）或 <table data-nosort> 不套用；
+  // 欄位可用 <td data-v="數值"> 指定排序值；明細列（colspan、.sub-row、.detail）會跟著上一列走。
+  var SORTS = {};
+  var sortHead = function (tb) {
+    var h = tb.tHead;
+    if (!h || h.rows.length !== 1 || tb.hasAttribute("data-nosort")) return null;
+    var ths = h.rows[0].cells;
+    for (var i = 0; i < ths.length; i++)
+      if (ths[i].colSpan > 1 || ths[i].rowSpan > 1 || ths[i].hasAttribute("data-k") || ths[i].hasAttribute("data-sort") || ths[i].classList.contains("sortable")) return null;
+    return ths;
+  };
+  var sortKey = function (tb) {
+    var a = tb.id ? tb : tb.closest("[id]") || document.body;
+    return (a.id || "") + ":" + Array.prototype.indexOf.call(a.querySelectorAll("table"), tb);
+  };
+  var UNIT = { "萬": 1e4, "億": 1e8, "兆": 1e12, "k": 1e3, "K": 1e3, "M": 1e6, "B": 1e9 };
+  var cellVal = function (td) {
+    if (!td) return null;
+    var v = td.getAttribute("data-v");
+    if (v != null) return v === "" ? null : isNaN(+v) ? { s: v } : { n: +v };
+    var t = td.textContent.replace(/\s+/g, " ").trim();
+    if (!t || /^[–—\-－]+$|^N\/?A$/i.test(t)) return null;
+    var d = t.match(/^(\d{2,4})[\/.\-](\d{1,2})(?:[\/.\-](\d{1,2}))?(?!\d)/);
+    if (d && !/^\d+\.\d+$/.test(t)) return { n: d[3] ? (+d[1] < 1000 ? +d[1] + 1911 : +d[1]) * 1e4 + +d[2] * 100 + +d[3] : +d[1] * 100 + +d[2], lead: 1 };
+    var m = t.match(/([▲▼△▽+＋\-−－]?)\s*(\d[\d,]*(?:\.\d+)?|\.\d+)\s*([萬億兆kKMB])?/);
+    if (!m) return { s: t };
+    var n = +m[2].replace(/,/g, "") * (UNIT[m[3]] || 1);
+    if (/[▼▽\-−－]/.test(m[1]) || /^連?[賣跌]/.test(t)) n = -n;
+    return { n: n, s: t, lead: t.indexOf(m[0]) <= 1 || /^連[買賣漲跌]/.test(t) };
+  };
+  var isChild = function (tr) {
+    return /(^|\s)(sub-row|detail|child)(\s|$)/.test(tr.className) || (tr.cells.length === 1 && tr.cells[0].colSpan > 1);
+  };
+  var applySort = function (tb, st) {
+    var ths = sortHead(tb), body = tb.tBodies[0];
+    if (!ths || !body) return;
+    for (var i = 0; i < ths.length; i++) {
+      ths[i].removeAttribute("aria-sort");
+      ths[i].classList.toggle("ts-on", st && i === st.col);
+    }
+    var rows = Array.prototype.slice.call(body.rows), seq = 0;
+    rows.forEach(function (r) { if (r._tsi != null) seq = Math.max(seq, r._tsi + 1); });
+    rows.forEach(function (r) { if (r._tsi == null) r._tsi = seq++; });
+    // 依原順序分組：一般列 + 其後的明細列
+    var orig = rows.slice().sort(function (a, b) { return a._tsi - b._tsi; }), head = [], groups = [], tail = [];
+    orig.forEach(function (r) {
+      if (/(^|\s)(sum|total)(\s|$)/.test(r.className)) (groups.length ? tail : head).push(r);
+      else if (isChild(r) && groups.length) groups[groups.length - 1].push(r);
+      else if (isChild(r)) head.push(r);
+      else groups.push([r]);
+    });
+    if (st && st.col < ths.length && groups.length > 1) {
+      ths[st.col].setAttribute("aria-sort", st.dir > 0 ? "ascending" : "descending");
+      var vals = groups.map(function (g) { return cellVal(g[0].cells[st.col]); });
+      var nums = vals.filter(function (v) { return v && v.n != null && v.lead; }).length, all = vals.filter(Boolean).length;
+      var numeric = all && nums >= all * 0.6;
+      var idx = groups.map(function (g, i) { return i; });
+      idx.sort(function (a, b) {
+        var x = vals[a], y = vals[b];
+        if (numeric) { x = x && x.n != null ? x.n : null; y = y && y.n != null ? y.n : null; }
+        else { x = x && (x.s != null ? x.s : String(x.n)); y = y && (y.s != null ? y.s : String(y.n)); }
+        if (x == null || y == null) return x == null && y == null ? a - b : x == null ? 1 : -1;
+        var c = numeric ? x - y || ((vals[a].s || "").localeCompare(vals[b].s || "", "zh-Hant", { numeric: true })) : x.localeCompare(y, "zh-Hant", { numeric: true });
+        return c * st.dir || a - b;
+      });
+      groups = idx.map(function (i) { return groups[i]; });
+    }
+    var want = [];
+    head.concat.apply(head, groups).concat(tail).forEach(function (r) { want.push(r); });
+    for (var k = 0; k < want.length; k++) if (want[k] !== body.rows[k]) break;
+    if (k === want.length) return;
+    want.forEach(function (r) { body.appendChild(r); });
+  };
+  var sortScan = function () {
+    document.querySelectorAll("main table").forEach(function (tb) {
+      var ths = sortHead(tb);
+      if (!ths) return;
+      for (var i = 0; i < ths.length; i++) {
+        var th = ths[i];
+        if (th.classList.contains("ts") || !th.textContent.trim()) continue;
+        th.classList.add("ts");
+        th.tabIndex = 0;
+        if (!th.title) th.title = "點一下排序";
+      }
+      var st = SORTS[sortKey(tb)];
+      if (st && ths[st.col] && ths[st.col].textContent.trim() === st.name) applySort(tb, st);
+      else if (tb._ts) { tb._ts = 0; applySort(tb, null); }
+      tb._ts = st ? 1 : 0;
+    });
+  };
+  var sortClick = function (e) {
+    var th = e.target.closest && e.target.closest("th.ts");
+    if (!th || (e.target !== th && e.target.closest("a,button,input,select,label"))) return;
+    var tb = th.closest("table"), ths = sortHead(tb);
+    if (!ths) return;
+    var key = sortKey(tb), col = Array.prototype.indexOf.call(ths, th), st = SORTS[key];
+    if (st && st.col === col) {
+      // 第二下反向，第三下回原順序
+      if (st.dir === st.first) st.dir = -st.dir; else { delete SORTS[key]; tb._ts = 0; applySort(tb, null); return; }
+    } else {
+      var body = tb.tBodies[0], rows = body ? Array.prototype.slice.call(body.rows).filter(function (r) { return !isChild(r); }) : [];
+      var vals = rows.map(function (r) { return cellVal(r.cells[col]); }).filter(Boolean);
+      var nums = vals.filter(function (v) { return v.n != null && v.lead; }).length;
+      // 數字欄先大→小；名次欄與文字欄先小→大
+      var first = vals.length && nums >= vals.length * 0.6 && !/^(#|No\.?|名次|排名)$/i.test(th.textContent.trim()) ? -1 : 1;
+      st = SORTS[key] = { col: col, name: th.textContent.trim(), dir: first, first: first };
+    }
+    tb._ts = 1;
+    applySort(tb, st);
   };
 
   // 表格比容器寬：包一層可橫向捲動的框，右緣加陰影，上方加「左右滑動」提示
