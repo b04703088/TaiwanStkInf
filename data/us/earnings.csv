@@ -3,6 +3,8 @@ AAPL,2022-01-27,,nasdaq
 AAPL,2022-04-28,,nasdaq
 AAPL,2022-07-28,,nasdaq
 AAPL,2022-10-27,,nasdaq
+AAPL,2023-02-02,,nasdaq
+AAPL,2023-05-04,,nasdaq
 AAPL,2025-10-30,,nasdaq
 AAPL,2026-01-29,,nasdaq
 AAPL,2026-04-30,,nasdaq
@@ -12,6 +14,8 @@ AMD,2022-02-01,,nasdaq
 AMD,2022-05-03,,nasdaq
 AMD,2022-08-02,,nasdaq
 AMD,2022-11-01,,nasdaq
+AMD,2023-01-31,,nasdaq
+AMD,2023-05-02,,nasdaq
 AMD,2025-11-04,,nasdaq
 AMD,2026-02-03,,nasdaq
 AMD,2026-05-05,,nasdaq
@@ -21,6 +25,8 @@ AMKR,2022-02-14,,nasdaq
 AMKR,2022-05-02,,nasdaq
 AMKR,2022-08-01,,nasdaq
 AMKR,2022-10-31,,nasdaq
+AMKR,2023-02-13,,nasdaq
+AMKR,2023-05-01,,nasdaq
 AMKR,2026-02-09,,nasdaq
 AMKR,2026-04-27,,nasdaq
 AMKR,2026-07-27,,nasdaq
@@ -29,6 +35,8 @@ AMZN,2022-02-03,,nasdaq
 AMZN,2022-04-28,,nasdaq
 AMZN,2022-07-28,,nasdaq
 AMZN,2022-10-27,,nasdaq
+AMZN,2023-02-02,,nasdaq
+AMZN,2023-04-27,,nasdaq
 AMZN,2025-10-30,,nasdaq
 AMZN,2026-02-05,,nasdaq
 AMZN,2026-04-29,,nasdaq
@@ -37,6 +45,8 @@ ANET,2022-02-14,,nasdaq
 ANET,2022-05-02,,nasdaq
 ANET,2022-08-01,,nasdaq
 ANET,2022-10-31,,nasdaq
+ANET,2023-02-13,,nasdaq
+ANET,2023-05-01,,nasdaq
 ANET,2025-11-04,,nasdaq
 ANET,2026-02-12,,nasdaq
 ANET,2026-05-05,,nasdaq
@@ -46,6 +56,8 @@ AVGO,2022-03-03,,nasdaq
 AVGO,2022-05-26,,nasdaq
 AVGO,2022-09-01,,nasdaq
 AVGO,2022-12-08,,nasdaq
+AVGO,2023-03-02,,nasdaq
+AVGO,2023-06-01,,nasdaq
 AVGO,2025-12-11,,nasdaq
 AVGO,2026-03-04,,nasdaq
 AVGO,2026-06-03,,nasdaq
@@ -54,6 +66,8 @@ AVGO,2026-12-10,,nasdaq
 COHR,2022-02-09,,nasdaq
 COHR,2022-05-11,,nasdaq
 COHR,2022-11-09,,nasdaq
+COHR,2023-02-08,,nasdaq
+COHR,2023-05-10,,nasdaq
 COHR,2025-11-05,,nasdaq
 COHR,2026-02-04,,nasdaq
 COHR,2026-05-06,,nasdaq
@@ -63,6 +77,8 @@ DELL,2022-02-24,,nasdaq
 DELL,2022-05-26,,nasdaq
 DELL,2022-08-25,,nasdaq
 DELL,2022-11-21,,nasdaq
+DELL,2023-03-02,,nasdaq
+DELL,2023-06-01,,nasdaq
 DELL,2025-11-25,,nasdaq
 DELL,2026-02-26,,nasdaq
 DELL,2026-05-28,,nasdaq
@@ -72,6 +88,8 @@ FORM,2022-02-02,,nasdaq
 FORM,2022-04-27,,nasdaq
 FORM,2022-07-27,,nasdaq
 FORM,2022-10-26,,nasdaq
+FORM,2023-02-08,,nasdaq
+FORM,2023-05-03,,nasdaq
 FORM,2026-02-04,,nasdaq
 FORM,2026-04-29,,nasdaq
 FORM,2026-07-29,,nasdaq
@@ -80,6 +98,8 @@ GFS,2022-02-08,,nasdaq
 GFS,2022-05-10,,nasdaq
 GFS,2022-08-09,,nasdaq
 GFS,2022-11-08,,nasdaq
+GFS,2023-02-14,,nasdaq
+GFS,2023-05-09,,nasdaq
 GFS,2025-11-12,,nasdaq
 GFS,2026-02-11,,nasdaq
 GFS,2026-05-05,,nasdaq
@@ -89,6 +109,8 @@ GOOGL,2022-02-01,,nasdaq
 GOOGL,2022-04-26,,nasdaq
 GOOGL,2022-07-26,,nasdaq
 GOOGL,2022-10-25,,nasdaq
+GOOGL,2023-02-02,,nasdaq
+GOOGL,2023-04-25,,nasdaq
 GOOGL,2026-02-04,,nasdaq
 GOOGL,2026-04-29,,nasdaq
 GOOGL,2026-07-22,,nasdaq
@@ -97,6 +119,8 @@ HPQ,2022-02-28,,nasdaq
 HPQ,2022-05-31,,nasdaq
 HPQ,2022-08-30,,nasdaq
 HPQ,2022-11-22,,nasdaq
+HPQ,2023-02-28,,nasdaq
+HPQ,2023-05-30,,nasdaq
 HPQ,2025-11-25,,nasdaq
 HPQ,2026-02-24,,nasdaq
 HPQ,2026-05-27,,nasdaq
@@ -106,6 +130,8 @@ JBL,2022-03-16,,nasdaq
 JBL,2022-06-16,,nasdaq
 JBL,2022-09-27,,nasdaq
 JBL,2022-12-15,,nasdaq
+JBL,2023-03-16,,nasdaq
+JBL,2023-06-15,,nasdaq
 JBL,2025-12-17,,nasdaq
 JBL,2026-03-18,,nasdaq
 JBL,2026-06-17,,nasdaq
@@ -115,6 +141,8 @@ LITE,2022-02-03,,nasdaq
 LITE,2022-05-04,,nasdaq
 LITE,2022-08-16,,nasdaq
 LITE,2022-11-08,,nasdaq
+LITE,2023-02-09,,nasdaq
+LITE,2023-05-09,,nasdaq
 LITE,2025-11-04,,nasdaq
 LITE,2026-02-03,,nasdaq
 LITE,2026-05-05,,nasdaq
@@ -124,6 +152,8 @@ META,2022-02-02,,nasdaq
 META,2022-04-27,,nasdaq
 META,2022-07-27,,nasdaq
 META,2022-10-26,,nasdaq
+META,2023-02-01,,nasdaq
+META,2023-04-26,,nasdaq
 META,2026-01-28,,nasdaq
 META,2026-04-29,,nasdaq
 META,2026-07-29,,nasdaq
@@ -132,6 +162,8 @@ MRVL,2022-03-03,,nasdaq
 MRVL,2022-05-26,,nasdaq
 MRVL,2022-08-25,,nasdaq
 MRVL,2022-12-01,,nasdaq
+MRVL,2023-03-02,,nasdaq
+MRVL,2023-05-25,,nasdaq
 MRVL,2025-12-02,,nasdaq
 MRVL,2026-03-05,,nasdaq
 MRVL,2026-05-27,,nasdaq
@@ -141,6 +173,8 @@ MSFT,2022-01-25,,nasdaq
 MSFT,2022-04-26,,nasdaq
 MSFT,2022-07-26,,nasdaq
 MSFT,2022-10-25,,nasdaq
+MSFT,2023-01-24,,nasdaq
+MSFT,2023-04-25,,nasdaq
 MSFT,2026-01-28,,nasdaq
 MSFT,2026-04-29,,nasdaq
 MSFT,2026-07-29,,nasdaq
@@ -149,6 +183,8 @@ MU,2022-03-29,,nasdaq
 MU,2022-06-30,,nasdaq
 MU,2022-09-29,,nasdaq
 MU,2022-12-21,,nasdaq
+MU,2023-03-28,,nasdaq
+MU,2023-06-28,,nasdaq
 MU,2025-12-17,,nasdaq
 MU,2026-03-18,,nasdaq
 MU,2026-06-24,,nasdaq
@@ -158,6 +194,8 @@ NVDA,2022-02-16,,nasdaq
 NVDA,2022-05-25,,nasdaq
 NVDA,2022-08-24,,nasdaq
 NVDA,2022-11-16,,nasdaq
+NVDA,2023-02-22,,nasdaq
+NVDA,2023-05-24,,nasdaq
 NVDA,2025-11-19,,nasdaq
 NVDA,2026-02-25,,nasdaq
 NVDA,2026-05-20,,nasdaq
@@ -167,6 +205,8 @@ QCOM,2022-02-02,,nasdaq
 QCOM,2022-04-27,,nasdaq
 QCOM,2022-07-27,,nasdaq
 QCOM,2022-11-02,,nasdaq
+QCOM,2023-02-02,,nasdaq
+QCOM,2023-05-03,,nasdaq
 QCOM,2025-11-05,,nasdaq
 QCOM,2026-02-04,,nasdaq
 QCOM,2026-04-29,,nasdaq
@@ -176,6 +216,8 @@ SMCI,2022-02-01,,nasdaq
 SMCI,2022-05-03,,nasdaq
 SMCI,2022-08-09,,nasdaq
 SMCI,2022-11-01,,nasdaq
+SMCI,2023-01-31,,nasdaq
+SMCI,2023-05-02,,nasdaq
 SMCI,2025-11-04,,nasdaq
 SMCI,2026-02-03,,nasdaq
 SMCI,2026-05-05,,nasdaq
@@ -185,6 +227,8 @@ TER,2022-01-26,,nasdaq
 TER,2022-04-26,,nasdaq
 TER,2022-07-26,,nasdaq
 TER,2022-10-25,,nasdaq
+TER,2023-01-25,,nasdaq
+TER,2023-04-26,,nasdaq
 TER,2026-02-02,,nasdaq
 TER,2026-04-28,,nasdaq
 TER,2026-07-28,,nasdaq
@@ -193,6 +237,8 @@ TSLA,2022-01-26,,nasdaq
 TSLA,2022-04-20,,nasdaq
 TSLA,2022-07-20,,nasdaq
 TSLA,2022-10-19,,nasdaq
+TSLA,2023-01-25,,nasdaq
+TSLA,2023-04-19,,nasdaq
 TSLA,2026-01-28,,nasdaq
 TSLA,2026-04-22,,nasdaq
 TSLA,2026-07-22,,nasdaq
@@ -201,6 +247,8 @@ TSM,2022-01-13,,nasdaq
 TSM,2022-04-14,,nasdaq
 TSM,2022-07-14,,nasdaq
 TSM,2022-10-13,,nasdaq
+TSM,2023-01-12,,nasdaq
+TSM,2023-04-20,,nasdaq
 TSM,2026-01-15,,nasdaq
 TSM,2026-04-16,,nasdaq
 TSM,2026-07-16,,nasdaq
@@ -209,6 +257,8 @@ VRT,2022-02-23,,nasdaq
 VRT,2022-04-27,,nasdaq
 VRT,2022-08-03,,nasdaq
 VRT,2022-10-26,,nasdaq
+VRT,2023-02-22,,nasdaq
+VRT,2023-04-26,,nasdaq
 VRT,2026-02-11,,nasdaq
 VRT,2026-04-22,,nasdaq
 VRT,2026-07-29,,nasdaq
@@ -217,6 +267,8 @@ WDC,2022-01-27,,nasdaq
 WDC,2022-04-28,,nasdaq
 WDC,2022-08-05,,nasdaq
 WDC,2022-10-27,,nasdaq
+WDC,2023-01-31,,nasdaq
+WDC,2023-05-08,,nasdaq
 WDC,2026-01-29,,nasdaq
 WDC,2026-04-30,,nasdaq
 WDC,2026-08-05,,nasdaq
