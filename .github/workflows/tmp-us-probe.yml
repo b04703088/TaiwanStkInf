@@ -1,0 +1,19 @@
+name: tmp us probe
+on:
+  push:
+    branches: [claude/project-thread-2g7f3d]
+    paths: [.github/workflows/tmp-us-probe.yml]
+permissions:
+  contents: write
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: python -u fetch_us.py
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/us && git commit -q -m "data: us probe" && git push
