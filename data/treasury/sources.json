@@ -1,6 +1,8 @@
 {
- "generated": "2026-10-30 08:34",
+ "generated": "2026-10-30 21:44",
  "since": "2024-01-01",
  "programs": 559,
- "errors": []
+ "errors": [
+  "ajax_t35sb01 otc 6720: URLError(ConnectionRefusedError(111, 'Connection refused'))"
+ ]
 }
