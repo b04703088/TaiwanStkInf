@@ -78,7 +78,7 @@ AMZN,2025-10-30,,nasdaq
 AMZN,2026-02-05,,nasdaq
 AMZN,2026-04-29,,nasdaq
 AMZN,2026-07-30,,nasdaq
-AMZN,2026-10-29,amc,nasdaq
+AMZN,2026-10-29,,nasdaq
 ANET,2022-02-14,,nasdaq
 ANET,2022-05-02,,nasdaq
 ANET,2022-08-01,,nasdaq
@@ -377,7 +377,7 @@ NVDA,2025-11-19,,nasdaq
 NVDA,2026-02-25,,nasdaq
 NVDA,2026-05-20,,nasdaq
 NVDA,2026-08-26,,nasdaq
-NVDA,2026-11-18,,nasdaq
+NVDA,2026-11-17,amc,nasdaq
 QCOM,2022-02-02,,nasdaq
 QCOM,2022-04-27,,nasdaq
 QCOM,2022-07-27,,nasdaq
