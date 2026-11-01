@@ -460,7 +460,7 @@ function aggregate(period = state.period) {
 
 function renderChips() {
   const W = state.W;
-  $("chips").innerHTML = `<button class="chip all" type="button" data-all="1">全選</button><button class="chip all" type="button" data-none="1">全不選</button>` +
+  $("chips").innerHTML = `<button class="chip all" type="button" data-all="1">${state.on.size === W.branches.length ? "全不選" : "全選"}</button>` +
     W.branches.map((b, i) => `<button class="chip" type="button" data-b="${i}" aria-pressed="${state.on.has(i)}">${esc(b.label)}</button>`).join("");
 }
 
@@ -593,8 +593,7 @@ document.addEventListener("click", e => {
   if (e.target.id === "modal" || e.target.id === "mClose") { closeStock(); return; }
   const c = e.target.closest(".chip");
   if (c) {
-    if (c.dataset.all) state.on = new Set(state.W.branches.map((_, i) => i));
-    else if (c.dataset.none) state.on = new Set();
+    if (c.dataset.all) state.on = state.on.size === state.W.branches.length ? new Set() : new Set(state.W.branches.map((_, i) => i));
     else { const i = +c.dataset.b; state.on.has(i) ? state.on.delete(i) : state.on.add(i); }
     state.shown = PAGE_SIZE; render(); return;
   }
