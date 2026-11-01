@@ -33,7 +33,16 @@ def load_px(codes):
                     vol[r["code"]][d] = float(r["volume"] or 0) / 1000
                 except ValueError:
                     pass
+    for d in list(close[BENCH]):
+        if d < "2025-06-18":   # 0050 2025-06 一拆四
+            close[BENCH][d] /= 4
     return td, close, vol
+
+
+def binom_sf(k, n, p):
+    """P(X >= k), X ~ Binomial(n, p)"""
+    from math import comb
+    return float(f"{sum(comb(n, j) * p ** j * (1 - p) ** (n - j) for j in range(k, n + 1)):.2g}")
 
 
 def main():
@@ -101,6 +110,18 @@ def main():
     N = {"詢價圈購": 0, "競價拍賣": 0}
     for i in ids:
         N[cases[i]["method"]] += 1
+    # 同一檔常常同時辦詢圈＋競拍（拆兩部分），開始日相差 30 天內視為同一個事件
+    ev, last = {}, {}
+    for i in sorted(ids, key=lambda i: cases[i]["bb_start"]):
+        code = cases[i]["code"]
+        k = last.get(code)
+        if k and (pos.get(win_dates[i]["pre20"][1], 0) - pos.get(k[1], 0)) <= 22:
+            ev[i] = k
+        else:
+            ev[i] = last[code] = (code, win_dates[i]["pre20"][1])
+    NE = len(set(ev.values()))
+    print("事件數", NE)
+    NP = len({(ev[i], pw) for i in ids for pw in ("plc1", "plc2") if pw in win_dates[i]})
     st_ = defaultdict(lambda: defaultdict(list))
     for i in ids:
         m = cases[i]["method"]
@@ -123,11 +144,16 @@ def main():
                     st_[key]["flip"].append(i)
         for (side, bid), r in wins.get("base", {}).items():
             st_[(bid, side)][m + "_base"].append(i)
+        for pw in ("plc1", "plc2"):
+            for (side, bid), r in wins.get(pw, {}).items():
+                net = float(r["net"])
+                if (side == "B" and net > 0) or (side == "S" and net < 0):
+                    st_[(bid, side)][m + "_plc"].append((i, pw))
 
     out = []
     for (bid, side), s in st_.items():
         n_bb = len(set(s["詢價圈購_pre"]))
-        if n_bb < 3:
+        if len(set(s["詢價圈購_pre"]) | set(s["競價拍賣_pre"])) < 4 or not s["share"]:
             continue
         rate_bb = n_bb / N["詢價圈購"]
         rate_au = len(set(s["競價拍賣_pre"])) / max(N["競價拍賣"], 1)
@@ -136,9 +162,15 @@ def main():
         xs = [x for x in xs if x is not None]
         xp = [cmap[i].get("x_pre20") for i in set(s["詢價圈購_pre"])]
         xp = [x for x in xp if x is not None]
+        n_all = len({ev[i] for i in set(s["詢價圈購_pre"]) | set(s["競價拍賣_pre"])})
+        n_plc = len({(ev[i], w) for i, w in set(s["詢價圈購_plc"]) | set(s["競價拍賣_plc"])})
+        p0 = max(n_plc / NP, 0.5 / NP)
         out.append({"bid": bid, "branch": names[bid], "kind": kind(bid, names[bid]), "side": side,
                     "n_bb": n_bb, "rate_bb": round(rate_bb, 3), "rate_au": round(rate_au, 3),
                     "rate_base_bb": round(rate_base, 3),
+                    "n_all": n_all, "rate_plc": round(n_plc / NP, 3),
+                    "lift_vs_plc": round(n_all / NE / p0, 2), "p_plc": binom_sf(n_all, NE, p0),
+                    "p_bb_plc": binom_sf(n_bb, N["詢價圈購"], p0),
                     "lift_vs_au": round(rate_bb / rate_au, 2) if rate_au else "",
                     "n_new": len(set(s["new"])), "n_flip": len(set(s["flip"])),
                     "med_share": round(st.median(s["share"]) * 100, 2),
