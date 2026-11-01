@@ -350,6 +350,11 @@
   .who{font-size:12px; color:var(--text-muted); white-space:normal;}
   .who span{margin-right:10px; white-space:nowrap;}
   .who b{font-family:'IBM Plex Mono',monospace; font-weight:500; color:var(--text); margin-right:3px;}
+  @media (min-width: 861px){ #actStats{grid-template-columns:repeat(5,1fr);} }
+  /* 買超佔成交量：≥5% 醒目、≥10% 加底色 */
+  td.vr.hot{font-weight:600;}
+  td.vr.hot2{font-weight:700;}
+  td.vr.hot2 span{background:color-mix(in srgb, currentColor 16%, transparent); border-radius:3px; padding:1px 5px;}
 </style>
 </head>
 <body>
@@ -471,7 +476,8 @@
   <section class="panel" id="panel-active" role="tabpanel" aria-labelledby="tab-active" hidden>
     <div class="wrap">
       <p class="panel-note">主動式 ETF（代號 A 結尾）每次公布持股，與自己前一次比較的股數增減，依個股加總成買賣超；金額 = 增減股數 × 該日收盤價。
-        「扣除申購贖回」：先把前一次持股依受益單位數變化等比例放大縮小，再算增減，剩下的才是經理人主動調整。只計台股。</p>
+        「扣除申購贖回」：先把前一次持股依受益單位數變化等比例放大縮小，再算增減，剩下的才是經理人主動調整。只計台股。
+        「佔成交量」：每檔 ETF 最新 1 次（當日）／最近 5 次（近 5 日）公布的增減股數，除以同一段期間該股的成交股數，再把各 ETF 加總；不受上方期間按鈕影響。達 5% 粗體、10% 以上加底色。</p>
       <div class="stats" id="actStats"></div>
       <div class="toolbar">
         <div class="seg-group" style="display:flex;gap:18px;flex-wrap:wrap">
@@ -496,10 +502,14 @@
       <div class="table-wrap">
         <table class="rank" id="actTable">
           <thead><tr>
-            <th class="l">#</th><th class="l">股票</th><th>收盤</th>
-            <th id="actAmtLabel">買超金額（億）</th><th>張數</th><th>買 / 賣 ETF</th><th class="l col-hide">主要 ETF</th>
+            <th class="l">#</th><th class="l">股票</th><th class="col-hide">收盤</th>
+            <th data-sort="amt"><button type="button" id="actAmtLabel">買超金額（億）</button></th>
+            <th data-sort="sh"><button type="button">張數</button></th>
+            <th data-sort="r1" title="各 ETF 最新一次公布的增減 ÷ 該期間成交量，再加總（通常就是當天）"><button type="button">佔當日<br>成交量</button></th>
+            <th data-sort="r5" title="各 ETF 最近 5 次公布的增減 ÷ 同期間成交量，再加總（通常就是近 5 個交易日）"><button type="button">佔近 5 日<br>成交量</button></th>
+            <th data-sort="nb"><button type="button">買 / 賣 ETF</button></th><th class="l col-hide">主要 ETF</th>
           </tr></thead>
-          <tbody id="actRows"><tr><td colspan="7" class="empty">載入中…</td></tr></tbody>
+          <tbody id="actRows"><tr><td colspan="9" class="empty">載入中…</td></tr></tbody>
         </table>
       </div>
       <div class="more" id="actMoreWrap" hidden><button class="btn-ghost" id="actMore" type="button">顯示更多</button></div>
@@ -1006,7 +1016,7 @@ $("changeTable").querySelector("thead").addEventListener("click", e => {
 
 
 /* ---------- 子頁：主動式 ETF 買賣超 ---------- */
-const act = { etfs: [], rows: [], names: {}, n: 1, mode: "raw", side: "buy", q: "", on: null, shown: 50, loaded: false };
+const act = { etfs: [], rows: [], names: {}, days: [], cum: {}, n: 1, mode: "raw", side: "buy", q: "", on: null, shown: 50, loaded: false };
 async function loadActive() {
   const r = await fetch("data/etf/active.json", { cache: "no-cache" });
   if (!r.ok) throw new Error("HTTP " + r.status);
@@ -1015,8 +1025,33 @@ async function loadActive() {
   act.rows = d.rows.map(x => Object.fromEntries(d.cols.map((c, i) => [c, x[i]])));
   act.on = new Set(act.etfs.map((_, i) => i));
   act.noUnits = new Set(act.rows.filter(x => x.da == null).map(x => x.e));
+  // 成交量前綴和：cum[代號][i] = days[0..i-1] 成交股數合計
+  act.days = d.days || [];
+  for (const [c, xs] of Object.entries(d.vol || {})) {
+    const cum = [0]; xs.forEach(v => cum.push(cum[cum.length - 1] + v)); act.cum[c] = cum;
+  }
+  // 每檔 ETF 最近 k 次公布涵蓋的交易日區間 (前次, 本次] → days 的索引 [lo, hi)
+  const idx = t => { let i = 0; while (i < act.days.length && act.days[i] <= t) i++; return i; };
+  for (const e of act.etfs) {
+    const ds = e.dates || [];
+    e.span = k => ds.length < 2 ? null : [idx(ds[Math.max(0, ds.length - 1 - k)]), idx(ds[ds.length - 1])];
+    e.spans = { 1: e.span(1), 5: e.span(5) };
+  }
   act.loaded = true;
 }
+/* 買超佔成交量（%）：各 ETF 最近 k 次的增減 ÷ 同期間該股成交量，再加總；沒有增減或查無成交量為 null */
+function volRatio(code, perEtf) {
+  const cum = act.cum[code]; if (!cum) return null;
+  let r = null;
+  for (const [e, sh] of perEtf) {
+    const sp = act.etfs[e].spans[perEtf.k]; if (!sp || !sh) continue;
+    const v = cum[sp[1]] - cum[sp[0]]; if (!v) continue;
+    r = (r || 0) + sh / v * 100;
+  }
+  return r;
+}
+const fmtPct = v => v == null ? "—" : (v > 0 ? "+" : "") + v.toFixed(Math.abs(v) >= 10 ? 1 : 2) + "%";
+const vrCls = v => v == null ? "" : Math.abs(v) >= 10 ? "hot2" : Math.abs(v) >= 5 ? "hot" : "";
 function renderActive() {
   if (!act.loaded) return;
   $("actChips").innerHTML = `<button type="button" class="all" data-all="1">全選</button>` +
@@ -1033,19 +1068,39 @@ function renderActive() {
     const p = s.per.get(x.e) || { sh: 0, amt: 0 };
     p.sh += d; p.amt += x.px ? d * x.px : 0; s.per.set(x.e, p);
   }
+  // 佔當日／近 5 日成交量：固定看各 ETF 最近 1 次、5 次，不受期間按鈕影響
+  const near = { 1: new Map(), 5: new Map() };
+  for (const x of act.rows) {
+    if (x.n >= 5 || !act.on.has(x.e)) continue;
+    const d = act.mode === "adj" && x.da != null ? x.da : x.d;
+    if (!d) continue;
+    for (const k of [1, 5]) {
+      if (x.n >= k) continue;
+      let m = near[k].get(x.code); if (!m) { near[k].set(x.code, m = new Map()); m.k = k; }
+      m.set(x.e, (m.get(x.e) || 0) + d);
+    }
+  }
   const all = [...by.values()];
+  for (const s of all) {
+    s.r1 = near[1].has(s.code) ? volRatio(s.code, near[1].get(s.code)) : null;
+    s.r5 = near[5].has(s.code) ? volRatio(s.code, near[5].get(s.code)) : null;
+  }
   for (const s of all) { s.nb = [...s.per.values()].filter(p => p.sh > 0).length; s.ns = [...s.per.values()].filter(p => p.sh < 0).length; }
   const buy = all.filter(s => s.amt > 0), sell = all.filter(s => s.amt < 0);
   const tb = buy.reduce((t, s) => t + s.amt, 0), ts = sell.reduce((t, s) => t + s.amt, 0);
   const crowd = [...all].sort((a, b) => b.nb - a.nb || b.amt - a.amt)[0];
+  const sg = act.side === "buy" ? 1 : -1;
+  const heavy = all.filter(s => s.r1 != null && s.r1 * sg > 0).sort((a, b) => (b.r1 - a.r1) * sg)[0];
   $("actStats").innerHTML = `
     <div class="stat"><span>主動式 ETF</span><b class="mono">${act.on.size}</b><small>/ ${act.etfs.length} 檔 · 最新 ${fmtDate(act.latest)}</small></div>
     <div class="stat"><span>合計買超金額</span><b class="mono up">${fmtYiSigned(tb)}</b><small>億 · ${buy.length} 檔</small></div>
     <div class="stat"><span>合計賣超金額</span><b class="mono down">${fmtYiSigned(ts)}</b><small>億 · ${sell.length} 檔</small></div>
-    <div class="stat"><span>最多 ETF 同時買進</span><b>${crowd ? esc(crowd.name) : "—"}</b><small class="mono">${crowd ? crowd.nb + " 檔 ETF" : ""}</small></div>`;
+    <div class="stat"><span>最多 ETF 同時買進</span><b>${crowd ? esc(crowd.name) : "—"}</b><small class="mono">${crowd ? crowd.nb + " 檔 ETF" : ""}</small></div>
+    <div class="stat"><span>${act.side === "buy" ? "買超" : "賣超"}佔當日量最高</span><b>${heavy ? esc(heavy.name) : "—"}</b><small class="mono">${heavy ? fmtPct(heavy.r1) + " · 近 5 日 " + fmtPct(heavy.r5) : ""}</small></div>`;
   const q = act.q.trim().toLowerCase();
-  const list = all.filter(s => (act.side === "buy" ? s.amt > 0 : s.amt < 0) && (!q || s.code.toLowerCase().includes(q) || s.name.toLowerCase().includes(q)))
-    .sort((a, b) => act.side === "buy" ? b.amt - a.amt : a.amt - b.amt);
+  const list = all.filter(s => (act.side === "buy" ? s.amt > 0 : s.amt < 0) && (!q || s.code.toLowerCase().includes(q) || s.name.toLowerCase().includes(q)));
+  applySort("actTable", list, { amt: s => s.amt * sg, sh: s => s.sh * sg, r1: s => s.r1 == null ? null : s.r1 * sg,
+    r5: s => s.r5 == null ? null : s.r5 * sg, nb: s => act.side === "buy" ? s.nb : s.ns });
   $("actAmtLabel").textContent = act.side === "buy" ? "買超金額（億）" : "賣超金額（億）";
   $("actRows").innerHTML = list.slice(0, act.shown).map((s, i) => {
     const top = [...s.per].filter(([, p]) => act.side === "buy" ? p.amt > 0 : p.amt < 0)
@@ -1053,12 +1108,14 @@ function renderActive() {
     return `<tr class="clickable ${i < 3 ? "top3" : ""}" data-query="${esc(s.code)}" title="查看哪些 ETF 買賣 ${esc(s.name)}">
       <td class="l rank-no mono">${i + 1}</td>
       <td class="l"><span class="stock-name">${esc(s.name)}</span><span class="stock-code mono">${esc(s.code)}</span></td>
-      <td class="mono">${s.px == null ? "—" : fmtN(s.px, 2)}</td>
+      <td class="mono col-hide">${s.px == null ? "—" : fmtN(s.px, 2)}</td>
       <td class="mono ${cls(s.amt)}">${fmtYiSigned(s.amt)}</td>
       <td class="mono ${cls(s.sh)}">${(s.sh > 0 ? "+" : "") + fmtN(s.sh / 1000, 0)}</td>
+      <td class="mono vr ${cls(s.r1)} ${vrCls(s.r1)}"><span>${fmtPct(s.r1)}</span></td>
+      <td class="mono vr ${cls(s.r5)} ${vrCls(s.r5)}"><span>${fmtPct(s.r5)}</span></td>
       <td class="mono"><span class="up">${s.nb}</span> / <span class="down">${s.ns}</span></td>
       <td class="l col-hide who">${top.map(([e, p]) => `<span><b>${esc(act.etfs[e].code)}</b>${fmtYiSigned(p.amt)}</span>`).join("")}</td></tr>`;
-  }).join("") || `<tr><td colspan="7" class="empty">沒有符合條件的股票</td></tr>`;
+  }).join("") || `<tr><td colspan="9" class="empty">沒有符合條件的股票</td></tr>`;
   $("actMoreWrap").hidden = list.length <= act.shown;
   const miss = [...act.noUnits].filter(i => act.on.has(i)).map(i => act.etfs[i].code);
   $("actFoot").textContent = (act.mode === "adj" && miss.length ? `扣除申購贖回需要受益單位數，${miss.join("、")} 部分日期缺少，這些以原始增減計。` : "") +
@@ -1077,11 +1134,12 @@ $("actChips").addEventListener("click", e => {
   else { const i = +b.dataset.i; act.on.has(i) && act.on.size > 1 ? act.on.delete(i) : act.on.add(i); }
   renderActive();
 });
+sortable("actTable", { key: "amt", dir: -1 }, () => { act.shown = 50; renderActive(); });
 $("actSearch").addEventListener("input", e => { act.q = e.target.value; renderActive(); });
 $("actMore").addEventListener("click", () => { act.shown += 50; renderActive(); });
 loadActive().then(renderActive).catch(e => {
   console.error(e);
-  $("actRows").innerHTML = `<tr><td colspan="7" class="empty">讀取資料失敗，請重新整理頁面。</td></tr>`;
+  $("actRows").innerHTML = `<tr><td colspan="9" class="empty">讀取資料失敗，請重新整理頁面。</td></tr>`;
 });
 
 /* ---------- 子頁四：指數調整行事曆 ---------- */

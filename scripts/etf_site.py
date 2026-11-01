@@ -354,6 +354,7 @@ def build_active(data_dir, max_n=20):
     with (etf_dir / "etf_list.csv").open(encoding="utf-8") as fp:
         actives = [r for r in csv.DictReader(fp) if r["kind"] == "active"]
     prices, units = PriceBook(data_dir), _units_book(data_dir)
+    first = None
     tw = re.compile(r"^\d{4,6}[A-Z]?$")
     etfs, rows, names, days = [], [], {}, set()
     for info in actives:
@@ -361,9 +362,10 @@ def build_active(data_dir, max_n=20):
         if len(files) < 2:
             continue
         e = len(etfs)
-        etfs.append({"code": info["etf"], "name": info["name"], "issuer": info["issuer_name"],
-                     "date": date_of(files[-1]), "n": len(files) - 1})
         snaps = [(date_of(f), read_holdings(f)) for f in files]
+        etfs.append({"code": info["etf"], "name": info["name"], "issuer": info["issuer_name"],
+                     "date": date_of(files[-1]), "n": len(files) - 1, "dates": [d for d, _ in snaps]})
+        first = min(first or snaps[0][0], snaps[0][0])
         for k in range(1, len(snaps)):
             (d0, h0), (d1, h1) = snaps[k - 1], snaps[k]
             u0, u1 = units.get((info["etf"], d0)), units.get((info["etf"], d1))
@@ -384,7 +386,28 @@ def build_active(data_dir, max_n=20):
                     continue
                 names[c] = (h1.get(c) or h0.get(c))["name"]
                 rows.append([e, n, d1, c, round(d), None if da is None else round(da), px.get(c) or prices.get(d0).get(c)])
-    return {"etfs": etfs, "names": names, "cols": ACTIVE_COLS, "rows": rows, "latest": max(days) if days else None}
+    vdays, vol = active_volumes(data_dir, names, first, max(days) if days else None)
+    return {"etfs": etfs, "names": names, "cols": ACTIVE_COLS, "rows": rows, "latest": max(days) if days else None,
+            "days": vdays, "vol": vol}
+
+
+def active_volumes(data_dir, codes, after, until):
+    """每日行情檔的成交股數：交易日 after < 日期 ≤ until，只取 codes 裡的股票。
+    回傳 (交易日清單, {代號: [每日成交股數，對齊交易日清單；查無為 0]})。
+    網頁用來算「買超佔成交量」：各 ETF 一段公布期間 (前次, 本次] 的增減 ÷ 同期間該股成交量。"""
+    if not after or not until:
+        return [], {}
+    lo, hi = after.replace("-", "") + ".csv", until.replace("-", "") + ".csv"
+    files = sorted((f for f in Path(data_dir).glob("[0-9][0-9][0-9][0-9]/[0-9]*.csv") if lo < f.name <= hi),
+                   key=lambda f: f.name)
+    days, vol = [], {c: [] for c in codes}
+    for f in files:
+        with f.open(encoding="utf-8") as fp:
+            v = {r["code"]: int(float(r["volume"])) for r in csv.DictReader(fp) if r["code"] in vol and r.get("volume")}
+        days.append(date_of(f))
+        for c, xs in vol.items():
+            xs.append(v.get(c, 0))
+    return days, {c: xs for c, xs in vol.items() if any(xs)}
 
 
 def write_active(data_dir, out_path):
