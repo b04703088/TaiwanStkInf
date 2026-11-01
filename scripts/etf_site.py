@@ -323,7 +323,7 @@ def write_tip(data_dir, root, out_path):
     return payload
 
 
-# ---------------- 主動式 ETF 買賣超 ----------------
+# ---------------- ETF 買賣超（主動式＋現金申贖的被動式） ----------------
 ACTIVE_COLS = ["e", "n", "date", "code", "d", "da", "px"]
 
 
@@ -345,15 +345,25 @@ def _units_book(data_dir):
     return book
 
 
-def build_active(data_dir, max_n=20):
-    """每檔主動式 ETF 最近 max_n 次持股變化（台股）→ 網頁 JSON。
+def inkind_etfs(root):
+    """config/etf_inkind.csv：實物申贖的 ETF（申購買回直接收付股票，持股增減不是市場上的買賣，排除）。"""
+    p = Path(root) / "config" / "etf_inkind.csv"
+    if not p.exists():
+        return set()
+    with p.open(encoding="utf-8-sig") as fp:
+        return {r["etf"].strip() for r in csv.DictReader(fp) if (r.get("etf") or "").strip()}
+
+
+def build_active(data_dir, max_n=20, exclude=()):
+    """每檔主動式 ETF、以及現金申贖的被動式 ETF（exclude 列的實物申贖除外）最近 max_n 次持股變化（台股）→ 網頁 JSON。
     d：原始股數增減；da：扣除申購贖回後的增減 = 本次股數 − 前次股數 × (本次單位數 ÷ 前次單位數)，單位數缺漏時為 null。
     n：該 ETF 由新到舊第幾次變化（0 = 最新一次），網頁用來取「近 N 次」。"""
     data_dir = Path(data_dir)
     etf_dir = data_dir / "etf"
     with (etf_dir / "etf_list.csv").open(encoding="utf-8") as fp:
-        actives = [r for r in csv.DictReader(fp) if r["kind"] == "active"]
+        actives = [r for r in csv.DictReader(fp) if r["kind"] in ("active", "passive") and r["etf"] not in exclude]
     prices, units = PriceBook(data_dir), _units_book(data_dir)
+    first = None
     tw = re.compile(r"^\d{4,6}[A-Z]?$")
     etfs, rows, names, days = [], [], {}, set()
     for info in actives:
@@ -361,9 +371,10 @@ def build_active(data_dir, max_n=20):
         if len(files) < 2:
             continue
         e = len(etfs)
-        etfs.append({"code": info["etf"], "name": info["name"], "issuer": info["issuer_name"],
-                     "date": date_of(files[-1]), "n": len(files) - 1})
         snaps = [(date_of(f), read_holdings(f)) for f in files]
+        etfs.append({"code": info["etf"], "name": info["name"], "issuer": info["issuer_name"],
+                     "kind": info["kind"], "date": date_of(files[-1]), "n": len(files) - 1, "dates": [d for d, _ in snaps]})
+        first = min(first or snaps[0][0], snaps[0][0])
         for k in range(1, len(snaps)):
             (d0, h0), (d1, h1) = snaps[k - 1], snaps[k]
             u0, u1 = units.get((info["etf"], d0)), units.get((info["etf"], d1))
@@ -384,11 +395,44 @@ def build_active(data_dir, max_n=20):
                     continue
                 names[c] = (h1.get(c) or h0.get(c))["name"]
                 rows.append([e, n, d1, c, round(d), None if da is None else round(da), px.get(c) or prices.get(d0).get(c)])
-    return {"etfs": etfs, "names": names, "cols": ACTIVE_COLS, "rows": rows, "latest": max(days) if days else None}
+    vdays, vol, dt = active_volumes(data_dir, names, first, max(days) if days else None)
+    return {"etfs": etfs, "names": names, "cols": ACTIVE_COLS, "rows": rows, "latest": max(days) if days else None,
+            "days": vdays, "vol": vol, "dt": dt, "dt_days": [d for d, ok in zip(vdays, dt.pop("_ok", [])) if ok],
+            "inkind": sorted(exclude)}
 
 
-def write_active(data_dir, out_path):
-    payload = build_active(data_dir)
+def active_volumes(data_dir, codes, after, until):
+    """每日行情檔的成交股數：交易日 after < 日期 ≤ until，只取 codes 裡的股票。
+    回傳 (交易日清單, {代號: [每日成交股數，對齊交易日清單；查無為 0]}, {代號: [每日現股當沖股數]})。
+    當沖股數取自 data/chips（fetch_chips.py，交易所 T+2 定案）；dt["_ok"] 標記哪幾天有當沖資料。
+    網頁用來算「買超佔成交量」：各 ETF 一段公布期間 (前次, 本次] 的增減 ÷ 同期間該股成交量（可扣除當沖）。"""
+    if not after or not until:
+        return [], {}, {}
+    lo, hi = after.replace("-", "") + ".csv", until.replace("-", "") + ".csv"
+    files = sorted((f for f in Path(data_dir).glob("[0-9][0-9][0-9][0-9]/[0-9]*.csv") if lo < f.name <= hi),
+                   key=lambda f: f.name)
+    days, vol, dt, ok = [], {c: [] for c in codes}, {c: [] for c in codes}, []
+    for f in files:
+        with f.open(encoding="utf-8") as fp:
+            v = {r["code"]: int(float(r["volume"])) for r in csv.DictReader(fp) if r["code"] in vol and r.get("volume")}
+        cf = Path(data_dir) / "chips" / f.parent.name / f.name
+        t = {}
+        if cf.exists():
+            with cf.open(encoding="utf-8") as fp:
+                t = {r["code"]: int(float(r["dt_vol"])) for r in csv.DictReader(fp) if r["code"] in vol and r.get("dt_vol")}
+        days.append(date_of(f))
+        ok.append(bool(t))
+        for c in vol:
+            vol[c].append(v.get(c, 0))
+            dt[c].append(min(t.get(c, 0), v.get(c, 0)))
+    keep = [c for c, xs in vol.items() if any(xs)]
+    out_dt = {c: dt[c] for c in keep if any(dt[c])}
+    out_dt["_ok"] = ok
+    return days, {c: vol[c] for c in keep}, out_dt
+
+
+def write_active(data_dir, out_path, root=None):
+    payload = build_active(data_dir, exclude=inkind_etfs(root or Path(data_dir).parent))
     Path(out_path).parent.mkdir(parents=True, exist_ok=True)
     Path(out_path).write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     return payload

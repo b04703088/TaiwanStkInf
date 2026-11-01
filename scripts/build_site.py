@@ -7,7 +7,7 @@
   data/etf/latest.json               各 ETF 最新持股與前一份的差異（見 scripts/etf_site.py）
   data/etf/aum.json                  全體 ETF 規模排行（fetch_etf_aum.py 的最新一天）
   data/etf/tip.json                  臺灣指數公司定期審核行事曆（見 fetch_tip_schedule.py）
-  data/etf/active.json               主動式 ETF 每次持股變化（台股，含扣除申贖的增減）
+  data/etf/active.json               主動式＋現金申贖被動式 ETF 每次持股變化（台股，含扣除申贖的增減、成交量與當沖量）
   data/calendar.json                 指數調整行事曆：審核日、預估審核、ETF 換股期間（見 scripts/calendar_site.py）
   data/health.json                   資料健檢結果（見 scripts/health.py）
   data/broker/days.json, <日期>.json  券商分點前 15 大（見 scripts/broker_site.py）
