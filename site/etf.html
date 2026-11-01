@@ -382,7 +382,7 @@
       <div class="tabs" role="tablist">
         <a href="#holders" id="tab-holders" role="tab" aria-selected="true" aria-controls="panel-holders">個股持有查詢</a>
         <a href="#changes" id="tab-changes" role="tab" aria-selected="false" aria-controls="panel-changes">每日持股變化</a>
-        <a href="#active" id="tab-active" role="tab" aria-selected="false" aria-controls="panel-active">主動式買賣超</a>
+        <a href="#active" id="tab-active" role="tab" aria-selected="false" aria-controls="panel-active">ETF 買賣超</a>
         <a href="#aum" id="tab-aum" role="tab" aria-selected="false" aria-controls="panel-aum">AUM 排行</a>
         <a href="calendar.html" role="tab" aria-selected="false">指數行事曆</a>
         <a href="#calendar" id="tab-calendar" role="tab" aria-selected="false" aria-controls="panel-calendar">審核公告清單</a>
@@ -475,9 +475,11 @@
   <!-- ============ 子頁三：AUM 排行 ============ -->
   <section class="panel" id="panel-active" role="tabpanel" aria-labelledby="tab-active" hidden>
     <div class="wrap">
-      <p class="panel-note">主動式 ETF（代號 A 結尾）每次公布持股，與自己前一次比較的股數增減，依個股加總成買賣超；金額 = 增減股數 × 該日收盤價。
+      <p class="panel-note">主動式 ETF（代號 A 結尾）與現金申贖的被動式 ETF 每次公布持股，與自己前一次比較的股數增減，依個股加總成買賣超；金額 = 增減股數 × 該日收盤價。
+        <span id="actInkind"></span>只公布權重、沒有股數的 ETF 無法計算。
         「扣除申購贖回」：先把前一次持股依受益單位數變化等比例放大縮小，再算增減，剩下的才是經理人主動調整。只計台股。
-        「佔成交量」：每檔 ETF 最新 1 次（當日）／最近 5 次（近 5 日）公布的增減股數，除以同一段期間該股的成交股數，再把各 ETF 加總；不受上方期間按鈕影響。達 5% 粗體、10% 以上加底色。</p>
+        「佔成交量」：每檔 ETF 最新 1 次（當日）／最近 5 次（近 5 日）公布的增減股數，除以同一段期間該股的成交股數，再把各 ETF 加總；不受上方期間按鈕影響。
+        「扣除當沖」：分母改用成交股數減掉現股當沖股數，比較接近真正換手的量。達 5% 粗體、10% 以上加底色。</p>
       <div class="stats" id="actStats"></div>
       <div class="toolbar">
         <div class="seg-group" style="display:flex;gap:18px;flex-wrap:wrap">
@@ -494,6 +496,15 @@
           <div class="seg" id="actSide" role="group" aria-label="方向">
             <button type="button" data-v="buy" aria-pressed="true">買超</button>
             <button type="button" data-v="sell" aria-pressed="false">賣超</button>
+          </div>
+          <div class="seg" id="actKind" role="group" aria-label="ETF 類型">
+            <button type="button" data-v="active" aria-pressed="true">主動式</button>
+            <button type="button" data-v="passive" aria-pressed="false">被動式</button>
+            <button type="button" data-v="all" aria-pressed="false">全部</button>
+          </div>
+          <div class="seg" id="actVol" role="group" aria-label="成交量基準">
+            <button type="button" data-v="net" aria-pressed="true" title="成交股數減掉現股當沖股數">扣除當沖</button>
+            <button type="button" data-v="all" aria-pressed="false">全部成交量</button>
           </div>
         </div>
         <input class="search" id="actSearch" type="search" autocomplete="off" placeholder="搜尋股票" aria-label="搜尋股票">
@@ -1016,7 +1027,7 @@ $("changeTable").querySelector("thead").addEventListener("click", e => {
 
 
 /* ---------- 子頁：主動式 ETF 買賣超 ---------- */
-const act = { etfs: [], rows: [], names: {}, days: [], cum: {}, n: 1, mode: "raw", side: "buy", q: "", on: null, shown: 50, loaded: false };
+const act = { etfs: [], rows: [], names: {}, days: [], cum: {}, cumNet: {}, kind: "active", vol: "net", n: 1, mode: "raw", side: "buy", q: "", on: null, shown: 50, loaded: false };
 async function loadActive() {
   const r = await fetch("data/etf/active.json", { cache: "no-cache" });
   if (!r.ok) throw new Error("HTTP " + r.status);
@@ -1027,9 +1038,15 @@ async function loadActive() {
   act.noUnits = new Set(act.rows.filter(x => x.da == null).map(x => x.e));
   // 成交量前綴和：cum[代號][i] = days[0..i-1] 成交股數合計
   act.days = d.days || [];
+  // cumNet：扣除現股當沖後的成交股數
   for (const [c, xs] of Object.entries(d.vol || {})) {
-    const cum = [0]; xs.forEach(v => cum.push(cum[cum.length - 1] + v)); act.cum[c] = cum;
+    const dt = (d.dt || {})[c] || [];
+    const cum = [0], net = [0];
+    xs.forEach((v, i) => { cum.push(cum[i] + v); net.push(net[i] + Math.max(0, v - (dt[i] || 0))); });
+    act.cum[c] = cum; act.cumNet[c] = net;
   }
+  act.dtDays = new Set(d.dt_days || []);
+  act.inkind = d.inkind || [];
   // 每檔 ETF 最近 k 次公布涵蓋的交易日區間 (前次, 本次] → days 的索引 [lo, hi)
   const idx = t => { let i = 0; while (i < act.days.length && act.days[i] <= t) i++; return i; };
   for (const e of act.etfs) {
@@ -1041,7 +1058,7 @@ async function loadActive() {
 }
 /* 買超佔成交量（%）：各 ETF 最近 k 次的增減 ÷ 同期間該股成交量，再加總；沒有增減或查無成交量為 null */
 function volRatio(code, perEtf) {
-  const cum = act.cum[code]; if (!cum) return null;
+  const cum = (act.vol === "net" ? act.cumNet : act.cum)[code]; if (!cum) return null;
   let r = null;
   for (const [e, sh] of perEtf) {
     const sp = act.etfs[e].spans[perEtf.k]; if (!sp || !sh) continue;
@@ -1052,13 +1069,15 @@ function volRatio(code, perEtf) {
 }
 const fmtPct = v => v == null ? "—" : (v > 0 ? "+" : "") + v.toFixed(Math.abs(v) >= 10 ? 1 : 2) + "%";
 const vrCls = v => v == null ? "" : Math.abs(v) >= 10 ? "hot2" : Math.abs(v) >= 5 ? "hot" : "";
+const actOn = i => act.on.has(i) && (act.kind === "all" || act.etfs[i].kind === act.kind);
 function renderActive() {
   if (!act.loaded) return;
   $("actChips").innerHTML = `<button type="button" class="all" data-all="1">全選</button>` +
-    act.etfs.map((e, i) => `<button type="button" data-i="${i}" aria-pressed="${act.on.has(i)}" title="${esc(e.name)}・最新 ${fmtDate(e.date)}">${esc(e.code)} ${esc(e.name.replace(/^主動/, ""))}</button>`).join("");
+    act.etfs.map((e, i) => act.kind !== "all" && e.kind !== act.kind ? "" : `<button type="button" data-i="${i}" aria-pressed="${act.on.has(i)}" title="${esc(e.name)}・最新 ${fmtDate(e.date)}">${esc(e.code)} ${esc(e.name.replace(/^主動/, ""))}</button>`).join("");
+  $("actInkind").textContent = act.inkind.length ? `實物申贖的 ${act.inkind.join("、")} 申購買回直接收付股票，持股增減不是市場買賣，已排除。` : "";
   const by = new Map();
   for (const x of act.rows) {
-    if (x.n >= act.n || !act.on.has(x.e)) continue;
+    if (x.n >= act.n || !actOn(x.e)) continue;
     const d = act.mode === "adj" && x.da != null ? x.da : x.d;
     if (!d) continue;
     let s = by.get(x.code);
@@ -1071,7 +1090,7 @@ function renderActive() {
   // 佔當日／近 5 日成交量：固定看各 ETF 最近 1 次、5 次，不受期間按鈕影響
   const near = { 1: new Map(), 5: new Map() };
   for (const x of act.rows) {
-    if (x.n >= 5 || !act.on.has(x.e)) continue;
+    if (x.n >= 5 || !actOn(x.e)) continue;
     const d = act.mode === "adj" && x.da != null ? x.da : x.d;
     if (!d) continue;
     for (const k of [1, 5]) {
@@ -1090,9 +1109,11 @@ function renderActive() {
   const tb = buy.reduce((t, s) => t + s.amt, 0), ts = sell.reduce((t, s) => t + s.amt, 0);
   const crowd = [...all].sort((a, b) => b.nb - a.nb || b.amt - a.amt)[0];
   const sg = act.side === "buy" ? 1 : -1;
+  const kindIdx = act.etfs.map((e, i) => i).filter(i => act.kind === "all" || act.etfs[i].kind === act.kind);
+  const nKind = kindIdx.length, nOn = kindIdx.filter(actOn).length;
   const heavy = all.filter(s => s.r1 != null && s.r1 * sg > 0).sort((a, b) => (b.r1 - a.r1) * sg)[0];
   $("actStats").innerHTML = `
-    <div class="stat"><span>主動式 ETF</span><b class="mono">${act.on.size}</b><small>/ ${act.etfs.length} 檔 · 最新 ${fmtDate(act.latest)}</small></div>
+    <div class="stat"><span>${{ active: "主動式", passive: "被動式", all: "" }[act.kind]} ETF</span><b class="mono">${nOn}</b><small>/ ${nKind} 檔 · 最新 ${fmtDate(act.latest)}</small></div>
     <div class="stat"><span>合計買超金額</span><b class="mono up">${fmtYiSigned(tb)}</b><small>億 · ${buy.length} 檔</small></div>
     <div class="stat"><span>合計賣超金額</span><b class="mono down">${fmtYiSigned(ts)}</b><small>億 · ${sell.length} 檔</small></div>
     <div class="stat"><span>最多 ETF 同時買進</span><b>${crowd ? esc(crowd.name) : "—"}</b><small class="mono">${crowd ? crowd.nb + " 檔 ETF" : ""}</small></div>
@@ -1117,11 +1138,13 @@ function renderActive() {
       <td class="l col-hide who">${top.map(([e, p]) => `<span><b>${esc(act.etfs[e].code)}</b>${fmtYiSigned(p.amt)}</span>`).join("")}</td></tr>`;
   }).join("") || `<tr><td colspan="9" class="empty">沒有符合條件的股票</td></tr>`;
   $("actMoreWrap").hidden = list.length <= act.shown;
-  const miss = [...act.noUnits].filter(i => act.on.has(i)).map(i => act.etfs[i].code);
+  const miss = [...act.noUnits].filter(actOn).map(i => act.etfs[i].code);
+  const noDt = act.days.slice(-5).filter(t => !act.dtDays.has(t));
   $("actFoot").textContent = (act.mode === "adj" && miss.length ? `扣除申購贖回需要受益單位數，${miss.join("、")} 部分日期缺少，這些以原始增減計。` : "") +
+    (act.vol === "net" && noDt.length ? `${noDt.map(fmtDate).join("、")} 還沒有當沖資料，這幾天以全部成交量計。` : "") +
     "各 ETF 公布時間不同（部分為隔日公布），「最新一次」是各 ETF 自己最新一次公布與前一次的比較。點股票可看是哪些 ETF 在買賣。";
 }
-for (const [id, key] of [["actN", "n"], ["actMode", "mode"], ["actSide", "side"]]) {
+for (const [id, key] of [["actN", "n"], ["actMode", "mode"], ["actSide", "side"], ["actKind", "kind"], ["actVol", "vol"]]) {
   $(id).addEventListener("click", e => {
     const b = e.target.closest("button"); if (!b) return;
     $(id).querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
@@ -1131,7 +1154,10 @@ for (const [id, key] of [["actN", "n"], ["actMode", "mode"], ["actSide", "side"]
 $("actChips").addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
   if (b.dataset.all) act.on = new Set(act.etfs.map((_, i) => i));
-  else { const i = +b.dataset.i; act.on.has(i) && act.on.size > 1 ? act.on.delete(i) : act.on.add(i); }
+  else {
+    const i = +b.dataset.i, n = act.etfs.filter((_, j) => actOn(j)).length;
+    act.on.has(i) && n > 1 ? act.on.delete(i) : act.on.add(i);
+  }
   renderActive();
 });
 sortable("actTable", { key: "amt", dir: -1 }, () => { act.shown = 50; renderActive(); });
