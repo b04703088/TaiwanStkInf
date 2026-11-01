@@ -7,6 +7,7 @@
   pre5  T0 前 5～1 個交易日
   in    T0 ～ 轉換價格基準日（沒有就用訂價日／詢圈結束日）
   post  基準日次一交易日起 20 個交易日（掛牌後有沒有出場）
+  plc1/plc2  T0 前 60～41、100～81 個交易日（同長度 20 日的對照期間）
 輸出 research/data/cb_brokers.csv：id, code, method, win, d1, d2, side, rank, bid, broker, buy, sell, net
 用法：python research/cb_broker_fetch.py [--max-minutes 60]
 """
@@ -35,13 +36,14 @@ def windows(c, td):
     if not t0:
         return []
     i = next((k for k, d in enumerate(td) if d >= t0), None)
-    if i is None or i < 80:
+    if i is None or i < 100:
         return []
     end = c["price_base_date"] or c["done_date"] or c["bb_end"]
     if not end or end < t0:
         end = c["done_date"] or c["bb_end"]
     j = next((k for k, d in enumerate(td) if d >= end), None)
-    out = [("base", td[i - 80], td[i - 21]), ("pre20", td[i - 20], td[i - 1]), ("pre5", td[i - 5], td[i - 1])]
+    out = [("base", td[i - 80], td[i - 21]), ("pre20", td[i - 20], td[i - 1]), ("pre5", td[i - 5], td[i - 1]),
+           ("plc1", td[i - 60], td[i - 41]), ("plc2", td[i - 100], td[i - 81])]
     if j is not None:
         out.append(("in", td[i], td[j]))
         if j + 20 < len(td):
