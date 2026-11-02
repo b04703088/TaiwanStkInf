@@ -9,10 +9,19 @@ jobs:
       - name: probe
         run: |
           U=https://cbas16889.pscnet.com.tw/marketInfo/expectedRelease/
-          curl -sSL -A "Mozilla/5.0" -m 60 -o p.html -w "%{http_code} %{size_download}\n" "$U"
-          echo ---HTML; sed 's/></>\n</g' p.html | grep -v '^\s*$' | head -c 60000
-          echo; echo ---SCRIPTS; grep -oE '(src|href)="[^"]+\.js[^"]*"' p.html | head -30
-          for s in $(grep -oE 'src="[^"]+\.js[^"]*"' p.html | sed 's/src="//;s/"$//' | head -15); do
-            case $s in http*) u=$s;; /*) u=https://cbas16889.pscnet.com.tw$s;; *) u=$U$s;; esac
-            echo "=== $u"; curl -sSL -A "Mozilla/5.0" -m 30 "$u" | grep -oE '["'"'"'`][^"'"'"'`]*(api|Api|API|ajax|json|expected|Release)[^"'"'"'`]*["'"'"'`]' | sort -u | head -40
-          done
+          curl -sSL -A "Mozilla/5.0" -m 60 -o p.html "$U"
+          python3 -u - <<'PY'
+          import re, html
+          s = open("p.html", encoding="utf-8").read()
+          m = re.search(r"window\.__NUXT__=(.*?)</script>", s, re.S)
+          print("NUXT len", len(m.group(1)) if m else None)
+          if m: print("NUXT:", m.group(1)[:30000])
+          b = re.sub(r"<style.*?</style>|<script.*?</script>", "", s, flags=re.S)
+          rows = re.findall(r"<tr.*?</tr>", b, re.S)
+          print("ROWS", len(rows))
+          for r in rows[:400]:
+              cells = [html.unescape(re.sub(r"<[^>]+>", " ", c)).split() for c in re.findall(r"<t[dh].*?</t[dh]>", r, re.S)]
+              print(" | ".join(" ".join(c) for c in cells))
+          if not rows:
+              t = html.unescape(re.sub(r"<[^>]+>", " ", b)); print(re.sub(r"\s+", " ", t)[:20000])
+          PY
