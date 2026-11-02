@@ -5,14 +5,17 @@ name: Fetch batch
 # 原本各自的 workflow（mops、cb、analyst、treasury、alert、margin、financials、insider）只留手動回補。
 #
 #   早上 08:30  MOPS 公告、可轉債、分析師、庫藏股、處置股（盤前補抓）、融資融券（補抓）、國際金融、美股收盤、原物料
-#   傍晚 18:40  處置股＋還原事件、可轉債、MOPS 公告、財報、內部人（每月 18～28 日）
-#   晚上 21:40  融資融券、MOPS 公告、分析師、庫藏股＋買回期間分點、CB 進行中案件分點、三大法人／借券／當沖、期交所籌碼、國際金融、原物料、盤後數字摘要
+#   傍晚 18:40  處置股＋還原事件、可轉債、MOPS 公告、財報、內部人（每月 18～28 日）、三大法人、期交所籌碼、國際金融、原物料
+#   晚間 19:30  庫藏股＋買回期間分點、CB 進行中案件分點（要等富邦分點出來）、MOPS 公告、分析師
+#               （平日傍晚那次跑完自己帶起來；為了讓資料 21:00 前上網站）
+#   晚上 21:20  融資融券（約 21:00 後才公布，沒出來就每 5 分鐘再查到 22:05）、借券／當沖補齊、期交所籌碼、
+#               MOPS 公告、分析師、國際金融、原物料、盤後數字摘要（22:13 盤後判讀用）
 #   週末只跑：早上 分析師、MOPS 公告、集保股權分散、美股收盤、原物料（週六補週五）；傍晚 財報、內部人；晚上 分析師
 # 每日股價、券商分點、ETF 由 cron-job.org 準時觸發且有先後關係，不在這裡。
 #
 # GitHub 排程常延遲 3～6 小時（10/28 晚班拖到隔天 00:24 才跑，盤後判讀跟著晚）。
 # 所以平日改成接在 ETF 後面跑：ETF 由 cron-job.org 準時在 08:15／18:17／21:17 觸發，
-# 跑完就帶起這裡對應的時段，並等到原本的 08:30／18:40／21:40 才開始抓。
+# 跑完就帶起這裡對應的時段，並等到 08:30／18:40／21:20 才開始抓。
 # 原本的排程留著當備援：延遲的排程若發現同一時段 8 小時內已經 commit 過就跳過。
 on:
   schedule:
@@ -20,6 +23,7 @@ on:
     - cron: "30 0 * * 0,6"    # 台北 08:30 週末
     - cron: "40 10 * * 1-5"   # 台北 18:40 平日
     - cron: "40 10 * * 0,6"   # 台北 18:40 週末
+    - cron: "30 11 * * 1-5"   # 台北 19:30 平日（晚間，備援；平常由傍晚那次帶起）
     - cron: "40 13 * * 1-5"   # 台北 21:40 平日
     - cron: "40 13 * * 0,6"   # 台北 21:40 週末
   workflow_run:
@@ -30,7 +34,7 @@ on:
       slot:
         description: "時段"
         type: choice
-        options: [morning, evening, night]
+        options: [morning, evening, dusk, night]
         default: evening
       weekend:
         description: "當成週末跑"
@@ -39,6 +43,7 @@ on:
 
 permissions:
   contents: write
+  actions: write  # 傍晚跑完要帶起 19:30 晚間那批（workflow_dispatch）
 
 concurrency:
   group: fetch-batch
@@ -69,6 +74,7 @@ jobs:
           case "$CRON" in
             "30 0 "*)  slot=morning ;;
             "40 10 "*) slot=evening ;;
+            "30 11 "*) slot=dusk ;;
             "40 13 "*) slot=night ;;
             *)         slot="$IN_SLOT" ;;
           esac
@@ -85,12 +91,19 @@ jobs:
             hm=$((10#$(TZ=Asia/Taipei date +%H%M)))
             if   [ $hm -ge 700 ]  && [ $hm -lt 1000 ]; then slot=morning; at=830
             elif [ $hm -ge 1700 ] && [ $hm -lt 2000 ]; then slot=evening; at=1840
-            elif [ $hm -ge 2030 ] && [ $hm -lt 2330 ]; then slot=night;   at=2140
+            elif [ $hm -ge 2030 ] && [ $hm -lt 2330 ]; then slot=night;   at=2120
             else echo "台北 $hm 不在任何時段，跳過"; echo "slot=skip" >> "$GITHUB_OUTPUT"; exit 0
             fi
             if [ $hm -lt $at ]; then
               wait=$(( ($at/100*60 + $at%100) - ($hm/100*60 + $hm%100) ))
               echo "等 $wait 分鐘到 $at 再抓"; sleep $(( wait * 60 ))
+            fi
+          elif [ "$EVENT" = "workflow_dispatch" ] && [ "$slot" = dusk ]; then
+            # 傍晚那次帶起來的：等到 19:30（法人、期交所、富邦分點都出來了）
+            hm=$((10#$(TZ=Asia/Taipei date +%H%M)))
+            if [ $hm -ge 1700 ] && [ $hm -lt 1930 ]; then
+              wait=$(( (19*60 + 30) - ($hm/100*60 + $hm%100) ))
+              echo "等 $wait 分鐘到 1930 再抓"; sleep $(( wait * 60 ))
             fi
           elif [ -n "$CRON" ]; then
             # 延遲的排程：同一時段 8 小時內已經 commit 過就不再跑
@@ -112,10 +125,12 @@ jobs:
             evening)
               on financials
               [ "$dom" -ge 18 ] && [ "$dom" -le 28 ] && on insider
-              if [ $wk = 1 ]; then on alert; on adjust; on cb; on mops; fi ;;
+              if [ $wk = 1 ]; then on alert; on adjust; on cb; on mops; on chips; on macro; on commod; on dusk_next; fi ;;
+            dusk)
+              on analyst; on mops; on treasury; on treasury_broker; on cb_broker ;;
             night)
               on analyst
-              if [ $wk = 1 ]; then on margin; on mops; on treasury; on treasury_broker; on cb_broker; on chips; on macro; on commod; fi ;;
+              if [ $wk = 1 ]; then on margin_wait; on mops; on chips; on digest; on macro; on commod; fi ;;
           esac
           echo "slot=$slot" >> "$GITHUB_OUTPUT"
           echo "時段 $slot，平日=$wk，日期 $dom"; cat "$GITHUB_OUTPUT"
@@ -172,9 +187,22 @@ jobs:
         run: python fetch_cb_broker.py --max-minutes 15
 
       - name: 融資融券
-        if: always() && steps.s.outputs.margin == '1'
+        if: always() && (steps.s.outputs.margin == '1' || steps.s.outputs.margin_wait == '1')
         continue-on-error: true
-        run: python fetch_margin.py --start "$(TZ=Asia/Taipei date -d '7 days ago' +%F)" --max-minutes 60
+        env:
+          WAIT: ${{ steps.s.outputs.margin_wait }}
+        # 晚上那次：證交所約 21:00 後才公布，今天的檔案還沒出現就每 5 分鐘再查，最晚到 22:05（摘要要趕 22:13 判讀）
+        run: |
+          start="$(TZ=Asia/Taipei date -d '7 days ago' +%F)"
+          f="data/margin/$(TZ=Asia/Taipei date +%Y/%Y%m%d).csv"
+          # 今天沒有收盤行情（休市）就不等
+          [ -f "data/$(TZ=Asia/Taipei date +%Y/%Y%m%d).csv" ] || WAIT=0
+          python fetch_margin.py --start "$start" --max-minutes 60 || true
+          while [ "$WAIT" = 1 ] && [ ! -f "$f" ] && [ $((10#$(TZ=Asia/Taipei date +%H%M))) -lt 2200 ]; do
+            echo "$(TZ=Asia/Taipei date +%H:%M) 融資融券還沒公布，5 分鐘後再查"; sleep 300
+            python fetch_margin.py --start "$start" --max-minutes 60 || true
+          done
+          [ "$WAIT" != 1 ] || [ -f "$f" ]
 
       - name: 財報
         if: always() && steps.s.outputs.financials == '1'
@@ -189,7 +217,7 @@ jobs:
       - name: 三大法人、借券賣出、當沖
         if: always() && steps.s.outputs.chips == '1'
         continue-on-error: true
-        # 借券、當沖約 21:00 公布；當沖 T+2 才定案，近 4 天每次重抓
+        # 法人 16:00 前就有；借券、當沖約 21:00 公布（18:40 那次先留空，21:20 那次重抓補齊）；當沖 T+2 才定案，近 4 天每次重抓
         run: python fetch_chips.py --start "$(TZ=Asia/Taipei date -d '7 days ago' +%F)" --refresh 4 --max-minutes 30
 
       - name: 期貨選擇權籌碼
@@ -212,11 +240,11 @@ jobs:
       - name: 美股收盤、財報日
         if: always() && steps.s.outputs.us == '1'
         continue-on-error: true
-        # 美股連動頁用；早上抓前一晚收盤，08:53 部署
+        # 美股連動頁用；早上抓前一晚收盤，跑完就部署
         run: python -u fetch_us.py
 
       - name: 盤後數字摘要
-        if: always() && steps.s.outputs.chips == '1'
+        if: always() && steps.s.outputs.digest == '1'
         continue-on-error: true
         # 法人、期權、融資都進來後才算；給每晚判讀與盤後摘要頁用（data/digest/）
         run: |
@@ -250,3 +278,9 @@ jobs:
             sleep 10
           done
           exit 1
+
+      - name: 帶起 19:30 晚間那批
+        if: always() && steps.s.outputs.dusk_next == '1' && github.ref_name == github.event.repository.default_branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run batch.yml --repo "$GITHUB_REPOSITORY" --ref "$GITHUB_REF_NAME" -f slot=dusk
