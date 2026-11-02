@@ -25,6 +25,7 @@
   data/kline/index.json, s/<代號>.json  K 線：2022 年起每日價量＋還原因子事件（見 scripts/kline_site.py）
   data/chips/chips.json, s/<代號>.json 三大法人、借券賣出、當沖、集保大戶（見 scripts/chips_site.py）
   data/futures.json                  期貨選擇權籌碼：法人未平倉、P/C ratio、大額交易人（見 scripts/futures_site.py）
+  data/settle.json                   結算日套利：股期十大特法 ÷ 近 5 日量、價差、自營商週期累積（見 scripts/settle_site.py）
   data/digest/index.json, <日期>.md  盤後摘要：數字摘要與每晚判讀（見 scripts/digest_site.py）
   data/newhigh.json                  創新高：近 60 日創 52 週／2022 年以來新高的個股與族群（見 scripts/newhigh_site.py）
   data/us.json                       美股連動：大廠台灣供應鏈、美股大漲大跌後台股隔日反應、連動排名（見 scripts/us_site.py）
@@ -96,6 +97,7 @@ import kline_site  # noqa: E402
 import screen_site  # noqa: E402
 import chips_site  # noqa: E402
 import futures_site  # noqa: E402
+import settle_site  # noqa: E402
 import stock_site  # noqa: E402
 import digest_site  # noqa: E402
 import newhigh_site  # noqa: E402
@@ -172,6 +174,7 @@ def build(out: Path, days: int) -> list[str]:
     prices = kline_site.load_prices(ROOT / "data")
     kline_site.write_kline(ROOT / "data", out / "data" / "kline", prices)
     futures_site.write_futures(ROOT / "data", out / "data" / "futures.json")
+    settle_site.write_settle(ROOT / "data", out / "data" / "settle.json")
     digest_site.write_digest(ROOT / "data", out / "data" / "digest")
     newhigh_site.write_newhigh(ROOT / "data", out / "data" / "newhigh.json", prices=prices)
     limitup_site.write_limitup(ROOT / "data", out / "data" / "limitup.json")

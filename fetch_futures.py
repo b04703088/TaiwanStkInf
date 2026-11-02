@@ -16,6 +16,13 @@
   large.csv  date, month(all/near), kind(all/inst), top5_long, top5_short, top10_long, top10_short, oi
              kind=all 前五／十大交易人（全部）、inst 其中的特定法人；month=all 全部月份合計、near 近月
   tx.csv     date, contract（近月）, close, change, volume, settle, oi（近月）, oi_all（全部月份）
+  stk/YYYY.csv  個股／ETF 期貨近月大額交易人（同一份 largeTraderFutDown，不另外查詢）：
+             date, product, month, top10_long, top10_short（前十大交易人中的特定法人，口）, oi（全市場未沖銷，口）
+             商品代碼是根碼（CD＝台積電、QF＝小型台積電）；除權息等調整型契約（CD1…）已併在根碼口數內
+  stk_px/YYYY.csv  股期近月一般時段行情（算正逆價差用）：date, product（根碼）, contract（CDF／QFF…）, close, settle, volume, oi
+             同一份 futDataDown commodity_id=all（台指期 tx.csv 也從這份取），只留近月、不含調整型契約
+  stk_list.csv  product, name, code, size：股期商品代碼 → 證券代號、每口股數
+             來源 https://www.taifex.com.tw/cht/2/stockLists；小型股期不在表上，用名稱「小型ＸＸ期貨」對回，每口 100 股
 
 用法:
     python fetch_futures.py                        # 本月（月初幾天也補上個月）
@@ -44,6 +51,9 @@ COLS = {
     "large": ["date", "month", "kind", "top5_long", "top5_short", "top10_long", "top10_short", "oi"],
     "tx": ["date", "contract", "close", "change", "volume", "settle", "oi", "oi_all"],
 }
+STK_COLS = ["date", "product", "month", "top10_long", "top10_short", "oi"]
+PX_COLS = ["date", "product", "contract", "close", "settle", "volume", "oi"]
+LIST_COLS = ["product", "name", "code", "size"]
 KEYS = {"inst": ("date", "product", "who"), "pcr": ("date",), "large": ("date", "month", "kind"), "tx": ("date",)}
 
 
@@ -138,6 +148,64 @@ def parse_large(rows):
     return out
 
 
+def parse_stk(rows):
+    """大額交易人裡的股票／ETF 期貨：只留近月（同一天 TX 的最小到期月份）、特定法人那列。指數、商品期貨在 stk_list 對不到，網站端會略過"""
+    near = {}
+    for r in rows:
+        m = r[3].strip() if len(r) >= 10 else ""
+        if r[1] == "TX" and m.isdigit() and len(m) == 6 and m != "999999":
+            near[r[0]] = min(near.get(r[0], m), m)
+    out, names = [], {}
+    for r in rows:
+        if len(r) < 10 or r[1] in ("TX", "MTX", "TMF") or r[4] != "1" or r[3].strip() != near.get(r[0]):
+            continue
+        names[r[1]] = r[2]
+        out.append({"date": _d(r[0]), "product": r[1], "month": r[3].strip(), "top10_long": _n(r[7]),
+                    "top10_short": _n(r[8]), "oi": _n(r[9])})
+    return out, names
+
+
+def fetch_stk_list(names):
+    """期交所股票期貨標的清單 → {product: (code, size)}；再用名稱把小型股期對回去"""
+    import html as _html
+    import re
+    req = urllib.request.Request("https://www.taifex.com.tw/cht/2/stockLists", headers={"User-Agent": UA})
+    with urllib.request.urlopen(req, timeout=120) as r:
+        h = r.read().decode("utf-8", "replace")
+    got = {}
+    for tr in re.findall(r"<tr>(.*?)</tr>", h, re.S):
+        tds = [_html.unescape(re.sub(r"<[^>]+>", "", t)).strip() for t in re.findall(r"<td[^>]*>(.*?)</td>", tr, re.S)]
+        if len(tds) >= 12 and re.fullmatch(r"[A-Z]{2,3}", tds[0]) and re.fullmatch(r"\w{4,6}", tds[2]):
+            size = re.sub(r"\D", "", tds[11])
+            got[tds[0]] = {"product": tds[0], "name": tds[3], "code": tds[2], "size": size or "2000"}
+    if len(got) < 100:
+        raise RuntimeError(f"stockLists 只解析到 {len(got)} 檔，網頁格式可能變了")
+    by_name = {v["name"]: v for v in got.values()}
+    for p, nm in names.items():
+        if p in got or not nm.startswith("小型"):
+            continue
+        base = by_name.get(nm[2:].replace("期貨", ""))
+        if base:
+            got[p] = {"product": p, "name": base["name"], "code": base["code"], "size": "100"}
+    return list(got.values())
+
+
+def parse_stk_px(rows):
+    """全部期貨行情 → 股期近月（一般時段）收盤、結算價。契約代號＝根碼＋F（CDF→CD、小型 QFF→QF）；調整型（CD1）略過。
+    近月＝同一天 TX 的最小到期月份"""
+    near = {}
+    for r in rows:
+        if len(r) >= 18 and r[1] == "TX" and r[17] == "一般" and r[2].strip().isdigit():
+            near[r[0]] = min(near.get(r[0], r[2].strip()), r[2].strip())
+    out = []
+    for r in rows:
+        if len(r) < 18 or r[17] != "一般" or not r[1].endswith("F") or len(r[1]) != 3 or r[2].strip() != near.get(r[0]):
+            continue
+        out.append({"date": _d(r[0]), "product": r[1][:-1], "contract": r[1], "close": _n(r[6]), "settle": _n(r[10]),
+                    "volume": _n(r[9]), "oi": _n(r[11])})
+    return out
+
+
 def parse_tx(rows):
     """交易日期, 契約, 到期月份, 開, 高, 低, 收, 漲跌, 漲跌%, 成交量, 結算價, 未沖銷, …, 交易時段。
     只用一般時段；近月＝當天未平倉的最小月份（排除價差單 202611/202612）。"""
@@ -156,17 +224,18 @@ def parse_tx(rows):
     return out
 
 
-def upsert(name, rows):
-    p = OUT_DIR / f"{name}.csv"
-    key = lambda r: tuple(r[k] for k in KEYS[name])  # noqa: E731
+def upsert(name, rows, p=None, cols=None, keys=None):
+    p = p or OUT_DIR / f"{name}.csv"
+    cols, keys = cols or COLS[name], keys or KEYS[name]
+    key = lambda r: tuple(r[k] for k in keys)  # noqa: E731
     have = {}
     if p.exists():
         with p.open(encoding="utf-8") as fp:
             have = {key(r): r for r in csv.DictReader(fp)}
     have.update({key(r): r for r in rows})
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    p.parent.mkdir(parents=True, exist_ok=True)
     with p.open("w", newline="", encoding="utf-8") as fp:
-        w = csv.DictWriter(fp, fieldnames=COLS[name])
+        w = csv.DictWriter(fp, fieldnames=cols)
         w.writeheader()
         w.writerows(have[k] for k in sorted(have))
     return len(rows)
@@ -190,11 +259,33 @@ def fetch_range(a, b):
     got["inst"] = parse_fut(_get("futContractsDateDown", {"commodityId": ""}, a, b))
     got["inst"] += parse_opt(_get("callsAndPutsDateDown", {"commodityId": "TXO"}, a, b))
     got["pcr"] = parse_pcr(_get("pcRatioDown", {}, a, b))
-    got["large"] = parse_large(_get("largeTraderFutDown", {}, a, b))
-    got["tx"] = parse_tx(_get("futDataDown", {"down_type": "1", "commodity_id": "TX"}, a, b))
+    large = _get("largeTraderFutDown", {}, a, b)
+    got["large"] = parse_large(large)
+    stk, names = parse_stk(large)
+    write_stk(stk, names)
+    fut_all = _get("futDataDown", {"down_type": "1", "commodity_id": "all"}, a, b)
+    got["tx"] = parse_tx(fut_all)
+    px = parse_stk_px(fut_all)
+    for y in sorted({r["date"][:4] for r in px}):
+        upsert("stk_px", [r for r in px if r["date"][:4] == y], OUT_DIR / "stk_px" / f"{y}.csv", PX_COLS, ("date", "product"))
+    print(f"  stk_px {len(px)}")
     for k, v in got.items():
         upsert(k, v)
     print(f"{a}~{b}: " + "、".join(f"{k} {len(v)}" for k, v in got.items()))
+
+
+def write_stk(stk, names):
+    by_year = {}
+    for r in stk:
+        by_year.setdefault(r["date"][:4], []).append(r)
+    for y, rs in by_year.items():
+        upsert("stk", rs, OUT_DIR / "stk" / f"{y}.csv", STK_COLS, ("date", "product"))
+    if names:
+        try:
+            upsert("stk_list", fetch_stk_list(names), OUT_DIR / "stk_list.csv", LIST_COLS, ("product",))
+        except Exception as e:  # noqa: BLE001  清單抓不到就沿用舊的
+            print(f"  stk_list 失敗 {e!r}", file=sys.stderr)
+    print(f"  stk {len(stk)}")
 
 
 def months(start, end):
