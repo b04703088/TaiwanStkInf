@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101419">
+<title>CB常客分點｜潮汐</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#101419; --panel:#171C22; --panel-2:#1E242B;
+    --line:rgba(232,237,242,0.09); --line-strong:rgba(232,237,242,0.16);
+    --text:#E8EDF2; --text-muted:#A9B2BC; --text-faint:#8B95A0;
+    --brass:#C6A15B; --brass-soft:rgba(198,161,91,0.14); --rise:#E1594F; --fall:#3FAE72; --warn:#D9A441; --sky:#6FA8DC;
+    --radius-s:3px; --radius-m:6px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--ink); color:var(--text);
+    font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
+  h1,h2{margin:0; font-weight:700;}
+  h2{font-size:20px;}
+  .mono{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+  a{color:inherit;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
+  header.site{position:sticky; top:0; z-index:40; background:#101419; border-bottom:1px solid var(--line);}
+  .nav-row{display:flex; align-items:center; justify-content:space-between; padding:16px 28px;}
+  .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
+  .brand-mark{font-size:22px; font-weight:700;}
+  .brand-sub{font-size:12px; color:var(--text-faint);}
+  .page-head{padding:56px 0 8px;}
+  h1{font-size:32px;}
+  .desc{color:var(--text-muted); font-size:14.5px; margin:12px 0 0; max-width:52em;}
+  .subtabs{display:flex; gap:6px; margin-top:28px; border-bottom:1px solid var(--line); overflow-x:auto; scrollbar-width:none;}
+  .subtabs a{padding:10px 16px; font-size:14px; color:var(--text-muted); text-decoration:none; border-bottom:2px solid transparent; margin-bottom:-1px; white-space:nowrap;}
+  .subtabs a:hover{color:var(--text);}
+  .subtabs a[aria-current="page"]{color:var(--text); border-bottom-color:var(--text);}
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden; margin-top:28px;}
+  .stat{background:var(--panel); padding:16px 20px;}
+  .stat .k{font-size:12.5px; color:var(--text-muted);}
+  .stat .v{font-size:26px; margin-top:2px;}
+  section.block{margin-top:48px;}
+  .block-head{display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin-bottom:6px; flex-wrap:wrap;}
+  .block-head .hint{font-size:12.5px; color:var(--text-faint);}
+  .lead{font-size:13.5px; color:var(--text-muted); margin:0 0 12px; max-width:56em;}
+  .toolbar{display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:10px;}
+  .toolbar button{background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:6px 12px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .toolbar button[aria-pressed="true"]{border-color:var(--text-faint); color:var(--text);}
+  .tbl{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius-m);}
+  table{width:100%; border-collapse:collapse; font-size:13px;}
+  th,td{padding:9px 12px; text-align:left; border-bottom:1px solid var(--line); white-space:nowrap; vertical-align:top;}
+  th{font-weight:500; color:var(--text-muted); font-size:12px; background:var(--panel);}
+  td.num,th.num{text-align:right;}
+  td.wrapc{white-space:normal; min-width:220px;}
+  tbody tr:hover{background:var(--panel);}
+  tr:last-child td{border-bottom:none;}
+  .faint{color:var(--text-faint);}
+  .up{color:var(--rise);} .dn{color:var(--fall);}
+  .chip{display:inline-flex; align-items:center; gap:6px; font-size:12.5px; border:1px solid var(--line-strong); border-radius:var(--radius-s); padding:2px 8px; margin:2px 4px 2px 0; background:var(--panel-2); white-space:nowrap;}
+  .chip.reg{border-color:var(--brass); color:var(--text);}
+  .chip .s{font-size:11px; color:var(--text-faint);}
+  .tag{font-size:11.5px; padding:1px 7px; border-radius:var(--radius-s); border:1px solid currentColor; white-space:nowrap;}
+  .t-b{color:var(--rise);} .t-s{color:var(--fall);}
+  .t-reg{color:var(--brass);} .t-watch{color:var(--text-faint);}
+  .st{font-size:12px; color:var(--sky);}
+  .bars{display:inline-grid; grid-template-columns:repeat(5,14px); gap:3px; align-items:end; height:24px; vertical-align:middle;}
+  .bars i{display:block; background:var(--brass); border-radius:1px; min-height:2px;}
+  .bars i.z{background:var(--line-strong);}
+  tr.pick{cursor:pointer;}
+  tr.pick.on{background:var(--brass-soft);}
+  .detail{margin-top:14px; border:1px solid var(--line); border-radius:var(--radius-m); background:var(--panel); padding:14px 16px;}
+  .detail h3{font-size:15px; margin:0 0 4px;}
+  .detail .lead{margin-bottom:10px;}
+  .detail .tbl{border-color:var(--line); background:var(--ink);}
+  .show-m{display:none;}
+  .more{display:block; margin:12px auto 0; background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:7px 18px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .legend{font-size:12px; color:var(--text-faint); margin-top:8px;}
+  .note{font-size:12.5px; color:var(--text-faint); margin-top:18px; line-height:1.8; max-width:60em;}
+  .empty{padding:24px 16px; color:var(--text-faint); font-size:13.5px;}
+  footer.site{padding:48px 0; margin-top:64px; border-top:1px solid var(--line);}
+  @media (max-width:860px){
+    .nav-row{padding:14px 16px; flex-wrap:wrap; row-gap:10px;}
+    .wrap{padding:0 16px;}
+    .stats{grid-template-columns:repeat(2,1fr);} h1{font-size:26px;}
+    .subtabs a{padding:10px 12px;}
+    th,td{padding:8px 9px;} .hide-m{display:none;}
+    td.wrapc{min-width:170px;}
+    .show-m{display:block;}
+  }
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="nav-row">
+    <a href="index.html" class="brand"><span class="brand-mark">潮汐</span><span class="brand-sub">籌碼觀測站</span></a>
+    <nav class="gnav"></nav>
+  </div>
+</header>
+<script src="nav.js"></script>
+<main class="wrap">
+  <section class="page-head">
+    <h1>CB 常客分點</h1>
+    <p class="desc">哪些券商分點常在可轉債發行前，先在標的現股上買進或賣出？下面先看進行中的 CB 有沒有常客進場，再看每個常客過去的習慣。</p>
+    <nav class="subtabs" aria-label="CB詢圈子頁">
+      <a href="cb.html">總覽</a>
+      <a href="cb-calendar.html">行事曆</a>
+      <a href="cb-pipeline.html">籌備中</a>
+      <a href="cb-active.html">進行中</a>
+      <a href="cb-bb.html">詢價圈購</a>
+      <a href="cb-auction.html">競價拍賣</a>
+      <a href="cb-listed.html">已掛牌</a>
+      <a href="cb-broker.html" aria-current="page">常客分點</a>
+    </nav>
+    <div class="stats" id="stats"></div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>進行中的 CB：常客有沒有進場</h2><span class="hint" id="live-asof"></span></div>
+    <p class="lead">從董事會決議前 20 日到訂價日，分 5 段查標的現股的分點買賣超前 15 名。金色標籤是常客，灰色是留意名單；後面的段落是它最早進場的階段。</p>
+    <div class="toolbar" id="live-filter">
+      <button data-f="reg" aria-pressed="true">有常客進場</button>
+      <button data-f="any" aria-pressed="false">有常客或留意</button>
+      <button data-f="all" aria-pressed="false">全部追蹤中</button>
+    </div>
+    <div class="tbl"><table>
+      <thead><tr><th>標的</th><th class="hide-m">方式</th><th>階段</th><th class="hide-m">詢圈／競拍開始</th><th>常客動向</th><th class="hide-m">整段買超最多</th><th class="hide-m">整段賣超最多</th></tr></thead>
+      <tbody id="live"></tbody>
+    </table></div>
+    <button class="more" id="live-more" hidden></button>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>常客分點的習慣</h2><span class="hint" id="reg-sample"></span></div>
+    <p class="lead">「常客」是統計上明顯比平常更常出現在 CB 發行前的分點；「留意」是接近但沒通過檢定。點一列看它參與過的案件（最新在上）。</p>
+    <div class="tbl"><table>
+      <thead><tr><th>分點</th><th>方向</th><th class="num">訂價前出現（件）</th><th>進場段分布</th><th>最常進場</th><th class="num">每件金額<br>中位（百萬）</th><th class="num">事後 20 日<br>超額中位</th><th class="num">事後<br>領先比</th><th class="hide-m">期間</th></tr></thead>
+      <tbody id="regs"></tbody>
+    </table></div>
+    <p class="legend">進場段分布 5 根柱子依序是：決議前 20 日、決議→送件、送件→生效、生效→詢圈、詢圈→訂價。事後 20 日超額 = 轉換價格基準日後 20 個交易日，扣掉等權市場指數。</p>
+    <div class="detail" id="reg-detail" hidden></div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>CB 流程各階段股價</h2><span class="hint">比大盤（等權市場指數）多漲多少・中位數</span></div>
+    <p class="lead">起點是董事會決議前 21 個交易日。詢圈股從決議後一路走強，到掛牌最強，掛牌後回落；競拍股只小幅走強，掛牌後就落後大盤。</p>
+    <div class="tbl"><table>
+      <thead><tr><th>流程階段</th><th class="num">詢圈：距決議（交易日）</th><th class="num">詢圈：超額</th><th class="num">詢圈：領先比</th><th class="num">競拍：距決議</th><th class="num">競拍：超額</th><th class="num">競拍：領先比</th></tr></thead>
+      <tbody id="stages"></tbody>
+    </table></div>
+  </section>
+
+  <p class="note">分點資料是富邦證券「券商分點進出明細」的區間前 15 大買超／賣超，小額進出看不到；分點不等於同一個客戶。常客名單來自 2025/01 起約 270 件 CB 的回測，用同一檔股票平常的出現率當對照、並做多重檢定校正；這是統計上的相關，不代表內線或操縱。進行中案件每個交易日晚上更新。</p>
+</main>
+<footer class="site"><div class="wrap"><p class="note" style="margin:0">資料僅供參考，不構成投資建議。</p></div></footer>
+<script>
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const md = d => d ? `${+d.slice(5,7)}/${+d.slice(8,10)}` : "–";
+const ym = d => d ? `${d.slice(2,4)}/${+d.slice(5,7)}` : "–";
+const ymd = d => d ? `${d.slice(2,4)}/${+d.slice(5,7)}/${+d.slice(8,10)}` : "–";
+const sgn = v => v == null ? "–" : (v > 0 ? "+" : "") + v.toLocaleString();
+const pc = v => v == null ? "–" : `<span class="${v > 0 ? "up" : v < 0 ? "dn" : ""}">${v > 0 ? "+" : ""}${v.toFixed(1)}%</span>`;
+const STAGES = ["s0", "s1", "s2", "s3", "s4"];
+let D, FILTER = "reg", PICK = null, LIVE_ALL = false, CASE_ALL = false;
+const LIVE_N = 15, CASE_N = 15;
+
+const stock = (code, name) => `<a href="stock.html#s=${encodeURIComponent(code)}" style="text-decoration:none"><b>${esc(name)}</b> <span class="mono faint">${esc(code)}</span></a>`;
+const sideTag = s => s === "B" ? '<span class="tag t-b">買超</span>' : '<span class="tag t-s">賣超</span>';
+const tierTag = t => t === "常客" ? '<span class="tag t-reg">常客</span>' : '<span class="tag t-watch">留意</span>';
+
+function renderStats() {
+  const live = D.live, withReg = live.filter(x => x.hits.some(h => h.tier === "常客"));
+  const regs = D.regulars.filter(r => r.tier === "常客");
+  document.getElementById("stats").innerHTML = [
+    ["追蹤中的 CB", live.length + " 檔"], ["有常客進場", withReg.length + " 檔"],
+    ["常客分點", regs.length + " 個"], ["回測樣本", (D.sample.events || "–") + " 件"],
+  ].map(([k, v]) => `<div class="stat"><div class="k">${k}</div><div class="v mono">${v}</div></div>`).join("");
+  document.getElementById("live-asof").textContent = D.last ? `分點資料到 ${md(D.last)}` : "";
+  if (D.sample.from) document.getElementById("reg-sample").textContent = `回測 ${ymd(D.sample.from)}～${ymd(D.sample.to)}`;
+}
+
+function renderLive() {
+  const L = D.stage_labels;
+  const all = D.live.filter(x => FILTER === "all" || (FILTER === "any" ? x.hits.length : x.hits.some(h => h.tier === "常客")));
+  const rows = LIVE_ALL ? all : all.slice(0, LIVE_N);
+  const more = document.getElementById("live-more");
+  more.hidden = all.length <= LIVE_N;
+  more.textContent = LIVE_ALL ? "收起" : `顯示全部 ${all.length} 檔`;
+  document.getElementById("live").innerHTML = rows.length ? rows.map(x => {
+    const hits = x.hits.map(h => `<span class="chip ${h.tier === "常客" ? "reg" : ""}" title="${esc(STAGES.filter(s => h.by[s]).map(s => L[s] + " " + sgn(h.by[s])).join("、"))}">${esc(h.broker)} <span class="mono ${h.side === "B" ? "up" : "dn"}">${sgn(h.lots)}</span><span class="s">${esc(L[h.entry] || "")}</span></span>`).join("") || '<span class="faint">沒有</span>';
+    const top = a => a.length ? a.map(([b, v]) => `${esc(b)} <span class="mono faint">${sgn(v)}</span>`).join("<br>") : "–";
+    return `<tr><td>${stock(x.code, x.name)}<div class="faint" style="font-size:11.5px">${esc(x.lead)}</div></td><td class="hide-m">${esc(x.method)}</td><td class="st">${esc(x.stage)}<div class="faint show-m" style="font-size:11.5px">${esc(x.method)}</div></td><td class="mono hide-m" data-v="${esc(x.dates.start || "")}">${md(x.dates.start)}</td><td class="wrapc">${hits}</td><td class="hide-m">${top(x.top_b)}</td><td class="hide-m">${top(x.top_s)}</td></tr>`;
+  }).join("") : '<tr><td colspan="7" class="empty">目前沒有符合的案件</td></tr>';
+}
+
+function bars(e) {
+  const v = STAGES.map(s => e[s] || 0), m = Math.max(1, ...v);
+  return `<span class="bars" title="${STAGES.map((s, i) => D.stage_labels[s] + " " + v[i]).join("、")}">${v.map(n => `<i class="${n ? "" : "z"}" style="height:${Math.max(2, n / m * 24)}px"></i>`).join("")}</span>`;
+}
+
+function renderRegs() {
+  document.getElementById("regs").innerHTML = D.regulars.map((r, i) => {
+    const e = r.entry || {}, best = STAGES.reduce((a, s) => (e[s] || 0) > (e[a] || 0) ? s : a, "s0");
+    return `<tr class="pick ${PICK === i ? "on" : ""}" data-i="${i}"><td data-v="${esc(r.broker)}"><b>${esc(r.broker)}</b> ${tierTag(r.tier)}</td><td>${sideTag(r.side)}</td>
+      <td class="num mono">${r.n || "–"}</td><td data-v="${e[best] || 0}">${r.n ? bars(e) : "–"}</td><td>${r.n ? esc(D.stage_labels[best]) : "–"}</td>
+      <td class="num mono" data-v="${r.amt_med ?? ""}">${r.amt_med ?? "–"}</td><td class="num mono" data-v="${r.post_med ?? ""}">${pc(r.post_med)}</td>
+      <td class="num mono" data-v="${r.post_n ? r.post_win / r.post_n : ""}">${r.post_n ? `${r.post_win} / ${r.post_n}` : "–"}</td>
+      <td class="mono hide-m faint">${r.first ? ym(r.first) + "～" + ym(r.last) : "–"}</td></tr>`;
+  }).join("");
+  document.querySelectorAll("#regs tr.pick").forEach(tr => tr.onclick = () => { PICK = +tr.dataset.i; CASE_ALL = false; renderRegs(); renderDetail(); });
+}
+
+function renderDetail() {
+  const box = document.getElementById("reg-detail"), r = D.regulars[PICK];
+  if (!r) { box.hidden = true; return; }
+  box.hidden = false;
+  box.innerHTML = `<h3>${esc(r.broker)}　${r.side === "B" ? "買超" : "賣超"}　${r.n} 件</h3><p class="lead">${esc(r.note || "")}${r.amt_sum ? `　合計約 ${r.amt_sum} 億元。` : ""}</p>
+    <div class="tbl"><table><thead><tr><th>詢圈／競拍開始</th><th>標的</th><th>方式</th><th>進場段</th><th class="num">訂價前淨張數</th><th class="num">金額（百萬）</th><th class="num">事後 20 日超額</th></tr></thead>
+    <tbody>${(CASE_ALL ? r.cases : r.cases.slice(0, CASE_N)).map(c => `<tr><td class="mono">${ymd(c.date)}</td><td>${stock(c.code, c.name)}</td><td>${esc(c.method)}</td><td>${esc(D.stage_labels[c.entry])}</td><td class="num mono">${sgn(c.lots)}</td><td class="num mono">${c.amt ?? "–"}</td><td class="num mono" data-v="${c.post ?? ""}">${pc(c.post)}</td></tr>`).join("") || '<tr><td colspan="7" class="empty">沒有歷史案件</td></tr>'}</tbody></table></div>${r.cases.length > CASE_N ? `<button class="more" id="case-more">${CASE_ALL ? "收起" : `顯示全部 ${r.cases.length} 件`}</button>` : ""}`;
+  const cm = document.getElementById("case-more");
+  if (cm) cm.onclick = () => { CASE_ALL = !CASE_ALL; renderDetail(); };
+}
+
+function renderStages() {
+  const cell = (o, k) => o ? (k === "x" ? pc(o.x) : k === "off" ? (o.off > 0 ? "+" : "") + o.off : o.up + "%") : "–";
+  document.getElementById("stages").innerHTML = D.stages.map(s => `<tr><td>${esc(s.stage)}</td>${["bb", "au"].map(m => ["off", "x", "up"].map(k => `<td class="num mono">${cell(s[m], k)}</td>`).join("")).join("")}</tr>`).join("");
+}
+
+document.getElementById("live-more").onclick = () => { LIVE_ALL = !LIVE_ALL; renderLive(); };
+document.querySelectorAll("#live-filter button").forEach(b => b.onclick = () => {
+  FILTER = b.dataset.f; LIVE_ALL = false;
+  document.querySelectorAll("#live-filter button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  renderLive();
+});
+
+fetch("data/cb/broker.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
+  D = d;
+  if (!D.live.some(x => x.hits.some(h => h.tier === "常客"))) {   // 沒有常客進場時，預設改看全部
+    FILTER = "any";
+    document.querySelectorAll("#live-filter button").forEach(x => x.setAttribute("aria-pressed", x.dataset.f === FILTER));
+  }
+  renderStats(); renderLive(); renderRegs(); renderStages();
+}).catch(e => { document.getElementById("live").innerHTML = `<tr><td colspan="7" class="empty">資料載入失敗：${esc(e.message)}</td></tr>`; });
+</script>
+</body>
+</html>

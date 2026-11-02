@@ -79,6 +79,7 @@ import etf_site  # noqa: E402
 import health  # noqa: E402
 import broker_site  # noqa: E402
 import cb_site  # noqa: E402
+import cb_broker_site  # noqa: E402
 import industry_site  # noqa: E402
 import flow_site  # noqa: E402
 import rebalance_site  # noqa: E402
@@ -154,6 +155,7 @@ def build(out: Path, days: int) -> list[str]:
     broker_site.write_watch(ROOT / "data", ROOT, out, days=60)
     broker_site.write_local(ROOT / "data", out, days=20)
     cb_site.write_cb(ROOT / "data", out / "data" / "cb" / "cb.json")
+    cb_broker_site.write_cb_broker(ROOT / "data", ROOT, out / "data" / "cb" / "broker.json")
     industry_site.write_industry(ROOT / "data", out / "data" / "industry" / "industry.json")
     flow_site.write_flow(ROOT / "data", out / "data" / "flow.json")
     rebalance_site.write_rebalance(ROOT, out / "data" / "etf" / "rebalance.json")
