@@ -560,9 +560,9 @@ JPM_ISIN = {}  # 代號 → ISIN（算出來的對不上時才需要）
 
 
 @adapter("jpmorgan")
-def jpmorgan(code, name=""):
+def jpmorgan(code, name="", days=None):
     isin = JPM_ISIN.get(code) or C.isin_for(code)
-    for d in C.recent_days(15):
+    for d in days or C.recent_days(15):
         try:
             content = C.http(JPM, {"type": "holding_pcf", "cusip": isin, "country": "tw", "role": "twetf",
                                    "locale": "zh-TW", "date": d.isoformat()}, raw=True, retries=1)
