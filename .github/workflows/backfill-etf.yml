@@ -11,12 +11,6 @@ on:
         description: "只試每檔幾天，不存檔"
         type: boolean
         default: false
-  # 開發分支推上來時直接跑（commit 訊息含 [probe] 時只試不存）
-  push:
-    branches: [claude/project-thread-hm7rd6]
-    paths:
-      - "backfill_etf.py"
-      - ".github/workflows/backfill-etf.yml"
 
 permissions:
   contents: write

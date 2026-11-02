@@ -188,6 +188,9 @@ def backfill(code, name, issuer, since, budget, probe, hol):
             empty += 1
             continue
         base, rows = got
+        if not base or not base.startswith("20"):  # 統一在上市前的日期會回 TranDate 0001-01-01
+            empty += 1
+            continue
         if base > min(have) and not seen_base:  # API 忽略日期、回最新一份
             latest_only = base
             empty += 1
