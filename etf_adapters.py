@@ -356,30 +356,9 @@ def allianz(code, name=""):
     raise AdapterError(f"allianz {code}: 最近 10 個工作天都沒有資料")
 
 
-# ---------------- 交易日曆 ----------------
-def previous_trading_day(announce):
-    """公告日（T+1）→ 持股基準日（T）：往前找最近一個有收盤行情檔的交易日；
-    若那天就是今天（行情還沒抓），今天是平日且不在已知假日表也算。"""
-    from pathlib import Path
-    root = Path(__file__).resolve().parent / "data"
-    holidays = set()
-    hp = root / "no_trading_days.txt"
-    if hp.exists():
-        holidays = set(hp.read_text().split())
-    today = datetime.now(C.TPE).date()
-    d = datetime.strptime(announce, "%Y-%m-%d").date()
-    for _ in range(15):
-        d -= timedelta(days=1)
-        if (root / f"{d:%Y}" / f"{d:%Y%m%d}.csv").exists():
-            return d.isoformat()
-        if d == today and d.weekday() < 5 and d.isoformat() not in holidays:
-            return d.isoformat()
-    return None
-
-
 # ---------------- 凱基 ----------------
 # 純 HTML：RedemptionList 下拉選單「名稱 ↔ fundID」，Detail 頁有持股表（桌機/手機重複兩份，只取第一份）。
-# 凱基標的是公告日（比各家 PCF 的持股基準日新一個交易日），換算回基準日才能與其他家對齊。
+# 「持股比重 (日期)」就是持股基準日（2026-11 用外部整理的歷史持股比對 00407A 確認；以前誤當公告日往前推一天）。
 KGI = "https://www.kgifund.com.tw/Fund/"
 _kgi_map = None
 
@@ -412,11 +391,7 @@ def kgi(code, name=""):
     m = re.search(r"持股比重\s*(?:</div>\s*<p[^>]*>)?\s*[（(]\s*(\d{4}/\d{1,2}/\d{1,2})", page)
     if not m:
         raise AdapterError(f"kgi {code}: 找不到持股比重日期")
-    rows = _html_rows(page[m.end():])
-    base = previous_trading_day(iso(m.group(1)))
-    if not base:
-        raise AdapterError(f"kgi {code}: 無法由公告日 {m.group(1)} 推回持股基準日")
-    return base, rows, _meta()
+    return iso(m.group(1)), _html_rows(page[m.end():]), _meta()
 
 
 # ---------------- 台新 ----------------
@@ -560,9 +535,9 @@ JPM_ISIN = {}  # 代號 → ISIN（算出來的對不上時才需要）
 
 
 @adapter("jpmorgan")
-def jpmorgan(code, name=""):
+def jpmorgan(code, name="", days=None):
     isin = JPM_ISIN.get(code) or C.isin_for(code)
-    for d in C.recent_days(15):
+    for d in days or C.recent_days(15):
         try:
             content = C.http(JPM, {"type": "holding_pcf", "cusip": isin, "country": "tw", "role": "twetf",
                                    "locale": "zh-TW", "date": d.isoformat()}, raw=True, retries=1)
