@@ -353,7 +353,7 @@ python fetch_financials.py --since 2013-01 --max-minutes 50
 `fetch_chips.py` 每個交易日抓三大法人買賣超（證交所 T86、櫃買 insti/dailyTrade）、借券賣出（信用額度總量管制餘額表 TWT93U、櫃買 margin/sbl）、
 現股當沖（TWTB4U、櫃買 intraday/stat），合併成 `data/chips/<YYYY>/<YYYYMMDD>.csv`（單位：股）。當沖數字 T+2 才定案，排程 `--refresh 4` 會重抓最近 4 天。
 `fetch_tdcc.py` 每週六抓集保結算所股權分散表（開放資料 1-5，只有最新一週，靠每週累積），整理成千張大戶、400 張以上、50 張以下持股比例與股東人數，存 `data/tdcc/<YYYYMMDD>.csv`。
-併在 `.github/workflows/batch.yml`：平日晚間 19:30 時段抓法人與期交所（借券／當沖 21:00 後才公布，21:20 時段補齊），週末早上抓集保。已回補 2025-10 起的法人／借券／當沖。
+併在 `.github/workflows/batch.yml`：平日傍晚 18:40 時段抓法人與期交所（借券／當沖 21:00 後才公布，21:20 時段補齊），週末早上抓集保。已回補 2025-10 起的法人／借券／當沖。
 
 網站「法人籌碼」頁（`site/chips.html`，資料由 `scripts/chips_site.py` 產生）：大盤每日買賣超、三大法人排行（今日／5 日／20 日／連買連賣天數）、
 借券賣出增減與回補天數、當沖率排行、集保大戶週增減，點股票看近 20 日明細。金額以張數 × 收盤估算。

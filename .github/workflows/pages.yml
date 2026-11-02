@@ -3,8 +3,8 @@ name: Deploy site
 on:
   # 主要的抓資料 workflow 跑完就接著部署（workflow_run 不受 GitHub 排程延遲影響），
   # 但 main 跟上次成功部署是同一個 commit（沒有新資料）就跳過，見 gate job。
-  # 平日大約（台北）：15:20 股價、18:20 ETF、18:50 處置／CB／財報、18:30～19:30 分點（一公布就抓）、
-  #                 19:45 法人／期交所／庫藏股分點、21:30～22:05 融資券＋盤後摘要
+  # 平日大約（台北）：15:20 股價、18:20 ETF、18:50 處置／CB／財報／法人／期交所、18:30～19:30 分點（一公布就抓）、
+  #                 19:40 庫藏股／CB 分點、21:30～22:05 融資券＋盤後摘要
   workflow_run:
     workflows: ["Fetch daily stock prices", "Fetch broker branches", "Fetch ETF holdings", "Fetch batch"]
     types: [completed]
