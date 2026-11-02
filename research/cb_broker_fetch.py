@@ -7,6 +7,7 @@
   pre5  T0 前 5～1 個交易日
   in    T0 ～ 轉換價格基準日（沒有就用訂價日／詢圈結束日）
   post  基準日次一交易日起 20 個交易日（掛牌後有沒有出場）
+  s0      董事會決議前 20 個交易日
   s1..s4  董事會決議→送件前一日、送件→生效前一日、生效→詢圈開始前一日、詢圈開始→訂價日
   plc1/plc2  T0 前 60～41、100～81 個交易日（同長度 20 日的對照期間）
 輸出 research/data/cb_brokers.csv：id, code, method, win, d1, d2, side, rank, bid, broker, buy, sell, net
@@ -51,6 +52,9 @@ def windows(c, td):
              ("end", price_day)]
     ks = [(n, k_of(d)) for n, d in marks]
     stages = []
+    kb = ks[0][1]
+    if kb is not None and kb >= 20:
+        stages.append(("s0", td[kb - 20], td[kb - 1]))   # 董事會決議前 20 個交易日
     for (n, a), (_, b) in zip(ks, ks[1:]):
         if a is not None and b is not None and b > a and b < len(td):
             stages.append((n, td[a], td[b - 1] if n != "s4" else td[b]))
