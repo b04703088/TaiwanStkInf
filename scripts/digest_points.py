@@ -53,6 +53,18 @@ def _lots(sh):
     return f"{sh / 1000:,.0f} 張"
 
 
+def _tbl(heads, rows):
+    """Markdown 表格；儲存格裡的 | 換成全形，避免切錯欄"""
+    c = lambda v: str(v).replace("|", "｜") if v not in (None, "") else "—"
+    return ["| " + " | ".join(heads) + " |", "|" + "---|" * len(heads)] + \
+           ["| " + " | ".join(c(v) for v in r) + " |" for r in rows]
+
+
+def _n(v):
+    """數字欄：億，帶正負號（網頁會上色）"""
+    return f"{v:+,.0f}" if abs(v) >= 10 else f"{v:+,.1f}"
+
+
 def _names():
     out = {}
     for f in sorted(glob.glob(str(D / "20[0-9][0-9]" / "*.csv")))[-3:]:
@@ -112,24 +124,25 @@ def flows(px_files, chip_files, day, top=5):
         s = x[(x.industry == r.industry) & (x.node == r.node)]
         # 依分攤後金額挑，才會挑到這個節點的代表股，而不是橫跨幾十個節點的權值股；顯示的是個股全額
         s = s[s.flow * sign > 0].assign(fw=lambda d: d.flow * d.w).sort_values("fw", ascending=sign < 0).head(3)
-        return "、".join(f"{q['name']} {_yi(q.flow)}" for _, q in s.iterrows())
+        return "、".join(f"{q['name']} {_n(q.flow)}" for _, q in s.iterrows())
 
     def lines(df, sign):
-        out, seen = [], set()
+        rows, seen = [], set()
         for r in df.itertuples():
             if r.label in seen:
                 continue
             seen.add(r.label)
-            out.append(f"- **{r.label}**（{r.industry}）{_yi(r.flow)}：法人 {_yi(r.inst)}、融資 {_yi(r.dfin)}；"
-                       f"5 日漲跌中位數 {r.r5:+.1f}%；成交占比 {r.s20:.1f}% → {r.s5:.1f}%。代表股（個股法人＋融資）{reps(r, sign) or '—'}")
-            if len(out) >= top:
+            rows.append([f"**{r.label}**", r.industry, _n(r.flow), _n(r.inst), _n(r.dfin), f"{r.r5:+.1f}%",
+                         f"{r.s20:.1f}%→{r.s5:.1f}%", reps(r, sign)])
+            if len(rows) >= top:
                 break
-        return out
+        return _tbl(["族群", "產業鏈", "法人＋融資", "法人", "融資", "5日漲跌", "成交占比", "代表股（個股法人＋融資）"], rows)
 
     tot = m.flow.sum()
     out = ["## 資金流向（近 5 日）", "",
            f"法人＋融資 5 日合計 {_yi(tot)}（法人 {_yi(m.inst.sum())}、融資 {_yi(m.dfin.sum())}）。"
-           "個股的金額依所屬產業鏈節點數平均分攤後加總。", "", "**流入**", ""]
+           "金額單位億；個股依所屬產業鏈節點數平均分攤後加總，5 日漲跌是族群中位數，成交占比是前 20 日→近 5 日。",
+           "", "**流入**", ""]
     out += lines(g.sort_values("flow", ascending=False), 1)
     out += ["", "**流出**", ""]
     out += lines(g.sort_values("flow"), -1)
@@ -167,23 +180,22 @@ def cb(iso, prev_iso, names):
         print("cb broker:", e)
 
     def hit_txt(code):
-        h = hits.get(code) or []
-        if not h:
-            return ""
-        return "；常客分點 " + "、".join(f"{x['broker']}{'買' if x['side'] == 'B' else '賣'} {abs(x['lots']):,} 張"
-                                     for x in h[:3])
+        return "、".join(f"{x['broker']}{'買' if x['side'] == 'B' else '賣'} {abs(x['lots']):,}"
+                        for x in (hits.get(code) or [])[:3])
 
     out = []
+    lots = lambda c: f"{int(c['bb_units'] or c['units'] or 0):,} 張"
     on = [c for c in cases if c["method"] == "詢價圈購" and c["bb_start"] and c["bb_start"] <= iso <= (c["bb_end"] or iso)]
     for c in sorted(on, key=lambda c: c["bb_end"]):
-        prem = f"，溢價 {float(c['premium_lo']):g}–{float(c['premium_hi']):g}%" if c["premium_lo"] else ""
-        out.append(f"- **詢圈中** {nm(c)}：{_md(c['bb_start'])}–{_md(c['bb_end'])}，{c['type']}"
-                   f" {int(c['bb_units'] or c['units'] or 0):,} 張{prem}，主辦 {_short(c['lead'])}{hit_txt(c['code'])}")
+        prem = f"溢價 {float(c['premium_lo']):g}–{float(c['premium_hi']):g}%，" if c["premium_lo"] else ""
+        out.append(["**詢圈中**", nm(c), f"{_md(c['bb_start'])}–{_md(c['bb_end'])}", lots(c),
+                    f"{prem}{c['type'].replace('轉換公司債', '')}，主辦 {_short(c['lead'])}", hit_txt(c["code"])])
     soon_end = (date.fromisoformat(iso) + timedelta(days=10)).isoformat()
     for c in sorted(cases, key=lambda c: c["bb_start"] or "9"):
         if c["method"] == "詢價圈購" and c["bb_start"] and iso < c["bb_start"] <= soon_end:
-            out.append(f"- **即將詢圈** {nm(c)}：{_md(c['bb_start'])}–{_md(c['bb_end'])}，"
-                       f"{int(c['bb_units'] or c['units'] or 0):,} 張，主辦 {_short(c['lead'])}{hit_txt(c['code'])}")
+            prem = f"溢價 {float(c['premium_lo']):g}–{float(c['premium_hi']):g}%，" if c["premium_lo"] else ""
+            out.append(["即將詢圈", nm(c), f"{_md(c['bb_start'])}–{_md(c['bb_end'])}", lots(c),
+                        f"{prem}主辦 {_short(c['lead'])}", hit_txt(c["code"])])
     bank_from = (date.fromisoformat(iso) - timedelta(days=8)).isoformat()
     shown = {c["code"] for c in cases if c["bb_start"] and iso < c["bb_start"]}
     for c in sorted(cases, key=lambda c: c["bank_date"]):
@@ -191,26 +203,26 @@ def cb(iso, prev_iso, names):
                 and not c["done_date"] and not c["wd_date"] and c["eff_date"] and c["code"] not in shown):
             shown.add(c["code"])
             est = (date.fromisoformat(c["bank_date"]) + timedelta(days=5)).isoformat()
-            when = f"推估 {_md(est)} 前後開始" if est >= iso else f"推估日 {_md(est)} 已過、還沒看到承銷公告"
-            out.append(f"- **代收行庫已公告** {nm(c)}：{_md(c['bank_date'])} 公告，詢圈通常在 5 天內開始（{when}），"
-                       f"董事會 {amt(c)}{hit_txt(c['code'])}")
+            when = f"推估 {_md(est)} 前後開始詢圈" if est >= iso else f"推估日 {_md(est)} 已過，還沒看到承銷公告"
+            out.append(["代收行庫公告", nm(c), f"{_md(c['bank_date'])} 公告", amt(c), when, hit_txt(c["code"])])
     for c in cases:
         if c["method"] == "詢價圈購" and win(c["done_date"]) and c["conv_price"]:
-            out.append(f"- **訂價** {nm(c)}：轉換價 {float(c['conv_price']):g}、溢價 {float(c['premium'] or 0):g}%，"
-                       f"掛牌預計 {_md(c['list_expected']) if c['list_expected'] else '—'}")
+            out.append(["訂價", nm(c), _md(c["done_date"]), lots(c),
+                        f"轉換價 {float(c['conv_price']):g}、溢價 {float(c['premium'] or 0):g}%、"
+                        f"預計掛牌 {_md(c['list_expected']) if c['list_expected'] else '—'}", hit_txt(c["code"])])
     # 同一家同時辦詢圈＋競拍時合併成一筆
     ev = defaultdict(lambda: defaultdict(list))
     for c in cases:
         for k, lab in (("board_date", "董事會決議"), ("filed_date", "送件"), ("eff_date", "生效"), ("wd_date", "撤件")):
             if win(c.get(k)):
                 how = "詢圈" if is_bb(c) else "競拍" if (c["method"] or c.get("board_method")) else ""
-                ev[lab][nm(c)].append(f"{how} {amt(c)}".strip())
+                ev[lab][(nm(c), c["code"])].append((f"{how} {amt(c)}".strip(), c[k]))
     for lab in ("董事會決議", "送件", "生效", "撤件"):
-        if ev[lab]:
-            out.append(f"- **{lab}** " + "、".join(f"{k} {'＋'.join(sorted(set(v), reverse=True))}" for k, v in ev[lab].items()))
+        for (name, code), v in ev[lab].items():
+            out.append([lab, name, _md(v[0][1]), "＋".join(sorted({a for a, _ in v}, reverse=True)), "", hit_txt(code)])
     if not out:
-        out = ["- 這次沒有新的詢圈、訂價或董事會決議。"]
-    return ["## CB 詢圈重點", ""] + out
+        return ["## CB 詢圈重點", "", "這次沒有新的詢圈、訂價或董事會決議。"]
+    return ["## CB 詢圈重點", ""] + _tbl(["狀態", "公司", "日期", "規模", "條件", "常客分點（張）"], out)
 
 
 # ───────────── ETF 調整 ─────────────
@@ -240,13 +252,16 @@ def etf(iso, prev_iso, names):
             g["eff"] = r["effective_date"]
     for idx, g in res.items():
         tr = by_index.get(_norm(idx))
-        who = f"（{'、'.join(tr[:3])}）" if tr else ""
-        out.append(f"- **指數審核公告** {idx}{who}：新增 {'、'.join(g['add']) or '無'}；剔除 {'、'.join(g['del']) or '無'}"
-                   f"{'；生效 ' + _md(g['eff']) if g['eff'] else ''}")
+        out.append(["**指數審核公告**", "、".join(tr[:3]) if tr else idx, "、".join(g["add"]) or "無",
+                    "、".join(g["del"]) or "無", f"生效 {_md(g['eff'])}" if g["eff"] else ""])
+    ms = defaultdict(lambda: {"add": [], "del": [], "eff": ""})
     for r in _read(D / "etf" / "msci" / "results.csv"):
         if prev_iso < r["announce_date"] <= iso and r["action"] in ("add", "del"):
-            out.append(f"- **MSCI {r['review']}** {'納入' if r['action'] == 'add' else '剔除'} "
-                       f"{names.get(r['code'], r['en_name'])}（{r['code']}），生效 {_md(r['effective_date'])}")
+            ms[r["review"]][r["action"]].append(names.get(r["code"], r["en_name"]))
+            ms[r["review"]]["eff"] = r["effective_date"]
+    for rv, g in ms.items():
+        out.append(["**MSCI 季度調整**", f"MSCI {rv}", "、".join(g["add"]) or "無", "、".join(g["del"]) or "無",
+                    f"生效 {_md(g['eff'])}"])
 
     # 未來 14 天的審核公告
     end = (date.fromisoformat(iso) + timedelta(days=14)).isoformat()
@@ -259,8 +274,7 @@ def etf(iso, prev_iso, names):
     for r in _read(D / "etf" / "msci" / "schedule.csv"):
         if iso < r["announce_date"] <= end:
             up.append((r["announce_date"], f"{_md(r['announce_date'])} MSCI 季度調整（生效 {_md(r['effective_date'])}）"))
-    if up:
-        out.append("- **接下來要公告的審核**：" + "；".join(t for _, t in sorted(up)))
+    upcoming = ("**接下來要公告的審核**：" + "；".join(t for _, t in sorted(up))) if up else ""
 
     # ETF 持股新增／剔除（這次公布的持股 vs 該 ETF 前一份）、主動式加減碼
     prices = etf_site.PriceBook(D)
@@ -286,16 +300,28 @@ def etf(iso, prev_iso, names):
                 act[c] += d * px[c] / 1e8
                 act_name[c] = nm
         if (new or gone) and len(new) + len(gone) <= 30:
-            out.append(f"- **{code} {info['name']}** 新增 {'、'.join(sorted(new)) or '無'}；剔除 {'、'.join(sorted(gone)) or '無'}")
+            out.append(["持股異動", f"{code} {info['name']}", "、".join(sorted(new)) or "無", "、".join(sorted(gone)) or "無",
+                        "主動式" if info["kind"] == "active" else "被動式"])
+    res_out = ["## ETF 調整重點", ""]
+    if out:
+        res_out += _tbl(["類型", "ETF／指數", "新增", "剔除", "備註"], out)
+    else:
+        res_out.append("這次沒有指數審核公告，ETF 持股也沒有新增或剔除的成分股。")
+    if upcoming:
+        res_out += ["", upcoming]
     if act:
         s = sorted(act.items(), key=lambda kv: kv[1])
-        buy = [f"{act_name[c]} {_yi(v)}" for c, v in s[::-1][:5] if v > 0.5]
-        sell = [f"{act_name[c]} {_yi(v)}" for c, v in s[:5] if v < -0.5]
+        buy = [(act_name[c], v) for c, v in s[::-1][:5] if v > 0.5]
+        sell = [(act_name[c], v) for c, v in s[:5] if v < -0.5]
         if buy or sell:
-            out.append(f"- **主動式 ETF 合計** 加碼 {'、'.join(buy) or '無'}；減碼 {'、'.join(sell) or '無'}（股數增減×收盤價，含申贖）")
-    if not out:
-        out = ["- 這次沒有指數審核公告，ETF 持股也沒有新增或剔除的成分股。"]
-    return ["## ETF 調整重點", ""] + out
+            rows = []
+            for k in range(max(len(buy), len(sell))):
+                b = buy[k] if k < len(buy) else ("", None)
+                q = sell[k] if k < len(sell) else ("", None)
+                rows.append([b[0], _n(b[1]) if b[1] is not None else "", q[0], _n(q[1]) if q[1] is not None else ""])
+            res_out += ["", "**主動式 ETF 合計加減碼**（億，股數增減×收盤價，含申贖）", ""] + \
+                _tbl(["加碼", "億", "減碼", "億"], rows)
+    return res_out
 
 
 # ───────────── 內部人 ─────────────
@@ -312,7 +338,7 @@ def insider(iso, prev_iso, px, top=8):
         if k not in seen:
             seen.add(k)
             uniq.append(r)
-    out = []
+    out, notes = [], []
     trust = [r for r in uniq if r["method"] == "信託"]
     main = [r for r in uniq if r["method"] != "信託"]
     for r in main:
@@ -323,19 +349,25 @@ def insider(iso, prev_iso, px, top=8):
     small = [r for r in main if r["_amt"] < 0.05 and not FAMILY.search(r["role"])]
     main = [r for r in main if r not in small]
     for r in main[:top]:
-        fam = "（**配偶／子女**）" if FAMILY.search(r["role"]) else ""
-        to = f"，受讓人 {r['transferee']}" if r["transferee"] else ""
-        amt = f"{r['_amt']:,.1f} 億" if r["_amt"] >= 1 else f"{r['_amt'] * 1e4:,.0f} 萬"
-        out.append(f"- **{r['company']}（{r['code']}）** {r['role']}{fam} {r['name']}：申報轉讓 {_lots(float(r['shares']))}"
-                   f"（約 {amt}，持股的 {r['_pct']:.0f}%），{r['method'].replace('(每日得轉讓股數限制)', '')}{to}")
+        role = f"**{r['role']}**" if FAMILY.search(r["role"]) else r["role"]
+        how = r["method"].replace("(每日得轉讓股數限制)", "")
+        if r["transferee"]:
+            how += f"，受讓人 {r['transferee']}"
+        out.append([f"**{r['company']}（{r['code']}）**", role, r["name"], f"{float(r['shares']) / 1000:,.0f}",
+                    f"{r['_amt']:,.2f}", f"{r['_pct']:.0f}%", how])
     if len(main) > top:
-        out.append(f"- 另有 {len(main) - top} 筆，合計約 {sum(r['_amt'] for r in main[top:]):,.1f} 億。")
+        notes.append(f"- 另有 {len(main) - top} 筆，合計約 {sum(r['_amt'] for r in main[top:]):,.1f} 億。")
     if small:
-        out.append(f"- 500 萬以下 {len(small)} 筆不列。")
+        notes.append(f"- 500 萬以下 {len(small)} 筆不列。")
     if trust:
-        out.append(f"- 信託 {len(trust)} 筆（多為員工獎酬或家族信託，不列入上面）。")
-    if not main and not trust and not small:
-        out.append("- 這次沒有新的事前申報轉讓。")
+        notes.append(f"- 信託 {len(trust)} 筆（多為員工獎酬或家族信託，不列入表格）。")
+    res = ["## 內部人申報重點", "", "**事前申報轉讓**", ""]
+    if out:
+        res += _tbl(["公司", "身分", "申報人", "張數", "金額（億）", "占持股", "方式"], out)
+    elif not trust and not small:
+        res.append("這次沒有新的事前申報轉讓。")
+    if notes:
+        res += [""] + notes
 
     # 最新月報（每月 15 日前後公布上月）
     tf = sorted((D / "insider" / "trades").glob("[0-9]*.csv"))
@@ -346,11 +378,14 @@ def insider(iso, prev_iso, px, top=8):
             r["_b"] = float(r["buy_mkt"] or 0) * p / 1e8
             r["_s"] = float(r["sell_mkt"] or 0) * p / 1e8
         mon = t[0]["month"] if t else tf[-1].stem
-        fmt = lambda r, k: f"{r['company']} {r['name'].replace('股份有限公司', '')} {r[k]:,.1f} 億"
-        b = [fmt(r, "_b") for r in sorted(t, key=lambda r: -r["_b"])[:4] if r["_b"] >= 0.3]
-        s = [fmt(r, "_s") for r in sorted(t, key=lambda r: -r["_s"])[:4] if r["_s"] >= 0.3]
-        out.append(f"- **{mon} 月報** 市場買進前段：{'、'.join(b) or '無'}；市場賣出前段：{'、'.join(s) or '無'}（以 {_md(iso)} 收盤估金額）")
-    return ["## 內部人申報重點", ""] + out
+        row = lambda r, k, lab: [lab, f"{r['company']}（{r['code']}）", r["name"].replace("股份有限公司", ""), r["role"],
+                                 f"{r[k]:,.1f}"]
+        rows = [row(r, "_b", "市場買進") for r in sorted(t, key=lambda r: -r["_b"])[:4] if r["_b"] >= 0.3]
+        rows += [row(r, "_s", "市場賣出") for r in sorted(t, key=lambda r: -r["_s"])[:4] if r["_s"] >= 0.3]
+        if rows:
+            res += ["", f"**{mon} 月報**（以 {_md(iso)} 收盤估金額）", ""] + \
+                _tbl(["方向", "公司", "申報人", "身分", "金額（億）"], rows)
+    return res
 
 
 def build(day, px_files, chip_files):

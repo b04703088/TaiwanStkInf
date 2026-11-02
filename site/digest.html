@@ -49,6 +49,8 @@
   .md th{font-weight:500; color:var(--text-muted); font-size:12.5px; background:var(--panel);}
   .md td:first-child, .md th:first-child, .md td.t, .md th.t{text-align:left;}
   .md tr:last-child td{border-bottom:none;}
+  #pts .md td.t{white-space:normal; min-width:6.5em; line-height:1.55;}
+  #pts .md p{margin:8px 0;}
   .faint{color:var(--text-faint);}
   .up{color:var(--rise);} .dn{color:var(--fall);}
   .sec-t{font-size:13px; color:var(--text-faint); margin:0 0 6px;}
@@ -109,7 +111,9 @@ function md(src){
       const rows = []; while (i < L.length && /^\|/.test(L[i])) rows.push(L[i++]);
       const sp = r => r.replace(/^\||\|$/g, "").split("|");
       const body = rows.slice(2).map(r => "<tr>" + sp(r).map(cell).join("") + "</tr>").join("");
-      out.push(`<div class="tbl"><table><thead><tr>${sp(rows[0]).map((c, k) => `<th${k ? "" : ' class="t"'}>${inl(c.trim())}</th>`).join("")}</tr></thead><tbody>${body}</tbody></table></div>`);
+      // 標題對齊跟著該欄第一列：文字靠左、數字靠右
+      const first = rows[2] ? sp(rows[2]).map(c => cell(c).includes('class="t"')) : [];
+      out.push(`<div class="tbl"><table><thead><tr>${sp(rows[0]).map((c, k) => `<th${!k || first[k] ? ' class="t"' : ""}>${inl(c.trim())}</th>`).join("")}</tr></thead><tbody>${body}</tbody></table></div>`);
       continue;
     }
     if (/^\s*([-*]|\d+\.) /.test(l)){
