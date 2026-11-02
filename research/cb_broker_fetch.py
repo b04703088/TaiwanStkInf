@@ -7,6 +7,7 @@
   pre5  T0 前 5～1 個交易日
   in    T0 ～ 轉換價格基準日（沒有就用訂價日／詢圈結束日）
   post  基準日次一交易日起 20 個交易日（掛牌後有沒有出場）
+  s1..s4  董事會決議→送件前一日、送件→生效前一日、生效→詢圈開始前一日、詢圈開始→訂價日
   plc1/plc2  T0 前 60～41、100～81 個交易日（同長度 20 日的對照期間）
 輸出 research/data/cb_brokers.csv：id, code, method, win, d1, d2, side, rank, bid, broker, buy, sell, net
 用法：python research/cb_broker_fetch.py [--max-minutes 60]
@@ -42,8 +43,21 @@ def windows(c, td):
     if not end or end < t0:
         end = c["done_date"] or c["bb_end"]
     j = next((k for k, d in enumerate(td) if d >= end), None)
+    # 流程階段：董事會決議 → 送件 → 生效 → 詢圈／競拍開始 → 訂價日
+    def k_of(d):
+        return next((k for k, x in enumerate(td) if x >= d), None) if d else None
+    price_day = c["done_date"] or c["bb_end"]
+    marks = [("s1", c["board_date"]), ("s2", c["filed_date"]), ("s3", c["eff_date"]), ("s4", c["bb_start"]),
+             ("end", price_day)]
+    ks = [(n, k_of(d)) for n, d in marks]
+    stages = []
+    for (n, a), (_, b) in zip(ks, ks[1:]):
+        if a is not None and b is not None and b > a and b < len(td):
+            stages.append((n, td[a], td[b - 1] if n != "s4" else td[b]))
+
     out = [("base", td[i - 80], td[i - 21]), ("pre20", td[i - 20], td[i - 1]), ("pre5", td[i - 5], td[i - 1]),
            ("plc1", td[i - 60], td[i - 41]), ("plc2", td[i - 100], td[i - 81])]
+    out += stages
     if j is not None:
         out.append(("in", td[i], td[j]))
         if j + 20 < len(td):
