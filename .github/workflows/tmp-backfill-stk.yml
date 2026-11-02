@@ -1,0 +1,21 @@
+name: tmp backfill stock futures
+on:
+  push:
+    branches: [claude/project-thread-dycrm6]
+    paths: [.github/workflows/tmp-backfill-stk.yml]
+permissions:
+  contents: write
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: python -u fetch_futures.py --start 2026-09-01
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/futures
+          git commit -m "data: backfill stock futures large traders and prices" || true
+          git push
