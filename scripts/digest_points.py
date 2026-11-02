@@ -1,4 +1,4 @@
-"""盤後摘要頁的「重點」：資金流向、CB 詢圈、ETF 調整、內部人申報。只用清單，不放數字表格。
+"""盤後摘要頁的「重點」：資金流向、追蹤分點、CB 詢圈、ETF 調整、內部人申報（表格）。
 
 由 scripts/digest.py 呼叫，輸出 data/digest/points/<日期>.md，同內容也接在數字摘要後面給每晚判讀用。
 「這次」指上一個交易日之後到資料日 D（含週末公告）。
@@ -6,9 +6,10 @@
   資金流向  每檔個股的 法人（外資＋投信＋自營）5 日買賣超 ＋ 融資 5 日增減（億），
             依它所屬的產業鏈節點數平均分攤（台積電在幾十個節點，不分攤會讓每個節點都長得一樣），
             再加總到節點。流入、流出各列前 5，附代表股、5 日漲跌中位數、成交占比（近 5 日 vs 前 20 日）。
+  追蹤分點  首頁同一區：config/broker_watch.csv 分點加總，個股淨額 ≥ 5000 萬（不含 ETF）。
   CB 詢圈   詢圈中（含常客分點有沒有進場）、即將詢圈（代收行庫公告後約 5 天）、這次訂價、
             這次董事會決議／送件／生效。
-  ETF 調整  這次公告的指數成分調整、未來 14 天要公告的審核（指數公司、MSCI）、
+  ETF 調整  這次公告的指數成分調整、未來 14 天要公告與已公告未生效的審核（同首頁，etf_site.build_tip）、
             ETF 持股這次新增／剔除的成分股、主動式 ETF 合計加減碼前段。
   內部人    這次申報轉讓（依金額，信託另計）、最新月報市場買進／賣出前段。
 
@@ -149,6 +150,40 @@ def flows(px_files, chip_files, day, top=5):
     return out
 
 
+# ───────────── 追蹤分點 ─────────────
+def watch(day, limit=5000):
+    """首頁「追蹤分點大額進出」：config/broker_watch.csv 的分點加總，個股淨額 ≥ 5000 萬（萬元），不含 ETF"""
+    f = D / "broker" / "watch" / day[:4] / f"{day}.csv"
+    rows = _read(f)
+    if not rows:
+        return []
+    label = {r["branch"].strip(): (r.get("label") or "").strip() or r["branch"].strip()
+             for r in csv.DictReader((ROOT / "config" / "broker_watch.csv").open(encoding="utf-8-sig"))
+             if (r.get("branch") or "").strip()}
+    by = defaultdict(lambda: {"net": 0, "br": defaultdict(int), "name": ""})
+    for r in rows:
+        if r["code"].startswith("00"):
+            continue
+        n = (int(r["buy_amt"] or 0) - int(r["sell_amt"] or 0)) / 10   # 仟元 → 萬
+        o = by[r["code"]]
+        o["net"] += n
+        o["name"] = r["name"]
+        o["br"][label.get(r["branch"], label.get(r["branch"] + "總公司", r["branch"]))] += n
+    hits = [(c, o) for c, o in by.items() if abs(o["net"]) >= limit]
+    if not hits:
+        return ["## 追蹤分點大額進出", "", f"追蹤分點加總沒有個股淨額達 {limit:,} 萬。"]
+    who = lambda o: "、".join([f"{b} {abs(n) / 1e4:,.2f}" for b, n in
+                               sorted(o["br"].items(), key=lambda kv: -abs(kv[1]))
+                               if (n > 0) == (o["net"] > 0) and abs(n) >= 1000][:2]) or "—"
+    buy = sorted((h for h in hits if h[1]["net"] > 0), key=lambda h: -h[1]["net"])
+    sell = sorted((h for h in hits if h[1]["net"] < 0), key=lambda h: h[1]["net"])
+    out = [["買超" if o["net"] > 0 else "賣超", f"{o['name']}（{c}）", f"{o['net'] / 1e4:+,.2f}", who(o)] for c, o in buy + sell]
+    tb, ts = sum(o["net"] for _, o in buy) / 1e4, sum(o["net"] for _, o in sell) / 1e4
+    return ["## 追蹤分點大額進出", "",
+            f"{len(label)} 個追蹤分點加總、個股淨額 ≥ {limit:,} 萬（不含 ETF）：買超 {len(buy)} 檔合計 {tb:+,.2f} 億，"
+            f"賣超 {len(sell)} 檔合計 {ts:+,.2f} 億。", ""] + _tbl(["方向", "個股", "淨額（億）", "主要分點（億）"], out)
+
+
 # ───────────── CB 詢圈 ─────────────
 def _short(s):
     return (s or "").replace("股份有限公司", "").replace("綜合證券", "").replace("證券", "")
@@ -263,18 +298,25 @@ def etf(iso, prev_iso, names):
         out.append(["**MSCI 季度調整**", f"MSCI {rv}", "、".join(g["add"]) or "無", "、".join(g["del"]) or "無",
                     f"生效 {_md(g['eff'])}"])
 
-    # 未來 14 天的審核公告
+    # 未來 14 天要公告的審核，加上已公告還沒生效的（同首頁「未來一週 ETF 指數調整」，資料取自 etf_site.build_tip）
     end = (date.fromisoformat(iso) + timedelta(days=14)).isoformat()
-    up = []
-    for r in _read(D / "etf" / "tip" / "schedule.csv"):
-        if iso < r["announce_date"] <= end:
-            tr = by_index.get(_norm(r["index"]))
-            if tr:
-                up.append((r["announce_date"], f"{_md(r['announce_date'])} {'、'.join(tr[:3])}"))
-    for r in _read(D / "etf" / "msci" / "schedule.csv"):
-        if iso < r["announce_date"] <= end:
-            up.append((r["announce_date"], f"{_md(r['announce_date'])} MSCI 季度調整（生效 {_md(r['effective_date'])}）"))
-    upcoming = ("**接下來要公告的審核**：" + "；".join(t for _, t in sorted(up))) if up else ""
+    upcoming = []
+    try:
+        tip = etf_site.build_tip(D, ROOT)
+        for x in sorted((dict(zip(tip["cols"], r)) for r in tip["rows"]), key=lambda x: (x["ann"], x["index"])):
+            if not x["etfs"]:
+                continue
+            done = x["ann"] <= iso and (x["add"] is not None or x["del"] is not None)
+            if not ((iso < x["ann"] <= end) or (done and x["eff"] and x["eff"] > iso)):
+                continue
+            nm = lambda c: f"{c} {tip['etfs'].get(c, '')}".strip()
+            state = f"已公告：納入 {len(x['add'] or [])}、刪除 {len(x['del'] or [])}" if done else "待公告"
+            prov = {"MSCI": "MSCI ", "FTSE": "富時 "}.get(x["prov"], "")
+            prov = "" if x["index"].startswith(prov.strip() or "\0") else prov
+            upcoming.append([_md(x["ann"]), _md(x["eff"]) if x["eff"] else "", "、".join(nm(c) for c in x["etfs"][:3]),
+                             prov + re.sub(r"^臺灣指數公司", "", x["index"]), state])
+    except Exception as e:
+        print("etf upcoming:", e)
 
     # ETF 持股新增／剔除（這次公布的持股 vs 該 ETF 前一份）、主動式加減碼
     prices = etf_site.PriceBook(D)
@@ -308,7 +350,8 @@ def etf(iso, prev_iso, names):
     else:
         res_out.append("這次沒有指數審核公告，ETF 持股也沒有新增或剔除的成分股。")
     if upcoming:
-        res_out += ["", upcoming]
+        res_out += ["", "**未來兩週的指數調整**（含已公告、還沒生效的）", ""] + \
+            _tbl(["公告日", "生效日", "ETF", "指數", "狀態"], upcoming)
     if act:
         s = sorted(act.items(), key=lambda kv: kv[1])
         buy = [(act_name[c], v) for c, v in s[::-1][:5] if v > 0.5]
@@ -396,7 +439,7 @@ def build(day, px_files, chip_files):
     names = _names()
     px = {r["code"]: float(r["close"]) for r in _read(px_files[i]) if r.get("close") and re.match(r"^[\d.]+$", r["close"])}
     out = []
-    for f, args in ((flows, (px_files, chip_files, day)), (cb, (iso, prev_iso, names)),
+    for f, args in ((flows, (px_files, chip_files, day)), (watch, (day,)), (cb, (iso, prev_iso, names)),
                     (etf, (iso, prev_iso, names)), (insider, (iso, prev_iso, px))):
         try:
             sec = f(*args)
