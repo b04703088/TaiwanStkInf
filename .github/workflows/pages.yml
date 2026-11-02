@@ -1,14 +1,14 @@
 name: Deploy site
 
 on:
-  # 抓資料的 workflow 只 commit 資料、不觸發部署；網站在固定時段統一重建，省 Actions 分鐘數
-  # 時間抓在各批資料進來之後（台北時間）：
-  #   08:53 早盤前（ETF、CB、券商報告、MOPS、庫藏股、融資券）
-  #   14:03 午間（券商報告、盤中重大訊息）
-  #   20:03 晚間（股價、分點、CB、ETF、處置注意股、庫藏股、財報）
-  #   23:03 收尾（ETF 晚場、融資券、MOPS、券商報告）
-  #   週六 12:03（產業分類、指數調整、MOPS）
-  # GitHub 排程常延遲；要準時可在 cron-job.org 加 workflow_dispatch
+  # 主要的抓資料 workflow 跑完就接著部署（workflow_run 不受 GitHub 排程延遲影響），
+  # 但 main 跟上次成功部署是同一個 commit（沒有新資料）就跳過，見 gate job。
+  # 平日大約（台北）：15:20 股價、18:20 ETF、18:50 處置／CB／財報、18:30～19:30 分點（一公布就抓）、
+  #                 19:45 法人／期交所／庫藏股分點、21:30～22:05 融資券＋盤後摘要
+  workflow_run:
+    workflows: ["Fetch daily stock prices", "Fetch broker branches", "Fetch ETF holdings", "Fetch batch"]
+    types: [completed]
+  # 固定時段當備援（GitHub 排程常延遲好幾小時；沒新資料一樣跳過）
   schedule:
     - cron: "53 0 * * 1-5"
     - cron: "3 6 * * 1-5"
@@ -54,6 +54,7 @@ on:
 
 permissions:
   contents: read
+  actions: read  # gate 要查上次成功部署的 commit
   pages: write
   id-token: write
 
@@ -62,6 +63,27 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # 排程／接在抓資料後面觸發時，main 沒有比上次成功部署新就不部署
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      go: ${{ steps.g.outputs.go }}
+    steps:
+      - id: g
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          if [ "$EVENT" != workflow_run ] && [ "$EVENT" != schedule ]; then echo "go=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          head=$(gh api "repos/$GITHUB_REPOSITORY/commits/$BRANCH" --jq .sha)
+          last=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/pages.yml/runs?branch=$BRANCH&status=success&per_page=1" \
+                   --jq '.workflow_runs[0].head_sha // ""' || echo "")
+          echo "main $head，上次成功部署 $last"
+          if [ -n "$last" ] && [ "$head" = "$last" ]; then echo "沒有新 commit，跳過"; echo "go=false" >> "$GITHUB_OUTPUT"
+          else echo "go=true" >> "$GITHUB_OUTPUT"; fi
+
   # 部署目標由 repo variable DEPLOY_TARGET 決定：
   #   cloudflare → Cloudflare Pages（私人網站，用 Cloudflare Access 限定自己的 email）
   #               需要 secrets：CLOUDFLARE_API_TOKEN、CLOUDFLARE_ACCOUNT_ID
@@ -69,7 +91,8 @@ jobs:
   #   其他／沒設 → GitHub Pages（公開）
   # 分成兩個 job：私人 repo 在免費方案不能用 deployment environment，Cloudflare 那條不綁 environment。
   cloudflare:
-    if: vars.DEPLOY_TARGET == 'cloudflare'
+    needs: gate
+    if: needs.gate.outputs.go == 'true' && vars.DEPLOY_TARGET == 'cloudflare'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -95,7 +118,8 @@ jobs:
           command: pages deploy _site --project-name=${{ vars.CF_PAGES_PROJECT || 'tide-stk-infs' }} --branch=main --commit-dirty=true
 
   deploy:
-    if: vars.DEPLOY_TARGET != 'cloudflare'
+    needs: gate
+    if: needs.gate.outputs.go == 'true' && vars.DEPLOY_TARGET != 'cloudflare'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment:
