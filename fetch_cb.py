@@ -57,7 +57,7 @@ CASE_COLS = ["id", "code", "company", "short", "series", "bond_code", "type", "m
              "issue_date", "list_date", "bb_sn", "au_sn", "nt_sn",
              # 詢圈前：董事會決議（觀測站重訊）、送件／生效（證期局申報案件）
              "board_date", "board_amount", "board_method", "filed_date", "eff_date", "sfb_status", "stop_date",
-             "sfb_amount", "wd_date"]
+             "sfb_amount", "wd_date", "retry_of"]
 
 
 # ---------------- 小工具 ----------------
@@ -531,7 +531,7 @@ def attach_pipeline(cases, sfb, events, today):
         by_code.setdefault(c["code"], []).append(c)
         return c
 
-    # 1. 申報案件 → 既有案件（同代號；承銷開始在生效日前 10 天～後 150 天內）
+    # 1. 申報案件 → 既有案件（同代號；承銷開始在生效日前 10 天～後 200 天內：申報生效後 3 個月內要募集，可再延 3 個月）
     #    先配金額完全相同的，再配剩下的（同一家公司常同時申報兩檔不同金額的 CB）
     closed = ("自行撤回", "退件", "廢止/撤銷")
 
@@ -540,7 +540,7 @@ def attach_pipeline(cases, sfb, events, today):
         if r["status"] in closed or not ref:
             return []
         return [c for c in by_code.get(r["code"], []) if not c.get("filed_date") and _anchor(c)
-                and -10 <= _days(_anchor(c), ref) <= 150]
+                and -10 <= _days(_anchor(c), ref) <= 200]
 
     def link_sfb(c, r):
         c.update(filed_date=r["filed"], eff_date=r["effective"], sfb_status=r["status"],
@@ -568,6 +568,25 @@ def attach_pipeline(cases, sfb, events, today):
                      type=secured + ("交換公司債" if "交換" in r["kind"] else "轉換公司債"),
                      units=amt // 100000 or "", id=f"f{r['code']}-{r['filed']}-{amt // 1000000}")
         link_sfb(c, r)
+
+    # 1b. 重新詢圈／競拍：第一次沒辦成（沒有訂價、發行），過幾週同一檔重辦，承銷商公告是兩筆。
+    #     申報案件只會接到其中一筆 → 把送件／生效（和之後的董事會）帶到重辦的那筆，第一次那筆記 retry_of
+    retries = []
+
+    def done(c):
+        return bool(c.get("done_date") or c.get("conv_price") or c.get("issue_date") or c.get("list_date"))
+    for c in cases:
+        if c.get("filed_date") or not c.get("code") or not _anchor(c) or not done(c):
+            continue
+        prev = [p for p in by_code.get(c["code"], []) if p is not c and p.get("filed_date") and not done(p)
+                and p.get("bb_start") and str(p.get("units")) == str(c.get("units"))
+                and p.get("method") == c.get("method") and 0 < _days(_anchor(c), p["bb_start"]) <= 120]
+        if prev:
+            p = max(prev, key=lambda x: x["bb_start"])
+            for k in ("filed_date", "eff_date", "sfb_status", "stop_date", "sfb_amount", "wd_date"):
+                c[k] = p.get(k, "")
+            p["retry_of"] = c["id"]
+            retries.append((p, c))
 
     # 2. 董事會決議：同公司、同一組「第幾次」在 120 天內的更正／補充／變更額度併成一筆
     #    （決議日取最早，額度與承銷方式取最新）
@@ -610,6 +629,14 @@ def attach_pipeline(cases, sfb, events, today):
             c["method"] = b["method"]
         if not c.get("lead") and b.get("lead"):
             c["lead"] = b["lead"]
+
+    for p, c in retries:  # 重辦的那筆跟第一次共用同一個董事會決議
+        for k in ("board_date", "board_amount", "board_method"):
+            if not c.get(k) and p.get(k):
+                c[k] = p[k]
+        for k in ("board_date", "board_amount", "board_method"):
+            if not p.get(k) and c.get(k):
+                p[k] = c[k]
 
     # 3. 還沒送件的董事會決議（一年內）→ 新案件
     wds = [e for e in events if e.get("kind") == "withdraw"]

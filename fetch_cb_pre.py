@@ -348,7 +348,7 @@ def fetch_events(days, budget_s):
 # ---------------- 主程式 ----------------
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--since", default="2025-01-01", help="重訊回補起日（預設 2025-01-01）")
+    ap.add_argument("--since", default="2024-07-01", help="重訊回補起日（預設 2024-07-01，2025 年初詢圈的案子董事會在 2024 下半年）")
     ap.add_argument("--max-minutes", type=float, default=25, help="重訊抓取時間上限（分鐘）")
     ap.add_argument("--skip-mops", action="store_true")
     a = ap.parse_args(argv)
@@ -356,9 +356,9 @@ def main(argv=None):
     today = datetime.now(C.TPE).date()
     errors, log = [], {}
 
-    # 1. 證期局：今年＋去年（去年 12 月送件、今年生效的案子在今年度檔案）
+    # 1. 證期局：今年＋前兩年（2025 年初詢圈的案子在 2024 年送件）
     try:
-        rows, got = fetch_sfb([today.year - 1911 - 1, today.year - 1911])
+        rows, got = fetch_sfb([today.year - 1911 - 2, today.year - 1911 - 1, today.year - 1911])
         if rows:
             _write(OUT / "sfb.csv", SFB_COLS, sorted(rows, key=lambda r: (r["filed"], r["code"], r["amount"])))
         else:

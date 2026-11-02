@@ -1,0 +1,30 @@
+name: Research CB broker (temp)
+
+# 暫時：只在這個分支推送時跑，補抓 CB 詢圈前後分點買賣超（合併前移除）
+on:
+  push:
+    branches: [claude/project-thread-wqm6a0]
+    paths: [.github/workflows/research-cb-broker.yml]
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python research/cb_broker_fetch.py --max-minutes 40
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add research/data
+          git diff --cached --quiet && exit 0
+          git commit -m "research: 補抓 CB 分點資料"
+          for i in 1 2 3; do git pull --rebase -q && git push && exit 0; sleep 10; done
+          exit 1
