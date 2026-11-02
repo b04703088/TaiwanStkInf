@@ -576,7 +576,10 @@ def attach_pipeline(cases, sfb, events, today):
                     key=lambda e: (e["date"], e.get("time", ""))):
         e = dict(e)
         if "," in (e.get("series") or ""):
-            e["method"] = ""  # 一次決議多檔，承銷方式可能各不相同
+            # 一次決議多檔：通常一檔詢圈、一檔競拍（發行價格寫「依票面金額…發行」＋「底標…」）→ 記成兩者都有；
+            # 哪一檔是哪種方式要等詢圈／競拍公告才知道
+            from fetch_cb_pre import BOTH, board_both
+            e["method"] = BOTH if e.get("method") == BOTH or board_both((e.get("issue_price") or "") + (e.get("subject") or "")) else ""
         prev = next((b for b in boards if b["code"] == e["code"] and (b.get("series") or "") == (e.get("series") or "")
                      and 0 <= _days(e["board_date"], b["board_date"]) <= 120), None)
         if prev:
@@ -603,7 +606,7 @@ def attach_pipeline(cases, sfb, events, today):
         b = min(cands, key=score)
         used.add(id(b))
         c.update(board_date=b["board_date"], board_amount=b.get("amount", ""), board_method=b.get("method", ""))
-        if not c.get("method") and b.get("method"):
+        if not c.get("method") and b.get("method") and "+" not in b["method"]:
             c["method"] = b["method"]
         if not c.get("lead") and b.get("lead"):
             c["lead"] = b["lead"]
@@ -620,7 +623,7 @@ def attach_pipeline(cases, sfb, events, today):
         amt = int(b.get("amount") or 0)
         new_case(code=b["code"], company=b["name"], series=b.get("series", "") if "," not in b.get("series", "") else "",
                  type=(b.get("secured") or "") + ("交換公司債" if "交換" in b.get("subject", "") else "轉換公司債"),
-                 method=b.get("method", ""), lead=b.get("lead", ""), units=amt // 100000 or "",
+                 method=b.get("method", "") if "+" not in b.get("method", "") else "", lead=b.get("lead", ""), units=amt // 100000 or "",
                  board_date=b["board_date"], board_amount=amt or "", board_method=b.get("method", ""), wd_date=wd,
                  id=f"b{b['code']}-{b['board_date']}-{(b.get('series') or '').replace(',', '_')}")
     return cases
