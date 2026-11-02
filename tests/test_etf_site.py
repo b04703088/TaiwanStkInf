@@ -93,3 +93,41 @@ class AumTest(unittest.TestCase):
             self.assertEqual((rows["0050"]["daum"], rows["0050"]["flow"], rows["0050"]["flow5"]), (100, -50, 50))
             self.assertIsNone(rows["00999A"]["daum"])
             self.assertIsNone(rows["00999A"]["prem"])
+
+
+class ShiftScoreTest(unittest.TestCase):
+    def h(self, d):
+        return {c: {"name": c, "sh": sh, "w": w} for c, (sh, w) in d.items()}
+
+    def base(self):
+        return self.h({f"{1101 + i}": (1000, 10.0) for i in range(10)})
+
+    def test_creation_scaling_is_zero(self):
+        h0 = self.base()
+        h1 = self.h({c: (1200, 10.0) for c in h0})  # 申購 20%：全部同比例放大
+        s = E.shift_score(h0, h1)
+        self.assertEqual(s["score"], 0)
+        self.assertAlmostEqual(s["ratio"], 1.2)
+
+    def test_one_sided_deploy_is_small(self):
+        # 單位數 +20%，但只先買了一半的股票：只有減碼側（相對比例）有量，加碼側為 0
+        h0 = self.base()
+        h1 = self.h({c: (1200 if i < 5 else 1000, 10.0) for i, c in enumerate(h0)})
+        s = E.shift_score(h0, h1, units_ratio=1.2)
+        self.assertEqual(s["buy"], 0)
+        self.assertEqual(s["score"], 0)
+
+    def test_two_sided_rebalance(self):
+        h0 = self.base()
+        d = {c: (1500 if i < 3 else 500 if i < 6 else 1000, 10.0) for i, c in enumerate(h0)}
+        d.pop("1110")                 # 剔除 10%
+        d["2330"] = (100, 8.0)        # 新增 8%
+        s = E.shift_score(h0, self.h(d), units_ratio=1.0)
+        self.assertAlmostEqual(s["buy"], 3 * 10 * 0.5 + 8)
+        self.assertAlmostEqual(s["sell"], 3 * 10 * 0.5 + 10)
+        self.assertGreaterEqual(s["score"], E.SHIFT_BIG)
+        self.assertEqual((s["up"], s["dn"], len(s["adds"]), len(s["drops"])), (3, 3, 1, 1))
+
+    def test_no_shares(self):
+        h0 = self.h({f"{1101 + i}": (None, 10.0) for i in range(10)})
+        self.assertIsNone(E.shift_score(h0, h0))

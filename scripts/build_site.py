@@ -7,6 +7,7 @@
   data/etf/latest.json               各 ETF 最新持股與前一份的差異（見 scripts/etf_site.py）
   data/etf/aum.json                  全體 ETF 規模排行（fetch_etf_aum.py 的最新一天）
   data/etf/tip.json                  臺灣指數公司定期審核行事曆（見 fetch_tip_schedule.py）
+  data/etf/shift.json                主動式 ETF 主動調倉偵測（扣除申贖後的雙向換手，見 scripts/etf_site.py build_shift）
   data/etf/active.json               主動式＋現金申贖被動式 ETF 每次持股變化（台股，含扣除申贖的增減、成交量與當沖量）
   data/calendar.json                 指數調整行事曆：審核日、預估審核、ETF 換股期間（見 scripts/calendar_site.py）
   data/health.json                   資料健檢結果（見 scripts/health.py）
@@ -155,6 +156,7 @@ def build(out: Path, days: int) -> list[str]:
     asof_site.write(out / "data" / "asof.json")  # 各頁標題下的「資料日期」
     etf_site.write_tip(ROOT / "data", ROOT, out / "data" / "etf" / "tip.json")
     etf_site.write_active(ROOT / "data", out / "data" / "etf" / "active.json")
+    etf_site.write_shift(ROOT / "data", out / "data" / "etf" / "shift.json")
     broker_site.write_site(ROOT / "data", out, days=20)
     broker_site.write_watch(ROOT / "data", ROOT, out, days=60)
     broker_site.write_local(ROOT / "data", out, days=20)
