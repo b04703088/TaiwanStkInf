@@ -96,6 +96,11 @@
   .gnav .side{margin-left:auto; font-size:12.5px; color:var(--text-faint);}
   .gnav .side:hover, .gnav .side[aria-current]{color:var(--text);}
   .gnav-btn{display:none;}
+  .ds-asof{display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 14px; margin:6px 0 10px; font-size:12.5px; color:var(--text-faint);}
+  .ds-asof > span:first-child{color:var(--text-muted);}
+  .ds-asof b{font-weight:600; color:var(--text-muted); font-variant-numeric:tabular-nums; margin-left:4px;}
+  .ds-asof .old b, .ds-asof .old em{color:#E0A84E;}
+  .ds-asof em{font-style:normal; font-size:11.5px; margin-left:4px;}
   /* 外觀（2026-10 改版）：低彩度深海藍底、單一黑體、強調色只用在資料上；各頁 :root 的同名變數由這裡蓋過 */
   html[data-theme="dark"]{
     --ink:#101419; --panel:#171C22; --panel-2:#1E242B; --active:#262D35;
@@ -451,6 +456,7 @@
         '<br>按 <kbd>/</kbd> 搜尋個股，☆ 加入自選。';
       foot.appendChild(p);
     }
+    showAsof();
     scanTables();
     sortScan();
     document.addEventListener("click", sortClick);
@@ -463,6 +469,37 @@
     addEventListener("resize", function () { clearTimeout(t); t = setTimeout(scanTables, 150); });
   };
 
+
+  // ── 各頁資料日期 ──
+  // data/asof.json 由 scripts/asof_site.py 在部署時算好；每天都該更新的資料落後最新收盤日就標黃色「未更新」
+  var WD = "日一二三四五六";
+  var fmtAsof = function (d) {
+    var v = d.date;
+    if (d.kind === "month") return v.slice(0, 4) + "/" + v.slice(4, 6);
+    if (d.kind === "quarter") return v;
+    var m = /^(\d{4})-(\d{2})-(\d{2})(?: (\d{2}:\d{2}))?/.exec(v);
+    if (!m) return v;
+    var s = +m[2] + "/" + +m[3];
+    if (m[4]) return s + " " + m[4];
+    return s + "（" + WD[new Date(+m[1], +m[2] - 1, +m[3]).getDay()] + "）";
+  };
+  var showAsof = function () {
+    var h1 = document.querySelector("main h1") || document.querySelector("h1");
+    if (!h1 || document.querySelector(".ds-asof")) return;
+    fetch("data/asof.json", { cache: "no-cache" }).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+      var keys = j && (j.pages[path] || j.pages[path.replace(/-.*/, "")]);
+      if (!keys || !keys.length || document.querySelector(".ds-asof")) return;
+      var el = document.createElement("div");
+      el.className = "ds-asof";
+      el.innerHTML = '<span title="來源還沒公布時，頁面上是前一次的資料">資料日期</span>' + keys.map(function (k) {
+        var d = j.datasets[k];
+        var old = d.daily && j.ref && d.date < j.ref;
+        return "<span" + (old ? ' class="old" title="最新收盤是 ' + j.ref + '，這份資料來源還沒更新"' : "") + ">" + d.label +
+          "<b>" + fmtAsof(d) + "</b>" + (old ? "<em>未更新</em>" : d.note ? "<em>" + d.note + "</em>" : "") + "</span>";
+      }).join("");
+      (h1.closest(".title-row") || h1).insertAdjacentElement("afterend", el);
+    }).catch(function () {});
+  };
 
   // ── 表格排序 ──
   // 所有 <main> 裡有 <thead> 的表格都能點欄位標題排序：數字欄先大→小，文字欄先小→大，第三下回原順序。

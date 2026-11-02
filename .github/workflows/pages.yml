@@ -36,6 +36,7 @@ on:
       - "scripts/mops_site.py"
       - "scripts/margin_site.py"
       - "scripts/cost_site.py"
+      - "scripts/asof_site.py"
       - "scripts/kline_site.py"
       - "scripts/fin_site.py"
       - "scripts/screen_site.py"

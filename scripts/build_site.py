@@ -105,6 +105,7 @@ import limitup_site  # noqa: E402
 import us_site  # noqa: E402
 import commod_site  # noqa: E402
 import cost_site  # noqa: E402
+import asof_site  # noqa: E402
 
 TPE = timezone(timedelta(hours=8))
 BRAND_SUB = '<span class="brand-sub">籌碼觀測站</span>'
@@ -151,6 +152,7 @@ def build(out: Path, days: int) -> list[str]:
     if (ROOT / "data" / "etf" / "etf_list.csv").exists():
         etf_site.write_latest(ROOT / "data", out / "data" / "etf" / "latest.json")
     etf_site.write_aum(ROOT / "data", out / "data" / "etf" / "aum.json")
+    asof_site.write(out / "data" / "asof.json")  # 各頁標題下的「資料日期」
     etf_site.write_tip(ROOT / "data", ROOT, out / "data" / "etf" / "tip.json")
     etf_site.write_active(ROOT / "data", out / "data" / "etf" / "active.json")
     broker_site.write_site(ROOT / "data", out, days=20)
