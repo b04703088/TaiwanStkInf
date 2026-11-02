@@ -124,7 +124,7 @@
       <button data-f="all" aria-pressed="false">全部追蹤中</button>
     </div>
     <div class="tbl"><table>
-      <thead><tr><th>標的</th><th class="hide-m">方式</th><th>階段</th><th class="hide-m">詢圈／競拍開始</th><th>常客動向</th><th class="hide-m">整段買超最多</th><th class="hide-m">整段賣超最多</th></tr></thead>
+      <thead><tr><th>標的</th><th>階段</th><th class="hide-m">詢圈開始</th><th>常客動向</th><th class="hide-m">整段買超最多</th><th class="hide-m">整段賣超最多</th></tr></thead>
       <tbody id="live"></tbody>
     </table></div>
     <button class="more" id="live-more" hidden></button>
@@ -143,14 +143,14 @@
 
   <section class="block">
     <div class="block-head"><h2>CB 流程各階段股價</h2><span class="hint">比大盤（等權市場指數）多漲多少・中位數</span></div>
-    <p class="lead">起點是董事會決議前 21 個交易日。詢圈股從決議後一路走強，到掛牌最強，掛牌後回落；競拍股只小幅走強，掛牌後就落後大盤。</p>
+    <p class="lead">起點是董事會決議前 21 個交易日。詢圈股從決議後一路走強，到掛牌最強，掛牌後回落。</p>
     <div class="tbl"><table>
-      <thead><tr><th>流程階段</th><th class="num">詢圈：距決議（交易日）</th><th class="num">詢圈：超額</th><th class="num">詢圈：領先比</th><th class="num">競拍：距決議</th><th class="num">競拍：超額</th><th class="num">競拍：領先比</th></tr></thead>
+      <thead><tr><th>流程階段</th><th class="num">距決議（交易日）</th><th class="num">超額報酬</th><th class="num">贏大盤比例</th><th class="num">件數</th></tr></thead>
       <tbody id="stages"></tbody>
     </table></div>
   </section>
 
-  <p class="note">分點資料是富邦證券「券商分點進出明細」的區間前 15 大買超／賣超，小額進出看不到；分點不等於同一個客戶。常客名單來自 2025/01 起約 270 件 CB 的回測，用同一檔股票平常的出現率當對照、並做多重檢定校正；這是統計上的相關，不代表內線或操縱。進行中案件每個交易日晚上更新。</p>
+  <p class="note">分點資料是富邦證券「券商分點進出明細」的區間前 15 大買超／賣超，小額進出看不到；分點不等於同一個客戶。只統計有詢圈的案件（純競拍不列入；同一檔同時詢圈＋競拍算一件）。常客名單來自 2025/01 起約 130 件詢圈案的回測，用同一檔股票平常的出現率當對照、並做多重檢定校正；這是統計上的相關，不代表內線或操縱。進行中案件每個交易日晚上更新。</p>
 </main>
 <footer class="site"><div class="wrap"><p class="note" style="margin:0">資料僅供參考，不構成投資建議。</p></div></footer>
 <script>
@@ -189,7 +189,7 @@ function renderLive() {
   document.getElementById("live").innerHTML = rows.length ? rows.map(x => {
     const hits = x.hits.map(h => `<span class="chip ${h.tier === "常客" ? "reg" : ""}" title="${esc(STAGES.filter(s => h.by[s]).map(s => L[s] + " " + sgn(h.by[s])).join("、"))}">${esc(h.broker)} <span class="mono ${h.side === "B" ? "up" : "dn"}">${sgn(h.lots)}</span><span class="s">${esc(L[h.entry] || "")}</span></span>`).join("") || '<span class="faint">沒有</span>';
     const top = a => a.length ? a.map(([b, v]) => `${esc(b)} <span class="mono faint">${sgn(v)}</span>`).join("<br>") : "–";
-    return `<tr><td>${stock(x.code, x.name)}<div class="faint" style="font-size:11.5px">${esc(x.lead)}</div></td><td class="hide-m">${esc(x.method)}</td><td class="st">${esc(x.stage)}<div class="faint show-m" style="font-size:11.5px">${esc(x.method)}</div></td><td class="mono hide-m" data-v="${esc(x.dates.start || "")}">${md(x.dates.start)}</td><td class="wrapc">${hits}</td><td class="hide-m">${top(x.top_b)}</td><td class="hide-m">${top(x.top_s)}</td></tr>`;
+    return `<tr><td>${stock(x.code, x.name)}<div class="faint" style="font-size:11.5px">${esc(x.lead)}</div></td><td class="st">${esc(x.stage)}</td><td class="mono hide-m" data-v="${esc(x.dates.start || "")}">${md(x.dates.start)}</td><td class="wrapc">${hits}</td><td class="hide-m">${top(x.top_b)}</td><td class="hide-m">${top(x.top_s)}</td></tr>`;
   }).join("") : '<tr><td colspan="7" class="empty">目前沒有符合的案件</td></tr>';
 }
 
@@ -215,15 +215,15 @@ function renderDetail() {
   if (!r) { box.hidden = true; return; }
   box.hidden = false;
   box.innerHTML = `<h3>${esc(r.broker)}　${r.side === "B" ? "買超" : "賣超"}　${r.n} 件</h3><p class="lead">${esc(r.note || "")}${r.amt_sum ? `　合計約 ${r.amt_sum} 億元。` : ""}</p>
-    <div class="tbl"><table><thead><tr><th>詢圈／競拍開始</th><th>標的</th><th>方式</th><th>進場段</th><th class="num">訂價前淨張數</th><th class="num">金額（百萬）</th><th class="num">事後 20 日超額</th></tr></thead>
-    <tbody>${(CASE_ALL ? r.cases : r.cases.slice(0, CASE_N)).map(c => `<tr><td class="mono">${ymd(c.date)}</td><td>${stock(c.code, c.name)}</td><td>${esc(c.method)}</td><td>${esc(D.stage_labels[c.entry])}</td><td class="num mono">${sgn(c.lots)}</td><td class="num mono">${c.amt ?? "–"}</td><td class="num mono" data-v="${c.post ?? ""}">${pc(c.post)}</td></tr>`).join("") || '<tr><td colspan="7" class="empty">沒有歷史案件</td></tr>'}</tbody></table></div>${r.cases.length > CASE_N ? `<button class="more" id="case-more">${CASE_ALL ? "收起" : `顯示全部 ${r.cases.length} 件`}</button>` : ""}`;
+    <div class="tbl"><table><thead><tr><th>詢圈開始</th><th>標的</th><th>進場段</th><th class="num">訂價前淨張數</th><th class="num">金額（百萬）</th><th class="num">事後 20 日超額</th></tr></thead>
+    <tbody>${(CASE_ALL ? r.cases : r.cases.slice(0, CASE_N)).map(c => `<tr><td class="mono">${ymd(c.date)}</td><td>${stock(c.code, c.name)}</td><td>${esc(D.stage_labels[c.entry])}</td><td class="num mono">${sgn(c.lots)}</td><td class="num mono">${c.amt ?? "–"}</td><td class="num mono" data-v="${c.post ?? ""}">${pc(c.post)}</td></tr>`).join("") || '<tr><td colspan="6" class="empty">沒有歷史案件</td></tr>'}</tbody></table></div>${r.cases.length > CASE_N ? `<button class="more" id="case-more">${CASE_ALL ? "收起" : `顯示全部 ${r.cases.length} 件`}</button>` : ""}`;
   const cm = document.getElementById("case-more");
   if (cm) cm.onclick = () => { CASE_ALL = !CASE_ALL; renderDetail(); };
 }
 
 function renderStages() {
   const cell = (o, k) => o ? (k === "x" ? pc(o.x) : k === "off" ? (o.off > 0 ? "+" : "") + o.off : o.up + "%") : "–";
-  document.getElementById("stages").innerHTML = D.stages.map(s => `<tr><td>${esc(s.stage)}</td>${["bb", "au"].map(m => ["off", "x", "up"].map(k => `<td class="num mono">${cell(s[m], k)}</td>`).join("")).join("")}</tr>`).join("");
+  document.getElementById("stages").innerHTML = D.stages.map(s => `<tr><td>${esc(s.stage)}</td>${["off", "x", "up"].map(k => `<td class="num mono">${cell(s.bb, k)}</td>`).join("")}<td class="num mono">${s.bb ? s.bb.n : "–"}</td></tr>`).join("");
 }
 
 document.getElementById("live-more").onclick = () => { LIVE_ALL = !LIVE_ALL; renderLive(); };

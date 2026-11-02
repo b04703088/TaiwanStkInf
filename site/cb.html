@@ -53,7 +53,7 @@
   .tag i{font-style:normal; font-size:11.5px; padding:0 5px; border-radius:2px; color:var(--ink);}
   .k-start i{background:var(--sky);} .k-end i{background:var(--brass);} .k-price i{background:var(--warn);}
   .k-pay i{background:#B48EAD;} .k-eff i{background:#8FB86A;} .k-list i{background:var(--fall);}
-  .k-board i{background:#9AA5B1;} .k-filed i{background:#7FB3A8;}
+  .k-board i{background:#9AA5B1;} .k-filed i{background:#7FB3A8;} .k-bank i{background:#C9A27E;} .k-notice i{background:#D08770;}
   .empty{padding:24px 16px; color:var(--text-faint); font-size:13.5px;}
 
   /* 進行中卡片 */
@@ -174,6 +174,20 @@
   .erow .x .mono{color:var(--text);}
   .erow.est .tag{border-style:dashed; background:none;}
   .cal-list{display:none;}
+  .cal-bar .toolbar input{width:200px;}
+  .qhint{font-size:12.5px; color:var(--text-muted); margin:-4px 0 12px;}
+  .qhint b{color:var(--brass); font-weight:500;}
+  /* 案件流程表 */
+  .flow td{vertical-align:top;}
+  .flow td.fs{min-width:92px;}
+  .flow td.fs a{color:var(--text); text-decoration:none; border-bottom:1px dotted var(--text-faint);}
+  .flow td.fs a:hover{color:var(--brass);}
+  .flow td.fs small{display:block; font-size:11.5px; color:var(--text-faint); margin-top:2px;}
+  .flow td.fs.todo{color:var(--text-faint);}
+  .flow td.fs.est a{font-style:italic; color:var(--text-muted);}
+  .flow td.fs.nx{box-shadow:inset 2px 0 0 var(--brass); background:rgba(217,164,65,0.07);}
+  .flow th.fs{min-width:92px;}
+  .flow th .n{display:inline-block; width:16px; height:16px; line-height:16px; text-align:center; border-radius:50%; border:1px solid var(--line-strong); font-size:10.5px; margin-right:5px; font-family:'IBM Plex Mono',monospace;}
   @media (max-width:860px){
     .cal,.cal-detail{display:none;}
     .cal-list{display:block;}
@@ -232,11 +246,19 @@
     <section class="block">
       <div class="cal-bar">
         <div class="cal-nav"><button id="cal-prev" aria-label="上個月">‹</button><h2 id="cal-title"></h2><button id="cal-next" aria-label="下個月">›</button><button id="cal-today">本月</button></div>
-        <div class="kinds" id="kinds" role="group" aria-label="事件類型"></div>
+        <div class="toolbar"><input id="cal-q" type="search" placeholder="找個股：代號或名稱" aria-label="找個股"></div>
       </div>
+      <div class="kinds" id="kinds" role="group" aria-label="事件類型" style="margin-bottom:12px"></div>
+      <div class="qhint" id="cal-qhint" hidden></div>
       <div class="cal" id="cal"></div>
       <div class="cal-detail" id="cal-detail"></div>
       <div class="cal-list" id="cal-list"></div>
+    </section>
+    <section class="block" id="flow-wrap">
+      <div class="block-head"><h2 id="flow-title">進行中案件流程</h2><span class="hint">董事會公告 → 申報送件 → 競拍／詢圈 → 承銷公告 → 掛牌・點日期跳到月曆・斜體是推估</span></div>
+      <div class="tbl"><table class="flow"><thead><tr><th>標的</th><th class="hide-m">方式</th><th>進度</th>
+        <th class="fs"><span class="n">1</span>董事會公告</th><th class="fs"><span class="n">2</span>申報送件</th><th class="fs"><span class="n">3</span>競拍／詢圈</th>
+        <th class="fs"><span class="n">4</span>承銷公告</th><th class="fs"><span class="n">5</span>掛牌</th></tr></thead><tbody id="flow"></tbody></table></div>
     </section>
   </div>
 
@@ -291,7 +313,7 @@ const VIEW = PAGES[location.pathname.split("/").pop().replace(/\.html$/, "")] ||
 
 const INFO = {
   overview: ["可轉債從圈購到掛牌", "把每檔可轉債（CB／EB）的詢圈、訂價、繳款與掛牌日排在同一條時間軸上。"],
-  calendar: ["CB 行事曆", "把每檔 CB／EB 的董事會、送件、生效、詢圈／競拍、訂價／開標、繳款與掛牌日排進月曆。虛線是還沒公告、依慣例推估的日期。"],
+  calendar: ["CB 行事曆", "依發行流程把每檔 CB／EB 的董事會公告、申報送件（生效）、競拍／詢圈、承銷公告、掛牌排進月曆，訂價、繳款、代收行庫公告也標上。可以直接搜尋個股。虛線是還沒公告、依慣例推估的日期。"],
   pipeline: ["籌備中的案件", "還沒開始詢圈／競拍的案子：董事會已決議、已送件給金管會審查、或已申報生效等待承銷。送件與生效日來自證期局申報案件彙總表，董事會決議來自公開資訊觀測站重大訊息。"],
   active:   ["進行中的案件", "還沒掛牌的案子，依目前進度分組；灰色斜體日期是依慣例推估。"],
   bb:       ["詢價圈購", "承銷商先公告溢價率區間，向投資人詢問願意接受的溢價率，再與發行公司議定。落點＝議定溢價率在區間中的位置，越靠左代表越接近下緣（對投資人越有利、需求越熱）。"],
@@ -313,7 +335,7 @@ function stage(c){
     if (c.filed_date){
       if (c.stop_date) return ["review", "停止生效"];
       if (!c.eff_date || c.eff_date > TODAY) return ["review", "審查中"];
-      if (c.eff_date >= addDays(TODAY, -120)) return ["eff", "已生效"];
+      if (c.eff_date >= addDays(TODAY, -120)) return ["eff", c.bank_date && c.bank_date >= c.eff_date && c.bank_date >= addDays(TODAY, -30) ? (AUC(c) ? "即將競拍" : "即將詢圈") : "已生效"];
       return ["done", "生效未發行"];
     }
     if (c.board_date) return c.board_date >= addDays(TODAY, -365) ? ["board", "董事會通過"] : ["done", "逾期未送件"];
@@ -399,9 +421,15 @@ function viewOverview(){
 
 /* ---------- 行事曆 ---------- */
 const EK = {  // 事件類型：[標籤, 顏色]
-  board:["董事會", "#9AA5B1"], filed:["送件", "#7FB3A8"], eff:["生效", "#8FB86A"], start:["開始", "var(--sky)"],
-  end:["截止", "var(--brass)"], price:["訂價", "var(--warn)"], pay:["繳款", "#B48EAD"], list:["掛牌", "var(--fall)"],
+  board:["董事會", "#9AA5B1"], filed:["送件", "#7FB3A8"], eff:["生效", "#8FB86A"], bank:["行庫", "#C9A27E"], start:["開始", "var(--sky)"],
+  end:["截止", "var(--brass)"], price:["訂價", "var(--warn)"], notice:["承銷", "#D08770"], pay:["繳款", "#B48EAD"], list:["掛牌", "var(--fall)"],
 };
+const EKBTN = {board:"董事會公告", filed:"申報送件", eff:"申報生效", bank:"代收行庫公告", start:"詢圈／競拍", end:"截止", price:"訂價／開標", notice:"承銷公告", pay:"繳款", list:"掛牌"};
+// 代收價款行庫公告後通常 1–8 天開始詢圈／競拍（中位數 5 天）：還沒公告詢圈日期時，用它推估開始日
+const bankFresh = c => !!(c.bank_date && c.eff_date && c.bank_date >= c.eff_date && c.bank_date >= addDays(TODAY, -30));
+const estStart = c => { if (c.bb_start || !isPre(c) || !bankFresh(c)) return null; const d = addBiz(c.bank_date, 3); return d < TODAY ? TODAY : d; };
+let calQ = "";
+const qMatch = (c, q) => !q || (c.code || "").startsWith(q) || (c.company || "").includes(q) || (c.short || "").includes(q);
 const EORDER = Object.keys(EK);
 const ekLabel = (k, c) => AUC(c) ? ({start:"競拍", price:"開標"})[k] || EK[k][0] : k === "start" ? "詢圈" : EK[k][0];
 let calOn = new Set(EORDER), calMonth, calSel, calIdx;
@@ -415,7 +443,10 @@ function calEvents(){
     add(c.board_date, "board", c);
     add(c.filed_date, "filed", c);
     if (c.eff_date && !c.stop_date && !c.wd_date) add(c.eff_date, "eff", c, c.eff_date > TODAY);
+    add(c.bank_date, "bank", c);
     add(c.bb_start, "start", c);
+    add(estStart(c), "start", c, true);
+    add(c.nt_date, "notice", c);
     if (c.bb_end && c.bb_end !== c.bb_start || !AUC(c)) add(c.bb_end, "end", c);
     const pd = AUC(c) ? c.done_date : c.price_base_date;
     pd ? add(pd, "price", c) : st && add(st[2][1], "price", c, true);
@@ -440,11 +471,16 @@ function evDetail(e){
   } else if (k === "list"){
     if (c.bond_code) x.push(`債券代號 <span class="mono">${esc(c.bond_code)}</span>`);
     if (c.conv_price != null) x.push(`轉換價 <span class="mono">${fmt(c.conv_price)}</span>`);
+  } else if (k === "bank"){
+    x.push(c.bb_start ? `${AUC(c) ? "競拍" : "詢圈"} <span class="mono">${md(c.bb_start)}</span> 開始` : "代收價款行庫已公告，通常 1–8 天後開始" + (AUC(c) ? "競拍" : "詢圈"));
+  } else if (k === "notice"){
+    if (c.lead) x.push(`主辦 ${esc(c.lead)}`);
+    if (c.conv_price != null) x.push(`轉換價 <span class="mono">${fmt(c.conv_price)}</span>`);
   } else if (k === "board" || k === "filed" || k === "eff"){
     const a = yi(c.sfb_amount || c.board_amount); if (a !== "–") x.push(`額度 <span class="mono">${a}</span>`);
   }
   if (c.units && ["start", "price", "pay", "list"].includes(k)) x.push(`<span class="mono">${fmt(c.units)}</span> 張`);
-  if (e.est) x.push(k === "list" && c.list_expected ? "預計" : "推估");
+  if (e.est) x.push(k === "list" && c.list_expected ? "預計" : k === "start" && !c.bb_start ? `推估（代收行庫 ${md(c.bank_date)} 公告）` : "推估");
   x.push(stageTag(c));
   const href = isPre(c) ? `cb-pipeline.html#c-${esc(c.id)}` : listed(c) || c._st[0] === "done" ? `cb-listed.html` : `cb-active.html#c-${esc(c.id)}`;
   return `<a class="erow${e.est ? " est" : ""}" href="${href}"><span class="tag k-${k}"><i>${ekLabel(k, c)}</i>${label(c)}</span><span class="x">${x.join("・")}</span></a>`;
@@ -455,7 +491,7 @@ function viewCalendar(){
   const h = location.hash.slice(1);
   calMonth = /^\d{4}-\d{2}$/.test(h) ? h : TODAY.slice(0, 7);
   calSel = calMonth === TODAY.slice(0, 7) ? TODAY : null;
-  document.getElementById("kinds").innerHTML = EORDER.map(k => `<button data-k="${k}" style="--c:${EK[k][1]}" aria-pressed="true"><i></i>${k === "start" ? "詢圈／競拍" : k === "price" ? "訂價／開標" : EK[k][0]}</button>`).join("");
+  document.getElementById("kinds").innerHTML = EORDER.map(k => `<button data-k="${k}" style="--c:${EK[k][1]}" aria-pressed="true"><i></i>${EKBTN[k]}</button>`).join("");
   document.querySelectorAll("#kinds button").forEach(b => b.onclick = () => {
     const k = b.dataset.k; calOn.has(k) ? calOn.delete(k) : calOn.add(k);
     b.setAttribute("aria-pressed", calOn.has(k)); renderCal();
@@ -464,12 +500,66 @@ function viewCalendar(){
   document.getElementById("cal-prev").onclick = () => shift(-1);
   document.getElementById("cal-next").onclick = () => shift(1);
   document.getElementById("cal-today").onclick = () => { calMonth = TODAY.slice(0, 7); calSel = TODAY; renderCal(); };
-  renderCal();
+  const qi = document.getElementById("cal-q");
+  qi.oninput = () => {
+    calQ = qi.value.trim();
+    const hit = calQ ? cases.filter(c => qMatch(c, calQ)) : [];
+    // 搜尋到的案件這個月沒有事件 → 跳到它最近的事件月份（今天之前最後一個，沒有就之後第一個）
+    if (hit.length){
+      const ds = Object.keys(calIdx).filter(d => calIdx[d].some(e => hit.includes(e.c) && calOn.has(e.k))).sort();
+      if (ds.length && !ds.some(d => d.startsWith(calMonth))){
+        const near = ds.filter(d => d <= TODAY).pop() || ds[0];
+        calMonth = near.slice(0, 7); calSel = near;
+      }
+    }
+    renderCal(); renderFlow();
+  };
+  document.getElementById("flow").onclick = e => {
+    const a = e.target.closest("a[data-d]"); if (!a) return;
+    e.preventDefault(); calMonth = a.dataset.d.slice(0, 7); calSel = a.dataset.d; renderCal();
+    document.getElementById("cal-title").scrollIntoView({behavior: "smooth", block: "start"});
+  };
+  renderCal(); renderFlow();
+}
+
+// 流程表：依董事會公告 → 申報送件 → 競拍／詢圈 → 承銷公告 → 掛牌，每格一個日期，下一步用金色框標出
+function flowCells(c){
+  const st = !["done", "wd"].includes(c._st[0]) && !isPre(c) ? steps(c) : null;
+  const es = estStart(c), live = !["done", "wd"].includes(c._st[0]);
+  const lst = c.list_date || c.list_expected || (st && st[4][1]);
+  const cells = [
+    {d: c.board_date, sub: c.board_amount ? yi(c.board_amount) : ""},
+    {d: c.filed_date, sub: c.stop_date ? "停止生效" : c.wd_date ? "撤回" : c.eff_date ? `生效 ${md(c.eff_date)}${c.eff_date > TODAY ? " 預計" : ""}` : c.filed_date ? "審查中" : ""},
+    c.bb_start ? {d: c.bb_start, sub: c.bb_end && c.bb_end !== c.bb_start ? `~${md(c.bb_end)}` : ""}
+      : es ? {d: es, est: true, sub: `行庫 ${md(c.bank_date)} 已公告`}
+      : {d: null, sub: live && c.eff_date && c.eff_date <= TODAY ? `生效後 ${ago(c.eff_date)} 天` : ""},
+    {d: c.nt_date, sub: c.nt_date && (c.done_date || c.price_base_date) ? `${AUC(c) ? "開標" : "訂價"} ${md(AUC(c) ? c.done_date : c.price_base_date || c.done_date)}` : ""},
+    {d: lst, est: !c.list_date && !!lst && lst > TODAY && !c.list_expected, sub: c.list_date ? (c.bond_code || "") : c.list_expected ? "預計" : ""},
+  ];
+  const doneN = cells.reduce((n, x, i) => x.d && !x.est && x.d <= TODAY ? i + 1 : n, 0);
+  if (live && doneN < 5) cells[doneN].nx = true;
+  return cells;
+}
+function renderFlow(){
+  const q = calQ;
+  let list = q ? cases.filter(c => qMatch(c, q)) : cases.filter(c => !["done", "wd"].includes(c._st[0]));
+  // 進行中：走得越後面越上面（快掛牌 → 承銷 → 詢圈 → 已生效 → 送件 → 董事會），同一步最近有動作的在上
+  const key = c => { const f = flowCells(c), i = f.findIndex(x => x.nx); const n = i < 0 ? 5 : i;
+    return [n, f.slice(0, n).map(x => x.d).filter(Boolean).sort().pop() || ""]; };
+  list = list.map(c => [c, key(c)]).sort(([a, ka], [b, kb]) => q ? (b.board_date || b.bb_start || "").localeCompare(a.board_date || a.bb_start || "")
+    : kb[0] - ka[0] || kb[1].localeCompare(ka[1]) || (a.code || "").localeCompare(b.code || "")).map(x => x[0]);
+  document.getElementById("flow-title").textContent = q ? `「${q}」的案件流程` : "進行中案件流程";
+  const qh = document.getElementById("cal-qhint");
+  qh.hidden = !q;
+  if (q) qh.innerHTML = list.length ? `月曆只顯示 <b>${esc(list.map(c => c.short || c.company).filter((v, i, a) => a.indexOf(v) === i).slice(0, 4).join("、"))}</b> 的事件，流程在月曆下方。清空搜尋就回到全部。` : "找不到這檔，可能還沒有董事會決議或送件。";
+  document.getElementById("flow").innerHTML = list.length ? list.map(c => `<tr><td>${label(c)}</td><td class="hide-m">${c.method ? (AUC(c) ? "競拍" : "詢圈") : "–"}</td><td>${stageTag(c)}</td>${flowCells(c).map(x =>
+    `<td class="fs${x.d ? "" : " todo"}${x.est ? " est" : ""}${x.nx ? " nx" : ""}" data-v="${x.d || ""}">${x.d ? `<a href="#${x.d.slice(0, 7)}" data-d="${x.d}" class="mono">${x.d.slice(0, 4) !== TODAY.slice(0, 4) ? x.d.slice(2, 4) + "/" : ""}${md(x.d)}</a>${x.est ? '<span class="faint"> 推估</span>' : ""}` : "待公告"}${x.sub ? `<small>${x.sub}</small>` : ""}</td>`).join("")}</tr>`).join("")
+    : `<tr><td colspan="8" class="empty">沒有符合的案件。</td></tr>`;
 }
 
 function renderCal(){
   history.replaceState(null, "", calMonth === TODAY.slice(0, 7) ? location.pathname + location.search : `#${calMonth}`);
-  const evs = d => (calIdx[d] || []).filter(e => calOn.has(e.k));
+  const evs = d => (calIdx[d] || []).filter(e => calOn.has(e.k) && qMatch(e.c, calQ));
   const [y, m] = calMonth.split("-").map(Number);
   document.getElementById("cal-title").textContent = `${y} 年 ${m} 月`;
   const mon = Object.keys(calIdx).filter(d => d.startsWith(calMonth));
@@ -713,7 +803,7 @@ document.querySelectorAll(".subtabs a").forEach(a => { if (a.dataset.tab === VIE
 document.querySelectorAll("[data-view]").forEach(el => el.classList.toggle("on", el.dataset.view.split(" ").includes(VIEW)));
 document.getElementById("title").textContent = INFO[VIEW][0];
 document.title = `${VIEW === "overview" ? "CB詢圈" : INFO[VIEW][0] + "｜CB詢圈"}｜潮汐`;
-document.getElementById("note").innerHTML = `流程：董事會決議 → 金管會申報生效 → <b>詢價圈購</b>（議定溢價率）或 <b>競價拍賣</b>（以價格得標）→ <b>訂價／開標</b> → <b>繳款</b> → <b>上櫃掛牌</b>。<br>
+document.getElementById("note").innerHTML = `流程：董事會公告 → 申報送件（金管會生效）→ 代收行庫公告 → <b>詢價圈購</b>（議定溢價率）或 <b>競價拍賣</b>（以價格得標）→ <b>訂價／開標</b>（前後發<b>承銷公告</b>）→ <b>繳款</b> → <b>上櫃掛牌</b>。<br>
   斜體灰字日期是還沒公告時依慣例推估（訂價基準日 ≈ 圈購截止後 2 個營業日、掛牌 ≈ 訂價後 7 個營業日），以正式公告為準。<br>
   來源：證券商業同業公會承銷公告（詢圈公告、競拍公告、承銷公告 PDF）、櫃買中心轉(交)換公司債發行資料。平日 08:00、18:00 左右更新。`;
 
