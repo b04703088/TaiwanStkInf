@@ -58,7 +58,8 @@ def build_live(data_dir, regulars):
     live = []
     for (code, _), ids in groups.items():
         cs = [cases[i] for i in ids]
-        if not any(x["method"] == "詢價圈購" for x in cs):   # 只看有詢圈的案件（純競拍不列）
+        # 只看有詢圈的案件（純競拍不列）；還沒公告承銷方式、但董事會決議一檔詢圈一檔競拍的也算
+        if not any(x["method"] == "詢價圈購" or (not x["method"] and "詢價圈購" in x.get("board_method", "")) for x in cs):
             continue
         c = sorted(cs, key=lambda x: x["method"] != "詢價圈購")[0]
         wins = {}

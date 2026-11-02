@@ -236,6 +236,10 @@ def classify(subject):
         return "board"
     if re.search(r"代收(價|債)款|存儲專戶", s):
         return "bank"
+    # 有些公司董事會決議的主旨只寫債券名稱，例如「崇越科技股份有限公司國內第三次無擔保轉換公司債」（5434，2026-09-21）
+    if re.fullmatch(r"(本公司|[^,，;；。]{2,20}?股份有限公司)?(發行)?國內第[一二三四五六七八九十\d]+次"
+                    r"([及暨、]第?[一二三四五六七八九十\d]+次)?(有擔保|無擔保)?(可)?[轉交]換公司債(案)?", s):
+        return "board"
     return None
 
 
@@ -259,6 +263,33 @@ def _field(text, n, label):
     return re.sub(r"\s+", "", m.group(1)) if m else ""
 
 
+BOTH = "詢價圈購+競價拍賣"
+
+
+def board_both(text):
+    """一次決議兩檔時，發行價格／承銷方式同時寫了詢圈（依票面金額發行、詢價圈購）和競拍（底標、競價拍賣）"""
+    t = re.sub(r"\s+", "", text or "")
+    auc = bool(re.search(r"底標|競價拍賣", t))
+    bb = bool(re.search(r"詢價圈購|(依|按|以)(票面金額|面額)之?[\d.]+%?[~～\-至]?[\d.]*%?發行", t))
+    return auc and bb
+
+
+def news_backfill(news_dir, have):
+    """重訊總表（data/mops/news，fetch_mops_news.py 每天抓）裡分類得到、但 mops_events 還沒有的 CB 重訊
+    → 補進來（規則改過後，已抓過的日期不會再抓，靠這裡補）。回傳要補抓內容的清單。"""
+    out = []
+    for f in sorted(Path(news_dir).glob("*.csv")):
+        for r in _read(f):
+            kind = classify(r.get("subject", ""))
+            key = (r.get("enter_date", ""), r.get("code", ""), r.get("serial", ""))
+            if not kind or key in have:
+                continue
+            out.append({"date": r["date"], "time": r.get("time", ""), "code": r["code"], "name": r.get("name", ""),
+                        "subject": re.sub(r"\s+", "", r["subject"]), "kind": kind, "market": r.get("market", ""),
+                        "enter_date": r.get("enter_date", ""), "serial": r.get("serial", "")})
+    return out
+
+
 def parse_board(detail_text, fact_date=""):
     """董事會決議發行公司債的重訊內容 → 決議日、第幾次、有無擔保、發行總額、承銷方式、主辦承銷商。"""
     t = unicodedata.normalize("NFKC", detail_text or "").replace("臺", "台")
@@ -275,9 +306,11 @@ def parse_board(detail_text, fact_date=""):
     method = _field(t, 11, "承銷方式") + _field(t, 6, "發行價格")
     auc, bb = "競價拍賣" in method, "詢價圈購" in method
     r["method"] = "競價拍賣" if auc and not bb else "詢價圈購" if bb and not auc else ""  # 兩種都有（多檔）時不判斷
+    if len(sers) > 1 and board_both(method):
+        r["method"] = BOTH
     lead = _field(t, 13, "承銷或代銷機構") or _field(t, 12, "承銷或代銷機構")
     r["lead"] = re.sub(r"[。，,].*$", "", lead)[:30]
-    r["issue_price"] = _field(t, 6, "發行價格")[:60]
+    r["issue_price"] = _field(t, 6, "發行價格")[:200]
     r["parsed"] = "1" if r["board_date"] and (r["amount"] or r["series"]) else "0"
     return r
 
@@ -354,6 +387,23 @@ def main(argv=None):
             if e["date"] and e["date"] not in set(fetched) and k:
                 e["kind"] = k
                 old.append(e)
+        # 規則改過、但日期已抓過的 CB 重訊：從重訊總表補（董事會決議要再抓內容）
+        have = {(e["enter_date"], e["code"], e["serial"]) for e in new + old}
+        add = news_backfill(ROOT / "data" / "mops" / "news", have)
+        for ev in add:
+            if ev["kind"] == "board":
+                try:
+                    det = mops("t05st02_detail", {"companyId": ev["code"], "marketKind": ev["market"],
+                                                  "enterDate": ev["enter_date"], "serialNumber": int(ev["serial"] or 1)})
+                    row = (det.get("data") or [[]])[0]
+                    ev.update(parse_board(row[9] if len(row) > 9 else "", row[8] if len(row) > 8 else ""))
+                except Exception as e:  # noqa: BLE001
+                    print(f"  {ev['code']} {ev['date']} 重訊內容失敗：{e}", file=sys.stderr)
+                    ev["parsed"] = "0"
+                time.sleep(DELAY)
+        if add:
+            print(f"重訊總表補 {len(add)} 則：" + "、".join(f"{e['code']}{e['name']} {e['kind']}" for e in add[:20]))
+        new += add
         # 同一則重訊（日期＋代號＋序號）只留一筆
         seen, merged = set(), []
         for e in new + old:

@@ -119,6 +119,25 @@ class AttachTest(unittest.TestCase):
         self.assertEqual((t["board_date"], t["filed_date"], t["board_amount"], t["method"]), ("2026-09-01", "", 300_000_000, "詢價圈購"))
         self.assertNotIn("9999", out)  # 超過一年未送件不列
 
+    def test_two_series_board_marks_both_methods(self):
+        today = date(2026, 10, 5)
+        sfb = [{"code": "6944", "status": "生效", "name": "兆聯實業", "lead": "富邦證券", "kind": "轉換公司債(無擔保)",
+                "amount": amt, "filed": "2026-09-04", "effective": "2026-09-22", "stop": "", "unstop": "",
+                "withdrawn": "", "returned": "", "revoked": ""} for amt in ("1300000000", "1200000000")]
+        events = [{"kind": "board", "code": "6944", "name": "兆聯實業", "date": "2026-08-06", "time": "18:08",
+                   "board_date": "2026-08-06", "series": "1,2", "amount": "1300000000", "method": "競價拍賣", "lead": "富邦",
+                   "secured": "無擔保", "subject": "本公司董事會決議發行國內第一次無擔保轉換公司債暨國內第二次無擔保轉換公司債",
+                   "issue_price": "(1)國內第一次無擔保轉換公司債:暫定依票面金額之100%~105%發行。(2)國內第二次無擔保轉換公司債:暫定底標以不"}]
+        out = [c for c in F.attach_pipeline([], sfb, events, today) if c["code"] == "6944"]
+        self.assertEqual(len(out), 2)
+        for c in out:  # 兩檔都標「詢圈＋競拍」，哪檔是哪種要等承銷公告
+            self.assertEqual((c["board_date"], c["board_method"], c["method"]), ("2026-08-06", P.BOTH, ""))
+
+    def test_classify_bare_bond_name_is_board(self):
+        self.assertEqual(P.classify("崇越科技股份有限公司國內第三次無擔保轉換公司債"), "board")
+        self.assertIsNone(P.classify("國內第三次無擔保轉換公司債轉換價格調整"))
+        self.assertIsNone(P.classify("董事會決議發行海外第一次無擔保轉換公司債"))
+
 
 if __name__ == "__main__":
     unittest.main()

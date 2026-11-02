@@ -540,6 +540,8 @@ function flowCells(c){
   if (live && doneN < 5) cells[doneN].nx = true;
   return cells;
 }
+// 承銷方式：還沒公告時看董事會決議；一次決議兩檔（一檔詢圈、一檔競拍）顯示「詢圈＋競拍」
+const methodLabel = c => { const m = c.method || c.board_method || ""; return m.includes("+") ? "詢圈＋競拍" : m === "競價拍賣" ? "競拍" : m === "詢價圈購" ? "詢圈" : "未定"; };
 function renderFlow(){
   const q = calQ;
   let list = q ? cases.filter(c => qMatch(c, q)) : cases.filter(c => !["done", "wd"].includes(c._st[0]));
@@ -552,7 +554,7 @@ function renderFlow(){
   const qh = document.getElementById("cal-qhint");
   qh.hidden = !q;
   if (q) qh.innerHTML = list.length ? `月曆只顯示 <b>${esc(list.map(c => c.short || c.company).filter((v, i, a) => a.indexOf(v) === i).slice(0, 4).join("、"))}</b> 的事件，流程在月曆下方。清空搜尋就回到全部。` : "找不到這檔，可能還沒有董事會決議或送件。";
-  document.getElementById("flow").innerHTML = list.length ? list.map(c => `<tr><td>${label(c)}</td><td class="hide-m">${c.method ? (AUC(c) ? "競拍" : "詢圈") : "–"}</td><td>${stageTag(c)}</td>${flowCells(c).map(x =>
+  document.getElementById("flow").innerHTML = list.length ? list.map(c => `<tr><td>${label(c)}</td><td class="hide-m">${methodLabel(c)}</td><td>${stageTag(c)}</td>${flowCells(c).map(x =>
     `<td class="fs${x.d ? "" : " todo"}${x.est ? " est" : ""}${x.nx ? " nx" : ""}" data-v="${x.d || ""}">${x.d ? `<a href="#${x.d.slice(0, 7)}" data-d="${x.d}" class="mono">${x.d.slice(0, 4) !== TODAY.slice(0, 4) ? x.d.slice(2, 4) + "/" : ""}${md(x.d)}</a>${x.est ? '<span class="faint"> 推估</span>' : ""}` : "待公告"}${x.sub ? `<small>${x.sub}</small>` : ""}</td>`).join("")}</tr>`).join("")
     : `<tr><td colspan="8" class="empty">沒有符合的案件。</td></tr>`;
 }
@@ -605,7 +607,7 @@ function pipeTable(list, cols){
   const F = {
     name: c => `<span id="c-${esc(c.id)}" style="scroll-margin-top:90px">${label(c)}</span>`,
     kind: c => (c.type || "").includes("有擔保") ? "有" : (c.type || "").includes("無擔保") ? "無" : "–",
-    method: c => { const m = c.method || c.board_method; return m ? (m === "競價拍賣" ? "競拍" : "詢圈") : "–"; },
+    method: methodLabel,
     lead: c => esc(/授權|董事長|未定/.test(c.lead || "") ? "–" : (c.lead || "–").replace(/股份有限公司|\(股\)公司|綜合證券|證券/g, "")),
     amt: c => yi(c.sfb_amount || c.board_amount || (c.units ? c.units * 1e5 : null)),
     board: c => md(c.board_date),
