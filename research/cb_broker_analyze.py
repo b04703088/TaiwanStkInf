@@ -12,7 +12,8 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from broker_site import FOREIGN  # noqa: E402
 
 D = ROOT / "research" / "data"
-BENCH = "0050"
+import os
+BENCH = os.environ.get("BENCH", "EW")   # EW = 等權市場指數（research/ew_index.py）；0050 會被台積電行情扭曲
 
 
 def rd(p):
@@ -33,9 +34,12 @@ def load_px(codes):
                     vol[r["code"]][d] = float(r["volume"] or 0) / 1000
                 except ValueError:
                     pass
-    for d in list(close[BENCH]):
+    for d in list(close["0050"]):
         if d < "2025-06-18":   # 0050 2025-06 一拆四
-            close[BENCH][d] /= 4
+            close["0050"][d] /= 4
+    ew = ROOT / "research" / "data" / "ew_index.csv"
+    if ew.exists():
+        close["EW"] = {r["date"]: float(r["close"]) for r in rd(ew)}
     return td, close, vol
 
 
@@ -69,7 +73,7 @@ def main():
             by[r["id"]][r["win"]][(r["side"], r["bid"])] = r
             names[r["bid"]] = r["broker"]
     ids = [i for i in win_dates if "pre20" in win_dates[i] and i in cases]
-    codes = {cases[i]["code"] for i in ids} | {BENCH}
+    codes = {cases[i]["code"] for i in ids} | {"0050"}
     td, close, vol = load_px(codes)
     pos = {d: k for k, d in enumerate(td)}
 

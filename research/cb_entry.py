@@ -8,7 +8,7 @@ by=defaultdict(lambda: defaultdict(dict)); wd=defaultdict(dict)
 for r in rows:
     wd[r['id']][r['win']]=(r['d1'],r['d2'],)
     if r['bid']: by[r['id']][r['win']][(r['side'],r['broker'])]=int(r['net'])
-LAB={'s1':'決議→送件','s2':'送件→生效','s3':'生效→詢圈','s4':'詢圈→訂價'}
+LAB={'s0':'決議前20日','s1':'決議→送件','s2':'送件→生效','s3':'生效→詢圈','s4':'詢圈→訂價'}
 seg_len={s:[] for s in LAB}
 td=A.load_px(set())[0]; pos={d:k for k,d in enumerate(td)}
 for i in wd:
