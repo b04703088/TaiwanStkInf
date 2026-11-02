@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101419">
+<title>結算日套利｜潮汐</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#101419; --panel:#171C22; --panel-2:#1E242B;
+    --line:rgba(232,237,242,0.09); --line-strong:rgba(232,237,242,0.16);
+    --text:#E8EDF2; --text-muted:#A9B2BC; --text-faint:#8B95A0;
+    --brass:#C6A15B; --brass-soft:rgba(198,161,91,0.14); --rise:#E1594F; --fall:#3FAE72;
+    --radius-s:3px; --radius-m:6px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--ink); color:var(--text);
+    font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
+  h1,h2{font-family:'Noto Sans TC',sans-serif; margin:0; font-weight:700;}
+  h2{font-size:20px;}
+  .mono{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+  a{color:inherit;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
+  header.site{position:sticky; top:0; z-index:40; background:#101419; border-bottom:1px solid var(--line);}
+  .nav-row{display:flex; align-items:center; justify-content:space-between; padding:16px 28px;}
+  .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
+  .brand-mark{font-family:'Noto Sans TC',sans-serif; font-size:22px; font-weight:700;}
+  .brand-sub{font-size:12px; color:var(--text-faint);}
+  .page-head{padding:56px 0 8px;}
+  h1{font-size:32px;}
+  .desc{color:var(--text-muted); font-size:14.5px; margin:12px 0 0; max-width:52em;}
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden; margin-top:28px;}
+  .stat{background:var(--panel); padding:16px 20px;}
+  .stat .k{font-size:12.5px; color:var(--text-muted);}
+  .stat .v{font-size:26px; margin-top:2px;}
+  .stat .s{font-size:12px; color:var(--text-faint);}
+  section.block{margin-top:48px;}
+  .block-head{display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin-bottom:14px; flex-wrap:wrap;}
+  .hint{font-size:12.5px; color:var(--text-faint);}
+  .up{color:var(--rise);} .down{color:var(--fall);} .flat{color:var(--text-muted);}
+  .faint{color:var(--text-faint);} .muted{color:var(--text-muted);}
+
+  .tbl-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius-m);}
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  th, td{padding:9px 12px; border-bottom:1px solid var(--line); text-align:left; white-space:nowrap;}
+  th{font-size:12px; color:var(--text-muted); font-weight:500; background:var(--panel); position:sticky; top:0;}
+  td.n, th.n{text-align:right;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr.click{cursor:pointer;}
+  tbody tr.click:hover td{background:var(--panel);}
+  tbody tr.on td{background:var(--brass-soft);}
+  th[data-k]{cursor:pointer; user-select:none;} th[data-k]:hover{color:var(--text);} th.sorted{color:var(--text);}
+  .sname{font-weight:500;}
+  .sname a{text-decoration:none;} .sname a:hover{color:var(--text);}
+  .sname .mono{font-size:11.5px; color:var(--text-faint); margin-left:6px; font-weight:500;}
+  .tag{display:inline-block; font-size:11px; padding:0 5px; border-radius:var(--radius-s); border:1px solid var(--line-strong); color:var(--text-muted); margin-left:6px;}
+  .tag.ath{border-color:var(--rise); color:var(--rise);}
+  .star{color:var(--brass); margin-left:4px; font-size:12px;}
+  .gpath{display:block; font-size:11.5px; color:var(--text-faint);}
+  .show-s{display:none;}
+  .leaders{white-space:normal; min-width:14em; font-size:12.5px; color:var(--text-muted);}
+  .bar{display:inline-block; width:64px; height:6px; background:var(--line); border-radius:2px; vertical-align:middle; margin-right:8px; overflow:hidden;}
+  .bar i{display:block; height:100%; background:var(--rise);}
+  .dots{display:inline-flex; gap:2px; vertical-align:middle;}
+  .dots i{display:block; width:5px; height:12px; border-radius:1px; background:var(--line);}
+  .dots i.h{background:var(--rise);} .dots i.a{background:var(--rise); box-shadow:inset 0 -4px 0 var(--brass);}
+
+  .toolbar{display:flex; flex-wrap:wrap; gap:10px 18px; align-items:center; margin-top:28px;}
+  .chips{display:flex; flex-wrap:wrap; gap:6px;}
+  .chips button{background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:5px 11px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .chips button[aria-pressed="true"]{border-color:var(--text-faint); color:var(--text);}
+  .chk-in{font-size:13px; color:var(--text-muted); display:flex; align-items:center; gap:6px;}
+  .filter{background:var(--panel); border:1px solid var(--line-strong); color:var(--text); padding:6px 11px; border-radius:var(--radius-s); font:inherit; font-size:13px; width:12em;}
+  .filter:focus{outline:none; border-color:var(--text-faint);}
+  .pick{display:inline-flex; align-items:center; gap:8px; font-size:13px; background:var(--brass-soft); color:var(--text); padding:4px 10px; border-radius:var(--radius-s);}
+  .pick button{background:none; border:none; color:var(--text-muted); cursor:pointer; font:inherit; padding:0;}
+  .more{display:block; margin:14px auto 0; background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:7px 18px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .more:hover{color:var(--text); border-color:var(--text-faint);}
+  .empty{padding:20px 12px; color:var(--text-faint); font-size:13.5px;}
+  .note{font-size:12.5px; color:var(--text-faint); margin-top:18px; line-height:1.8;}
+
+  .chart{position:relative; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-m); padding:14px 16px 6px;}
+  .chart svg{display:block; width:100%; height:180px;}
+  .chart .axis{font-size:10.5px; fill:var(--text-faint); font-family:'IBM Plex Mono',monospace;}
+  .legend{display:flex; gap:16px; font-size:12px; color:var(--text-muted); margin-bottom:6px; flex-wrap:wrap;}
+  .legend i{display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:5px; vertical-align:-1px;}
+  .tip{position:absolute; pointer-events:none; background:var(--ink); border:1px solid var(--line-strong); border-radius:var(--radius-s); padding:8px 10px; font-size:12px; min-width:130px; box-shadow:0 4px 16px rgba(0,0,0,.4); display:none; z-index:5;}
+  .tip .d{color:var(--text-muted); margin-bottom:4px;}
+  .tip .r{display:flex; gap:12px; justify-content:space-between; white-space:nowrap;}
+  .tip .r b{font-weight:500; font-family:'IBM Plex Mono',monospace;}
+  footer.site{padding:48px 0; margin-top:64px; border-top:1px solid var(--line);}
+  @media (max-width:860px){
+    .nav-row{padding:14px 16px; flex-wrap:wrap; row-gap:10px;}
+    .wrap{padding:0 16px;}
+    .stats{grid-template-columns:repeat(2,1fr);} h1{font-size:26px;}
+    .hide-s{display:none;}
+    .chart svg{height:150px;}
+    .show-s{display:block;}
+  }
+  select.filter{width:auto;}
+  .tabs{display:flex; gap:0; border-bottom:1px solid var(--line); margin-top:36px;}
+  .tabs button{background:none; border:none; border-bottom:2px solid transparent; color:var(--text-muted); padding:10px 16px; cursor:pointer; font:inherit; font-size:15px;}
+  .tabs button[aria-pressed="true"]{color:var(--text); border-bottom-color:var(--brass);}
+  tr.sub-row td{background:var(--panel-2); font-size:12.5px; color:var(--text-muted);}
+  .warn{color:var(--brass);}
+  @media (max-width:860px){ th, td{padding:8px 8px;} .tabs button{padding:9px 10px; font-size:14px;} }
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="nav-row">
+    <a href="index.html" class="brand"><span class="brand-mark">潮汐</span><span class="brand-sub">籌碼觀測站</span></a>
+    <nav class="gnav"></nav>
+  </div>
+</header>
+<script src="nav.js"></script>
+<main class="wrap">
+  <section class="page-head">
+    <h1>結算日套利：尾盤誰會被砍</h1>
+    <p class="desc" id="sub">載入中…</p>
+    <div class="stats" id="stats"></div>
+  </section>
+
+  <div class="tabs" id="tabs">
+    <button data-v="short" aria-pressed="true">空方・結算賣現貨</button>
+    <button data-v="long" aria-pressed="false">多方・結算買回</button>
+    <button data-v="dealer" aria-pressed="false">自營商累積</button>
+  </div>
+
+  <section class="block" style="margin-top:20px">
+    <div class="toolbar" style="margin:0 0 12px">
+      <label class="chk-in"><input type="checkbox" id="noetf" checked> 排除 ETF</label>
+      <label class="chk-in"><input type="checkbox" id="both"> 只看特法＋自營商同向</label>
+      <label class="chk-in"><input type="checkbox" id="mine"> 只看自選</label>
+      <input class="filter" id="q" type="search" placeholder="代號或名稱" autocomplete="off" aria-label="搜尋">
+    </div>
+    <p class="hint" id="hint" style="margin:0 0 10px"></p>
+    <div class="tbl-wrap"><table>
+      <thead id="head"></thead>
+      <tbody id="body"></tbody>
+    </table></div>
+    <button class="more" id="more" hidden>顯示更多</button>
+    <p class="note" id="note"></p>
+  </section>
+</main>
+<footer class="site"><div class="wrap"><p class="note" style="margin:0">資料僅供參考，不構成投資建議。</p></div></footer>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const num = (v, d = 2) => v == null ? "–" : (+v).toLocaleString("zh-TW", {maximumFractionDigits: d});
+const int = v => v == null ? "–" : Math.round(v).toLocaleString("zh-TW");
+const sint = v => v == null ? "–" : (v > 0 ? "+" : "") + Math.round(v).toLocaleString("zh-TW");
+const cls = v => v == null ? "faint" : v > 0 ? "up" : v < 0 ? "down" : "flat";
+const pct = (v, d = 2) => `<span class="${cls(v)}">${v == null ? "–" : `${v > 0 ? "+" : ""}${(+v).toFixed(d)}%`}</span>`;
+const obj = (cols, rows) => rows.map(r => Object.fromEntries(cols.map((k, i) => [k, r[i]])));
+const sname = r => `<span class="sname"><a href="stock.html#s=${encodeURIComponent(r.code)}">${esc(r.name)}</a><span class="mono">${esc(r.code)}</span></span>`;
+const Watch = window.TideWatch || {list: () => []};
+/* 倍數：≥0.5 標黃粗體、≥0.3 標黃 */
+const mult = v => v == null ? "–" : v >= 0.5 ? `<b class="warn">${v.toFixed(2)}×</b>` : v >= 0.3 ? `<span class="warn">${v.toFixed(2)}×</span>` : v <= -0.3 ? `<span class="faint">${v.toFixed(2)}×</span>` : `${v.toFixed(2)}×`;
+const sgn = v => v == null ? "–" : `<span class="${cls(v)}">${sint(v)}</span>`;
+const md = d => d ? d.slice(5).replace("-", "/") : "–";
+
+const S = {tab: "short", noetf: true, both: false, mine: false, q: "", limit: 100};
+let D, R = [];
+
+/* 同向：空方＝特法淨空 + 自營商累積買超（現貨多、期貨空）；多方＝特法淨多 + 自營商累積賣超 */
+const sameShort = r => r.ns_r > 0 && r.d_r > 0;
+const sameLong = r => r.nl_r > 0 && r.d_r < 0;
+
+function stats(){
+  const n = D.next_settle || {}, stk = R.filter(r => !r.etf);
+  $("stats").innerHTML = [
+    ["下次結算日", md(n.date), n.tdays != null ? `還有 ${n.tdays} 個交易日（${D.month} 合約）` : ""],
+    ["空單倍數 ≥ 0.3", `${stk.filter(r => r.s_r >= 0.3).length} 檔`, `其中特法＋自營商同向 ${stk.filter(r => r.s_r >= 0.3 && sameShort(r)).length} 檔`],
+    ["多單倍數 ≥ 0.3", `${stk.filter(r => r.l_r >= 0.3).length} 檔`, `其中特法＋自營商同向 ${stk.filter(r => r.l_r >= 0.3 && sameLong(r)).length} 檔`],
+    ["自營商週期累積", `${md(D.cycle_start)} 起`, `上次結算 ${md(D.last_settle)}，累積 ${D.cycle_days} 個交易日`],
+  ].map(([k, v, s]) => `<div class="stat"><div class="k">${k}</div><div class="v mono">${v}</div><div class="s">${s}</div></div>`).join("");
+  $("sub").textContent = `${D.date} 收盤・股票期貨近月（${D.month}）十大特定法人部位，換算成現貨張數後和近 5 日成交量比。部位越大、量越小，結算日（收盤前 60 分鐘均價）套利平倉對尾盤的影響越大。`;
+}
+
+function rowsFor(){
+  const mine = new Set(Watch.list()), q = S.q.trim().toLowerCase();
+  const k = {short: r => -r.s_r, long: r => -r.l_r, dealer: r => -(r.d_r ?? -1e9)}[S.tab];
+  const same = S.tab === "long" ? sameLong : sameShort;
+  return R.filter(r => (!S.noetf || !r.etf || q) && (!S.mine || mine.has(r.code)) && (!S.both || S.tab === "dealer" ? true : same(r))
+      && (!S.both || S.tab !== "dealer" || sameShort(r) || sameLong(r))
+      && (!q || r.code.toLowerCase().includes(q) || r.name.toLowerCase().includes(q)))
+    .sort((a, b) => k(a) - k(b));
+}
+
+function render(){
+  document.querySelectorAll("#tabs button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === S.tab));
+  const rs = rowsFor();
+  const base = r => `<td>${sname(r)}</td><td class="n mono">${num(r.close)}</td><td class="n mono hide-s" data-v="${r.chg ?? ""}">${pct(r.chg)}</td>
+    <td class="n mono">${int(r.v5)}</td>`;
+  const baseH = `<th>股票</th><th class="n">收盤</th><th class="n hide-s">漲跌</th><th class="n" title="近 5 個交易日成交量合計，扣掉現股當沖">近 5 日量</th>`;
+  let head, row;
+  if (S.tab === "dealer") {
+    $("hint").innerHTML = `自營商（自行＋避險）從 ${md(D.cycle_start)} 累積到 ${md(D.date)} 的買賣超（張）÷ 近 5 日量。正數＝現貨累積買超，配特法淨空像正價差套利；負數配特法淨多像逆價差套利。點「自營商 ÷ 5 日量」標題可反過來看賣超最多的。`;
+    head = `<tr>${baseH}<th class="n">自營商累積</th><th class="n">自營商 ÷ 5 日量</th><th class="n">特法淨空 ÷ 5 日量</th><th class="n">特法淨多 ÷ 5 日量</th><th>同向</th></tr>`;
+    row = r => `<tr>${base(r)}<td class="n mono" data-v="${r.d_cum ?? ""}">${sgn(r.d_cum)}</td><td class="n mono" data-v="${r.d_r ?? ""}">${mult(r.d_r)}</td>
+      <td class="n mono" data-v="${r.ns_r}">${mult(r.ns_r)}</td><td class="n mono" data-v="${r.nl_r}">${mult(r.nl_r)}</td>
+      <td>${sameShort(r) ? '<span class="tag ath">空方</span>' : sameLong(r) ? '<span class="tag">多方</span>' : ""}</td></tr>`;
+  } else {
+    const L = S.tab === "long", w = L ? "多" : "空";
+    const pos = r => L ? r.l10 : r.s10, rr = r => L ? r.l_r : r.s_r, nr = r => L ? r.nl_r : r.ns_r, dd = r => L ? r.l_d : r.s_d, same = L ? sameLong : sameShort;
+    $("hint").innerHTML = L
+      ? `逆價差套利（借券／融券賣現貨＋買期貨，常見於除權息季）在結算時要把現貨買回，尾盤偏撐。多空兩邊都很大的多半是對做，看「淨多」比較準。`
+      : `正價差套利（買現貨＋空期貨）在結算時要把現貨賣掉，尾盤偏壓。多空兩邊都很大的多半是對做，看「淨空」比較準。`;
+    head = `<tr>${baseH}<th class="n hide-s">近月未平倉</th><th class="n">特法${w}單</th><th class="n hide-s">佔未平倉</th>
+      <th class="n">${w}單 ÷ 5 日量</th><th class="n">淨${w} ÷ 5 日量</th><th class="n" title="${md(D.base_day)} 到 ${md(D.date)} 的變化">週期增減</th>
+      <th class="n hide-s">自營商累積</th><th class="n">自營商 ÷ 5 日量</th><th>同向</th></tr>`;
+    row = r => `<tr>${base(r)}<td class="n mono hide-s">${int(r.oi)}</td><td class="n mono">${int(pos(r))}</td>
+      <td class="n mono hide-s">${r.oi ? Math.round(pos(r) / r.oi * 100) + "%" : "–"}</td>
+      <td class="n mono" data-v="${rr(r)}">${mult(rr(r))}</td><td class="n mono" data-v="${nr(r)}">${mult(nr(r))}</td>
+      <td class="n mono" data-v="${dd(r) ?? ""}">${sgn(dd(r))}</td>
+      <td class="n mono hide-s" data-v="${r.d_cum ?? ""}">${sgn(r.d_cum)}</td><td class="n mono" data-v="${r.d_r ?? ""}">${mult(r.d_r)}</td>
+      <td>${same(r) ? `<span class="tag${L ? "" : " ath"}">✓</span>` : ""}</td></tr>`;
+  }
+  $("head").innerHTML = head;
+  $("body").innerHTML = rs.slice(0, S.limit).map(row).join("") || `<tr><td colspan="13" class="empty">沒有符合條件的股票</td></tr>`;
+  $("more").hidden = rs.length <= S.limit;
+  $("note").innerHTML = `<b>十大特法</b>：期交所「期貨大額交易人未沖銷部位」裡，近月合約前十大交易人中屬於特定法人（自營商、外資、投信等）的多／空單。
+    同一檔的一般股期（每口 2,000 股）、小型股期（每口 100 股）合併；ETF 期貨依契約股數。全部換算成現貨張數。除權息後的調整型契約（代號後面多個 1）期交所已併在一起，但每口股數不同，這裡用標準股數換算，會有小誤差。
+    <b>÷ 5 日量</b>＝部位張數 ÷ 近 5 個交易日成交量合計（扣現股當沖，${D.v5_days.map(md).join("、")}）。<span class="warn">≥0.3 標黃、≥0.5 粗體</span>：結算時要平的現貨約當近一週真實換手的三成、一半以上。
+    <b>週期增減</b>：近月特法部位從 ${md(D.base_day)} 到現在的變化，正數＝結算前還在建倉。
+    <b>自營商累積</b>：上次結算日（${md(D.last_settle)}）隔天起累加的自營商買賣超（自行＋避險合計，拆不出套利部位）。
+    <b>同向 ✓</b>：空方＝特法淨空且自營商累積買超；多方＝特法淨多且自營商累積賣超。
+    限制：特定法人不只有套利，也有避險、投機；股期最後結算價是收盤前 60 分鐘均價，套利平倉常分散在 12:30～13:30，不一定只壓最後一盤。表格只排目前顯示的列。`;
+}
+
+async function init(){
+  D = await fetch("data/settle.json").then(r => r.json()).catch(() => null);
+  if (!D) { $("sub").textContent = "資料載入失敗"; return; }
+  R = obj(D.cols, D.rows);
+  const h = new URLSearchParams(location.hash.slice(1));
+  if (["short", "long", "dealer"].includes(h.get("t"))) S.tab = h.get("t");
+  if (h.get("s")) { S.q = h.get("s"); $("q").value = S.q; }
+  stats(); render();
+  $("tabs").onclick = e => { const b = e.target.closest("button"); if (!b) return; S.tab = b.dataset.v; S.limit = 100; history.replaceState(null, "", "#t=" + S.tab); render(); };
+  $("noetf").onchange = e => { S.noetf = e.target.checked; render(); };
+  $("both").onchange = e => { S.both = e.target.checked; render(); };
+  $("mine").onchange = e => { S.mine = e.target.checked; render(); };
+  $("q").oninput = e => { S.q = e.target.value; S.limit = 100; render(); };
+  $("more").onclick = () => { S.limit += 200; render(); };
+}
+init();
+</script>
+</body>
+</html>
