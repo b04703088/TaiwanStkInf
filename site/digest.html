@@ -49,6 +49,8 @@
   .md th{font-weight:500; color:var(--text-muted); font-size:12.5px; background:var(--panel);}
   .md td:first-child, .md th:first-child, .md td.t, .md th.t{text-align:left;}
   .md tr:last-child td{border-bottom:none;}
+  #pts .md td.t{white-space:normal; min-width:6.5em; line-height:1.55;}
+  #pts .md p{margin:8px 0;}
   .faint{color:var(--text-faint);}
   .up{color:var(--rise);} .dn{color:var(--fall);}
   .sec-t{font-size:13px; color:var(--text-faint); margin:0 0 6px;}
@@ -73,7 +75,7 @@
 <main class="wrap">
   <section class="page-head">
     <h1>盤後摘要</h1>
-    <p class="desc">每個交易日晚上整理大盤位置、法人與期權籌碼、融資、族群強弱，加上一段研究員角度的判讀；隔天早上 8 點再補美股、Fed 與夜盤的早盤更新。資料分析，不是投資建議。</p>
+    <p class="desc">每個交易日晚上蒐集當天新聞、摘要盤面現象，並整理資金從哪些族群流出、流進哪些族群，以及追蹤分點大額進出、CB 詢圈、ETF 成分調整、內部人申報的重點；隔天早上 8 點再補美股與國際新聞。只描述發生了什麼，不猜漲跌。</p>
   </section>
   <div class="bar">
     <button id="prev" aria-label="前一天">‹</button>
@@ -82,11 +84,11 @@
   </div>
   <div id="amWrap" hidden><p class="sec-t">盤前更新（隔天 08:00；週五資料在週日晚上）</p>
   <div class="card" id="am"></div></div>
-  <p class="sec-t">判讀</p>
+  <p class="sec-t">新聞與現象</p>
   <div class="card" id="note"><div class="md"><p class="faint">載入中…</p></div></div>
-  <p class="sec-t">數字</p>
-  <div class="md" id="num"></div>
-  <p class="note">買賣超金額為股數×收盤價估算，含 ETF。族群報酬取成分股中位數；產業鏈分類來自產業價值鏈平台。數字在晚上法人與融資資料進來後自動產生，判讀約 23:50 補上；隔天早上 8 點再依美股、Fed 與夜盤補一段早盤更新。</p>
+  <p class="sec-t">重點：資金流向、追蹤分點、CB 詢圈、ETF 調整、內部人</p>
+  <div class="card" id="pts"><div class="md"><p class="faint">載入中…</p></div></div>
+  <p class="note">資金流向＝法人（外資＋投信＋自營）5 日買賣超＋融資 5 日增減，以股數×收盤價估算；一檔股票屬於好幾個產業鏈節點時金額平均分攤，族群用產業價值鏈平台的節點。「這次」指上一個交易日之後到資料日。重點在晚上法人與融資資料進來後自動產生，新聞與現象約 22:15 補上；隔天早上 8 點再補美股與國際新聞。</p>
 </main>
 <footer class="site"><div class="wrap"><p class="note" style="margin:0">本頁於每次網站重建時產生。</p></div></footer>
 <script>
@@ -109,7 +111,9 @@ function md(src){
       const rows = []; while (i < L.length && /^\|/.test(L[i])) rows.push(L[i++]);
       const sp = r => r.replace(/^\||\|$/g, "").split("|");
       const body = rows.slice(2).map(r => "<tr>" + sp(r).map(cell).join("") + "</tr>").join("");
-      out.push(`<div class="tbl"><table><thead><tr>${sp(rows[0]).map((c, k) => `<th${k ? "" : ' class="t"'}>${inl(c.trim())}</th>`).join("")}</tr></thead><tbody>${body}</tbody></table></div>`);
+      // 標題對齊跟著該欄第一列：文字靠左、數字靠右
+      const first = rows[2] ? sp(rows[2]).map(c => cell(c).includes('class="t"')) : [];
+      out.push(`<div class="tbl"><table><thead><tr>${sp(rows[0]).map((c, k) => `<th${!k || first[k] ? ' class="t"' : ""}>${inl(c.trim())}</th>`).join("")}</tr></thead><tbody>${body}</tbody></table></div>`);
       continue;
     }
     if (/^\s*([-*]|\d+\.) /.test(l)){
@@ -134,14 +138,16 @@ async function show(d){
   document.getElementById("next").disabled = k <= 0;
   try { history.replaceState(null, "", "#" + d); } catch (e) {}
   const get = u => fetch(u, {cache:"no-cache"}).then(r => r.ok ? r.text() : null).catch(() => null);
-  const [num, note, am] = await Promise.all([get(`data/digest/${d}.md`), days[k].note ? get(`data/digest/notes/${d}.md`) : null,
-    days[k].am ? get(`data/digest/notes/${d}-am.md`) : null]);
+  const [pts, note, am] = await Promise.all([days[k].pts ? get(`data/digest/points/${d}.md`) : null,
+    days[k].note ? get(`data/digest/notes/${d}.md`) : null, days[k].am ? get(`data/digest/notes/${d}-am.md`) : null]);
   document.getElementById("amWrap").hidden = !am;
   document.getElementById("am").innerHTML = am ? `<div class="md">${md(am)}</div>` : "";
-  document.getElementById("num").innerHTML = num ? md(num) : '<p class="faint">數字摘要載入失敗</p>';
+  const p = document.getElementById("pts");
+  p.className = pts ? "card" : "card empty";
+  p.innerHTML = pts ? `<div class="md">${md(pts)}</div>` : "這天沒有重點資料。";
   const n = document.getElementById("note");
   n.className = note ? "card" : "card empty";
-  n.innerHTML = note ? `<div class="md">${md(note)}</div>` : "這天還沒有判讀。";
+  n.innerHTML = note ? `<div class="md">${md(note)}</div>` : "這天的新聞與現象還沒寫好。";
 }
 sel.onchange = () => show(sel.value);
 document.getElementById("prev").onclick = () => { const k = days.findIndex(x => x.date === sel.value); if (k < days.length - 1) show(days[k+1].date); };
@@ -149,7 +155,7 @@ document.getElementById("next").onclick = () => { const k = days.findIndex(x => 
 fetch("data/digest/index.json", {cache:"no-cache"}).then(r => r.json()).then(j => {
   days = j.dates;
   if (!days.length){ document.getElementById("note").innerHTML = "還沒有摘要。"; return; }
-  sel.innerHTML = days.map(x => `<option value="${x.date}">${fmt(x.date)}${x.note ? "" : "（只有數字）"}</option>`).join("");
+  sel.innerHTML = days.map(x => `<option value="${x.date}">${fmt(x.date)}${x.note ? "" : "（只有重點）"}</option>`).join("");
   const h = location.hash.slice(1);
   show(days.some(x => x.date === h) ? h : days[0].date);
 }).catch(() => { document.getElementById("note").innerHTML = "摘要載入失敗"; });
