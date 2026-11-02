@@ -2,6 +2,7 @@
 
   data/digest/YYYYMMDD.md   當天摘要
   data/digest/latest.md     最新一份（同內容）
+  data/digest/points/YYYYMMDD.md  網頁顯示的重點（資金流向、CB 詢圈、ETF 調整、內部人；見 digest_points.py）
 
 內容：加權指數位置與均線、外資／投信現貨買賣超（近 10 日）、台指期外資未平倉、P/C、
 前十大交易人、融資餘額、資金水龍頭燈號（見 liquidity.py）、處置／注意股熱度、族群（官方產業與產業鏈節點）5／20 日強弱與
@@ -16,6 +17,7 @@ from pathlib import Path
 
 import pandas as pd
 
+import digest_points
 import liquidity
 
 D = Path("data")
@@ -218,6 +220,10 @@ def main():
     ]:
         out += ["", f"## {title}", ""]
         out += table(sfmt(df), sc, sh)
+
+    # ── 重點（資金流向、CB 詢圈、ETF 調整、內部人）：網頁顯示這段，也接在數字後面給判讀用 ──
+    pts = digest_points.write(day, px_files, chip_files, OUT / "points")
+    out += ["", "# 重點（網頁顯示）", ""] + pts
 
     OUT.mkdir(parents=True, exist_ok=True)
     text = "\n".join(out) + "\n"

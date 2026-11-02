@@ -25,7 +25,7 @@
   data/kline/index.json, s/<代號>.json  K 線：2022 年起每日價量＋還原因子事件（見 scripts/kline_site.py）
   data/chips/chips.json, s/<代號>.json 三大法人、借券賣出、當沖、集保大戶（見 scripts/chips_site.py）
   data/futures.json                  期貨選擇權籌碼：法人未平倉、P/C ratio、大額交易人（見 scripts/futures_site.py）
-  data/digest/index.json, <日期>.md  盤後摘要：數字摘要與每晚判讀（見 scripts/digest_site.py）
+  data/digest/index.json, points/<日期>.md, notes/  盤後摘要：重點、新聞與現象（見 scripts/digest_site.py）
   data/newhigh.json                  創新高：近 60 日創 52 週／2022 年以來新高的個股與族群（見 scripts/newhigh_site.py）
   data/us.json                       美股連動：大廠台灣供應鏈、美股大漲大跌後台股隔日反應、連動排名（見 scripts/us_site.py）
   data/commod.json                   原物料：能源、金屬、農產品、化工、運價、記憶體報價走勢與對應台股族群（見 scripts/commod_site.py）
