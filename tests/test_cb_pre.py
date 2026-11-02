@@ -133,6 +133,22 @@ class AttachTest(unittest.TestCase):
         for c in out:  # 兩檔都標「詢圈＋競拍」，哪檔是哪種要等承銷公告
             self.assertEqual((c["board_date"], c["board_method"], c["method"]), ("2026-08-06", P.BOTH, ""))
 
+    def test_retry_bookbuilding_gets_pipeline_dates(self):
+        today = date(2026, 8, 1)
+        cases = [self.case(id="bb1", code="6693", units=5000, bb_start="2026-06-24", method="詢價圈購"),  # 第一次沒辦成
+                 self.case(id="66931", code="6693", units=5000, bb_start="2026-07-08", method="詢價圈購",
+                           done_date="2026-07-09", conv_price="228.1")]
+        sfb = [{"code": "6693", "status": "生效", "name": "廣閎科", "lead": "", "kind": "轉換公司債(無擔保)",
+                "amount": "500000000", "filed": "2026-05-28", "effective": "2026-06-15", "stop": "", "unstop": "",
+                "withdrawn": "", "returned": "", "revoked": ""}]
+        events = [{"kind": "board", "code": "6693", "name": "廣閎科", "date": "2026-05-06", "time": "17:00",
+                   "board_date": "2026-05-06", "series": "1", "amount": "500000000", "method": "詢價圈購", "lead": "",
+                   "secured": "無擔保", "subject": ""}]
+        out = {c["id"]: c for c in F.attach_pipeline(cases, sfb, events, today)}
+        self.assertEqual((out["66931"]["filed_date"], out["66931"]["eff_date"], out["66931"]["board_date"]),
+                         ("2026-05-28", "2026-06-15", "2026-05-06"))
+        self.assertEqual(out["bb1"]["retry_of"], "66931")
+
     def test_classify_bare_bond_name_is_board(self):
         self.assertEqual(P.classify("崇越科技股份有限公司國內第三次無擔保轉換公司債"), "board")
         self.assertIsNone(P.classify("國內第三次無擔保轉換公司債轉換價格調整"))

@@ -48,7 +48,7 @@ def regulars_stats(rows, cases, px, close):
             nets = {s: by[i][s].get((side, name)) for s in STAGES if s in wd[i]}
             hit = [s for s in STAGES if nets.get(s) is not None and nets[s] * sign > 0]
             key = (c["code"], c["board_date"] or c["bb_start"][:7])
-            if not hit or key in seen or key not in bbk:
+            if not hit or key in seen or key not in bbk or c.get("retry_of"):  # 沒辦成、後來重辦的那筆不算
                 continue
             seen.add(key)
             lots = sum(nets[s] for s in hit)
@@ -56,6 +56,9 @@ def regulars_stats(rows, cases, px, close):
             p = avgp(c["code"], d1, d2)
             x = px.get(i, {}).get("x_post20")
             items.append({"date": c["bb_start"], "code": c["code"], "name": c["short"] or c["company"][:4],
+                          "dates": {"board": c["board_date"], "filed": c["filed_date"], "eff": c["eff_date"],
+                                    "start": c["bb_start"], "price": c["done_date"] or c["bb_end"],
+                                    "base": c["price_base_date"], "list": c["list_date"] or c["issue_date"]},
                           "entry": hit[0],
                           "lots": lots, "amt": round(abs(lots) * p / 100) / 10 if p else None,  # 百萬元
                           "post": round(float(x) * 1000) / 10 if x else None})
@@ -82,7 +85,7 @@ def stage_table(cases, td, close):
     for m in ("詢價圈購",):
         acc = {k: ([], []) for k, _ in marks}
         for c in cases:
-            if c["method"] != m or not c["board_date"] or not c["bb_start"]:
+            if c["method"] != m or not c["board_date"] or not c["bb_start"] or c.get("retry_of"):
                 continue
             kb = bisect.bisect_left(td, c["board_date"])
             if kb < 21 or kb >= len(td):
