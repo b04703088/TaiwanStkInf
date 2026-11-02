@@ -1,0 +1,18 @@
+name: tmp-probe-psc
+on:
+  push:
+    branches: [claude/project-thread-wqm6a0]
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: probe
+        run: |
+          U=https://cbas16889.pscnet.com.tw/marketInfo/expectedRelease/
+          curl -sSL -A "Mozilla/5.0" -m 60 -o p.html -w "%{http_code} %{size_download}\n" "$U"
+          echo ---HTML; sed 's/></>\n</g' p.html | grep -v '^\s*$' | head -c 60000
+          echo; echo ---SCRIPTS; grep -oE '(src|href)="[^"]+\.js[^"]*"' p.html | head -30
+          for s in $(grep -oE 'src="[^"]+\.js[^"]*"' p.html | sed 's/src="//;s/"$//' | head -15); do
+            case $s in http*) u=$s;; /*) u=https://cbas16889.pscnet.com.tw$s;; *) u=$U$s;; esac
+            echo "=== $u"; curl -sSL -A "Mozilla/5.0" -m 30 "$u" | grep -oE '["'"'"'`][^"'"'"'`]*(api|Api|API|ajax|json|expected|Release)[^"'"'"'`]*["'"'"'`]' | sort -u | head -40
+          done
