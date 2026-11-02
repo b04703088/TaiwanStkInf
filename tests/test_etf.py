@@ -167,8 +167,8 @@ class NewSourcesTest(unittest.TestCase):
         tbl = '<tr name="content"><td>2330</td><td>&#x53F0;&#x7A4D;&#x96FB;</td><td>991,000</td><td>7.98</td></tr>'
         C.http = fake_http([("RedemptionList", lst), ("J010", f"持股比重 (2026/09/25) {tbl}{tbl}")])
         d, rows, _ = A.kgi("00915", "凱基優選高股息30")
-        # 凱基標公告日 9/25 → 換算回持股基準日 9/24（前一個有行情的交易日）
-        self.assertEqual((d, len(rows), rows[0]["name"]), ("2026-09-24", 1, "台積電"))
+        # 「持股比重 (日期)」就是持股基準日
+        self.assertEqual((d, len(rows), rows[0]["name"]), ("2026-09-25", 1, "台積電"))
 
     def test_xlsx_rows(self):
         import io, zipfile
