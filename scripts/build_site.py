@@ -7,6 +7,7 @@
   data/etf/latest.json               各 ETF 最新持股與前一份的差異（見 scripts/etf_site.py）
   data/etf/aum.json                  全體 ETF 規模排行（fetch_etf_aum.py 的最新一天）
   data/etf/tip.json                  臺灣指數公司定期審核行事曆（見 fetch_tip_schedule.py）
+  data/etf/shift.json                主動式 ETF 主動調倉偵測（扣除申贖後的雙向換手，見 scripts/etf_site.py build_shift）
   data/etf/active.json               主動式＋現金申贖被動式 ETF 每次持股變化（台股，含扣除申贖的增減、成交量與當沖量）
   data/calendar.json                 指數調整行事曆：審核日、預估審核、ETF 換股期間（見 scripts/calendar_site.py）
   data/health.json                   資料健檢結果（見 scripts/health.py）
@@ -26,7 +27,7 @@
   data/chips/chips.json, s/<代號>.json 三大法人、借券賣出、當沖、集保大戶（見 scripts/chips_site.py）
   data/futures.json                  期貨選擇權籌碼：法人未平倉、P/C ratio、大額交易人（見 scripts/futures_site.py）
   data/settle.json                   結算日套利：股期十大特法 ÷ 近 5 日量、價差、自營商週期累積（見 scripts/settle_site.py）
-  data/digest/index.json, <日期>.md  盤後摘要：數字摘要與每晚判讀（見 scripts/digest_site.py）
+  data/digest/index.json, points/<日期>.md, notes/  盤後摘要：重點、新聞與現象（見 scripts/digest_site.py）
   data/newhigh.json                  創新高：近 60 日創 52 週／2022 年以來新高的個股與族群（見 scripts/newhigh_site.py）
   data/us.json                       美股連動：大廠台灣供應鏈、美股大漲大跌後台股隔日反應、連動排名（見 scripts/us_site.py）
   data/commod.json                   原物料：能源、金屬、農產品、化工、運價、記憶體報價走勢與對應台股族群（見 scripts/commod_site.py）
@@ -105,6 +106,7 @@ import limitup_site  # noqa: E402
 import us_site  # noqa: E402
 import commod_site  # noqa: E402
 import cost_site  # noqa: E402
+import asof_site  # noqa: E402
 
 TPE = timezone(timedelta(hours=8))
 BRAND_SUB = '<span class="brand-sub">籌碼觀測站</span>'
@@ -151,8 +153,10 @@ def build(out: Path, days: int) -> list[str]:
     if (ROOT / "data" / "etf" / "etf_list.csv").exists():
         etf_site.write_latest(ROOT / "data", out / "data" / "etf" / "latest.json")
     etf_site.write_aum(ROOT / "data", out / "data" / "etf" / "aum.json")
+    asof_site.write(out / "data" / "asof.json")  # 各頁標題下的「資料日期」
     etf_site.write_tip(ROOT / "data", ROOT, out / "data" / "etf" / "tip.json")
     etf_site.write_active(ROOT / "data", out / "data" / "etf" / "active.json")
+    etf_site.write_shift(ROOT / "data", out / "data" / "etf" / "shift.json")
     broker_site.write_site(ROOT / "data", out, days=20)
     broker_site.write_watch(ROOT / "data", ROOT, out, days=60)
     broker_site.write_local(ROOT / "data", out, days=20)

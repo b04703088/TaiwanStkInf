@@ -436,3 +436,95 @@ def write_active(data_dir, out_path, root=None):
     Path(out_path).parent.mkdir(parents=True, exist_ok=True)
     Path(out_path).write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     return payload
+
+
+# ---------------- 主動式 ETF 主動調倉偵測 ----------------
+# 申購贖回只會讓每檔持股「同比例」放大縮小；經理人主動調倉則是有的加、有的減，還有新增／剔除。
+# 判定：先用受益單位數變化（沒有就用續抱股股數比例的中位數）當作申贖造成的比例 r，
+#   每檔續抱股偏離 x = 本次股數 ÷ (前次股數 × r) − 1，
+#   加碼側 = Σ 前次權重 × x（x > 0）＋ 新增股權重；減碼側 = Σ 前次權重 × |x|（x < 0）＋ 剔除股權重；
+#   雙向換手 = min(加碼側, 減碼側)（% 基金規模）。
+# 只有一邊動（申購的錢還沒買完、贖回只賣一部分）不會讓兩邊都大，所以不會誤判。
+# 回測（2025/05～2026/11 全部主動式 ETF、約 5,600 次持股公布）：≥ 10% 約 45 次，幾乎都是
+# 00984A 每月初、00993A 雙週的換股，以及 00404A／00980A 的大換股；5～10% 是較小的調整。
+SHIFT_BIG, SHIFT_MID, SHIFT_MOVE = 10.0, 5.0, 0.02
+
+
+def _median(xs):
+    xs = sorted(xs)
+    n = len(xs)
+    return (xs[n // 2] if n % 2 else (xs[n // 2 - 1] + xs[n // 2]) / 2) if n else None
+
+
+def shift_score(h0, h1, units_ratio=None, tw_only=True):
+    """兩份持股（read_holdings 的 dict）→ 調倉指標 dict；可比較的續抱股不足 5 檔（如未公布股數）回傳 None。"""
+    tw = re.compile(r"^\d{4,6}[A-Z]?$")
+    keep = lambda c: not tw_only or tw.match(c)
+    both = [c for c in h0 if c in h1 and keep(c) and h0[c]["sh"] and h1[c]["sh"]]
+    if len(both) < 5:
+        return None
+    r, src = (units_ratio, "units") if units_ratio else (_median([h1[c]["sh"] / h0[c]["sh"] for c in both]), "median")
+    buy = sell = 0.0
+    moves = []
+    for c in both:
+        x = h1[c]["sh"] / (h0[c]["sh"] * r) - 1
+        w = h0[c]["w"] or 0
+        if x > 0:
+            buy += w * x
+        else:
+            sell += -w * x
+        if abs(x) > SHIFT_MOVE:
+            moves.append((c, h1[c]["name"], round(x * 100, 1), h0[c]["w"], h1[c]["w"]))
+    adds = [(c, h1[c]["name"], h1[c]["w"]) for c in h1 if c not in h0 and keep(c) and (h1[c]["w"] or h1[c]["sh"])]
+    drops = [(c, h0[c]["name"], h0[c]["w"]) for c in h0 if c not in h1 and keep(c)]
+    buy += sum(w or 0 for _, _, w in adds)
+    sell += sum(w or 0 for _, _, w in drops)
+    score = min(buy, sell)
+    return {"score": round(score, 1), "buy": round(buy, 1), "sell": round(sell, 1), "ratio": round(r, 4), "src": src,
+            "cont": len(both), "up": sum(1 for m in moves if m[2] > 0), "dn": sum(1 for m in moves if m[2] < 0),
+            "adds": sorted(adds, key=lambda a: -(a[2] or 0)), "drops": sorted(drops, key=lambda a: -(a[2] or 0)),
+            "moves": sorted(moves, key=lambda m: -abs(m[2] * (m[3] or 0)))}
+
+
+def build_shift(data_dir, min_score=SHIFT_MID, max_moves=16):
+    """每檔主動式 ETF 全部歷史持股逐次比較：雙向換手 ≥ min_score 的列為事件，另附每檔最新一次的分數。"""
+    data_dir = Path(data_dir)
+    etf_dir = data_dir / "etf"
+    with (etf_dir / "etf_list.csv").open(encoding="utf-8") as fp:
+        actives = [r for r in csv.DictReader(fp) if r["kind"] == "active"]
+    units = _units_book(data_dir)
+    events, etfs = [], []
+    for info in actives:
+        code = info["etf"]
+        files = sorted((etf_dir / code).glob("[0-9]*.csv"))
+        if len(files) < 2:
+            continue
+        n_big, last, n_cmp = 0, None, 0
+        prev = (date_of(files[0]), read_holdings(files[0]))
+        for f in files[1:]:
+            cur = (date_of(f), read_holdings(f))
+            u0, u1 = units.get((code, prev[0])), units.get((code, cur[0]))
+            s = shift_score(prev[1], cur[1], (u1 / u0) if u0 and u1 else None)
+            if s is not None:
+                n_cmp += 1
+                last = (prev[0], cur[0], s)
+                if s["score"] >= min_score:
+                    s["moves"] = s["moves"][:max_moves]  # 只留影響最大（權重 × 偏離）的幾檔，控制檔案大小
+                    events.append(dict(etf=code, date=cur[0], prev=prev[0], **s))
+                    n_big += s["score"] >= SHIFT_BIG
+            prev = cur
+        if n_cmp:
+            ev_big = [e["date"] for e in events if e["etf"] == code and e["score"] >= SHIFT_BIG]
+            etfs.append({"code": code, "name": info["name"], "issuer": info["issuer_name"], "since": date_of(files[0]),
+                         "n": n_cmp, "big": n_big, "last_big": ev_big[-1] if ev_big else None,
+                         "date": last[1], "prev": last[0], "score": last[2]["score"]})
+    events.sort(key=lambda e: (e["date"], e["score"]), reverse=True)
+    return {"big": SHIFT_BIG, "mid": SHIFT_MID, "move": SHIFT_MOVE * 100,
+            "latest": max((e["date"] for e in etfs), default=None), "etfs": etfs, "events": events}
+
+
+def write_shift(data_dir, out_path):
+    payload = build_shift(data_dir)
+    Path(out_path).parent.mkdir(parents=True, exist_ok=True)
+    Path(out_path).write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    return payload

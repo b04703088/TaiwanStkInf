@@ -289,6 +289,11 @@
   table.bw-t td.empty{color:var(--text-faint); padding:14px 0;}
   .bw-foot{font-size:12px; color:var(--text-faint); margin:8px 0 0;}
   @media (max-width: 860px){ .bw-grid{grid-template-columns:1fr; gap:18px;} table.bw-t td.who{font-size:11.5px;} table.bw-t td a{white-space:nowrap;} table.bw-t td a b{display:block; margin-left:0; font-size:11px;} }
+  .sh-row{display:grid; grid-template-columns:minmax(0,1.1fr) auto minmax(0,2fr); gap:6px 18px; padding:9px 0; border-bottom:1px solid var(--line); font-size:13.5px; align-items:baseline; text-decoration:none; color:inherit;}
+  .sh-row b{font-family:'IBM Plex Mono',monospace; font-weight:400; font-size:12px; color:var(--text-faint); margin-left:5px;}
+  .sh-row .sc{font-family:'IBM Plex Mono',monospace; color:var(--brass); white-space:nowrap;}
+  .sh-row .ad{font-size:12.5px; color:var(--text-muted);} .sh-row .ad .a{color:var(--rise);} .sh-row .ad .d{color:var(--fall);}
+  @media (max-width: 860px){ .sh-row{grid-template-columns:1fr auto;} .sh-row .ad{grid-column:1/-1;} }
   /* CB 詢圈 */
   .cb-grid{display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); gap:40px; margin-top:4px;}
   .cb-grid h3{font-size:14px; font-weight:500; color:var(--text-muted); margin:14px 0 4px; display:flex; align-items:baseline; gap:8px;}
@@ -399,7 +404,7 @@
       <div class="title-row">
         <h1>今日重點</h1>
         <div class="asof" id="asof" hidden>
-          <div><span>資料日期</span><b id="asofDay"></b><small id="asofNote"></small></div>
+          <div style="display:none"><span>資料日期</span><b id="asofDay"></b><small id="asofNote"></small></div><!-- 改由 nav.js 的各項資料日期顯示 -->
           <div><span>網站更新</span><b id="asofBuilt"></b><small>台北時間</small></div>
         </div>
       </div>
@@ -419,6 +424,11 @@
             <thead><tr><th>個股</th><th class="num">淨賣超</th><th class="who">主要分點</th></tr></thead><tbody id="bwSell"></tbody></table>
         </div>
         <p class="bw-foot" id="bwFoot"></p>
+      </div>
+
+      <div class="bw" id="shiftHome" hidden>
+        <p class="bw-head"><b>主動式 ETF 大幅調倉</b><span id="shiftSub"></span><a href="etf.html#shift" style="margin-left:auto;font-size:12.5px;color:var(--text-muted)">看明細 →</a></p>
+        <div id="shiftList"></div>
       </div>
 
       <details class="block fold" id="foldWeek">
@@ -539,6 +549,31 @@
     $("bwSub").textContent = `${md(date)}（${wk(date)}）・${W.branches.length} 個追蹤分點加總淨額 ≥ 5000 萬・不含 ETF`;
     $("bwFoot").textContent = date === today ? "" : "今天的分點資料收盤後才公布，這是最新一個交易日。";
     $("bw").hidden = false;
+  } catch (e) {
+    console.error(e);
+  }
+})();
+</script>
+<script>
+// 主動式 ETF 大幅調倉（扣除申購贖回後的雙向換手 ≥ 門檻；data/etf/shift.json，etf_site.build_shift）
+(async function () {
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const md = d => `${+d.slice(5, 7)}/${+d.slice(8, 10)}`;
+  try {
+    const d = await (await fetch("data/etf/shift.json", { cache: "no-cache" })).json();
+    if (!d.latest) return;
+    const from = new Date(Date.parse(d.latest + "T00:00:00Z") - 4 * 864e5).toISOString().slice(0, 10);
+    const names = Object.fromEntries(d.etfs.map(e => [e.code, e.name]));
+    const xs = d.events.filter(x => x.score >= d.big && x.date >= from);
+    if (!xs.length) return;
+    const nm = a => a.slice(0, 6).map(x => esc(x[1])).join("、") + (a.length > 6 ? ` 等 ${a.length} 檔` : "");
+    $("shiftSub").textContent = `扣除申購贖回後，同時大量加碼與減碼（雙向換手 ≥ ${d.big}%）・近 5 天`;
+    $("shiftList").innerHTML = xs.map(x => `<a class="sh-row" href="etf.html#shift">
+      <span>${esc(names[x.etf] || x.etf)}<b>${esc(x.etf)}</b></span>
+      <span class="sc">${md(x.date)}・${x.score.toFixed(1)}%</span>
+      <span class="ad">${x.adds.length ? `<span class="a">新增 ${x.adds.length}</span> ${nm(x.adds)}　` : ""}${x.drops.length ? `<span class="d">剔除 ${x.drops.length}</span> ${nm(x.drops)}` : ""}${!x.adds.length && !x.drops.length ? `續抱 ${x.cont} 檔中加碼 ${x.up}、減碼 ${x.dn}` : ""}</span></a>`).join("");
+    $("shiftHome").hidden = false;
   } catch (e) {
     console.error(e);
   }

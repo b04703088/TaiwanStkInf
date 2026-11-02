@@ -110,7 +110,7 @@ ETF持股的子頁「指數行事曆」`calendar.html`（`scripts/calendar_site.
 - `site/`：網頁原始檔（首頁 `index.html`、成交金額排行 `ranking.html`、ETF持股 `etf.html`：個股持有查詢／每日持股變化／AUM 排行）
 - `scripts/etf_site.py`：整理 ETF 最新持股與前一份的原始股數差異（含申購贖回）→ `data/etf/latest.json`
 - `scripts/build_site.py`：把最近 120 個交易日的 CSV 轉成 `data/daily/<日期>.json` 給網頁讀
-- `.github/workflows/pages.yml`：固定時段統一重建部署（台北 平日 08:53、14:03、20:03、23:03，週六 12:03），抓資料的 workflow 只 commit 不觸發部署；改了 `site/` 或網頁程式 push 到 main 時也會立即重建
+- `.github/workflows/pages.yml`：股價、分點、ETF、batch 這幾支抓資料的 workflow 跑完就接著部署（main 沒有新 commit 就跳過），平日大部分資料 21:00 前上線；固定時段（台北 平日 08:53、14:03、20:03、23:03，週六 12:03）留著當備援；改了 `site/` 或網頁程式 push 到 main 時也會立即重建
   - repo variable `DEPLOY_TARGET=cloudflare` 時部署到 Cloudflare Pages（需要 secrets `CLOUDFLARE_API_TOKEN`、`CLOUDFLARE_ACCOUNT_ID`；專案名稱預設 `tide-stk-infs`，可用 variable `CF_PAGES_PROJECT` 改）；沒設時部署到 GitHub Pages
 
 ## 本機執行
@@ -353,7 +353,7 @@ python fetch_financials.py --since 2013-01 --max-minutes 50
 `fetch_chips.py` 每個交易日抓三大法人買賣超（證交所 T86、櫃買 insti/dailyTrade）、借券賣出（信用額度總量管制餘額表 TWT93U、櫃買 margin/sbl）、
 現股當沖（TWTB4U、櫃買 intraday/stat），合併成 `data/chips/<YYYY>/<YYYYMMDD>.csv`（單位：股）。當沖數字 T+2 才定案，排程 `--refresh 4` 會重抓最近 4 天。
 `fetch_tdcc.py` 每週六抓集保結算所股權分散表（開放資料 1-5，只有最新一週，靠每週累積），整理成千張大戶、400 張以上、50 張以下持股比例與股東人數，存 `data/tdcc/<YYYYMMDD>.csv`。
-併在 `.github/workflows/batch.yml`：平日晚上 21:40 時段抓法人／借券／當沖與期交所，週末早上抓集保。已回補 2025-10 起的法人／借券／當沖。
+併在 `.github/workflows/batch.yml`：平日傍晚 18:40 時段抓法人與期交所（借券／當沖 21:00 後才公布，21:20 時段補齊），週末早上抓集保。已回補 2025-10 起的法人／借券／當沖。
 
 網站「法人籌碼」頁（`site/chips.html`，資料由 `scripts/chips_site.py` 產生）：大盤每日買賣超、三大法人排行（今日／5 日／20 日／連買連賣天數）、
 借券賣出增減與回補天數、當沖率排行、集保大戶週增減，點股票看近 20 日明細。金額以張數 × 收盤估算。

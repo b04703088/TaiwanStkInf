@@ -28,7 +28,7 @@ concurrency:
 jobs:
   fetch:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 200
     steps:
       - uses: actions/checkout@v4
 
@@ -39,9 +39,16 @@ jobs:
       - name: Fetch
         env:
           IN_DATE: ${{ inputs.date }}
+          EVENT: ${{ github.event_name }}
         run: |
           args=()
           [ -n "$IN_DATE" ] && args+=(--date "$IN_DATE")
+          # cron-job.org 18:01 那次：資料還沒公布就每 5 分鐘再查，一出來就抓（最晚等到 20:30），
+          # 抓完 Deploy site 會接著部署，不用等 19:17 那次
+          hm=$((10#$(TZ=Asia/Taipei date +%H%M)))
+          if [ "$EVENT" = workflow_dispatch ] && [ -z "$IN_DATE" ] && [ $hm -ge 1700 ] && [ $hm -lt 2030 ]; then
+            args+=(--wait-until 20:30)
+          fi
           python fetch_broker.py --max-minutes 100 "${args[@]}"
 
       - name: Fetch watched branches

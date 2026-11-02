@@ -18,12 +18,14 @@
 門檻是為了省 GitHub Actions 分鐘數（私人 repo 免費方案每月 2,000 分鐘）。
 已抓過的股票會略過，中途中斷或部分失敗時，重跑只補沒抓到的。
 資料還沒出來（收盤後要一段時間）時直接結束、不算失敗，下一次排程再抓。
+--wait-until HH:MM：還沒出來就每 5 分鐘再看一次，等到台北時間 HH:MM 為止（傍晚那次用，資料一出來就抓）。
 
 用法：
   python fetch_broker.py                 最新一個有收盤行情的交易日
   python fetch_broker.py --date 2026-09-30
   python fetch_broker.py --codes 2330 2454   只抓這幾檔（測試用）
   python fetch_broker.py --min-value 0       有成交的全部都抓
+  python fetch_broker.py --wait-until 20:30  還沒公布就等，最晚等到 20:30
 """
 import argparse
 import csv
@@ -31,6 +33,7 @@ import html
 import re
 import sys
 import time
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import etf_common as C
@@ -167,6 +170,8 @@ def main(argv=None):
     ap.add_argument("--max-minutes", type=float, default=100, help="最多跑幾分鐘，時間到先存檔（預設 100）")
     ap.add_argument("--min-value", type=float, default=MIN_VALUE,
                     help="只抓成交金額 ≥ 這個數字（元）的股票；0 = 全部（預設 3000 萬）")
+    ap.add_argument("--wait-until", metavar="HH:MM",
+                    help="資料還沒公布就每 5 分鐘再查一次，最晚等到台北時間 HH:MM")
     a = ap.parse_args(argv)
 
     date = a.date or latest_trading_day()
@@ -184,6 +189,15 @@ def main(argv=None):
 
     # 先確認當天資料已經出來
     probe_rows, _ = parse(fetch_page(PROBE, date), date, PROBE)
+    if not probe_rows and a.wait_until:
+        tpe = timezone(timedelta(hours=8))
+        now = datetime.now(tpe)
+        hh, mm = map(int, a.wait_until.split(":"))
+        deadline = now.replace(hour=hh, minute=mm, second=0, microsecond=0)
+        while not probe_rows and datetime.now(tpe) + timedelta(minutes=5) <= deadline:
+            print(f"{date}: 分點資料尚未公布，{datetime.now(tpe):%H:%M} 起等 5 分鐘再查（最晚 {a.wait_until}）", flush=True)
+            time.sleep(300)
+            probe_rows, _ = parse(fetch_page(PROBE, date), date, PROBE)
     if not probe_rows:
         print(f"{date}: 分點資料尚未公布（{PROBE} 查無資料），稍後再抓")
         return 0

@@ -219,6 +219,23 @@
   .rb-evs{padding:6px 16px 14px; background:var(--panel); white-space:normal;}
   .rb-ev{display:grid; grid-template-columns:200px 70px 210px 1fr; gap:12px; padding:9px 0; border-bottom:1px solid var(--line); font-size:13px; text-align:left;}
   .rb-ev:last-child{border-bottom:none;}
+  .sh-tag{display:inline-block; font-size:11.5px; padding:1px 8px; border-radius:10px; line-height:1.6; white-space:nowrap; margin-left:6px; vertical-align:1px;}
+  .sh-tag.big{background:rgba(201,162,92,.22); color:var(--brass); font-weight:600;}
+  .sh-tag.mid{background:var(--panel-2); color:var(--text-muted);}
+  .sh-det{padding:10px 16px 16px; background:var(--panel); white-space:normal; text-align:left;}
+  .sh-grid{display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:18px 28px;}
+  .sh-grid h4{margin:0 0 6px; font-size:12.5px; font-weight:600;}
+  .sh-grid ul{list-style:none; margin:0; padding:0; font-size:13px; line-height:1.85;}
+  .sh-grid li{display:flex; justify-content:space-between; gap:10px; border-bottom:1px dashed var(--line);}
+  .sh-grid li a{color:inherit; text-decoration:none;}
+  .sh-grid li a:hover{text-decoration:underline;}
+  .sh-grid li .c{color:var(--text-faint); font-size:11px; margin-left:4px;}
+  .sh-grid li .v{color:var(--text-muted); font-size:12px; white-space:nowrap;}
+  .sh-in, .sh-in *{white-space:normal; text-align:left;}
+  .sh-in li .v{white-space:nowrap; text-align:right;}
+  .sh-det .meta{font-size:12px; color:var(--text-faint); margin:0 0 10px;}
+  .sh-bar{display:inline-block; height:6px; border-radius:3px; background:var(--brass); vertical-align:middle; margin-right:6px; opacity:.75;}
+  @media (max-width:760px){ .sh-grid{grid-template-columns:1fr;} .sh-in{position:sticky; left:0; width:calc(100vw - 64px);} }
   .rb-ev .who{line-height:1.7;}
   @media (max-width:860px){ .tabs{gap:20px;} .rb-ev{grid-template-columns:1fr 1fr; gap:4px 10px;} .rb-ev .who{grid-column:1 / -1;} }
   .tabs a{
@@ -383,6 +400,7 @@
         <a href="#holders" id="tab-holders" role="tab" aria-selected="true" aria-controls="panel-holders">個股持有查詢</a>
         <a href="#changes" id="tab-changes" role="tab" aria-selected="false" aria-controls="panel-changes">每日持股變化</a>
         <a href="#active" id="tab-active" role="tab" aria-selected="false" aria-controls="panel-active">ETF 買賣超</a>
+        <a href="#shift" id="tab-shift" role="tab" aria-selected="false" aria-controls="panel-shift">主動調倉</a>
         <a href="#aum" id="tab-aum" role="tab" aria-selected="false" aria-controls="panel-aum">AUM 排行</a>
         <a href="calendar.html" role="tab" aria-selected="false">指數行事曆</a>
         <a href="#calendar" id="tab-calendar" role="tab" aria-selected="false" aria-controls="panel-calendar">審核公告清單</a>
@@ -525,6 +543,58 @@
       </div>
       <div class="more" id="actMoreWrap" hidden><button class="btn-ghost" id="actMore" type="button">顯示更多</button></div>
       <p class="panel-note" id="actFoot" style="margin-top:16px"></p>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-shift" role="tabpanel" aria-labelledby="tab-shift" hidden>
+    <div class="wrap">
+      <p class="panel-note">標出主動式 ETF 經理人「自己動手」的大幅調倉，排除申購贖回。申購贖回只會讓每檔持股同比例放大縮小；
+        先用受益單位數的變化（沒有就用續抱股股數變化的中位數）把前一次持股等比例換算，每檔剩下的偏離才算經理人的加減碼。
+        <b>加碼側</b>＝加碼股的「前次權重 × 偏離幅度」加總＋新增股的權重；<b>減碼側</b>＝減碼股同樣加總＋剔除股的權重；
+        <b>雙向換手</b>＝兩側取小的那邊（佔基金規模 %）。只有一邊動（申購的錢還沒買完、只賣不買）不會被標出。
+        <span id="shTh"></span>只公布權重、沒有股數的 ETF 無法計算。點一列看新增、剔除與主要加減碼。</p>
+      <div class="stats" id="shStats"></div>
+      <div class="toolbar">
+        <div class="seg" id="shLvl" role="group" aria-label="門檻">
+          <button type="button" data-v="big" aria-pressed="true">大幅</button>
+          <button type="button" data-v="mid" aria-pressed="false">含中幅</button>
+        </div>
+        <div class="seg" id="shWhen" role="group" aria-label="期間">
+          <button type="button" data-v="60" aria-pressed="true">近 3 個月</button>
+          <button type="button" data-v="all" aria-pressed="false">全部歷史</button>
+        </div>
+        <input class="search" id="shSearch" type="search" autocomplete="off" placeholder="搜尋 ETF 代號或名稱" aria-label="搜尋 ETF">
+      </div>
+      <div class="table-wrap">
+        <table class="rank" id="shTable">
+          <thead><tr>
+            <th class="l" data-sort="date"><button type="button">公布日</button></th>
+            <th class="l" data-sort="etf" data-dir="asc"><button type="button">ETF</button></th>
+            <th data-sort="score" title="加碼側與減碼側取小的那邊，佔基金規模 %"><button type="button">雙向換手</button></th>
+            <th class="col-hide" data-sort="buy"><button type="button">加碼側 / 減碼側</button></th>
+            <th data-sort="moved" title="扣除申贖比例後，股數偏離超過 2% 的續抱股"><button type="button">續抱股加 / 減</button></th>
+            <th data-sort="nd"><button type="button">新增 / 剔除</button></th>
+            <th class="col-hide" data-sort="ratio" title="受益單位數變化（申購贖回）"><button type="button">申贖比例</button></th>
+          </tr></thead>
+          <tbody id="shRows"><tr><td colspan="7" class="empty">載入中…</td></tr></tbody>
+        </table>
+      </div>
+
+      <h3 style="margin:40px 0 6px; font-size:15px">各檔主動式 ETF 的調倉習慣</h3>
+      <p class="panel-note" style="margin-bottom:12px">從開始收錄持股以來，每一次公布都算一次雙向換手；「最新一次」是最近一份持股和前一份的比較。點一列只看該 ETF 的事件。</p>
+      <div class="table-wrap">
+        <table class="rank" id="shEtfTable">
+          <thead><tr>
+            <th class="l" data-sort="etf" data-dir="asc"><button type="button">ETF</button></th>
+            <th data-sort="score"><button type="button">最新一次</button></th>
+            <th data-sort="big"><button type="button">大幅次數</button></th>
+            <th class="col-hide" data-sort="n"><button type="button">比較次數</button></th>
+            <th class="l" data-sort="last" title="最近一次大幅調倉"><button type="button">上次大幅</button></th>
+            <th class="l col-hide" data-sort="since"><button type="button">收錄起</button></th>
+          </tr></thead>
+          <tbody id="shEtfRows"></tbody>
+        </table>
+      </div>
     </div>
   </section>
 
@@ -704,7 +774,7 @@ function applySort(tableId, list, getters) {
 }
 
 /* ---------- 子頁切換 ---------- */
-const TABS = ["holders", "changes", "active", "aum", "calendar", "rebal"];
+const TABS = ["holders", "changes", "active", "shift", "aum", "calendar", "rebal"];
 function showTab(name) {
   for (const t of TABS) {
     $("tab-" + t).setAttribute("aria-selected", t === name);
@@ -847,6 +917,8 @@ function renderChange(query = state.query) {
     const weightOnly = (state.byEtf.get(query.code) || []).some(x => held(x) && x.sh == null);
     $("changeMeta").textContent = (e.prev ? `${fmtDate(e.prev)} → ${fmtDate(e.date)} · ${e.issuer}${e.kind === "active" ? " · 主動式" : ""}` : `${fmtDate(e.date)} · 尚無前一份可比較`)
       + (weightOnly ? " · 投信只公布權重，僅列新增／剔除" : "");
+    const se = typeof sh !== "undefined" && sh.data && e.kind === "active" ? sh.data.etfs.find(x => x.code === e.code && x.date === e.date) : null;
+    if (se && se.score >= sh.data.mid) $("changeMode").innerHTML = `ETF<a href="#shift" class="sh-tag ${se.score >= sh.data.big ? "big" : "mid"}" style="text-decoration:none" title="扣除申購贖回後的雙向換手 ${se.score}%">${se.score >= sh.data.big ? "大幅" : "中幅"}調倉 ${fmtN(se.score, 1)}%</a>`;
     const amt = xs.reduce((s, x) => s + (amount(x) || 0), 0);
     $("changeStats").innerHTML = `
       <div class="stat"><span>增加 / 新增</span><b class="mono up">${xs.filter(up).length}</b><small>檔（新增 ${xs.filter(x => x.cls === "new").length}）</small></div>
@@ -1297,6 +1369,92 @@ $("rbSearch").addEventListener("input", e => { rb.q = e.target.value; renderReba
 sortable("rbTable", { key: "days", dir: -1 }, renderRebal);
 fetch("data/etf/rebalance.json", { cache: "no-cache" }).then(r => r.json()).then(d => { rb.data = d; renderRebal(); })
   .catch(e => { console.error(e); $("rbRows").innerHTML = `<tr><td colspan="6" class="empty">讀取調整時長失敗</td></tr>`; });
+
+/* ---------- 主動調倉 ---------- */
+var sh = { data: null, lvl: "big", when: "60", q: "", open: null, etf: null };
+const shMd = d => d ? `${+d.slice(5, 7)}/${+d.slice(8, 10)}` : "—";
+const shTag = (D, v) => v >= D.big ? '<span class="sh-tag big">大幅</span>' : v >= D.mid ? '<span class="sh-tag mid">中幅</span>' : "";
+const SH_GET = {
+  date: x => x.date + String(x.score).padStart(6, "0"), etf: x => x.etf, score: x => x.score, buy: x => x.buy,
+  moved: x => x.up + x.dn, nd: x => x.adds.length + x.drops.length, ratio: x => x.ratio,
+};
+const SH_ETF_GET = { etf: x => x.code, score: x => x.score, big: x => x.big, n: x => x.n, last: x => x.last_big, since: x => x.since };
+function shDetail(D, x) {
+  const stk = (c, n) => `<a href="stock.html#s=${encodeURIComponent(c)}">${esc(n)}<span class="c mono">${esc(c)}</span></a>`;
+  const w = v => v == null ? "" : fmtN(v, 2) + "%";
+  const list = (xs, f) => xs.length ? `<ul>${xs.map(f).join("")}</ul>` : '<p class="meta">無</p>';
+  const ups = x.moves.filter(m => m[2] > 0), dns = x.moves.filter(m => m[2] < 0);
+  const mv = m => `<li>${stk(m[0], m[1])}<span class="v mono"><span class="${cls(m[2])}">${m[2] > 0 ? "+" : ""}${fmtN(m[2], 0)}%</span> · ${w(m[3])}→${w(m[4])}</span></li>`;
+  return `<p class="meta">${shMd(x.prev)} → ${shMd(x.date)}・申贖比例 ${x.src === "units" ? "依受益單位數" : "依續抱股中位數"} ${fmtN((x.ratio - 1) * 100, 2)}%・
+    續抱 ${x.cont} 檔中加碼 ${x.up}、減碼 ${x.dn} 檔（偏離 > ${D.move}%）。加減碼百分比是扣掉申贖後的股數變化，後面是權重變化。</p>
+    <div class="sh-grid">
+      <div><h4 class="up">新增 ${x.adds.length} 檔</h4>${list(x.adds, a => `<li>${stk(a[0], a[1])}<span class="v mono">${w(a[2])}</span></li>`)}</div>
+      <div><h4 class="down">剔除 ${x.drops.length} 檔</h4>${list(x.drops, a => `<li>${stk(a[0], a[1])}<span class="v mono">原 ${w(a[2])}</span></li>`)}</div>
+      <div><h4>主要加減碼（影響最大的 ${x.moves.length} 檔）</h4>${list([...ups, ...dns], mv)}</div>
+    </div>`;
+}
+function renderShift() {
+  const D = sh.data; if (!D) return;
+  const q = sh.q.trim().toLowerCase();
+  const names = Object.fromEntries(D.etfs.map(e => [e.code, e.name]));
+  const cut = sh.when === "all" ? "" : new Date(Date.parse((D.latest || "2000-01-01") + "T00:00:00Z") - 92 * 864e5).toISOString().slice(0, 10);
+  let list = D.events.filter(x => x.score >= (sh.lvl === "big" ? D.big : D.mid) && x.date >= cut
+    && (!sh.etf || x.etf === sh.etf)
+    && (!q || x.etf.toLowerCase().includes(q) || (names[x.etf] || "").toLowerCase().includes(q)));
+  const today = D.events.filter(x => x.date === D.latest);
+  const todayBig = today.filter(x => x.score >= D.big);
+  const recent = D.events.filter(x => x.score >= D.big && x.date >= cut);
+  $("shTh").textContent = `門檻：雙向換手 ≥ ${D.big}% 為「大幅」、${D.mid}～${D.big}% 為「中幅」（回測全部主動式 ETF 歷史持股，≥ ${D.big}% 的幾乎都是同時有新增、剔除並大量加減碼的換股）。`;
+  const nm = x => `${esc(x.etf)} ${esc(names[x.etf] || "")}`;
+  $("shStats").innerHTML = `
+    <div class="stat"><span>最新公布日 ${shMd(D.latest)} 大幅調倉</span><b class="mono">${todayBig.length}</b><small>${todayBig.length ? todayBig.map(nm).join("、") : "檔"}</small></div>
+    <div class="stat"><span>同日中幅</span><b class="mono">${today.length - todayBig.length}</b><small>${today.filter(x => x.score < D.big).map(x => esc(x.etf)).join("、") || "檔"}</small></div>
+    <div class="stat"><span>近 3 個月大幅調倉</span><b class="mono">${recent.length}</b><small>次・${new Set(recent.map(x => x.etf)).size} 檔 ETF</small></div>
+    <div class="stat"><span>追蹤的主動式 ETF</span><b class="mono">${D.etfs.length}</b><small>檔</small></div>`;
+  list = applySort("shTable", list, SH_GET);
+  $("shRows").innerHTML = list.length ? list.map(x => {
+    const key = x.etf + x.date, open = sh.open === key;
+    return `<tr class="clickable" data-sh="${esc(key)}">
+      <td class="l mono">${x.date.slice(0, 4) === (D.latest || "").slice(0, 4) ? shMd(x.date) : x.date.replaceAll("-", "/")}</td>
+      <td class="l"><span class="stock-name">${esc(names[x.etf] || x.etf)}</span><span class="stock-code mono">${esc(x.etf)}</span></td>
+      <td class="mono"><span class="sh-bar" style="width:${Math.min(60, x.score * 1.6)}px"></span>${fmtN(x.score, 1)}%${shTag(D, x.score)}</td>
+      <td class="mono col-hide"><span class="up">${fmtN(x.buy, 1)}</span> / <span class="down">${fmtN(x.sell, 1)}</span></td>
+      <td class="mono"><span class="up">${x.up}</span> / <span class="down">${x.dn}</span><small class="flat"> / ${x.cont}</small></td>
+      <td class="mono"><span class="up">${x.adds.length}</span> / <span class="down">${x.drops.length}</span></td>
+      <td class="mono col-hide ${cls(x.ratio - 1)}">${(x.ratio > 1 ? "+" : "") + fmtN((x.ratio - 1) * 100, 1)}%</td>
+    </tr>${open ? `<tr><td colspan="7" class="sh-det"><div class="sh-in">${shDetail(D, x)}</div></td></tr>` : ""}`;
+  }).join("") : `<tr><td colspan="7" class="empty">這段期間沒有${sh.lvl === "big" ? "大幅" : "中幅以上的"}調倉${sh.etf ? `（${esc(sh.etf)}，點下方同一列取消篩選）` : ""}</td></tr>`;
+  document.querySelectorAll("#shRows tr[data-sh]").forEach(tr => tr.onclick = e => {
+    if (e.target.closest("a")) return;
+    sh.open = sh.open === tr.dataset.sh ? null : tr.dataset.sh; renderShift();
+  });
+  const es = applySort("shEtfTable", [...D.etfs], SH_ETF_GET);
+  $("shEtfRows").innerHTML = es.map(e => `<tr class="clickable${sh.etf === e.code ? " sel" : ""}" data-she="${esc(e.code)}"${sh.etf === e.code ? ' style="background:var(--active)"' : ""}>
+      <td class="l"><span class="stock-name">${esc(e.name)}</span><span class="stock-code mono">${esc(e.code)}</span></td>
+      <td class="mono">${fmtN(e.score, 1)}%${shTag(D, e.score)}<small class="flat"> ${shMd(e.date)}</small></td>
+      <td class="mono">${e.big || '<span class="flat">0</span>'}</td>
+      <td class="mono col-hide flat">${e.n}</td>
+      <td class="l mono">${e.last_big ? e.last_big.replaceAll("-", "/") : '<span class="flat">—</span>'}</td>
+      <td class="l mono col-hide flat">${e.since.replaceAll("-", "/")}</td></tr>`).join("");
+  document.querySelectorAll("#shEtfRows tr[data-she]").forEach(tr => tr.onclick = () => {
+    sh.etf = sh.etf === tr.dataset.she ? null : tr.dataset.she;
+    if (sh.etf) { sh.when = "all"; $("shWhen").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === "all")); }
+    renderShift();
+    if (sh.etf) $("shTable").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+}
+for (const [id, key] of [["shLvl", "lvl"], ["shWhen", "when"]]) {
+  $(id).addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    $(id).querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+    sh[key] = b.dataset.v; renderShift();
+  });
+}
+$("shSearch").addEventListener("input", e => { sh.q = e.target.value; renderShift(); });
+sortable("shTable", { key: "date", dir: -1 }, renderShift);
+sortable("shEtfTable", { key: "big", dir: -1 }, renderShift);
+fetch("data/etf/shift.json", { cache: "no-cache" }).then(r => r.json()).then(d => { sh.data = d; renderShift(); if (state.query?.type === "etf") renderChange(); })
+  .catch(e => { console.error(e); $("shRows").innerHTML = `<tr><td colspan="7" class="empty">讀取主動調倉資料失敗</td></tr>`; });
 
 loadTip().then(renderTip).catch(e => {
   console.error(e);
