@@ -37,6 +37,7 @@ jobs:
           python-version: "3.12"
 
       - name: Backfill
+        timeout-minutes: 270  # 留時間給下一步把已補到的 commit
         env:
           IN_ETFS: ${{ inputs.etfs }}
           PROBE: ${{ inputs.probe == true || contains(github.event.head_commit.message, '[probe]') }}
