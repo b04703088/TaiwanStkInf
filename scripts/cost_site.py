@@ -14,7 +14,9 @@
     起始部位佔比越高，估計越不可靠。
   · 維持率 ＝ 收盤 ÷ (平均成本 × 成數)；追繳價 ＝ 平均成本 × 成數 × 130%。
     融資成數：上市、上櫃都用 60%（大盤校驗兩市場的官方融資金額都約是估計值的 88%，比例一致）；不限用途：假設 60%（券商自訂，實際常低於此，維持率會更高）。
-  · 除權息、減資、股票分割會讓估計失真；調降成數、停止融資的個股也未處理。
+  · 配股（除權）、分割、面額變更、減資：股數 ×m、平均成本 ÷m（總成本不變，m 由 data/adjust/events.csv 推算），
+    不然配股後股數暴增會被當成用市價買進、成本嚴重高估；融資／借貸的公布張數不含配股（配股進擔保品），
+    只把每股成本 ÷m。現金股利不調整成本。調降成數、停止融資的個股未處理。
 """
 import csv
 import json
@@ -87,6 +89,25 @@ class Prices:
         return [d for d in self.days if a < d <= b]
 
 
+def share_events(data_dir):
+    """{日期: {代號: 股數倍數 m}}：除權、除權息（扣掉現金部分）、分割、反分割、面額變更、減資。"""
+    p = Path(data_dir) / "adjust" / "events.csv"
+    out = {}
+    if not p.exists():
+        return out
+    for r in _read(p):
+        if r["kind"] == "除息":
+            continue
+        f, prev, ref, cash = _f(r.get("factor")), _f(r.get("prev_close")), _f(r.get("ref_price")), _f(r.get("cash")) or 0
+        if not f or f <= 0:
+            continue
+        m = (prev - cash) / ref if r["kind"] == "除權息" and prev and ref else 1 / f
+        if abs(m - 1) > 0.005:
+            d = out.setdefault(r["date"], {})
+            d[r["code"]] = d.get(r["code"], 1) * m
+    return out
+
+
 class Book:
     """一個部位的移動平均成本；base＝起始部位還剩多少股。"""
 
@@ -95,6 +116,13 @@ class Book:
     def __init__(self, sh, px, base=True):
         self.sh, self.avg, self.base = sh, px, (sh if base else 0.0)
         self.buy_sh, self.buy_val = (0.0, 0.0) if base else (sh, sh * px)  # 起算後累計買進（不扣賣出）
+
+    def scale(self, m):
+        """配股／分割：股數 ×m、成本 ÷m。"""
+        self.sh *= m
+        self.base *= m
+        self.buy_sh *= m
+        self.avg /= m
 
     def move(self, new_sh, px):
         """部位變成 new_sh：增加以 px 計成本，減少則按比例扣除（含起始部位）。"""
@@ -118,14 +146,31 @@ class Book:
             self.sh += buy
 
 
+def volume_ex_dt(data_dir, prices, n=5):
+    """近 n 個交易日成交股數扣掉現股當沖（data/chips 的 dt_vol；當沖資料晚兩天定案，缺的那天用全部成交量）。
+    回傳 ({代號: 股數}, 交易日清單, 有當沖資料的天數)。"""
+    days = prices.days[-n:]
+    out, ok = {}, 0
+    for d in days:
+        f = Path(data_dir) / "chips" / d[:4] / (d.replace("-", "") + ".csv")
+        dt = {r["code"]: _f(r.get("dt_vol")) or 0 for r in _read(f)} if f.exists() else {}
+        ok += bool(dt)
+        for c, x in prices.day(d).items():
+            out[c] = out.get(c, 0) + max(x[2] - min(dt.get(c, 0), x[2]), 0)
+    return out, days, ok
+
+
 # ---------------- 主動式 ETF ----------------
-def build_etf(data_dir, prices):
+def build_etf(data_dir, prices, events=None):
+    events = events or {}
     etf_dir = Path(data_dir) / "etf"
     with (etf_dir / "etf_list.csv").open(encoding="utf-8") as fp:
         actives = [r for r in csv.DictReader(fp) if r["kind"] == "active"]
     etfs, rows = [], []
     agg = {}
     latest = prices.days[-1] if prices.days else None
+    vol5, vdays, vok = volume_ex_dt(data_dir, prices)
+    mult = lambda sh, c: round(sh / vol5[c], 2) if vol5.get(c) else None  # noqa: E731  停損倍數＝持股 ÷ 近 5 日成交量（扣當沖）
     for info in actives:
         files = sorted((etf_dir / info["etf"]).glob("[0-9]*.csv"))
         if not files:
@@ -156,11 +201,20 @@ def build_etf(data_dir, prices):
                         if px:
                             books[c] = Book(sh, px, base=False)
                     continue
+                for x in span:
+                    if c in events.get(x, {}):
+                        b.scale(events[x][c])
                 b.move(sh, prices.vwap(c, span))
                 if b.sh <= 0:
                     del books[c]
             prev_d = d
         last = read_holdings(files[-1])
+        ago = {n: read_holdings(files[-1 - n]) if len(files) > n else {} for n in (5, 20)}
+
+        def chg(c, n):  # 近 n 份持股的張數增減（配股、分割會讓數字跳動）
+            if not ago[n]:
+                return None
+            return round(((last.get(c) or {}).get("sh") or 0) / 1000 - ((ago[n].get(c) or {}).get("sh") or 0) / 1000)
         e = len(etfs)
         etfs.append([info["etf"], info["name"], date_of(files[0]), prev_d, len(files)])
         for c, b in books.items():
@@ -171,9 +225,11 @@ def build_etf(data_dir, prices):
             bpx = b.buy_val / b.buy_sh if b.buy_sh else None
             rows.append([e, c, names.get(c, ""), round(b.sh / 1000), w, _r(b.avg), close,
                          _r((close / b.avg - 1) * 100, 1), round(b.base / b.sh * 100) if b.sh else None,
-                         round(b.buy_sh / 1000), _r(bpx)])
+                         round(b.buy_sh / 1000), _r(bpx), chg(c, 5), chg(c, 20), mult(b.sh, c)])
             a = agg.setdefault(c, {"name": names.get(c, ""), "sh": 0.0, "cost": 0.0, "base": 0.0, "n": 0, "close": close,
-                                   "buy_sh": 0.0, "buy_val": 0.0})
+                                   "buy_sh": 0.0, "buy_val": 0.0, "d5": 0, "d20": 0})
+            a["d5"] += chg(c, 5) or 0
+            a["d20"] += chg(c, 20) or 0
             a["sh"] += b.sh
             a["cost"] += b.sh * b.avg
             a["base"] += b.base
@@ -186,15 +242,17 @@ def build_etf(data_dir, prices):
         agg_rows.append([c, a["name"], a["n"], round(a["sh"] / 1000), _r(avg), a["close"],
                          _r((a["close"] / avg - 1) * 100, 1), round(a["base"] / a["sh"] * 100),
                          round(a["sh"] * a["close"]), round(a["buy_sh"] / 1000),
-                         _r(a["buy_val"] / a["buy_sh"]) if a["buy_sh"] else None])
+                         _r(a["buy_val"] / a["buy_sh"]) if a["buy_sh"] else None, a["d5"], a["d20"], mult(a["sh"], c)])
     agg_rows.sort(key=lambda x: -x[8])
     return {"etfs": etfs, "etf_cols": ["code", "name", "start", "date", "n"],
-            "cols": ["e", "code", "name", "lots", "w", "cost", "close", "pnl", "base", "buy", "buy_px"], "rows": rows,
-            "agg_cols": ["code", "name", "n", "lots", "cost", "close", "pnl", "base", "val", "buy", "buy_px"], "agg": agg_rows}
+            "cols": ["e", "code", "name", "lots", "w", "cost", "close", "pnl", "base", "buy", "buy_px", "d5", "d20", "mult"], "rows": rows,
+            "agg_cols": ["code", "name", "n", "lots", "cost", "close", "pnl", "base", "val", "buy", "buy_px", "d5", "d20", "mult"], "agg": agg_rows,
+            "vol_days": [vdays[0], vdays[-1]] if vdays else None, "vol_dt_days": vok}
 
 
 # ---------------- 融資、不限用途 ----------------
-def _track(files, prices, out_f, buy_f, bal_f):
+def _track(files, prices, out_f, buy_f, bal_f, events=None):
+    events = events or {}
     """逐日追蹤 {(market, code): Book}，回傳 (books, 最後一天 rows, 最後日期, 起算日)。"""
     books, rows, d, start = {}, {}, None, None
     for f in files:
@@ -217,6 +275,9 @@ def _track(files, prices, out_f, buy_f, bal_f):
                     first = d == start  # 起算日既有餘額：成本以收盤計；之後才出現的以當天 VWAP 計
                     books[k] = Book(bal, x[1] if first else px, base=first)
                 continue
+            m = events.get(d, {}).get(r["code"])
+            if m:  # 融資／擔保餘額張數不因配股改變，配股進擔保品：維持率要用每股成本 ÷m 算
+                b.avg /= m
             b.flow(sum(_f(r.get(o)) or 0 for o in out_f), _f(r.get(buy_f)) or 0, px)
             if abs(b.sh - bal) > max(1, bal * 0.001):  # 收支對不上（資料修正、合併等）：以公布餘額為準
                 b.move(bal, px)
@@ -247,11 +308,11 @@ def _cost_rows(books, rows, prices, d, ratio_of, bal_f, extra=None):
 COST_COLS = ["market", "code", "name", "close", "bal", "val", "cost", "ratio", "call", "call_dist", "base"]
 
 
-def build_margin(data_dir, prices):
+def build_margin(data_dir, prices, events=None):
     files = sorted(Path(data_dir).glob("margin/[0-9][0-9][0-9][0-9]/[0-9]*.csv"), key=lambda p: p.name)
     if not files:
         return None, None
-    books, rows, d, start = _track(files, prices, ("fin_sell", "fin_cash"), "fin_buy", "fin_bal")
+    books, rows, d, start = _track(files, prices, ("fin_sell", "fin_cash"), "fin_buy", "fin_bal", events)
     # 5 日前餘額：看最近有沒有大量新增（新增的成本最準）
     ago = _read(files[-6]) if len(files) > 5 else []
     prev = {(r["market"], r["code"]): _f(r.get("fin_bal")) for r in ago}
@@ -274,11 +335,11 @@ def build_margin(data_dir, prices):
     return {"date": d, "start": start, "cols": COST_COLS + ["b5"], "rows": rows_out}, calib
 
 
-def build_ul(data_dir, prices):
+def build_ul(data_dir, prices, events=None):
     files = sorted(Path(data_dir).glob("pledge/[0-9][0-9][0-9][0-9]/[0-9]*.csv"), key=lambda p: p.name)
     if not files:
         return None
-    books, rows, d, start = _track(files, prices, ("ul_sell", "ul_cash", "ul_swap"), "ul_new", "ul_bal")
+    books, rows, d, start = _track(files, prices, ("ul_sell", "ul_cash", "ul_swap"), "ul_new", "ul_bal", events)
 
     def extra(k, r):
         lim = _f(r.get("ul_limit"))
@@ -290,10 +351,10 @@ def build_ul(data_dir, prices):
 
 
 def build(data_dir):
-    prices = Prices(data_dir)
-    margin, calib = build_margin(data_dir, prices)
+    prices, ev = Prices(data_dir), share_events(data_dir)
+    margin, calib = build_margin(data_dir, prices, ev)
     return {"params": {"fin_ratio": FIN_RATIO, "ul_ratio": UL_RATIO, "call": CALL * 100},
-            "etf": build_etf(data_dir, prices), "margin": margin, "ul": build_ul(data_dir, prices), "calib": calib}
+            "etf": build_etf(data_dir, prices, ev), "margin": margin, "ul": build_ul(data_dir, prices, ev), "calib": calib}
 
 
 def write_cost(data_dir, out_path):
