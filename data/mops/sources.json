@@ -1,20 +1,21 @@
 {
- "generated": "2026-11-01 14:32",
+ "generated": "2026-11-02 14:41",
  "fetched_days": 2,
  "left_days": 0,
- "news": 77,
+ "news": 31,
  "cats": {
-  "other": 21,
-  "ma": 11,
-  "board": 4,
-  "hr": 10,
-  "capital": 12,
-  "shm": 3,
-  "fin": 13,
-  "call": 3
+  "other": 7,
+  "hr": 6,
+  "clarify": 2,
+  "fin": 6,
+  "call": 3,
+  "ma": 2,
+  "buyback": 1,
+  "board": 3,
+  "attn": 1
  },
  "exright": 151,
- "calls": 285,
+ "calls": 293,
  "events": 2,
  "unparsed": [],
  "errors": []
