@@ -41,6 +41,7 @@ on:
       - "scripts/screen_site.py"
       - "scripts/chips_site.py"
       - "scripts/futures_site.py"
+      - "scripts/settle_site.py"
       - "scripts/insider_site.py"
       - "scripts/stock_site.py"
       - "scripts/digest_site.py"
