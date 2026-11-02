@@ -15,7 +15,8 @@ jobs:
             const b = await chromium.launch(); const p = await b.newPage();
             p.on('response', async r => {
               const u = r.url();
-              if (/\/api\//i.test(u)) {
+              const ty = r.request().resourceType();
+              if (ty === 'xhr' || ty === 'fetch' || /api/i.test(u)) {
                 let t = ''; try { t = await r.text(); } catch (e) {}
                 console.log('XHR', r.request().method(), u, r.request().postData() || '', '\n', t.slice(0, 60000));
               }
@@ -24,6 +25,7 @@ jobs:
             await p.waitForTimeout(5000);
             const rows = await p.$$eval('tr', trs => trs.map(t => [...t.children].map(c => c.innerText.replace(/\s+/g, ' ').trim()).join(' | ')));
             console.log('ROWS', rows.length); rows.forEach(r => console.log(r));
+            console.log('URL', p.url()); console.log('BODY', (await p.innerText('body')).slice(0, 20000));
             await b.close();
           })();
           JS
