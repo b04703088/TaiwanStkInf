@@ -320,6 +320,7 @@ def etf(iso, prev_iso, names):
 
     # ETF 持股新增／剔除（這次公布的持股 vs 該 ETF 前一份）、主動式加減碼
     prices = etf_site.PriceBook(D)
+    units = etf_site._units_book(D)
     act = defaultdict(float)
     act_name = {}
     for code, info in etfs.items():
@@ -341,9 +342,15 @@ def etf(iso, prev_iso, names):
             if info["kind"] == "active" and d and px.get(c):
                 act[c] += d * px[c] / 1e8
                 act_name[c] = nm
-        if (new or gone) and len(new) + len(gone) <= 30:
-            out.append(["持股異動", f"{code} {info['name']}", "、".join(sorted(new)) or "無", "、".join(sorted(gone)) or "無",
-                        "主動式" if info["kind"] == "active" else "被動式"])
+        big = None
+        if info["kind"] == "active":   # 主動式：扣除申購贖回後的雙向換手 ≥ 門檻 → 標「主動大幅調倉」（etf_site.shift_score）
+            u0, u1 = units.get((code, etf_site.date_of(files[-2]))), units.get((code, etf_site.date_of(files[-1])))
+            sc = etf_site.shift_score(prev, cur, (u1 / u0) if u0 and u1 else None)
+            if sc and sc["score"] >= etf_site.SHIFT_BIG:
+                big = f"主動式，雙向換手 {sc['score']:.1f}%（續抱 {sc['cont']} 檔中加碼 {sc['up']}、減碼 {sc['dn']}）"
+        if big or ((new or gone) and len(new) + len(gone) <= 30):
+            out.append(["主動大幅調倉" if big else "持股異動", f"{code} {info['name']}", "、".join(sorted(new)) or "無",
+                        "、".join(sorted(gone)) or "無", big or ("主動式" if info["kind"] == "active" else "被動式")])
     res_out = ["## ETF 調整重點", ""]
     if out:
         res_out += _tbl(["類型", "ETF／指數", "新增", "剔除", "備註"], out)
