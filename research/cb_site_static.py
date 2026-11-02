@@ -3,7 +3,8 @@
 
   regulars  config/cb_regulars.csv 每個分點：訂價前出現事件數、各階段進場次數、每件金額中位數、
             掛牌（基準日）後 20 日超額報酬、活躍期間、歷史案件清單
-  stages    詢圈／競拍各流程階段的累積超額報酬（等權市場指數，起點 = 董事會決議前 21 個交易日）
+  只統計有詢圈的案件（同檔同時詢圈＋競拍算詢圈；純競拍不列入，Leo 2026-11-02）
+  stages    詢圈各流程階段的累積超額報酬（等權市場指數，起點 = 董事會決議前 21 個交易日）
 先跑 research/ew_index.py、research/cb_broker_analyze.py。
 """
 import bisect
@@ -35,6 +36,8 @@ def regulars_stats(rows, cases, px, close):
         v = [p for d, p in close.get(code, {}).items() if d1 <= d <= d2]
         return st.mean(v) if v else None
 
+    # 有詢圈的事件（同檔同一次董事會決議只要有一件是詢圈就算）
+    bbk = {(c["code"], c["board_date"] or c["bb_start"][:7]) for c in cases.values() if c["method"] == "詢價圈購"}
     out = []
     for g in A.rd(ROOT / "config" / "cb_regulars.csv"):
         name, side = g["broker"], g["side"]
@@ -45,7 +48,7 @@ def regulars_stats(rows, cases, px, close):
             nets = {s: by[i][s].get((side, name)) for s in STAGES if s in wd[i]}
             hit = [s for s in STAGES if nets.get(s) is not None and nets[s] * sign > 0]
             key = (c["code"], c["board_date"] or c["bb_start"][:7])
-            if not hit or key in seen:
+            if not hit or key in seen or key not in bbk:
                 continue
             seen.add(key)
             lots = sum(nets[s] for s in hit)
@@ -53,7 +56,7 @@ def regulars_stats(rows, cases, px, close):
             p = avgp(c["code"], d1, d2)
             x = px.get(i, {}).get("x_post20")
             items.append({"date": c["bb_start"], "code": c["code"], "name": c["short"] or c["company"][:4],
-                          "method": "詢圈" if c["method"] == "詢價圈購" else "競拍", "entry": hit[0],
+                          "entry": hit[0],
                           "lots": lots, "amt": round(abs(lots) * p / 100) / 10 if p else None,  # 百萬元
                           "post": round(float(x) * 1000) / 10 if x else None})
         posts = [it["post"] for it in items if it["post"] is not None]
@@ -71,12 +74,12 @@ def regulars_stats(rows, cases, px, close):
 
 def stage_table(cases, td, close):
     marks = [("b20", "董事會決議前 20 日"), ("board_date", "董事會決議"), ("filed_date", "送件申報"),
-             ("eff_date", "申報生效"), ("bb_start", "詢圈／競拍開始"), ("done_date", "訂價日"),
+             ("eff_date", "申報生效"), ("bb_start", "詢圈開始"), ("done_date", "訂價日"),
              ("price_base_date", "轉換價格基準日"), ("pay_date", "繳款截止"), ("list_date", "掛牌"),
              ("list20", "掛牌後 20 日"), ("list40", "掛牌後 40 日")]
     ew = close["EW"]
     res = {}
-    for m in ("詢價圈購", "競價拍賣"):
+    for m in ("詢價圈購",):
         acc = {k: ([], []) for k, _ in marks}
         for c in cases:
             if c["method"] != m or not c["board_date"] or not c["bb_start"]:
@@ -108,7 +111,7 @@ def stage_table(cases, td, close):
     out = []
     for k, lab in marks:
         row = {"stage": lab}
-        for m, tag in (("詢價圈購", "bb"), ("競價拍賣", "au")):
+        for m, tag in (("詢價圈購", "bb"),):
             v, off = res[m][k]
             if len(v) >= 10:
                 row[tag] = {"off": round(st.median(off)), "x": round(st.median(v) * 1000) / 10,
@@ -123,11 +126,14 @@ def main():
     px = {r["id"]: r for r in A.rd(ROOT / "research" / "data" / "cb_cases_px.csv")}
     codes = {c["code"] for c in cases.values()}
     td, close, _ = A.load_px(codes)
+    bb_ids = {i for i, c in cases.items() if (c["code"], c["board_date"] or c["bb_start"][:7]) in
+              {(x["code"], x["board_date"] or x["bb_start"][:7]) for x in cases.values() if x["method"] == "詢價圈購"}}
     data = {"regulars": regulars_stats(rows, cases, px, close),
-            "stages": stage_table([c for c in cases.values() if c["method"] in ("詢價圈購", "競價拍賣")], td, close),
+            "stages": stage_table([c for c in cases.values() if c["method"] == "詢價圈購"], td, close),
             "stage_labels": STAGE_LAB,
             "sample": {"from": min(c["bb_start"] for c in cases.values() if c["bb_start"]),
-                       "to": max(r["d2"] for r in rows), "events": len({(r["code"], r["id"]) for r in rows})}}
+                       "to": max(r["d2"] for r in rows), "events": len({(cases[r["id"]]["code"], cases[r["id"]]["board_date"] or cases[r["id"]]["bb_start"][:7])
+                                     for r in rows if r["id"] in bb_ids})}}
     p = ROOT / "research" / "data" / "cb_regulars.json"
     p.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     for g in data["regulars"]:
