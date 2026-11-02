@@ -146,6 +146,20 @@ class Book:
             self.sh += buy
 
 
+def volume_ex_dt(data_dir, prices, n=5):
+    """近 n 個交易日成交股數扣掉現股當沖（data/chips 的 dt_vol；當沖資料晚兩天定案，缺的那天用全部成交量）。
+    回傳 ({代號: 股數}, 交易日清單, 有當沖資料的天數)。"""
+    days = prices.days[-n:]
+    out, ok = {}, 0
+    for d in days:
+        f = Path(data_dir) / "chips" / d[:4] / (d.replace("-", "") + ".csv")
+        dt = {r["code"]: _f(r.get("dt_vol")) or 0 for r in _read(f)} if f.exists() else {}
+        ok += bool(dt)
+        for c, x in prices.day(d).items():
+            out[c] = out.get(c, 0) + max(x[2] - min(dt.get(c, 0), x[2]), 0)
+    return out, days, ok
+
+
 # ---------------- 主動式 ETF ----------------
 def build_etf(data_dir, prices, events=None):
     events = events or {}
@@ -155,6 +169,8 @@ def build_etf(data_dir, prices, events=None):
     etfs, rows = [], []
     agg = {}
     latest = prices.days[-1] if prices.days else None
+    vol5, vdays, vok = volume_ex_dt(data_dir, prices)
+    mult = lambda sh, c: round(sh / vol5[c], 2) if vol5.get(c) else None  # noqa: E731  停損倍數＝持股 ÷ 近 5 日成交量（扣當沖）
     for info in actives:
         files = sorted((etf_dir / info["etf"]).glob("[0-9]*.csv"))
         if not files:
@@ -209,7 +225,7 @@ def build_etf(data_dir, prices, events=None):
             bpx = b.buy_val / b.buy_sh if b.buy_sh else None
             rows.append([e, c, names.get(c, ""), round(b.sh / 1000), w, _r(b.avg), close,
                          _r((close / b.avg - 1) * 100, 1), round(b.base / b.sh * 100) if b.sh else None,
-                         round(b.buy_sh / 1000), _r(bpx), chg(c, 5), chg(c, 20)])
+                         round(b.buy_sh / 1000), _r(bpx), chg(c, 5), chg(c, 20), mult(b.sh, c)])
             a = agg.setdefault(c, {"name": names.get(c, ""), "sh": 0.0, "cost": 0.0, "base": 0.0, "n": 0, "close": close,
                                    "buy_sh": 0.0, "buy_val": 0.0, "d5": 0, "d20": 0})
             a["d5"] += chg(c, 5) or 0
@@ -226,11 +242,12 @@ def build_etf(data_dir, prices, events=None):
         agg_rows.append([c, a["name"], a["n"], round(a["sh"] / 1000), _r(avg), a["close"],
                          _r((a["close"] / avg - 1) * 100, 1), round(a["base"] / a["sh"] * 100),
                          round(a["sh"] * a["close"]), round(a["buy_sh"] / 1000),
-                         _r(a["buy_val"] / a["buy_sh"]) if a["buy_sh"] else None, a["d5"], a["d20"]])
+                         _r(a["buy_val"] / a["buy_sh"]) if a["buy_sh"] else None, a["d5"], a["d20"], mult(a["sh"], c)])
     agg_rows.sort(key=lambda x: -x[8])
     return {"etfs": etfs, "etf_cols": ["code", "name", "start", "date", "n"],
-            "cols": ["e", "code", "name", "lots", "w", "cost", "close", "pnl", "base", "buy", "buy_px", "d5", "d20"], "rows": rows,
-            "agg_cols": ["code", "name", "n", "lots", "cost", "close", "pnl", "base", "val", "buy", "buy_px", "d5", "d20"], "agg": agg_rows}
+            "cols": ["e", "code", "name", "lots", "w", "cost", "close", "pnl", "base", "buy", "buy_px", "d5", "d20", "mult"], "rows": rows,
+            "agg_cols": ["code", "name", "n", "lots", "cost", "close", "pnl", "base", "val", "buy", "buy_px", "d5", "d20", "mult"], "agg": agg_rows,
+            "vol_days": [vdays[0], vdays[-1]] if vdays else None, "vol_dt_days": vok}
 
 
 # ---------------- 融資、不限用途 ----------------

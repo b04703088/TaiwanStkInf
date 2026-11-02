@@ -163,6 +163,7 @@ const yi = v => v == null ? "–" : v >= 1e8 ? (v / 1e8).toFixed(v >= 1e10 ? 0 :
 const obj = (cols, rows) => rows.map(r => Object.fromEntries(cols.map((k, i) => [k, r[i]])));
 const sname = r => `<span class="sname"><a href="stock.html#s=${encodeURIComponent(r.code)}">${esc(r.name)}</a><span class="mono">${esc(r.code)}</span></span>`;
 const Watch = window.TideWatch || {list: () => []};
+const multCell = m => m == null ? "–" : m >= 1 ? `<b class="warn">${m.toFixed(2)}×</b>` : `${m.toFixed(2)}×`;
 const baseCell = b => b == null ? "–" : `<span class="${b >= 50 ? "warn" : "faint"}">${b}%</span>`;
 
 const S = {tab: "etf", etf: "", sort: {etf: "val", margin: "val", ul: "val"}, minv: 1e8, noetf: true, mine: false, q: "", limit: 100, open: null};
@@ -170,6 +171,7 @@ let D, E = {}, M = [], U = [];
 
 const SORTS = {
   etf: [["val", "持有市值", r => -r.val], ["pnl", "被套最深（停損壓力）", r => r.pnl], ["gain", "獲利最多（停利壓力）", r => -r.pnl],
+    ["mult", "停損倍數最高", r => r.mult == null ? null : -r.mult],
     ["cut", "近 5 日減碼", r => r.d5 < 0 ? r.d5 * r.close : null], ["add", "近 5 日加碼", r => r.d5 > 0 ? -r.d5 * r.close : null]],
   margin: [["val", "融資市值", r => -r.val], ["ratio", "維持率最低", r => r.ratio], ["call", "最接近追繳", r => -r.call_dist], ["b5", "5 日融資增加", r => -(r.b5 ?? -1e12)]],
   ul: [["val", "擔保市值", r => -r.val], ["ratio", "維持率最低", r => r.ratio], ["call", "最接近追繳", r => -r.call_dist], ["use", "使用率最高", r => -(r.use ?? -1)]],
@@ -220,11 +222,12 @@ function render(){
       `全部主動式 ETF 合計（${E.etfs.length} 檔），點一列看各 ETF 的成本。持股資料最早 ${E.etfs.reduce((a, x) => a < x.start ? a : x.start, "9999")} 起`;
     const chgCell = v => v == null ? "–" : `<span class="${cls(v)}">${sint(v)}</span>`;
     head = `<tr><th>股票</th>${all ? "<th>ETF</th>" : ""}${agg ? '<th class="n">ETF 數</th>' : '<th class="n">權重</th>'}<th class="n">持有張數</th><th class="n">估計成本</th><th class="n">收盤</th><th class="n">損益</th>
-      <th class="n">5 日增減</th><th class="n hide-s">20 日增減</th><th class="n hide-s">起始部位</th><th class="n hide-s">市值</th></tr>`;
+      <th class="n" title="持股 ÷ 近 5 日成交量（扣當沖）">停損倍數</th><th class="n">5 日增減</th><th class="n hide-s">20 日增減</th><th class="n hide-s">起始部位</th><th class="n hide-s">市值</th></tr>`;
     row = r => `<tr class="${agg ? "click" : ""}${S.open === r.code && agg ? " on" : ""}" data-code="${esc(r.code)}"><td>${sname(r)}</td>
       ${all ? `<td class="faint" style="font-size:12.5px">${esc(E.etfs[r.e].code)} ${esc(E.etfs[r.e].name.replace("主動", ""))}</td>` : ""}
       <td class="n mono">${agg ? r.n : (r.w == null ? "–" : r.w.toFixed(2) + "%")}</td><td class="n mono">${int(r.lots)}</td>
       <td class="n mono">${num(r.cost)}</td><td class="n mono">${num(r.close)}</td><td class="n mono" data-v="${r.pnl}">${pct(r.pnl)}</td>
+      <td class="n mono" data-v="${r.mult ?? ""}">${multCell(r.mult)}</td>
       <td class="n mono" data-v="${r.d5 ?? ""}">${chgCell(r.d5)}</td><td class="n mono hide-s" data-v="${r.d20 ?? ""}">${chgCell(r.d20)}</td>
       <td class="n mono hide-s">${baseCell(r.base)}</td><td class="n mono hide-s" data-v="${r.val}">${yi(r.val)}</td></tr>` + (agg && S.open === r.code ? detail(r.code) : "");
   } else {
@@ -248,7 +251,7 @@ function render(){
 function detail(code){
   return E.rows.filter(r => r.code === code).sort((a, b) => b.lots - a.lots).map(r => { const e = E.etfs[r.e];
     return `<tr class="sub-row"><td>　${esc(e.code)} ${esc(e.name)}</td><td class="n mono">${r.w == null ? "–" : r.w.toFixed(2) + "%"}</td><td class="n mono">${int(r.lots)}</td>
-      <td class="n mono">${num(r.cost)}</td><td class="n mono">${num(r.close)}</td><td class="n mono">${pct(r.pnl)}</td>
+      <td class="n mono">${num(r.cost)}</td><td class="n mono">${num(r.close)}</td><td class="n mono">${pct(r.pnl)}</td><td class="n mono">${multCell(r.mult)}</td>
       <td class="n mono">${r.d5 == null ? "–" : `<span class="${cls(r.d5)}">${sint(r.d5)}</span>`}</td><td class="n mono hide-s">${r.d20 == null ? "–" : sint(r.d20)}</td>
       <td class="n mono hide-s">${baseCell(r.base)}</td><td class="hide-s"></td></tr>`; }).join("");
 }
@@ -256,6 +259,7 @@ function detail(code){
 const NOTES = {
   etf: () => `估計成本：用各 ETF 每天公布的持股股數，加碼的部分以這段期間的成交均價（VWAP）計入成本，減碼按平均成本扣除（平均成本不變）。
     <b>起始部位</b>＝持股資料第一天就已經持有的股數（多數 ETF 已回補到上市初期；富邦、凱基、台新、永豐、元大、摩根的官網查不到歷史，從 2026-09-24 起算），當時的真實買價查不到，先以當天收盤計；這一欄是現在持股裡還有幾成是起始部位，<span class="warn">超過 50% 時成本主要是假設值</span>，參考價值低。
+    <b>停損倍數</b>＝持股股數 ÷ 近 5 個交易日成交量（扣掉現股當沖），${E.vol_days ? E.vol_days.join("～") : ""}。1× 代表要把近 5 天扣當沖後的量全部吃下來才賣得完；倍數越高，要出場越難、一旦停損對股價衝擊越大（<span class="warn">≥1× 標黃</span>）。合計列是所有主動式 ETF 加總的持股。
     配股、分割、減資已依除權資料調整（股數 × 倍數、成本 ÷ 倍數）。「5 日／20 日增減」＝最近 5／20 份持股的張數變化，配股當週數字會跳動。
     損益只是估計：經理人實際停損停利看的是整體部位、申贖與模型，不一定照固定比例；套很深或大賺又開始減碼的部位，賣壓機率較高。只算台股。`,
   margin: () => `估計成本：從資料第一天起，每天融資買進以當天成交均價（VWAP）計入成本，融資賣出＋現金償還以平均成本扣除。維持率＝收盤 ÷（成本 × 60%）；追繳價＝成本 × 60% × 130%，跌破後券商發追繳令，未補繳會斷頭。
@@ -271,7 +275,7 @@ async function init(){
   D = await fetch("data/cost.json").then(r => r.json()).catch(() => null);
   if (!D) { $("sub").textContent = "資料載入失敗"; return; }
   const et = D.etf;
-  E = {etfs: obj(et.etf_cols, et.etfs), rows: obj(et.cols, et.rows), agg: obj(et.agg_cols, et.agg)};
+  E = {etfs: obj(et.etf_cols, et.etfs), rows: obj(et.cols, et.rows), agg: obj(et.agg_cols, et.agg), vol_days: et.vol_days};
   M = D.margin ? obj(D.margin.cols, D.margin.rows) : [];
   U = D.ul ? obj(D.ul.cols, D.ul.rows) : [];
   $("etf").innerHTML = `<option value="">全部主動式 ETF 合計</option><option value="all">所有部位（逐檔 ETF 分開列）</option>` + E.etfs.map((e, i) => `<option value="${i}">${esc(e.code)} ${esc(e.name)}</option>`).join("");
