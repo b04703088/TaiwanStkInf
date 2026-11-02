@@ -8,20 +8,23 @@ jobs:
     steps:
       - name: probe
         run: |
-          U=https://cbas16889.pscnet.com.tw/marketInfo/expectedRelease/
-          curl -sSL -A "Mozilla/5.0" -m 60 -o p.html "$U"
-          python3 -u - <<'PY'
-          import re, html
-          s = open("p.html", encoding="utf-8").read()
-          m = re.search(r"window\.__NUXT__=(.*?)</script>", s, re.S)
-          print("NUXT len", len(m.group(1)) if m else None)
-          if m: print("NUXT:", m.group(1)[:30000])
-          b = re.sub(r"<style.*?</style>|<script.*?</script>", "", s, flags=re.S)
-          rows = re.findall(r"<tr.*?</tr>", b, re.S)
-          print("ROWS", len(rows))
-          for r in rows[:400]:
-              cells = [html.unescape(re.sub(r"<[^>]+>", " ", c)).split() for c in re.findall(r"<t[dh].*?</t[dh]>", r, re.S)]
-              print(" | ".join(" ".join(c) for c in cells))
-          if not rows:
-              t = html.unescape(re.sub(r"<[^>]+>", " ", b)); print(re.sub(r"\s+", " ", t)[:20000])
-          PY
+          mkdir pw && cd pw && npm init -y >/dev/null && npm i playwright@1.48.2 >/dev/null 2>&1 && npx playwright install --with-deps chromium >/dev/null 2>&1
+          cat > p.js <<'JS'
+          const {chromium} = require('playwright');
+          (async () => {
+            const b = await chromium.launch(); const p = await b.newPage();
+            p.on('response', async r => {
+              const u = r.url();
+              if (/\/api\//i.test(u)) {
+                let t = ''; try { t = await r.text(); } catch (e) {}
+                console.log('XHR', r.request().method(), u, r.request().postData() || '', '\n', t.slice(0, 60000));
+              }
+            });
+            await p.goto('https://cbas16889.pscnet.com.tw/marketInfo/expectedRelease/', {waitUntil: 'networkidle', timeout: 90000});
+            await p.waitForTimeout(5000);
+            const rows = await p.$$eval('tr', trs => trs.map(t => [...t.children].map(c => c.innerText.replace(/\s+/g, ' ').trim()).join(' | ')));
+            console.log('ROWS', rows.length); rows.forEach(r => console.log(r));
+            await b.close();
+          })();
+          JS
+          node p.js
