@@ -75,7 +75,7 @@
 <main class="wrap">
   <section class="page-head">
     <h1>盤後摘要</h1>
-    <p class="desc">每個交易日晚上蒐集當天新聞、摘要盤面現象，並整理資金從哪些族群流出、流進哪些族群，以及追蹤分點大額進出、CB 詢圈、ETF 成分調整、內部人申報的重點；隔天早上 8 點再補美股與國際新聞。只描述發生了什麼，不猜漲跌。</p>
+    <p class="desc">每個交易日晚上蒐集當天新聞、摘要盤面現象，並列出 ETF 調整與 CB 詢圈的重要時程、近期大額調倉的主動式 ETF、新增的 CB 事件、重要分點買賣超與近期內部人事件；隔天早上 8 點再補美股與國際新聞。只描述發生了什麼，不猜漲跌。</p>
   </section>
   <div class="bar">
     <button id="prev" aria-label="前一天">‹</button>
@@ -86,9 +86,9 @@
   <div class="card" id="am"></div></div>
   <p class="sec-t">新聞與現象</p>
   <div class="card" id="note"><div class="md"><p class="faint">載入中…</p></div></div>
-  <p class="sec-t">重點：資金流向、追蹤分點、CB 詢圈、ETF 調整、內部人</p>
+  <p class="sec-t">ETF・CB・重要分點・內部人</p>
   <div class="card" id="pts"><div class="md"><p class="faint">載入中…</p></div></div>
-  <p class="note">資金流向＝法人（外資＋投信＋自營）5 日買賣超＋融資 5 日增減，以股數×收盤價估算；一檔股票屬於好幾個產業鏈節點時金額平均分攤，族群用產業價值鏈平台的節點。「這次」指上一個交易日之後到資料日。重點在晚上法人與融資資料進來後自動產生，新聞與現象約 22:15 補上；隔天早上 8 點再補美股與國際新聞。</p>
+  <p class="note">大幅調倉＝扣除申購贖回後的雙向換手 ≥ 10%（算法與明細見 <a href="etf.html#shift">ETF・主動調倉</a>），列出近 5 個交易日內持股公布的 ETF。CB 時程含進行中與未來 10 天，「新增事件」是上一個交易日之後才出現的公告。重要分點＝首頁同一組追蹤分點加總、個股淨額 ≥ 5000 萬；內部人事件看近 5 個交易日的事前申報轉讓與最新月報。這些表在晚上資料進來後自動產生，新聞與現象約 22:15 補上；隔天早上 8 點再補美股與國際新聞。</p>
 </main>
 <footer class="site"><div class="wrap"><p class="note" style="margin:0">本頁於每次網站重建時產生。</p></div></footer>
 <script>
@@ -144,7 +144,7 @@ async function show(d){
   document.getElementById("am").innerHTML = am ? `<div class="md">${md(am)}</div>` : "";
   const p = document.getElementById("pts");
   p.className = pts ? "card" : "card empty";
-  p.innerHTML = pts ? `<div class="md">${md(pts)}</div>` : "這天沒有重點資料。";
+  p.innerHTML = pts ? `<div class="md">${md(pts)}</div>` : "這天沒有資料。";
   const n = document.getElementById("note");
   n.className = note ? "card" : "card empty";
   n.innerHTML = note ? `<div class="md">${md(note)}</div>` : "這天的新聞與現象還沒寫好。";
