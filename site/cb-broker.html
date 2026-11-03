@@ -77,6 +77,7 @@
   table.cases td.ent{box-shadow:inset 0 0 0 1px var(--brass); background:rgba(217,164,65,0.08);}
   table.cases td.pre{box-shadow:inset 4px 0 0 var(--brass);}
   td.dt{min-width:52px;} td.dt.fut{color:var(--text-muted); font-style:italic;}
+  td.dt.est{color:var(--text-faint);} td.dt .e{font-family:inherit; font-size:11px; margin-left:2px;}
   .more{display:block; margin:12px auto 0; background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:7px 18px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
   .legend{font-size:12px; color:var(--text-faint); margin-top:8px;}
   .note{font-size:12.5px; color:var(--text-faint); margin-top:18px; line-height:1.8; max-width:60em;}
@@ -131,6 +132,7 @@
       <tbody id="live"></tbody>
     </table></div>
     <button class="more" id="live-more" hidden></button>
+    <p class="legend">日期後面標「(估)」的是還沒公告、依 2025 年起詢圈案各段的中位天數推估：董事會→送件 23 天、送件→生效 18 天、生效→代收行庫 6 天、代收行庫→詢圈 3 天、詢圈→訂價 2 天、訂價→掛牌 12 天；已經過了還沒公告的，放到下一個營業日。斜體灰字是已公告的預計日期。</p>
   </section>
 
   <section class="block">
@@ -193,7 +195,7 @@ function renderLive() {
   document.getElementById("live").innerHTML = rows.length ? rows.map(x => {
     const hits = x.hits.map(h => `<span class="chip ${h.tier === "常客" ? "reg" : ""}" title="${esc(STAGES.filter(s => h.by[s]).map(s => L[s] + " " + sgn(h.by[s])).join("、"))}">${esc(h.broker)} <span class="mono ${h.side === "B" ? "up" : "dn"}">${sgn(h.lots)}</span><span class="s">${esc(L[h.entry] || "")}</span></span>`).join("") || '<span class="faint">沒有</span>';
     const top = a => a.length ? a.map(([b, v]) => `${esc(b)} <span class="mono faint">${sgn(v)}</span>`).join("<br>") : "–";
-    return `<tr><td>${stock(x.code, x.name)}<div class="faint" style="font-size:11.5px">${esc(x.lead)}</div></td><td class="st">${esc(x.stage)}</td>${dateTds(x.dates)}<td class="wrapc">${hits}</td><td class="hide-m">${top(x.top_b)}</td><td class="hide-m">${top(x.top_s)}</td></tr>`;
+    return `<tr><td>${stock(x.code, x.name)}<div class="faint" style="font-size:11.5px">${esc(x.lead)}</div></td><td class="st">${esc(x.stage)}</td>${dateTds(x.dates, null, x.est)}<td class="wrapc">${hits}</td><td class="hide-m">${top(x.top_b)}</td><td class="hide-m">${top(x.top_s)}</td></tr>`;
   }).join("") : '<tr><td colspan="13" class="empty">目前沒有符合的案件</td></tr>';
 }
 
@@ -218,14 +220,14 @@ function renderRegs() {
 const ENT_COL = {s0: "board", s1: "board", s2: "filed", s3: "eff", s4: "start"};
 // 各階段時間點：董事會公告、送件、送件生效、代收行庫公告、詢圈開始、詢圈結束／訂價、掛牌；還沒公告的留白
 const DKEYS = ["board", "filed", "eff", "bank", "start", "price", "list"];
-function dateTds(d, entry) {
-  d = d || {};
+function dateTds(d, entry, est) {
+  d = d || {}; est = est || [];
   const ent = ENT_COL[entry], yr = DKEYS.map(k => d[k]).find(Boolean);
   return DKEYS.map((k, i) => {
-    const v = d[k], fut = v && v > TODAY;
+    const v = d[k], isEst = est.includes(k), fut = v && v > TODAY && !isEst;
     // 第一個有日期的欄位帶年份，其餘只寫月/日
-    const txt = !v ? "" : (v === yr ? ymd(v) : md(v));
-    return `<td class="mono dt${k === ent ? " ent" : ""}${entry === "s0" && k === "board" ? " pre" : ""}${fut ? " fut" : ""}" data-v="${esc(v || "")}"${fut ? ' title="預計"' : ""}>${txt}</td>`;
+    const txt = !v ? "" : (v === yr ? ymd(v) : md(v)) + (isEst ? '<span class="e">(估)</span>' : "");
+    return `<td class="mono dt${k === ent ? " ent" : ""}${entry === "s0" && k === "board" ? " pre" : ""}${fut ? " fut" : ""}${isEst ? " est" : ""}" data-v="${esc(v || "")}"${fut ? ' title="預計"' : isEst ? ' title="還沒公告，依過去詢圈案中位天數推估"' : ""}>${txt}</td>`;
   }).join("");
 }
 function caseRow(c) {

@@ -9,6 +9,7 @@
 import csv
 import json
 from collections import defaultdict
+from datetime import date, timedelta
 from pathlib import Path
 
 STAGES = ["s0", "s1", "s2", "s3", "s4"]
@@ -24,6 +25,37 @@ def _read(p):
 
 def _names(data_dir):
     return {r["code"]: r["abbr"] or r["name"] for r in _read(Path(data_dir) / "cb" / "companies.csv")}
+
+
+# 還沒公告的時間點：用 2025 年起詢圈案各段的中位天數（日曆日）從上一個已知日期往後推估
+#   董事會→送件 23、送件→生效 18、生效→代收行庫 6、代收行庫→詢圈 3（生效→詢圈中位數 9，相符）、
+#   詢圈→結束／訂價 2、訂價→掛牌 12
+EST_STEPS = [("board", "filed", 23), ("filed", "eff", 18), ("eff", "bank", 6), ("bank", "start", 3),
+             ("start", "price", 2), ("price", "list", 12)]
+
+
+def _next_biz(d):
+    while d.weekday() >= 5:
+        d += timedelta(days=1)
+    return d
+
+
+def estimate_dates(dates, today):
+    """dates 裡空的時間點依序推估；推出來已經過了（還沒公告）就放到下一個營業日。回傳 (dates, 推估的 key)"""
+    out, est, prev = dict(dates), [], None
+    for a, b, n in EST_STEPS:
+        if out.get(a):
+            prev = date.fromisoformat(out[a])
+        if out.get(b) or prev is None:
+            continue
+        if b == "bank" and out.get("start"):
+            continue  # 詢圈已開始就不推估行庫公告
+        d = _next_biz(prev + timedelta(days=n))
+        if d <= today:
+            d = _next_biz(today + timedelta(days=1))
+        out[b], prev = d.isoformat(), d
+        est.append(b)
+    return out, est
 
 
 def _stage_now(c, last):
@@ -56,6 +88,7 @@ def build_live(data_dir, regulars):
         if c:
             groups[(c["code"], c["board_date"] or c["filed_date"] or c["bb_start"])].append(i)
 
+    today = date.today()
     live = []
     for (code, _), ids in groups.items():
         cs = [cases[i] for i in ids]
@@ -85,12 +118,16 @@ def build_live(data_dir, regulars):
                 tot[b] += v
         top_b = sorted(((b, v) for b, v in tot.items() if v > 0), key=lambda x: -x[1])[:3]
         top_s = sorted(((b, v) for b, v in tot.items() if v < 0), key=lambda x: x[1])[:3]
+        dates = {"board": c["board_date"], "filed": c["filed_date"], "eff": c["eff_date"],
+                 "bank": c.get("bank_date", ""), "start": c["bb_start"],
+                 "price": c["done_date"] or c["bb_end"], "list": c["list_date"] or c["list_expected"]}
+        est = []
+        if not (c.get("stop_date") or c.get("wd_date")):  # 停止生效、撤回的不推估
+            dates, est = estimate_dates(dates, today)
         live.append({"code": code, "name": names.get(code) or c["company"][:4],
                               "stage": _stage_now(c, last),
-                     # 各階段日期：還沒公告的留空（不推估）
-                     "dates": {"board": c["board_date"], "filed": c["filed_date"], "eff": c["eff_date"],
-                               "bank": c.get("bank_date", ""), "start": c["bb_start"],
-                               "price": c["done_date"] or c["bb_end"], "list": c["list_date"] or c["list_expected"]},
+                     # 各階段日期；est＝還沒公告、依中位天數推估的 key
+                     "dates": dates, "est": est,
                      "lead": c["lead"].replace("股份有限公司", "").replace("綜合證券", "").replace("證券", ""),
                      "wins": wins, "hits": hits, "top_b": top_b, "top_s": top_s})
     order = {"詢圈中": 0, "已生效": 1, "審查中": 2, "已決議": 3, "已訂價": 4}
