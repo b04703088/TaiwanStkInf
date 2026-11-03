@@ -10,6 +10,7 @@
   s0      董事會決議前 20 個交易日
   s1..s4  董事會決議→送件前一日、送件→生效前一日、生效→詢圈開始前一日、詢圈開始→訂價日
   plc1/plc2  T0 前 60～41、100～81 個交易日（同長度 20 日的對照期間）
+  f10     送件前 10～1 個交易日；f10c1/f10c2 送件前 50～41、90～81 個交易日（同長度對照）
 輸出 research/data/cb_brokers.csv：id, code, method, win, d1, d2, side, rank, bid, broker, buy, sell, net
 用法：python research/cb_broker_fetch.py [--max-minutes 60]
 """
@@ -62,6 +63,9 @@ def windows(c, td):
     out = [("base", td[i - 80], td[i - 21]), ("pre20", td[i - 20], td[i - 1]), ("pre5", td[i - 5], td[i - 1]),
            ("plc1", td[i - 60], td[i - 41]), ("plc2", td[i - 100], td[i - 81])]
     out += stages
+    kf = ks[1][1]
+    if kf is not None and kf >= 90 and kf < len(td):
+        out += [("f10", td[kf - 10], td[kf - 1]), ("f10c1", td[kf - 50], td[kf - 41]), ("f10c2", td[kf - 90], td[kf - 81])]
     if j is not None:
         out.append(("in", td[i], td[j]))
         if j + 20 < len(td):
