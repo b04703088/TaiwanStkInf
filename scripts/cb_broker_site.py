@@ -30,7 +30,8 @@ def _names(data_dir):
 # 還沒公告的時間點：用 2025 年起詢圈案各段的中位天數（日曆日）從上一個已知日期往後推估
 #   董事會→送件 23、送件→生效 18、生效→代收行庫 6、代收行庫→詢圈 3（生效→詢圈中位數 9，相符）、
 #   詢圈→結束／訂價 2、訂價→掛牌 12
-EST_STEPS = [("board", "filed", 23), ("filed", "eff", 18), ("eff", "bank", 6), ("bank", "start", 3),
+# 董事會→送件 不估：回測只有 34% 落在中位數 ±7 天內（14–47 天、最長 325 天）
+EST_STEPS = [("filed", "eff", 18), ("eff", "bank", 6), ("bank", "start", 3),
              ("start", "price", 2), ("price", "list", 12)]
 
 
@@ -43,6 +44,8 @@ def _next_biz(d):
 def estimate_dates(dates, today):
     """dates 裡空的時間點依序推估；推出來已經過了（還沒公告）就放到下一個營業日。回傳 (dates, 推估的 key)"""
     out, est, prev = dict(dates), [], None
+    if not out.get("filed"):
+        return out, est  # 還沒送件就不推估
     for a, b, n in EST_STEPS:
         if out.get(a):
             prev = date.fromisoformat(out[a])
