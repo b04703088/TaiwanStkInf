@@ -57,8 +57,9 @@ def regulars_stats(rows, cases, px, close):
             x = px.get(i, {}).get("x_post20")
             items.append({"date": c["bb_start"], "code": c["code"], "name": c["short"] or c["company"][:4],
                           "dates": {"board": c["board_date"], "filed": c["filed_date"], "eff": c["eff_date"],
-                                    "start": c["bb_start"], "price": c["done_date"] or c["bb_end"],
-                                    "base": c["price_base_date"], "list": c["list_date"] or c["issue_date"]},
+                                    "bank": c.get("bank_date", ""), "start": c["bb_start"],
+                                    "price": c["done_date"] or c["bb_end"], "base": c["price_base_date"],
+                                    "list": c["list_date"] or c["issue_date"]},
                           "entry": hit[0],
                           "lots": lots, "amt": round(abs(lots) * p / 100) / 10 if p else None,  # 百萬元
                           "post": round(float(x) * 1000) / 10 if x else None})
@@ -125,7 +126,8 @@ def stage_table(cases, td, close):
 
 def main():
     rows = A.rd(ROOT / "research" / "data" / "cb_brokers.csv")
-    cases = {c["id"]: c for c in A.rd(ROOT / "data" / "cb" / "cases.csv")}
+    import cb_site  # 承銷公告、代收行庫公告日
+    cases = {c["id"]: c for c in cb_site.add_flow_dates(A.rd(ROOT / "data" / "cb" / "cases.csv"), ROOT / "data")}
     px = {r["id"]: r for r in A.rd(ROOT / "research" / "data" / "cb_cases_px.csv")}
     codes = {c["code"] for c in cases.values()}
     td, close, _ = A.load_px(codes)

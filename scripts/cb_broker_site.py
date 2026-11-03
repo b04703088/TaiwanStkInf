@@ -43,7 +43,8 @@ def _stage_now(c, last):
 def build_live(data_dir, regulars):
     data_dir = Path(data_dir)
     rows = _read(data_dir / "cb" / "brokers.csv")
-    cases = {c["id"]: c for c in _read(data_dir / "cb" / "cases.csv")}
+    from cb_site import add_flow_dates  # 代收行庫公告日
+    cases = {c["id"]: c for c in add_flow_dates(_read(data_dir / "cb" / "cases.csv"), data_dir)}
     names = _names(data_dir)
     reg = {(g["broker"], g["side"]): g for g in regulars}
     last = max((r["d2"] for r in rows), default="")
@@ -86,8 +87,10 @@ def build_live(data_dir, regulars):
         top_s = sorted(((b, v) for b, v in tot.items() if v < 0), key=lambda x: x[1])[:3]
         live.append({"code": code, "name": names.get(code) or c["company"][:4],
                               "stage": _stage_now(c, last),
+                     # 各階段日期：還沒公告的留空（不推估）
                      "dates": {"board": c["board_date"], "filed": c["filed_date"], "eff": c["eff_date"],
-                               "start": c["bb_start"], "price": c["done_date"] or c["bb_end"]},
+                               "bank": c.get("bank_date", ""), "start": c["bb_start"],
+                               "price": c["done_date"] or c["bb_end"], "list": c["list_date"] or c["list_expected"]},
                      "lead": c["lead"].replace("股份有限公司", "").replace("綜合證券", "").replace("證券", ""),
                      "wins": wins, "hits": hits, "top_b": top_b, "top_s": top_s})
     order = {"詢圈中": 0, "已生效": 1, "審查中": 2, "已決議": 3, "已訂價": 4}
