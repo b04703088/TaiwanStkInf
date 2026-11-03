@@ -1,0 +1,15 @@
+name: tmp-live-check
+on:
+  push:
+    branches: [claude/project-thread-wqm6a0]
+    paths: [.github/workflows/tmp-live-check.yml]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          B=https://tide-stk-infs.pages.dev
+          curl -sSL -o page.html -w "page %{http_code}\n" $B/cb-broker
+          echo "caseRow in page: $(grep -c caseRow page.html)"
+          curl -sSL -o b.json -w "json %{http_code}\n" $B/data/cb/broker.json
+          python3 -c "import json;d=json.load(open('b.json'));c=d['regulars'][0]['cases'][0];print(d['regulars'][0]['broker'],c.get('dates'))"
