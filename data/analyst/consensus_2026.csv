@@ -1,4 +1,5 @@
 date,time,news_id,code,name,kind,year,analysts,prev,value,chg_pct,high,low,target,bull,neutral,bear,close,url
+2026-11-03,16:10,6645102,5347,世界,tp,,17,187,194,3.74,250,135,194,13,3,1,134,https://news.cnyes.com/news/id/6645102
 2026-11-03,08:10,6644621,6147,頎邦,eps,2026,10,5.84,5.92,1.37,6.44,5.05,285,,,,,https://news.cnyes.com/news/id/6644621
 2026-11-03,08:10,6644620,3443,創意,eps,2026,18,56.51,58.12,2.85,63.94,47.62,8600,,,,,https://news.cnyes.com/news/id/6644620
 2026-11-03,08:10,6644619,6147,頎邦,tp,,8,300,285,-5,365,225,285,7,1,0,191.5,https://news.cnyes.com/news/id/6644619
