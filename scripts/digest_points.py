@@ -1,4 +1,5 @@
-"""盤後摘要頁的「重點」：資金流向、追蹤分點、CB 詢圈、ETF 調整、內部人申報（表格）。
+"""盤後摘要頁的「重點」：資金流向、追蹤分點、CB 詢圈、ETF 調整、內部人申報、主動式 ETF 大幅調倉（表格）。
+目前只輸出 SECTIONS 列的段落（2026-11-03 起只有主動式 ETF 大幅調倉）。
 
 由 scripts/digest.py 呼叫，輸出 data/digest/points/<日期>.md，同內容也接在數字摘要後面給每晚判讀用。
 「這次」指上一個交易日之後到資料日 D（含週末公告）。
@@ -171,7 +172,7 @@ def watch(day, limit=5000):
         o["br"][label.get(r["branch"], label.get(r["branch"] + "總公司", r["branch"]))] += n
     hits = [(c, o) for c, o in by.items() if abs(o["net"]) >= limit]
     if not hits:
-        return ["## 追蹤分點大額進出", "", f"追蹤分點加總沒有個股淨額達 {limit:,} 萬。"]
+        return ["## 重要分點買賣超", "", f"追蹤分點加總沒有個股淨額達 {limit:,} 萬。"]
     who = lambda o: "、".join([f"{b} {abs(n) / 1e4:,.2f}" for b, n in
                                sorted(o["br"].items(), key=lambda kv: -abs(kv[1]))
                                if (n > 0) == (o["net"] > 0) and abs(n) >= 1000][:2]) or "—"
@@ -179,7 +180,7 @@ def watch(day, limit=5000):
     sell = sorted((h for h in hits if h[1]["net"] < 0), key=lambda h: h[1]["net"])
     out = [["買超" if o["net"] > 0 else "賣超", f"{o['name']}（{c}）", f"{o['net'] / 1e4:+,.2f}", who(o)] for c, o in buy + sell]
     tb, ts = sum(o["net"] for _, o in buy) / 1e4, sum(o["net"] for _, o in sell) / 1e4
-    return ["## 追蹤分點大額進出", "",
+    return ["## 重要分點買賣超", "",
             f"{len(label)} 個追蹤分點加總、個股淨額 ≥ {limit:,} 萬（不含 ETF）：買超 {len(buy)} 檔合計 {tb:+,.2f} 億，"
             f"賣超 {len(sell)} 檔合計 {ts:+,.2f} 億。", ""] + _tbl(["方向", "個股", "淨額（億）", "主要分點（億）"], out)
 
@@ -396,6 +397,7 @@ def insider(iso, prev_iso, px, top=8):
         r["_amt"] = sh * px.get(r["code"], 0) / 1e8
         r["_pct"] = sh / float(r["held"]) * 100 if float(r["held"] or 0) else 0
     main.sort(key=lambda r: -r["_amt"])
+    top = top + 4   # 近 5 個交易日，多列幾筆
     small = [r for r in main if r["_amt"] < 0.05 and not FAMILY.search(r["role"])]
     main = [r for r in main if r not in small]
     for r in main[:top]:
@@ -403,7 +405,7 @@ def insider(iso, prev_iso, px, top=8):
         how = r["method"].replace("(每日得轉讓股數限制)", "")
         if r["transferee"]:
             how += f"，受讓人 {r['transferee']}"
-        out.append([f"**{r['company']}（{r['code']}）**", role, r["name"], f"{float(r['shares']) / 1000:,.0f}",
+        out.append([_md(r["date"]), f"**{r['company']}（{r['code']}）**", role, r["name"], f"{float(r['shares']) / 1000:,.0f}",
                     f"{r['_amt']:,.2f}", f"{r['_pct']:.0f}%", how])
     if len(main) > top:
         notes.append(f"- 另有 {len(main) - top} 筆，合計約 {sum(r['_amt'] for r in main[top:]):,.1f} 億。")
@@ -411,9 +413,9 @@ def insider(iso, prev_iso, px, top=8):
         notes.append(f"- 500 萬以下 {len(small)} 筆不列。")
     if trust:
         notes.append(f"- 信託 {len(trust)} 筆（多為員工獎酬或家族信託，不列入表格）。")
-    res = ["## 內部人申報重點", "", "**事前申報轉讓**", ""]
+    res = ["## 近期內部人事件", "", "**事前申報轉讓**（近 5 個交易日，依金額）", ""]
     if out:
-        res += _tbl(["公司", "身分", "申報人", "張數", "金額（億）", "占持股", "方式"], out)
+        res += _tbl(["申報日", "公司", "身分", "申報人", "張數", "金額（億）", "占持股", "方式"], out)
     elif not trust and not small:
         res.append("這次沒有新的事前申報轉讓。")
     if notes:
@@ -438,6 +440,35 @@ def insider(iso, prev_iso, px, top=8):
     return res
 
 
+# ───────────── 主動式 ETF 大幅調倉 ─────────────
+def shift(iso, prev_iso, top=3):
+    """etf_site.build_shift 的事件（扣除申購贖回後雙向換手 ≥ 大幅門檻），持股公布日落在這次的才列"""
+    import etf_site
+    d = etf_site.build_shift(D)
+    names = {e["code"]: e["name"] for e in d["etfs"]}
+    ev = [e for e in d["events"] if prev_iso < e["date"] <= iso and e["score"] >= d["big"]]
+    head = ["## 主動式 ETF 大幅調倉", "",
+            f"扣除申購贖回後，同時大量加碼與減碼（雙向換手 ≥ {d['big']:g}%，佔基金規模）的主動式 ETF。"
+            "加減碼百分比是扣掉申贖後的股數變化。", ""]
+    if not ev:
+        last = next((e for e in d["events"] if e["date"] <= iso and e["score"] >= d["big"]), None)
+        tail = f"上一次是 {_md(last['date'])} {last['etf']} {names.get(last['etf'], '')}（{last['score']:.1f}%）。" if last else ""
+        return head + [f"這次沒有主動式 ETF 大幅調倉。{tail}"]
+    nm = lambda xs: "、".join(x[1] for x in xs[:6]) + (f" 等 {len(xs)} 檔" if len(xs) > 6 else "") if xs else "無"
+    mv = lambda ms: "、".join(f"{m[1]} {m[2]:+.0f}%" for m in ms[:top]) or "—"
+    rows = []
+    for e in sorted(ev, key=lambda e: -e["score"]):
+        rows.append([f"**{e['etf']} {names.get(e['etf'], '')}**", _md(e["date"]), f"{e['score']:.1f}%",
+                     nm(e["adds"]), nm(e["drops"]), mv([m for m in e["moves"] if m[2] > 0]),
+                     mv([m for m in e["moves"] if m[2] < 0]), f"{e['up']} / {e['dn']}（續抱 {e['cont']}）"])
+    return head + _tbl(["ETF", "公布日", "雙向換手", "新增", "剔除", "主要加碼", "主要減碼", "續抱股加 / 減"], rows)
+
+
+# 2026-11-03 Leo：摘要下方只留主動式 ETF 大幅調倉、重要分點買賣超、近期內部人事件；
+# 資金流向、CB、ETF 調整先不放，要放回時把名稱加回 SECTIONS（順序即網頁順序）。
+SECTIONS = ("shift", "watch", "insider")
+
+
 def build(day, px_files, chip_files):
     """回傳重點 Markdown 行（不含標題）。"""
     stems = [Path(f).stem for f in px_files]
@@ -446,8 +477,10 @@ def build(day, px_files, chip_files):
     names = _names()
     px = {r["code"]: float(r["close"]) for r in _read(px_files[i]) if r.get("close") and re.match(r"^[\d.]+$", r["close"])}
     out = []
-    for f, args in ((flows, (px_files, chip_files, day)), (watch, (day,)), (cb, (iso, prev_iso, names)),
-                    (etf, (iso, prev_iso, names)), (insider, (iso, prev_iso, px))):
+    since5 = _iso(stems[max(0, i - 5)])   # 內部人事件看近 5 個交易日
+    fns = {f.__name__: (f, a) for f, a in ((flows, (px_files, chip_files, day)), (watch, (day,)), (cb, (iso, prev_iso, names)),
+                                           (etf, (iso, prev_iso, names)), (insider, (iso, since5, px)), (shift, (iso, prev_iso)))}
+    for f, args in (fns[k] for k in SECTIONS):
         try:
             sec = f(*args)
         except Exception as e:   # 一段壞掉不影響其他段
