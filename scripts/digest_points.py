@@ -440,6 +440,125 @@ def insider(iso, prev_iso, px, top=8):
     return res
 
 
+# ───────────── CB：近期重要時程＋新增事件（2026-11-03 Leo） ─────────────
+def cb_brief(iso, prev_iso, names, days=10):
+    import cb_site
+    cases = cb_site.add_flow_dates(_read(D / "cb" / "cases.csv"), D)
+    if not cases:
+        return []
+    end = (date.fromisoformat(iso) + timedelta(days=days)).isoformat()
+    nm = lambda c: f"{names.get(c['code']) or c['company'].replace('股份有限公司', '')[:4]}（{c['code']}）"
+    amt = lambda c: (f"{float(c['board_amount']) / 1e8:,.1f} 億" if c.get("board_amount") else
+                     f"{int(c['units']) / 10000:,.1f} 億" if c.get("units") else "")
+    how = lambda c: ("詢圈" if (c["method"] or c.get("board_method") or "").startswith("詢價") and "競" not in (c["method"] or "")
+                     else "競拍" if "競" in (c["method"] or c.get("board_method") or "") else "")
+    dead = lambda c: bool(c.get("wd_date") or c.get("stop_date"))
+    lead = lambda c: f"主辦 {_short(c['lead'])}" if c.get("lead") else ""
+    prem = lambda c: f"溢價 {float(c['premium_lo']):g}–{float(c['premium_hi']):g}%" if c.get("premium_lo") else ""
+    join = lambda *xs: "，".join(x for x in xs if x)
+
+    # 近期重要時程：詢圈中＋未來 days 天的詢圈／競拍、訂價、繳款、掛牌、推估詢圈
+    sch = []
+    for c in cases:
+        if dead(c):
+            continue
+        m = how(c) or "承銷"
+        if c["bb_start"] and c["bb_start"] <= iso <= (c["bb_end"] or c["bb_start"]):
+            sch.append((iso, f"**{m}中**", c, join(f"{_md(c['bb_start'])}–{_md(c['bb_end'])}", prem(c), lead(c))))
+        for k, lab, extra in (("bb_start", f"{m}開始", lambda: join(f"到 {_md(c['bb_end'])}" if c["bb_end"] else "", prem(c), lead(c))),
+                              ("bb_end", f"{m}截止", lambda: lead(c)),
+                              ("done_date", "訂價", lambda: f"轉換價 {float(c['conv_price']):g}" if c.get("conv_price") else ""),
+                              ("pay_date", "繳款", lambda: ""),
+                              ("list_date", "掛牌", lambda: ""),
+                              ("list_expected", "預計掛牌", lambda: "")):
+            v = c.get(k)
+            if k == "list_expected" and c.get("list_date"):
+                continue
+            if k == "bb_end" and c["bb_start"] and c["bb_start"] <= iso:
+                continue   # 已列在「詢圈中」
+            if v and iso < v <= end:
+                sch.append((v, lab, c, extra()))
+        sib = any(x["code"] == c["code"] and x["bb_start"] and x["bb_start"] >= (c["bank_date"] or "9") for x in cases)
+        if c["bank_date"] and not c["bb_start"] and not c["done_date"] and c["eff_date"] and not sib:
+            est = (date.fromisoformat(c["bank_date"]) + timedelta(days=5)).isoformat()
+            if iso < est <= end:
+                sch.append((est, "推估開始承銷", c, f"代收行庫 {_md(c['bank_date'])} 已公告（通常 5 天內開始）"))
+    sch.sort(key=lambda x: (x[0], x[1], x[2]["code"]))
+    seen, rows = set(), []
+    for d, lab, c, note in sch:
+        k = (d, lab, c["code"])
+        if k in seen:
+            continue
+        seen.add(k)
+        rows.append([_md(d), lab, nm(c), amt(c), note])
+
+    # 突然新增的事件：上一個交易日之後才出現的董事會決議、送件、生效、代收行庫、承銷公告、撤件
+    new = defaultdict(list)
+    for c in cases:
+        for k, lab in (("board_date", "董事會決議"), ("filed_date", "送件"), ("eff_date", "生效"), ("bank_date", "代收行庫公告"),
+                       ("nt_date", "承銷公告"), ("wd_date", "撤件"), ("stop_date", "停止")):
+            v = c.get(k)
+            if v and prev_iso < v <= iso:
+                new[(v, lab, c["code"])].append(c)
+    order = ["董事會決議", "送件", "生效", "代收行庫公告", "承銷公告", "撤件", "停止"]
+    rows2 = []
+    for (v, lab, code), cs in sorted(new.items(), key=lambda kv: (order.index(kv[0][1]), kv[0][0], kv[0][2])):
+        c = cs[0]
+        rows2.append([_md(v), f"**{lab}**", nm(c), "＋".join(sorted({join(how(x), amt(x)) for x in cs}, reverse=True)),
+                      join(lead(c), prem(c) if lab == "承銷公告" else "")])
+
+    out = ["## CB 詢圈", "", f"**近期重要時程**（進行中＋未來 {days} 天）", ""]
+    out += _tbl(["日期", "事件", "公司", "規模", "說明"], rows) if rows else [f"未來 {days} 天沒有排定的時程。"]
+    out += ["", "**新增事件**（上一個交易日之後才出現）", ""]
+    out += _tbl(["日期", "事件", "公司", "規模", "說明"], rows2) if rows2 else ["這次沒有新增的 CB 事件。"]
+    return out
+
+
+# ───────────── ETF：重要時程＋近期大額調整的主動式 ETF（2026-11-03 Leo） ─────────────
+def etf_brief(iso, since, days=14):
+    import etf_site
+    out = ["## ETF 調整", ""]
+    end = (date.fromisoformat(iso) + timedelta(days=days)).isoformat()
+    rows = []
+    try:
+        tip = etf_site.build_tip(D, ROOT)
+        for x in sorted((dict(zip(tip["cols"], r)) for r in tip["rows"]), key=lambda x: (x["ann"], x["index"])):
+            if not x["etfs"]:
+                continue
+            done = x["ann"] <= iso and (x["add"] is not None or x["del"] is not None)
+            if not ((iso < x["ann"] <= end) or (done and x["eff"] and x["eff"] > iso)):
+                continue
+            prov = {"MSCI": "MSCI ", "FTSE": "富時 "}.get(x["prov"], "")
+            prov = "" if x["index"].startswith(prov.strip() or "\0") else prov
+            ad = lambda xs: "、".join(a[1] for a in (xs or [])[:5]) + (f" 等 {len(xs)} 檔" if xs and len(xs) > 5 else "")
+            state = (f"已公告：納入 {ad(x['add']) or '無'}；刪除 {ad(x['del']) or '無'}" if done else "待公告")
+            rows.append([_md(x["ann"]), _md(x["eff"]) if x["eff"] else "",
+                         "、".join(f"{c} {tip['etfs'].get(c, '')}".strip() for c in x["etfs"][:3]),
+                         prov + re.sub(r"^臺灣指數公司", "", x["index"]), state])
+    except Exception as e:
+        print("etf schedule:", e)
+    out += [f"**重要時程**（未來 {days} 天要公告，以及已公告還沒生效的）", ""]
+    out += _tbl(["公告日", "生效日", "ETF", "指數", "狀態"], rows) if rows else [f"未來 {days} 天沒有 ETF 追蹤的指數要調整。"]
+
+    d = etf_site.build_shift(D)
+    names = {e["code"]: e["name"] for e in d["etfs"]}
+    ev = sorted((e for e in d["events"] if since < e["date"] <= iso and e["score"] >= d["big"]),
+                key=lambda e: (e["date"], e["score"]), reverse=True)
+    out += ["", f"**近期大額調整的主動式 ETF**（近 5 個交易日，扣除申購贖回後雙向換手 ≥ {d['big']:g}%）", ""]
+    if not ev:
+        last = next((e for e in d["events"] if e["date"] <= iso and e["score"] >= d["big"]), None)
+        out.append("近 5 個交易日沒有。" + (f"上一次是 {_md(last['date'])} {last['etf']} {names.get(last['etf'], '')}"
+                                          f"（{last['score']:.1f}%）。" if last else ""))
+        return out
+    nm = lambda xs: ("、".join(x[1] for x in xs[:6]) + (f" 等 {len(xs)} 檔" if len(xs) > 6 else "")) if xs else "無"
+    mv = lambda ms: "、".join(f"{m[1]} {m[2]:+.0f}%" for m in ms[:3]) or "—"
+    out += _tbl(["公布日", "ETF", "雙向換手", "新增", "剔除", "主要加碼", "主要減碼"],
+                [[_md(e["date"]), f"**{e['etf']} {names.get(e['etf'], '')}**", f"{e['score']:.1f}%", nm(e["adds"]), nm(e["drops"]),
+                  mv([m for m in e["moves"] if m[2] > 0]), mv([m for m in e["moves"] if m[2] < 0])] for e in ev])
+    out += ["", "加減碼百分比是扣掉申贖後的股數變化；明細在 ETF 頁的「主動調倉」分頁。"]
+    return out
+
+
 # ───────────── 主動式 ETF 大幅調倉 ─────────────
 def shift(iso, prev_iso, top=3):
     """etf_site.build_shift 的事件（扣除申購贖回後雙向換手 ≥ 大幅門檻），持股公布日落在這次的才列"""
@@ -464,9 +583,9 @@ def shift(iso, prev_iso, top=3):
     return head + _tbl(["ETF", "公布日", "雙向換手", "新增", "剔除", "主要加碼", "主要減碼", "續抱股加 / 減"], rows)
 
 
-# 2026-11-03 Leo：摘要下方只留主動式 ETF 大幅調倉、重要分點買賣超、近期內部人事件；
-# 資金流向、CB、ETF 調整先不放，要放回時把名稱加回 SECTIONS（順序即網頁順序）。
-SECTIONS = ("shift", "watch", "insider")
+# 2026-11-03 Leo：摘要下方只留 ETF 調整（重要時程＋近期大額調整的主動式 ETF）、CB（重要時程＋新增事件）、
+# 重要分點買賣超、近期內部人事件；資金流向、舊版 CB／ETF 段落先不放，要放回時把名稱加回 SECTIONS（順序即網頁順序）。
+SECTIONS = ("etf_brief", "cb_brief", "watch", "insider")
 
 
 def build(day, px_files, chip_files):
@@ -479,7 +598,8 @@ def build(day, px_files, chip_files):
     out = []
     since5 = _iso(stems[max(0, i - 5)])   # 內部人事件看近 5 個交易日
     fns = {f.__name__: (f, a) for f, a in ((flows, (px_files, chip_files, day)), (watch, (day,)), (cb, (iso, prev_iso, names)),
-                                           (etf, (iso, prev_iso, names)), (insider, (iso, since5, px)), (shift, (iso, prev_iso)))}
+                                           (etf, (iso, prev_iso, names)), (insider, (iso, since5, px)), (shift, (iso, prev_iso)),
+                                           (cb_brief, (iso, prev_iso, names)), (etf_brief, (iso, since5)))}
     for f, args in (fns[k] for k in SECTIONS):
         try:
             sec = f(*args)
