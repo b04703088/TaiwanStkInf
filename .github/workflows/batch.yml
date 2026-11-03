@@ -284,3 +284,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh workflow run batch.yml --repo "$GITHUB_REPOSITORY" --ref "$GITHUB_REF_NAME" -f slot=dusk
+
+      # 由上面這步（GITHUB_TOKEN）帶起來的 run 結束時不會觸發 Deploy site 的 workflow_run，
+      # 所以晚間那批自己叫部署（Deploy site 的 gate 會在沒新 commit 時跳過）
+      - name: 部署網站（晚間那批）
+        if: always() && steps.s.outputs.slot == 'dusk' && github.ref_name == github.event.repository.default_branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --repo "$GITHUB_REPOSITORY" --ref "$GITHUB_REF_NAME"
