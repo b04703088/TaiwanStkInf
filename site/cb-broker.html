@@ -76,6 +76,7 @@
   .show-m{display:none;}
   table.cases td.ent{box-shadow:inset 0 0 0 1px var(--brass); background:rgba(217,164,65,0.08);}
   table.cases td.pre{box-shadow:inset 4px 0 0 var(--brass);}
+  td.dt{min-width:52px;} td.dt.fut{color:var(--text-muted); font-style:italic;}
   .more{display:block; margin:12px auto 0; background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:7px 18px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
   .legend{font-size:12px; color:var(--text-faint); margin-top:8px;}
   .note{font-size:12.5px; color:var(--text-faint); margin-top:18px; line-height:1.8; max-width:60em;}
@@ -126,7 +127,7 @@
       <button data-f="all" aria-pressed="false">全部追蹤中</button>
     </div>
     <div class="tbl"><table>
-      <thead><tr><th>標的</th><th>階段</th><th class="hide-m">詢圈開始</th><th>常客動向</th><th class="hide-m">整段買超最多</th><th class="hide-m">整段賣超最多</th></tr></thead>
+      <thead><tr><th>標的</th><th>階段</th><th>董事會</th><th>送件</th><th>生效</th><th>代收行庫</th><th>詢圈開始</th><th>結束／訂價</th><th>掛牌</th><th>常客動向</th><th class="hide-m">整段買超最多</th><th class="hide-m">整段賣超最多</th></tr></thead>
       <tbody id="live"></tbody>
     </table></div>
     <button class="more" id="live-more" hidden></button>
@@ -159,6 +160,7 @@
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const md = d => d ? `${+d.slice(5,7)}/${+d.slice(8,10)}` : "–";
 const ym = d => d ? `${d.slice(2,4)}/${+d.slice(5,7)}` : "–";
+const TODAY = new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);
 const ymd = d => d ? `${d.slice(2,4)}/${+d.slice(5,7)}/${+d.slice(8,10)}` : "–";
 const sgn = v => v == null ? "–" : (v > 0 ? "+" : "") + v.toLocaleString();
 const pc = v => v == null ? "–" : `<span class="${v > 0 ? "up" : v < 0 ? "dn" : ""}">${v > 0 ? "+" : ""}${v.toFixed(1)}%</span>`;
@@ -191,8 +193,8 @@ function renderLive() {
   document.getElementById("live").innerHTML = rows.length ? rows.map(x => {
     const hits = x.hits.map(h => `<span class="chip ${h.tier === "常客" ? "reg" : ""}" title="${esc(STAGES.filter(s => h.by[s]).map(s => L[s] + " " + sgn(h.by[s])).join("、"))}">${esc(h.broker)} <span class="mono ${h.side === "B" ? "up" : "dn"}">${sgn(h.lots)}</span><span class="s">${esc(L[h.entry] || "")}</span></span>`).join("") || '<span class="faint">沒有</span>';
     const top = a => a.length ? a.map(([b, v]) => `${esc(b)} <span class="mono faint">${sgn(v)}</span>`).join("<br>") : "–";
-    return `<tr><td>${stock(x.code, x.name)}<div class="faint" style="font-size:11.5px">${esc(x.lead)}</div></td><td class="st">${esc(x.stage)}</td><td class="mono hide-m" data-v="${esc(x.dates.start || "")}">${md(x.dates.start)}</td><td class="wrapc">${hits}</td><td class="hide-m">${top(x.top_b)}</td><td class="hide-m">${top(x.top_s)}</td></tr>`;
-  }).join("") : '<tr><td colspan="7" class="empty">目前沒有符合的案件</td></tr>';
+    return `<tr><td>${stock(x.code, x.name)}<div class="faint" style="font-size:11.5px">${esc(x.lead)}</div></td><td class="st">${esc(x.stage)}</td>${dateTds(x.dates)}<td class="wrapc">${hits}</td><td class="hide-m">${top(x.top_b)}</td><td class="hide-m">${top(x.top_s)}</td></tr>`;
+  }).join("") : '<tr><td colspan="13" class="empty">目前沒有符合的案件</td></tr>';
 }
 
 function bars(e) {
@@ -214,10 +216,20 @@ function renderRegs() {
 
 // 一筆案件：各階段日期，進場那段的起點加金框
 const ENT_COL = {s0: "board", s1: "board", s2: "filed", s3: "eff", s4: "start"};
+// 各階段時間點：董事會公告、送件、送件生效、代收行庫公告、詢圈開始、詢圈結束／訂價、掛牌；還沒公告的留白
+const DKEYS = ["board", "filed", "eff", "bank", "start", "price", "list"];
+function dateTds(d, entry) {
+  d = d || {};
+  const ent = ENT_COL[entry], yr = DKEYS.map(k => d[k]).find(Boolean);
+  return DKEYS.map((k, i) => {
+    const v = d[k], fut = v && v > TODAY;
+    // 第一個有日期的欄位帶年份，其餘只寫月/日
+    const txt = !v ? "" : (v === yr ? ymd(v) : md(v));
+    return `<td class="mono dt${k === ent ? " ent" : ""}${entry === "s0" && k === "board" ? " pre" : ""}${fut ? " fut" : ""}" data-v="${esc(v || "")}"${fut ? ' title="預計"' : ""}>${txt}</td>`;
+  }).join("");
+}
 function caseRow(c) {
-  const d = c.dates || {start: c.date}, ent = ENT_COL[c.entry];
-  const dc = k => `<td class="mono${k === ent ? " ent" : ""}${c.entry === "s0" && k === "board" ? " pre" : ""}" data-v="${esc(d[k] || "")}">${d[k] ? (k === "start" ? ymd(d[k]) : md(d[k])) : '<span class="faint">–</span>'}</td>`;
-  return `<tr><td>${stock(c.code, c.name)}</td>${["board", "filed", "eff", "start", "price", "list"].map(dc).join("")}<td>${esc(D.stage_labels[c.entry])}</td><td class="num mono">${sgn(c.lots)}</td><td class="num mono">${c.amt ?? "–"}</td><td class="num mono" data-v="${c.post ?? ""}">${pc(c.post)}</td></tr>`;
+  return `<tr><td>${stock(c.code, c.name)}</td>${dateTds(c.dates || {start: c.date}, c.entry)}<td>${esc(D.stage_labels[c.entry])}</td><td class="num mono">${sgn(c.lots)}</td><td class="num mono">${c.amt ?? "–"}</td><td class="num mono" data-v="${c.post ?? ""}">${pc(c.post)}</td></tr>`;
 }
 
 function renderDetail() {
@@ -225,9 +237,9 @@ function renderDetail() {
   if (!r) { box.hidden = true; return; }
   box.hidden = false;
   box.innerHTML = `<h3>${esc(r.broker)}　${r.side === "B" ? "買超" : "賣超"}　${r.n} 件</h3><p class="lead">${esc(r.note || "")}${r.amt_sum ? `　合計約 ${r.amt_sum} 億元。` : ""}</p>
-    <div class="tbl"><table class="cases"><thead><tr><th>標的</th><th>董事會</th><th>送件</th><th>生效</th><th>詢圈開始</th><th>訂價</th><th>掛牌</th><th>進場段</th><th class="num">訂價前淨張數</th><th class="num">金額（百萬）</th><th class="num">事後 20 日超額</th></tr></thead>
-    <tbody>${(CASE_ALL ? r.cases : r.cases.slice(0, CASE_N)).map(caseRow).join("") || '<tr><td colspan="11" class="empty">沒有歷史案件</td></tr>'}</tbody></table></div>
-    <p class="legend">金框是這個分點最早進場那一段的起點：決議→送件框董事會、送件→生效框送件、生效→詢圈框生效、詢圈→訂價框詢圈開始；董事會格左邊粗線代表董事會決議前 20 日就進場。空白是缺資料（2025 年初的案子在 2024 年送件，還在回補）。</p>${r.cases.length > CASE_N ? `<button class="more" id="case-more">${CASE_ALL ? "收起" : `顯示全部 ${r.cases.length} 件`}</button>` : ""}`;
+    <div class="tbl"><table class="cases"><thead><tr><th>標的</th><th>董事會</th><th>送件</th><th>生效</th><th>代收行庫</th><th>詢圈開始</th><th>結束／訂價</th><th>掛牌</th><th>進場段</th><th class="num">訂價前淨張數</th><th class="num">金額（百萬）</th><th class="num">事後 20 日超額</th></tr></thead>
+    <tbody>${(CASE_ALL ? r.cases : r.cases.slice(0, CASE_N)).map(caseRow).join("") || '<tr><td colspan="12" class="empty">沒有歷史案件</td></tr>'}</tbody></table></div>
+    <p class="legend">金框是這個分點最早進場那一段的起點：決議→送件框董事會、送件→生效框送件、生效→詢圈框生效、詢圈→訂價框詢圈開始；董事會格左邊粗線代表董事會決議前 20 日就進場。空白是還沒公告（2025 年初的少數案子是 2024 年送件，證期局已查不到送件／生效日）；斜體灰字是預計日期。</p>${r.cases.length > CASE_N ? `<button class="more" id="case-more">${CASE_ALL ? "收起" : `顯示全部 ${r.cases.length} 件`}</button>` : ""}`;
   const cm = document.getElementById("case-more");
   if (cm) cm.onclick = () => { CASE_ALL = !CASE_ALL; renderDetail(); };
 }
