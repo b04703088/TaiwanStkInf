@@ -156,7 +156,24 @@ MARKET_COLS = ["date", "twse_amt", "tpex_amt", "twse_lots", "tpex_lots", "twse_s
                "twse_ratio", "tpex_ratio", "all_ratio", "n_up", "n_down", "taiex", "ul_lots", "ul_amt"]
 STOCK_COLS = ["market", "code", "name", "close", "r1", "r5", "r20", "fin", "f1", "f5", "f5p", "f20", "f20p",
               "fin_val", "cost", "ratio", "sht", "s5", "ss_ratio", "use",
-              "ul", "ul1", "ul5", "ul5p", "ul20p", "ul_val", "ul_use", "sf"]
+              "ul", "ul1", "ul5", "ul5p", "ul20p", "ul_val", "ul_use", "sf", "val5"]
+
+
+def avg_value(data_dir, dates):
+    """近幾個交易日的平均成交值（元）{(market, code): 均值}，沒成交的天以 0 計。"""
+    tot = {}
+    n = 0
+    for d in dates:
+        p = Path(data_dir) / d[:4] / (d.replace("-", "") + ".csv")
+        if not p.exists():
+            continue
+        n += 1
+        for r in _read(p):
+            v = _f(r.get("value"))
+            if v:
+                k = (r["market"], r["code"])
+                tot[k] = tot.get(k, 0.0) + v
+    return {k: v / n for k, v in tot.items()} if n else {}
 
 
 def build(data_dir):
@@ -186,6 +203,7 @@ def build(data_dir):
 
     d0, rows0, closes0 = days[-1]
     ref = {n: at(n) for n in (1, 5, 20)}
+    val5 = avg_value(data_dir, [x[0] for x in days[-5:]])
     stocks = []
     for k, r in rows0.items():
         fin = _f(r.get("fin_bal"))
@@ -233,6 +251,7 @@ def build(data_dir):
             # 次一營業日限額（約股本 1 成）：不限用途擔保張數 ÷ 限額
             round(u0 / ulim * 100, 2) if u0 is not None and ulim else None,
             _f(p0.get("sf_bal")),
+            round(val5[k]) if val5.get(k) else None,
         ])
     stocks.sort(key=lambda x: -(x[13] or 0))
 
