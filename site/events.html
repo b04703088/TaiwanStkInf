@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101419">
+<title>市場行事曆｜潮汐</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#101419; --panel:#171C22; --panel-2:#1E242B;
+    --line:rgba(232,237,242,0.09); --line-strong:rgba(232,237,242,0.16);
+    --text:#E8EDF2; --text-muted:#A9B2BC; --text-faint:#8B95A0;
+    --brass:#C6A15B; --rise:#E1594F; --fall:#3FAE72; --warn:#D9A441;
+    --radius-s:3px; --radius-m:6px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--ink); color:var(--text);
+    font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
+  h1,h2{font-family:'Noto Sans TC',sans-serif; margin:0; font-weight:700;}
+  .mono{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+  a{color:inherit;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
+  header.site{position:sticky; top:0; z-index:40; background:#101419; border-bottom:1px solid var(--line);}
+  .nav-row{display:flex; align-items:center; justify-content:space-between; padding:16px 28px;}
+  .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
+  .brand-mark{font-family:'Noto Sans TC',sans-serif; font-size:22px; font-weight:700;}
+  .brand-sub{font-size:12px; color:var(--text-faint);}
+  .page-head{padding:56px 0 20px;}
+  h1{font-size:32px;}
+  .desc{color:var(--text-muted); font-size:14.5px; margin:12px 0 0; max-width:46em;}
+  .bar{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:8px 0 24px;}
+  .bar select, .bar button{background:var(--panel); border:1px solid var(--line-strong); color:var(--text); padding:6px 10px; border-radius:var(--radius-s); font:inherit; font-size:13.5px; cursor:pointer;}
+  .bar button:disabled{opacity:.4; cursor:default;}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-m); padding:6px 24px 18px; margin-bottom:28px;}
+  .card.empty{color:var(--text-faint); font-size:14px; padding:18px 24px;}
+  .chips{display:flex; flex-wrap:wrap; gap:6px;}
+  .chip{background:var(--panel); border:1px solid var(--line-strong); color:var(--text-muted); padding:4px 10px; border-radius:999px; font:inherit; font-size:13px; cursor:pointer;}
+  .chip.on{color:var(--text); border-color:var(--brass); background:var(--panel-2);}
+  .chip .n{font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--text-faint); margin-left:4px;}
+  .seg{display:inline-flex; border:1px solid var(--line-strong); border-radius:var(--radius-s); overflow:hidden;}
+  .seg button{border:none; border-radius:0; background:var(--panel); color:var(--text-muted); padding:6px 11px;}
+  .seg button+button{border-left:1px solid var(--line-strong);}
+  .seg button.on{background:var(--panel-2); color:var(--text);}
+  .bar .lbl{font-size:12.5px; color:var(--text-faint);}
+  .hi{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:10px; margin:0 0 28px;}
+  .hi .hc{ background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--brass); border-radius:var(--radius-m); padding:10px 14px;}
+  .hi .d{font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--brass);}
+  .hi .t{font-size:14.5px; font-weight:500; margin-top:2px;}
+  .hi .s{font-size:12px; color:var(--text-faint);}
+  .day{display:grid; grid-template-columns:96px 1fr; gap:16px; padding:14px 0; border-top:1px solid var(--line);}
+  .day.today .dh{color:var(--brass);}
+  .day.past{opacity:.55;}
+  .dh{font-family:'IBM Plex Mono',monospace; font-size:15px; font-weight:600; line-height:1.3;}
+  .dh small{display:block; font-family:'Noto Sans TC',sans-serif; font-size:12px; font-weight:400; color:var(--text-faint); margin-top:2px;}
+  .ev{display:grid; grid-template-columns:52px 78px 1fr; gap:10px; align-items:baseline; padding:4px 0;}
+  .ev .tm{font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--text-muted);}
+  .tag{font-size:11.5px; padding:1px 7px; border-radius:var(--radius-s); border:1px solid var(--line-strong); color:var(--text-muted); white-space:nowrap; justify-self:start;}
+  .tag.US{border-color:rgba(91,141,239,.55); color:#7FA6F2;}
+  .ti{font-size:14.5px;}
+  .ev.i3 .ti{font-weight:700;}
+  .ev.i3 .ti::before{content:"●"; color:var(--rise); font-size:10px; margin-right:6px; vertical-align:2px;}
+  .ev.i1 .ti{color:var(--text-muted); font-size:13.5px;}
+  .ti a{color:inherit; text-decoration:none; border-bottom:1px dotted var(--line-strong);}
+  .de{display:block; font-weight:400; font-size:12.5px; color:var(--text-faint); line-height:1.6; word-break:break-all;}
+  .est{font-size:11px; color:var(--warn); border:1px solid var(--warn); border-radius:3px; padding:0 4px; margin-left:6px; vertical-align:1px;}
+  html[data-theme="light"] .tag.US{color:#2F5FBF; border-color:rgba(47,95,191,.45);}
+  .faint{color:var(--text-faint);}
+  .sec-t{font-size:13px; color:var(--text-faint); margin:0 0 8px;}
+  .note{font-size:12.5px; color:var(--text-faint); margin-top:18px; line-height:1.8;}
+  footer.site{padding:48px 0; margin-top:64px; border-top:1px solid var(--line);}
+  @media (max-width:860px){
+    .nav-row{padding:14px 16px; flex-wrap:wrap; row-gap:10px;}
+    .wrap{padding:0 16px;} h1{font-size:26px;}
+    .day{grid-template-columns:1fr; gap:6px;}
+    .dh small{display:inline; margin-left:8px;}
+    .ev{grid-template-columns:44px 1fr; gap:2px 8px;}
+    .ev .tag{grid-column:2; grid-row:1;}
+    .ev .ti{grid-column:1 / -1;}
+  }
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="nav-row">
+    <a href="index.html" class="brand"><span class="brand-mark">潮汐</span><span class="brand-sub">籌碼觀測站</span></a>
+    <nav class="gnav"></nav>
+  </div>
+</header>
+<script src="nav.js"></script>
+<main class="wrap">
+  <section class="page-head">
+    <h1>市場行事曆</h1>
+    <p class="desc">未來會動到盤的事排成一條時間軸：美國 CPI、非農、PCE、FOMC，台灣央行與出口、外銷訂單，月營收截止，輝達等美股大廠財報與台股大型股法說，台指期結算，指數審核，處置出關與大型股除權息。時間都換成台灣時間。</p>
+  </section>
+  <p class="sec-t">未來 7 天最重要的事</p>
+  <div class="hi" id="hi"><span class="faint">載入中…</span></div>
+  <div class="bar">
+    <span class="seg" id="rng"><button data-v="14" class="on">2 週</button><button data-v="31">1 個月</button><button data-v="120">4 個月</button></span>
+    <span class="seg" id="imp"><button data-v="1">全部</button><button data-v="2" class="on">重要以上</button><button data-v="3">只看大事</button></span>
+    <span class="seg" id="reg"><button data-v="" class="on">美台</button><button data-v="US">美國</button><button data-v="TW">台灣</button></span>
+    <label class="lbl"><input type="checkbox" id="past"> 顯示過去 7 天</label>
+  </div>
+  <div class="bar chips" id="cats"></div>
+  <div id="list"></div>
+  <p class="note">● 標記＝會動到大盤的大事（CPI、非農、PCE、FOMC、台灣央行、輝達財報、MSCI 審核、季結算）。「估」＝官方還沒公布確切日期，依往例推估（例如財政部出口通常在月初第 7–9 日、外銷訂單約 20 日）。美國數據依 BLS／BEA／Census／Fed 年度時程表，美股財報依 Nasdaq 行事曆，法說會、除權息只列近 5 日均成交值 30 億以上的股票（除權息另含規模 1000 億以上的 ETF）。指數調整細節看 <a href="calendar.html">指數行事曆</a>，處置出關統計看 <a href="alert.html">處置注意</a>，結算日部位看 <a href="settle.html">結算日套利</a>。</p>
+</main>
+<footer class="site"><div class="wrap"><p class="note" style="margin:0">本頁於每次網站重建時產生。</p></div></footer>
+<script>
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const WD = "日一二三四五六";
+const LINK = {index: "calendar.html", disp: "alert.html", settle: "settle.html", rev: "fin.html", div: "screen.html#div"};
+let D = null, st = {rng: 14, imp: 2, reg: "", cats: new Set(), past: false};
+try { const s = JSON.parse(localStorage.getItem("tide.events") || "{}"); if (s.imp) st.imp = s.imp; if (s.rng) st.rng = s.rng; } catch (e) {}
+const save = () => { try { localStorage.setItem("tide.events", JSON.stringify({imp: st.imp, rng: st.rng})); } catch (e) {} };
+const addDays = (iso, n) => { const d = new Date(iso + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+const md = iso => `${+iso.slice(5, 7)}/${+iso.slice(8, 10)}`;
+const wd = iso => WD[new Date(iso + "T00:00:00Z").getUTCDay()];
+function title(e){
+  const c = e[8] && !e[8].includes(",") && /^\d{4,6}[A-Z]?$/.test(e[8]) ? e[8] : "";
+  const t = c ? `<a href="stock.html#s=${esc(c)}">${esc(e[4])}</a>` : LINK[e[2]] ? `<a href="${LINK[e[2]]}">${esc(e[4])}</a>` : esc(e[4]);
+  return t + (e[7] ? '<span class="est">估</span>' : "");
+}
+function render(){
+  const t = D.today, lo = st.past ? addDays(t, -7) : t, hi = addDays(t, st.rng);
+  const base = D.events.filter(e => e[0] >= lo && e[0] <= hi && e[6] >= st.imp && (!st.reg || e[3] === st.reg));
+  const cnt = {}; base.forEach(e => cnt[e[2]] = (cnt[e[2]] || 0) + 1);
+  document.getElementById("cats").innerHTML = Object.entries(D.cats).map(([k, v]) =>
+    `<button class="chip${st.cats.has(k) ? " on" : ""}" data-k="${k}">${v}<span class="n">${cnt[k] || 0}</span></button>`).join("");
+  const ev = base.filter(e => !st.cats.size || st.cats.has(e[2]));
+  const by = new Map(); ev.forEach(e => { if (!by.has(e[0])) by.set(e[0], []); by.get(e[0]).push(e); });
+  const box = document.getElementById("list");
+  if (!by.size){ box.innerHTML = '<p class="faint">這段期間沒有符合條件的事件。</p>'; return; }
+  box.innerHTML = [...by.entries()].map(([d, es]) => {
+    const n = Math.round((new Date(d) - new Date(t)) / 864e5);
+    const rel = n === 0 ? "今天" : n === 1 ? "明天" : n > 0 ? `${n} 天後` : `${-n} 天前`;
+    return `<div class="day${d === t ? " today" : d < t ? " past" : ""}"><div class="dh">${md(d)}（${wd(d)}）<small>${rel}</small></div><div>` +
+      es.map(e => `<div class="ev i${e[6]}"><span class="tm">${esc(e[1]) || "—"}</span><span class="tag ${e[3]}">${e[3] === "US" ? "美" : "台"}・${esc(D.cats[e[2]])}</span>` +
+        `<span class="ti">${title(e)}${e[5] ? `<span class="de">${esc(e[5])}</span>` : ""}</span></div>`).join("") + "</div></div>";
+  }).join("");
+}
+function seg(id, key, num){
+  const el = document.getElementById(id);
+  el.querySelectorAll("button").forEach(b => b.classList.toggle("on", String(st[key]) === b.dataset.v));
+  el.onclick = ev => { const b = ev.target.closest("button"); if (!b) return; st[key] = num ? +b.dataset.v : b.dataset.v;
+    el.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); save(); render(); };
+}
+document.getElementById("cats").onclick = ev => { const b = ev.target.closest(".chip"); if (!b) return;
+  const k = b.dataset.k; st.cats.has(k) ? st.cats.delete(k) : st.cats.add(k); render(); };
+document.getElementById("past").onchange = ev => { st.past = ev.target.checked; render(); };
+fetch("data/events.json", {cache: "no-cache"}).then(r => r.json()).then(j => {
+  D = j;
+  const t = j.today, w = addDays(t, 7);
+  const top = j.events.filter(e => e[0] >= t && e[0] <= w && e[6] >= 3);
+  document.getElementById("hi").innerHTML = top.length ? top.map(e => `<div class="hc"><div class="d">${md(e[0])}（${wd(e[0])}）${esc(e[1])}</div><div class="t">${esc(e[4])}</div><div class="s">${esc(e[5])}</div></div>`).join("")
+    : '<span class="faint">未來 7 天沒有大事。</span>';
+  seg("rng", "rng", true); seg("imp", "imp", true); seg("reg", "reg", false);
+  render();
+}).catch(() => { document.getElementById("list").innerHTML = '<p class="faint">行事曆載入失敗</p>'; });
+</script>
+</body>
+</html>

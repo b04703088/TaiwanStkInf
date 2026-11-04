@@ -10,6 +10,7 @@
   data/etf/shift.json                主動式 ETF 主動調倉偵測（扣除申贖後的雙向換手，見 scripts/etf_site.py build_shift）
   data/etf/active.json               主動式＋現金申贖被動式 ETF 每次持股變化（台股，含扣除申贖的增減、成交量與當沖量）
   data/calendar.json                 指數調整行事曆：審核日、預估審核、ETF 換股期間（見 scripts/calendar_site.py）
+  data/events.json                   市場行事曆：美台經濟數據、央行、財報法說、結算、指數、出關、除權息（見 scripts/events_site.py）
   data/health.json                   資料健檢結果（見 scripts/health.py）
   data/broker/days.json, <日期>.json  券商分點前 15 大（見 scripts/broker_site.py）
   data/broker/watch.json             重點分點（config/broker_watch.csv）近 60 個交易日
@@ -87,6 +88,7 @@ import industry_site  # noqa: E402
 import flow_site  # noqa: E402
 import rebalance_site  # noqa: E402
 import calendar_site  # noqa: E402
+import events_site  # noqa: E402
 import analyst_site  # noqa: E402
 import alert_site  # noqa: E402
 import attention_model  # noqa: E402
@@ -169,6 +171,7 @@ def build(out: Path, days: int) -> list[str]:
     flow_site.write_flow(ROOT / "data", out / "data" / "flow.json")
     rebalance_site.write_rebalance(ROOT, out / "data" / "etf" / "rebalance.json")
     calendar_site.write_calendar(ROOT / "data", ROOT, out / "data" / "calendar.json")
+    events_site.write_events(ROOT / "data", ROOT, out / "data" / "events.json")
     analyst_site.write_analyst(ROOT / "data", out / "data" / "analyst" / "analyst.json")
     alert_site.write_alert(ROOT / "data", out / "data" / "alert" / "alert.json")
     attention_model.write_model(ROOT / "data", out / "data" / "alert" / "model.json")
