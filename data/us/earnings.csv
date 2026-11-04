@@ -18,7 +18,7 @@ AAPL,2025-10-30,,nasdaq
 AAPL,2026-01-29,,nasdaq
 AAPL,2026-04-30,,nasdaq
 AAPL,2026-07-30,,nasdaq
-AAPL,2026-11-02,amc,nasdaq
+AAPL,2026-11-02,,nasdaq
 AMD,2022-02-01,,nasdaq
 AMD,2022-05-03,,nasdaq
 AMD,2022-08-02,,nasdaq
@@ -277,7 +277,7 @@ LITE,2025-11-04,,nasdaq
 LITE,2026-02-03,,nasdaq
 LITE,2026-05-05,,nasdaq
 LITE,2026-08-11,,nasdaq
-LITE,2026-11-05,amc,nasdaq
+LITE,2026-11-02,,nasdaq
 META,2022-02-02,,nasdaq
 META,2022-04-27,,nasdaq
 META,2022-07-27,,nasdaq
