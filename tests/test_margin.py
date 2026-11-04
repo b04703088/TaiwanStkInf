@@ -98,5 +98,36 @@ class SiteTest(unittest.TestCase):
         self.assertEqual(len(out["series"]["1234"]), 3)
 
 
+    def test_deleverage(self):
+        # 25 天：張數緩升到第 23 天 1022 → 最後兩天 950、902（連 2 天大減、離高點 -11.7%），
+        # 00631L 融資與單位數最後 5 天都減少，主動式 ETF 融資一直增加
+        n = 25
+        lots = [1000 + i for i in range(23)] + [950, 902]
+        with tempfile.TemporaryDirectory() as tmp:
+            dd = Path(tmp)
+            dates = [f"2026-09-{i + 1:02d}" for i in range(n)]
+            for i, d in enumerate(dates):
+                ymd = d.replace("-", "")
+                write(dd / "margin" / d[:4] / f"{ymd}.csv", F.COLUMNS, [
+                    {"date": d, "market": "TWSE", "code": "1234", "name": "測試", "fin_bal": lots[i]},
+                    {"date": d, "market": "TWSE", "code": "00631L", "name": "正2", "fin_bal": 500 - max(0, i - 19) * 10},
+                    {"date": d, "market": "TWSE", "code": "00980A", "name": "主動", "fin_bal": 100 + i}])
+                write(dd / d[:4] / f"{ymd}.csv", ["date", "market", "code", "close"],
+                      [{"date": d, "market": "TWSE", "code": c, "close": 100} for c in ("1234", "00631L", "00980A")])
+                write(dd / "etf" / "aum" / f"{ymd}.csv", ["date", "etf", "units", "flow"],
+                      [{"date": d, "etf": "00631L", "units": 1000 - max(0, i - 19) * 5, "flow": -5e8 if i > 19 else 0}])
+            write(dd / "margin" / "summary.csv", F.SUMMARY_COLS,
+                  [{"date": d, "market": "TWSE", "fin_lots": lots[i],
+                    "fin_amount": 1} for i, d in enumerate(dates)])
+            out = margin_site.deleverage_from_disk(dd)
+        self.assertEqual(out["market"]["peak_date"], "2026-09-23")
+        hit = {c["key"]: c["hit"] for c in out["checks"]}
+        self.assertEqual(hit, {"dd": True, "drop2": True, "ratio": False, "lev": True, "active": False})
+        self.assertEqual((out["level"], out["label"]), (2, "去槓桿進行中"))
+        e = out["etfs"][0]
+        self.assertEqual((e["code"], e["fin"], e["flow5"]), ("00631L", 450, -25.0))
+        self.assertEqual(out["active"]["fin"], 124)
+
+
 if __name__ == "__main__":
     unittest.main()

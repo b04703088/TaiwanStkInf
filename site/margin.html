@@ -102,6 +102,7 @@
   .chk{display:flex; gap:10px; font-size:13.5px; align-items:flex-start;}
   .chk .dot{flex:none; width:10px; height:10px; border-radius:50%; margin-top:6px; background:var(--line-strong);}
   .chk.hit .dot{background:var(--rise);}
+  .chk.hit.ok .dot{background:var(--fall);}
   .chk .t{color:var(--text);} .chk .d{color:var(--text-faint); font-size:12px;}
   .chart{border:1px solid var(--line); border-radius:var(--radius-m); background:var(--panel); padding:10px 8px 4px; position:relative;}
   .chart svg{display:block; width:100%; height:auto; overflow:visible;}
@@ -136,6 +137,23 @@
     <p class="desc" id="sub">載入中…</p>
     <div class="stats five" id="stats"></div>
     <div class="verdict" id="verdict" hidden></div>
+  </section>
+
+  <section class="block" id="dl-sec" hidden>
+    <div class="block-head"><h2>去槓桿進度：殺乾淨了沒</h2>
+      <div class="chips" id="dl-rng">
+        <button data-v="20" aria-pressed="false">近 1 個月</button>
+        <button data-v="60" aria-pressed="true">近 3 個月</button>
+        <button data-v="120" aria-pressed="false">近 6 個月</button>
+      </div>
+    </div>
+    <div class="verdict" id="dl-verdict" style="margin-top:0"></div>
+    <div class="chart" id="dl-chart" style="margin-top:16px"></div>
+    <div class="tbl-wrap" style="margin-top:16px"><table>
+      <thead><tr><th>槓桿部位</th><th class="n hide-s">收盤 5日</th><th class="n">融資餘額</th><th class="n">今日</th><th class="n">5日</th><th class="n">20日</th>
+        <th class="n">受益單位 5日</th><th class="n hide-s">20日</th><th class="n">淨申贖 5日</th><th class="n hide-s">20日</th></tr></thead>
+      <tbody id="dl-body"></tbody>
+    </table></div>
   </section>
 
   <section class="block">
@@ -179,11 +197,17 @@
         <button data-v="1e8" aria-pressed="false">≥ 1 億</button>
         <button data-v="1e9" aria-pressed="false">≥ 10 億</button>
       </div>
+      <div class="chips" id="s-liq" title="近 5 個交易日平均成交值">
+        <button data-v="0" aria-pressed="false">成交值不限</button>
+        <button data-v="1e8" aria-pressed="true">日均 ≥ 1 億</button>
+        <button data-v="5e8" aria-pressed="false">≥ 5 億</button>
+        <button data-v="2e9" aria-pressed="false">≥ 20 億</button>
+      </div>
       <label class="chk-in"><input type="checkbox" id="s-etf" checked> 排除 ETF</label>
       <input class="filter" id="q" type="search" placeholder="篩選：代號或名稱" autocomplete="off" aria-label="篩選股票">
     </div>
     <div class="tbl-wrap"><table>
-      <thead id="s-head"><tr><th>股票</th><th class="n" data-k="close">收盤</th><th class="n" data-k="r1">1日</th><th class="n" data-k="r5">5日</th><th class="n hide-s" data-k="r20">20日</th>
+      <thead id="s-head"><tr><th>股票</th><th class="n" data-k="close">收盤</th><th class="n" data-k="r1">1日</th><th class="n" data-k="r5">5日</th><th class="n hide-s" data-k="r20">20日</th><th class="n hide-s" data-k="val5">日均成交值</th>
         <th class="n" data-k="fin">融資餘額</th><th class="n" data-k="f1">今日增減</th><th class="n" data-k="f5p">5日增減</th><th class="n hide-s" data-k="f20p">20日增減</th>
         <th class="n" data-k="ratio">估計維持率</th>
         <th class="n" data-k="ul">不限用途擔保</th><th class="n" data-k="ul5p">5日增減</th><th class="n hide-s" data-k="ul_use">擔保使用率</th>
@@ -197,7 +221,8 @@
     資料來源：證交所「融資融券彙總」、櫃買中心「上櫃股票融資融券餘額」、證交所「每日市場成交資訊」（加權指數）；每個交易日晚上更新。張數單位為張。<br>
     <b>估計維持率</b>：官方不公布。大盤＝Σ(各股融資餘額 × 收盤) ÷ 官方融資金額。個股＝收盤 ÷ (估計融資平均成本 × 融資成數 6 成)；平均成本從資料第一天起推算（當天既有餘額以收盤計、之後融資買進以當日收盤計入、償還以平均成本扣除），除權息、減資、資料天數不足都會讓估計失真，只能當參考。維持率低於 130% 會被追繳，補不足就斷頭賣出。<br>
     <b>殺融資判讀</b>：同時符合越多項越明顯——大盤估計維持率跌破 140%（接近 130% 追繳線）、融資餘額 5 日減少 3% 以上且加權指數 5 日跌 3% 以上（價跌資減，融資被迫出場）、單日融資餘額減少 1% 以上、今天融資減少的股票超過 65%。門檻是經驗值，可依需要調整。<br>
-    「價跌資減」只列股價 5 日跌 3% 以上、融資 5 日減 3% 以上的股票，依融資減幅排序。<b>不限用途款項借貸</b>：投資人拿股票向券商質押借錢、用途不限（常被拿去再買股票），股價跌到維持率 130% 以下同樣會被追繳、斷頭。資料取自證交所「借貸款項擔保品餘額表」，只涵蓋得融資融券的上市櫃股票；「不限用途擔保」＝證券商不限用途款項借貸的擔保張數，使用率＝擔保張數 ÷ 次一營業日限額（約股本 1 成）；大盤擔保市值＝Σ(擔保張數 × 收盤)，不是借款金額（借款通常只有擔保市值的 5～6 成）。個股標記「殺」＝5 日融資減少 10% 以上且股價 5 日跌 10% 以上；「追繳」＝估計維持率低於 130%。券資比＝融券 ÷ 融資。資料僅供參考，不構成投資建議。
+    <b>去槓桿進度</b>：以 2026 年 7 月那次洗盤當樣板（融資張數 7/3→7/30 減 10.3%、7/28–29 連兩天單日減 2.0%、3.7%，估計維持率低點 154%，之後一週指數反彈 11%）。看張數不看金額，因為金額會跟著股價一起掉，張數減少才是真的有人賣掉或被斷頭。檢查五項：融資張數離近 60 個交易日高點減 8% 以上、近 5 日內連 2 天單日減 2% 以上、大盤估計維持率 150% 以下、00631L 融資與受益單位 5 日同時減少、主動式 ETF 融資合計 5 日減少；符合 4 項以上「接近殺乾淨」、2～3 項「去槓桿進行中」。受益單位取自證交所 ETF 淨值揭露，某交易日的單位數反映前一交易日的申購贖回；淨申贖＝單位數增減 × 淨值。走勢圖把每條線的區間第一天設為 100。<br>
+    「價跌資減」只列股價 5 日跌 3% 以上、融資 5 日減 3% 以上的股票，依融資減幅排序。<b>不限用途款項借貸</b>：投資人拿股票向券商質押借錢、用途不限（常被拿去再買股票），股價跌到維持率 130% 以下同樣會被追繳、斷頭。資料取自證交所「借貸款項擔保品餘額表」，只涵蓋得融資融券的上市櫃股票；「不限用途擔保」＝證券商不限用途款項借貸的擔保張數，使用率＝擔保張數 ÷ 次一營業日限額（約股本 1 成）；大盤擔保市值＝Σ(擔保張數 × 收盤)，不是借款金額（借款通常只有擔保市值的 5～6 成）。個股標記「殺」＝5 日融資減少 10% 以上且股價 5 日跌 10% 以上；「追繳」＝估計維持率低於 130%。券資比＝融券 ÷ 融資。「日均成交值」＝近 5 個交易日平均成交金額，濾網預設只列 ≥ 1 億的股票（搜尋代號時不套用）。資料僅供參考，不構成投資建議。
   </p>
 </main>
 <footer class="site"><div class="wrap"><p class="note" style="margin:0">資料僅供參考。</p></div></footer>
@@ -232,6 +257,67 @@ Promise.all([getJ("data/margin/market.json"), getJ("data/margin/stocks.json")]).
   $("sub").textContent = `資料日期 ${s.date}。看融資餘額有沒有在股價下跌時被大量砍掉、估計維持率離 130% 追繳線多近，以及哪些個股的融資正在被清。`;
   renderTop(); renderChart(); renderStocks();
 });
+let DL = null;
+getJ("data/margin/delev.json").then(d => { if (!d) return; DL = d; $("dl-sec").hidden = false; renderDelev(); renderDlChart(); });
+
+/* ---------- 去槓桿進度 ---------- */
+function renderDelev() {
+  const d = DL, m = d.market, ref = d.ref;
+  const lvCls = {3: "l0", 2: "l2", 1: "l3"}[d.level];
+  const refTxt = ref ? `對照上一次洗盤（${ref.peak_date.slice(5).replace("-", "/")}→${ref.date.slice(5).replace("-", "/")}）：張數離高點 ${pct(ref.dd)}、單日最多 ${pct(ref.max_drop)}、維持率低點 ${ref.ratio}%，之後 5 個交易日指數 ${pct(ref.next5)}。` : "";
+  $("dl-verdict").innerHTML = `<div class="head"><span class="lv ${lvCls}">${esc(d.label)}</span><span class="hint">符合 ${d.hits} / ${d.checks.length} 項（${esc(d.date)}）</span></div>
+    <p class="hint" style="margin:8px 0 0">加權指數離 ${m.taiex_peak_date.slice(5).replace("-", "/")} 高點 <span class="mono ${cls(m.taiex_dd)}">${pct(m.taiex_dd)}</span>，融資張數只 <span class="mono ${cls(m.dd)}">${pct(m.dd)}</span>（${int(m.lots)} 張）。${refTxt}</p>
+    <div class="checks">${d.checks.map(c => `<div class="chk${c.hit ? " hit ok" : ""}"><span class="dot"></span><div><div class="t mono">${esc(c.t)}</div><div class="d">${esc(c.d)}</div></div></div>`).join("")}</div>`;
+  const row = (nm, sub, e, c = "") => `<tr${c ? ` class="${c}"` : ""}><td><span class="sname">${nm}<span class="mono">${sub}</span></span></td>
+    <td class="n mono hide-s">${e.close == null ? "–" : `${num(e.close)} <span class="${cls(e.r5)}">${pct(e.r5)}</span>`}</td>
+    <td class="n mono">${int(e.fin)}${e.fin_peak && e.fin >= e.fin_peak ? ' <span class="tag call" style="margin:0 0 0 4px">新高</span>' : ""}</td>
+    <td class="n mono ${cls(e.f1)}">${pct(e.f1)}</td><td class="n mono ${cls(e.f5)}">${pct(e.f5)}</td><td class="n mono ${cls(e.f20)}">${pct(e.f20)}</td>
+    <td class="n mono ${cls(e.u5)}">${pct(e.u5)}</td><td class="n mono hide-s ${cls(e.u20)}">${pct(e.u20)}</td>
+    <td class="n mono ${cls(e.flow5)}">${e.flow5 == null ? "–" : sint(e.flow5) + " 億"}</td><td class="n mono hide-s ${cls(e.flow20)}">${e.flow20 == null ? "–" : sint(e.flow20) + " 億"}</td></tr>`;
+  const a = d.active;
+  $("dl-body").innerHTML = d.etfs.map(e => row(esc(e.name), esc(e.code) + (e.group === "inv" ? " 反向" : ""), e)).join("")
+    + row("主動式 ETF 合計", `融資市值 ${num(a.val)} 億`, {close: null, r5: null, fin: a.fin, fin_peak: a.peak, f1: a.f1, f5: a.f5, f20: a.f20}, "sum");
+}
+const getDlRng = chips("dl-rng", renderDlChart);
+function renderDlChart() {
+  if (!DL) return;
+  const n = +getDlRng();
+  const mk = DL.market.rows.slice(-n), dates = mk.map(r => r[0]);
+  const by = (rows, k) => { const o = {}; rows.forEach(r => o[r[0]] = r[k]); return dates.map(d => o[d] ?? null); };
+  const e = c => DL.etfs.find(x => x.code === c);
+  const S = [
+    ["大盤融資張數", mk.map(r => r[1]), "var(--brass)", 2.2, ""],
+    ["00631L 融資", e("00631L") && by(e("00631L").rows, 1), "var(--rise)", 1.8, ""],
+    ["00631L 受益單位", e("00631L") && by(e("00631L").rows, 3), "var(--rise)", 1.4, "5 3"],
+    ["00685L 融資", e("00685L") && by(e("00685L").rows, 1), "#B48EDB", 1.6, ""],
+    ["主動式 ETF 融資", by(DL.active.rows, 1), "#6FA8DC", 1.8, ""],
+  ].filter(s => s[1]).map(s => { const b = s[1].find(v => v != null); return [s[0], s[1].map(v => v == null || !b ? null : v / b * 100), s[2], s[3], s[4]]; });
+  const W = 1000, L = 46, R = 70, T = 10, H1 = 220, B = 22, H = T + H1 + B;
+  const X = i => L + (dates.length < 2 ? 0 : i / (dates.length - 1) * (W - L - R));
+  const all = S.flatMap(s => s[1]).filter(v => v != null).concat([100]);
+  let a = Math.min(...all), b = Math.max(...all); const p = (b - a || 1) * 0.06; a -= p; b += p;
+  const Y = v => T + H1 - (v - a) / (b - a) * H1;
+  const path = (vals, color, w, dash) => { let d = "", pen = false; vals.forEach((v, i) => { if (v == null) { pen = false; return; } d += (pen ? "L" : "M") + X(i).toFixed(1) + "," + Y(v).toFixed(1); pen = true; }); return `<path d="${d}" fill="none" stroke="${color}" stroke-width="${w}"${dash ? ` stroke-dasharray="${dash}"` : ""}/>`; };
+  let g = ""; for (let k = 0; k <= 4; k++) { const v = a + (b - a) * k / 4; g += `<line x1="${L}" x2="${W - R}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}" stroke="var(--line)"/><text x="${L - 6}" y="${(Y(v) + 4).toFixed(1)}" text-anchor="end">${Math.round(v)}</text>`; }
+  const step = Math.max(1, Math.round(dates.length / 6));
+  const xl = dates.map((d, i) => i % step ? "" : `<text x="${X(i).toFixed(1)}" y="${H - 4}" text-anchor="middle">${d.slice(5).replace("-", "/")}</text>`).join("");
+  const ends = S.map(s => { const i = s[1].length - 1; return s[1][i] == null ? "" : `<text x="${W - R + 6}" y="${(Y(s[1][i]) + 4).toFixed(1)}" style="fill:${s[2]}">${Math.round(s[1][i])}</text>`; }).join("");
+  $("dl-chart").innerHTML = `<div class="legend">${S.map(s => `<span><i style="background:${s[2]}${s[4] ? ";opacity:.6" : ""}"></i>${s[0]}</span>`).join("")}<span class="faint">區間第一天＝100</span></div>
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="融資張數與槓桿 ETF 走勢">${g}<line x1="${L}" x2="${W - R}" y1="${Y(100).toFixed(1)}" y2="${Y(100).toFixed(1)}" stroke="var(--line-strong)" stroke-dasharray="4 4"/>
+    ${S.map(s => path(s[1], s[2], s[3], s[4])).join("")}${ends}${xl}
+    <line id="dlx" y1="${T}" y2="${T + H1}" stroke="var(--line-strong)" visibility="hidden"/><rect id="dlhit" x="${L}" y="${T}" width="${W - L - R}" height="${H1}" fill="transparent"/></svg><div class="tip" id="dltip"></div>`;
+  const svg = $("dl-chart").querySelector("svg"), tip = $("dltip"), cx = svg.querySelector("#dlx");
+  svg.querySelector("#dlhit").addEventListener("pointermove", ev => {
+    const r = svg.getBoundingClientRect(), px = (ev.clientX - r.left) / r.width * W;
+    const i = Math.max(0, Math.min(dates.length - 1, Math.round((px - L) / (W - L - R) * (dates.length - 1))));
+    cx.setAttribute("x1", X(i)); cx.setAttribute("x2", X(i)); cx.setAttribute("visibility", "visible");
+    tip.innerHTML = `<b class="mono">${dates[i]}</b>　加權 <span class="mono">${num(mk[i][3])}</span>　維持率 <span class="mono">${mk[i][2] ?? "–"}%</span><br>` + S.map(s => `<span style="color:${s[2]}">●</span> ${s[0]} <span class="mono">${s[1][i] == null ? "–" : s[1][i].toFixed(0)}</span>`).join("<br>");
+    tip.style.display = "block";
+    const box = $("dl-chart").getBoundingClientRect(), x = ev.clientX - box.left;
+    tip.style.left = (x > box.width / 2 ? x - tip.offsetWidth - 12 : x + 12) + "px"; tip.style.top = "36px";
+  });
+  svg.addEventListener("pointerleave", () => { tip.style.display = "none"; cx.setAttribute("visibility", "hidden"); });
+}
 
 function back(n) { return M.length > n ? M[M.length - 1 - n] : null; }
 
@@ -326,12 +412,13 @@ $("s-head").addEventListener("click", e => {
 });
 const getMkt = chips("s-mkt", () => { limit = 100; renderStocks(); });
 const getMin = chips("s-min", () => { limit = 100; renderStocks(); });
+const getLiq = chips("s-liq", () => { limit = 100; renderStocks(); });
 $("s-etf").addEventListener("change", () => { limit = 100; renderStocks(); });
 $("q").addEventListener("input", () => { limit = 100; renderStocks(); });
 $("s-more").addEventListener("click", () => { limit += 100; renderStocks(); });
 
 function renderStocks() {
-  const q = $("q").value.trim(), mkt = getMkt(), min = +getMin(), noEtf = $("s-etf").checked;
+  const q = $("q").value.trim(), mkt = getMkt(), min = +getMin(), liq = +getLiq(), noEtf = $("s-etf").checked;
   const sel = $("s-sort").querySelector('[aria-pressed="true"]');
   const [key, dir] = colSort ? [r => r[colSort.k], colSort.dir] : SORTS[sel ? sel.dataset.v : "kill"];
   $("s-head").querySelectorAll("th[data-k]").forEach(th => {
@@ -340,7 +427,7 @@ function renderStocks() {
     th.textContent = th.textContent.replace(/ [▼▲]$/, "") + (on ? (colSort.dir < 0 ? " ▼" : " ▲") : "");
   });
   let rows = S.filter(r => r.fin != null && (!mkt || r.market === mkt) && (!noEtf || !/^0/.test(r.code))
-    && (q ? r.code.includes(q) || r.name.includes(q) : (r.fin_val || 0) >= min) && key(r) != null);
+    && (q ? r.code.includes(q) || r.name.includes(q) : (r.fin_val || 0) >= min && (r.val5 || 0) >= liq) && key(r) != null);
   rows.sort((a, b) => dir * (key(a) - key(b)));
   $("s-hint").textContent = `${rows.length} 檔`;
   $("s-more").hidden = rows.length <= limit;
@@ -350,6 +437,7 @@ function renderStocks() {
     const tags = (kill ? '<span class="tag kill">殺</span>' : "") + (call ? '<span class="tag call">追繳</span>' : "");
     const row = `<tr class="click" data-code="${esc(r.code)}"><td><span class="sname">${tags}${esc(r.name)}<span class="mono">${esc(r.code)}${r.market === "TPEx" ? " 櫃" : ""}</span></span></td>
       <td class="n mono">${num(r.close)}</td><td class="n mono ${cls(r.r1)}">${pct(r.r1)}</td><td class="n mono ${cls(r.r5)}">${pct(r.r5)}</td><td class="n mono hide-s ${cls(r.r20)}">${pct(r.r20)}</td>
+      <td class="n mono hide-s">${r.val5 ? yi(r.val5) : "–"}</td>
       <td class="n mono">${int(r.fin)}<div class="faint" style="font-size:11px">${r.fin_val ? yi(r.fin_val) : ""}</div></td><td class="n mono ${cls(r.f1)}">${sint(r.f1)}</td>
       <td class="n mono ${cls(r.f5p)}">${pct(r.f5p)}<div class="faint" style="font-size:11px">${sint(r.f5)} 張</div></td>
       <td class="n mono hide-s ${cls(r.f20p)}">${pct(r.f20p)}</td>
@@ -358,8 +446,8 @@ function renderStocks() {
       <td class="n mono ${cls(r.ul5p)}">${pct(r.ul5p)}<div class="faint" style="font-size:11px">${sint(r.ul5)} 張</div></td>
       <td class="n mono hide-s">${r.ul_use == null ? "–" : r.ul_use.toFixed(1) + "%"}</td>
       <td class="n mono hide-s">${r.ss_ratio == null ? "–" : r.ss_ratio + "%"}</td></tr>`;
-    return row + (open === r.code ? `<tr class="detail"><td colspan="14" id="detail">載入中…</td></tr>` : "");
-  }).join("") || `<tr><td colspan="14" class="empty">沒有符合的股票</td></tr>`;
+    return row + (open === r.code ? `<tr class="detail"><td colspan="15" id="detail">載入中…</td></tr>` : "");
+  }).join("") || `<tr><td colspan="15" class="empty">沒有符合的股票</td></tr>`;
   if (open && $("detail")) loadDetail(open);
 }
 $("s-body").addEventListener("click", e => {
