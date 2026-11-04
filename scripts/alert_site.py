@@ -195,7 +195,99 @@ def write_alert(data_dir, out_path):
     payload = build(disp, _read(d / "attention.csv"), _read(d / "near.csv"))
     today = date.today().isoformat()
     payload["holidays"] = sorted(h for h in holidays if h >= today)
+    payload["exitstat"] = exit_stats(disp, data_dir)
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     return payload
+
+
+# ───────────── 出關隔天統計 ─────────────
+REFORM = "2026-08-10"  # 處置新制起日：期間 5 天、多為約每 2 分鐘撮合、第二次處置全額預收
+EXIT_GROUPS = [("first_上市", "第一次・上市"), ("first_上櫃", "第一次・上櫃"), ("again", "第二次／再次"),
+               ("pre_first", "改制前第一次"), ("pre_again", "改制前第二次／再次")]
+
+
+def exit_group(measure, market, start):
+    """出關隔天統計的分組鍵：改制後（處置起日 ≥ REFORM）依次別、市場；改制前另成一組當對照。"""
+    first = measure == "第一次處置"
+    if start >= REFORM:
+        return f"first_{market}" if first else "again"
+    return "pre_first" if first else "pre_again"
+
+
+def chains(disp):
+    """同一檔的處置若在出關日（含）以前又開始新的處置，就接成一段。回傳每段最後一筆的 dict，附 chain_start。
+    disp 每筆需有 code、start、end、exit。"""
+    by = {}
+    for x in sorted(disp, key=lambda x: (x["code"], x["start"], x["end"])):
+        by.setdefault(x["code"], []).append(x)
+    out = []
+    for xs in by.values():
+        cur = None
+        for x in xs:
+            if cur and x["start"] <= cur["exit"]:
+                st = cur["chain_start"]
+                cur = dict(x, chain_start=st) if x["end"] >= cur["end"] else cur
+                continue
+            if cur:
+                out.append(cur)
+            cur = dict(x, chain_start=x["start"])
+        if cur:
+            out.append(cur)
+    return out
+
+
+def _price_files(data_dir):
+    return {f"{p.stem[:4]}-{p.stem[4:6]}-{p.stem[6:8]}": p
+            for p in Path(data_dir).glob("[0-9][0-9][0-9][0-9]/[0-9]*.csv")}
+
+
+def exit_stats(disp, data_dir, since="2025-01-01"):
+    """每段處置（chains）出關後第一個交易日的 K 棒：收黑比例、開盤到收盤、前一天收盤到收盤（平均、中位）。
+    只算 4 碼股票（不含 ETF），且出關後已有收盤的。回傳 {"reform", "asof", "groups": [{key, label, n, black, oc_avg, oc_med, ret_avg, ret_med}]}"""
+    files = _price_files(data_dir)
+    dates = sorted(files)
+    if not dates:
+        return None
+    cache = {}
+
+    def row(day, code):
+        if day not in cache:
+            with open(files[day], encoding="utf-8") as fp:
+                cache[day] = {r["code"].strip(): r for r in csv.DictReader(fp)}
+        return cache[day].get(code)
+    vals = {}
+    for c in chains([x for x in disp if re.fullmatch(r"\d{4}", x["code"]) and not x["code"].startswith("00")
+                     and x.get("exit") and x["end"] >= since]):
+        nxt = [t for t in dates if t > c["end"]][:5]
+        r = next((row(t, c["code"]) for t in nxt if row(t, c["code"])), None)
+        try:
+            o, cl, ch = float(r["open"]), float(r["close"]), float(r["change"])
+        except (TypeError, ValueError, KeyError):
+            continue
+        if o <= 0 or float(r.get("volume") or 0) <= 0:
+            continue
+        v = vals.setdefault(exit_group(c["measure"], c["market"], c["start"]), [])
+        v.append((cl < o, cl / o - 1, ch / (cl - ch) if cl - ch else 0.0))
+
+    def med(xs):
+        xs = sorted(xs)
+        return xs[len(xs) // 2] if len(xs) % 2 else (xs[len(xs) // 2 - 1] + xs[len(xs) // 2]) / 2
+    groups = []
+    for k, label in EXIT_GROUPS:
+        v = vals.get(k, [])
+        if not v:
+            continue
+        oc, rt = [x[1] * 100 for x in v], [x[2] * 100 for x in v]
+        groups.append({"key": k, "label": label, "n": len(v), "black": round(sum(x[0] for x in v) / len(v) * 100, 1),
+                       "oc_avg": round(sum(oc) / len(oc), 2), "oc_med": round(med(oc), 2),
+                       "ret_avg": round(sum(rt) / len(rt), 2), "ret_med": round(med(rt), 2)})
+    return {"reform": REFORM, "asof": dates[-1], "groups": groups}
+
+
+def upcoming_exits(disp, after, before):
+    """出關日在 (after, before] 之間的處置段（已接續處置的不算），附 exit_group。"""
+    return sorted((dict(c, group=exit_group(c["measure"], c["market"], c["start"]))
+                   for c in chains([x for x in disp if is_stock(x["code"]) and x.get("exit")])
+                   if after < c["exit"] <= before), key=lambda c: (c["exit"], c["code"]))
