@@ -137,11 +137,7 @@
       <button data-v="hi" aria-pressed="true">52 週新高</button>
       <button data-v="ath" aria-pressed="false">2022 年以來新高</button>
     </div>
-    <div class="chips" id="minv">
-      <button data-v="0" aria-pressed="false">成交不限</button>
-      <button data-v="0.5" aria-pressed="true">日均 5 千萬以上</button>
-      <button data-v="3" aria-pressed="false">3 億以上</button>
-    </div>
+    <div id="minv"></div>
   </div>
 
   <section class="block" style="margin-top:32px">
@@ -178,7 +174,7 @@
     <button class="more" id="more" hidden>顯示更多</button>
     <p class="note">
       用還原收盤價計算（除權息、減資不會讓高點斷掉）。「創 52 週新高」＝當天收盤是含當天在內最近 250 個交易日的最高；「2022 年以來新高」＝收盤高於本站資料起點（2022 年 1 月）以來每一天，資料不夠早，所以不是真正的上市以來新高。
-      只算上市櫃普通股，上市未滿 250 個交易日的新股不列入。族群「比例」＝期間內創新高家數 ÷ 族群內符合成交條件的家數；成交門檻以近 20 日平均成交金額計；「成交量」是最新一天的成交張數。
+      只算上市櫃普通股，上市未滿 250 個交易日的新股不列入。族群「比例」＝期間內創新高家數 ÷ 族群內符合成交條件的家數；成交門檻以近 5 日平均成交金額計（全站共用的「日均成交值」濾網）；「成交量」是最新一天的成交張數。
       近 15 日欄位：紅格是那天創新高，紅格底部金線是同時創 2022 年以來新高。資料僅供參考，不構成投資建議。
     </p>
   </section>
@@ -204,7 +200,7 @@ function hits(r){
   return r[S.kind].filter(j => j >= from);
 }
 
-function universe(){ return ROWS.filter(r => (r.value ?? 0) >= S.minv); }
+function universe(){ return ROWS.filter(r => TideLiq.pass(r.code)); }
 
 /* 族群 */
 function groupRows(){
@@ -363,7 +359,7 @@ fetch("data/newhigh.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
     ["近 20 日高峰", peak, `${dTxt(d.days[pi])} 創高家數最多`],
   ].map(([k, v, s]) => `<div class="stat"><div class="k">${k}</div><div class="v mono">${v}</div><div class="s">${s}</div></div>`).join("");
   loadHash();
-  chipBind("per", "per", Number); chipBind("kind", "kind"); chipBind("minv", "minv", Number); chipBind("lvl", "lvl");
+  chipBind("per", "per", Number); chipBind("kind", "kind"); TideLiq.mount("minv", () => render()); chipBind("lvl", "lvl");
   $("srt").querySelectorAll("button").forEach(b => b.onclick = () => { S.sort = b.dataset.v; S.desc = true; S.n = 60; renderStocks(); });
   $("mine").onchange = e => { S.mine = e.target.checked; renderStocks(); };
   $("q").oninput = e => { S.q = e.target.value.toLowerCase(); S.n = 60; renderStocks(); };

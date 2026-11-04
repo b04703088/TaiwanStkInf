@@ -21,6 +21,7 @@
   data/insider/insider.json          內部人事前申報、每月持股異動與設質解質（見 scripts/insider_site.py）
   data/mops/mops.json                重大訊息、股東會／法說會行事曆（見 scripts/mops_site.py）
   data/fin/index.json, s/<代號>.json  財報：月營收與季報（見 scripts/fin_site.py）
+  data/liq.json                      全站共用成交值濾網：各代號近 5 日平均成交值（億，見 scripts/liq_site.py、nav.js TideLiq）
   data/margin/market.json, stocks.json, s/<代號>.json  融資融券、估計維持率（見 scripts/margin_site.py）
   data/cost.json                     持股成本：主動式 ETF、融資、不限用途借貸的估計成本與維持率（見 scripts/cost_site.py）
   data/kline/index.json, s/<代號>.json  K 線：2022 年起每日價量＋還原因子事件（見 scripts/kline_site.py）
@@ -107,6 +108,7 @@ import us_site  # noqa: E402
 import commod_site  # noqa: E402
 import cost_site  # noqa: E402
 import asof_site  # noqa: E402
+import liq_site  # noqa: E402
 
 TPE = timezone(timedelta(hours=8))
 BRAND_SUB = '<span class="brand-sub">籌碼觀測站</span>'
@@ -150,6 +152,7 @@ def build(out: Path, days: int) -> list[str]:
             json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
         dates.append(d)
     (out / "data" / "days.json").write_text(json.dumps(dates), encoding="utf-8")
+    liq_site.write(files, out / "data" / "liq.json")  # 全站共用的成交值濾網（nav.js TideLiq）
     if (ROOT / "data" / "etf" / "etf_list.csv").exists():
         etf_site.write_latest(ROOT / "data", out / "data" / "etf" / "latest.json")
     etf_site.write_aum(ROOT / "data", out / "data" / "etf" / "aum.json")

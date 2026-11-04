@@ -162,6 +162,7 @@
         <button data-v="100000" aria-pressed="true">月營收 1 億以上</button>
         <button data-v="1000000" aria-pressed="false">10 億以上</button>
       </div>
+      <div id="rev-liq"></div>
     </div>
     <div class="tbl-wrap"><table>
       <thead><tr><th>股票</th><th class="hide-s">產業</th><th class="n">營收（億）</th><th class="n">月增</th><th class="n">年增</th><th class="n">累計年增</th><th class="n">新高</th><th class="hide-s">公司說明</th></tr></thead>
@@ -186,6 +187,7 @@
         <button data-v="上市" aria-pressed="false">上市</button>
         <button data-v="上櫃" aria-pressed="false">上櫃</button>
       </div>
+      <div id="q-liq"></div>
     </div>
     <div class="tbl-wrap"><table>
       <thead><tr><th>股票</th><th class="n">營收（億）</th><th class="n">營收年增</th><th class="n">毛利率</th><th class="n hide-s">營益率</th><th class="n">EPS</th><th class="n">EPS 年增</th><th class="n hide-s">近四季 EPS</th><th class="n hide-s">ROE</th><th class="n hide-s">每股淨值</th></tr></thead>
@@ -235,7 +237,7 @@ function renderStats(){
 
 function renderRev(){
   const key = R.sort === "high" ? "high_n" : R.sort;
-  const rows = REV.filter(r => (!R.mk || r.market === R.mk) && (r.revenue ?? 0) >= R.min && r[key] != null)
+  const rows = REV.filter(r => (!R.mk || r.market === R.mk) && (r.revenue ?? 0) >= R.min && TideLiq.pass(r.code) && r[key] != null)
     .sort((a, b) => b[key] - a[key] || (b.yoy ?? -1e9) - (a.yoy ?? -1e9));
   $("rev-hint").textContent = `${ymTxt(D.rev.ym)}・${rows.length} 家`;
   $("rev-body").innerHTML = rows.slice(0, R.n).map(r => `<tr class="click" data-c="${r.code}">
@@ -248,7 +250,7 @@ function renderRev(){
 }
 
 function renderQ(){
-  const rows = QR.filter(r => (!Q.mk || r.market === Q.mk) && r[Q.sort] != null).sort((a, b) => b[Q.sort] - a[Q.sort]);
+  const rows = QR.filter(r => (!Q.mk || r.market === Q.mk) && TideLiq.pass(r.code) && r[Q.sort] != null).sort((a, b) => b[Q.sort] - a[Q.sort]);
   $("q-hint").textContent = `${yqTxt(D.q.yq)} 單季・${rows.length} 家` + (D.q.latest && D.q.latest !== D.q.yq ? `（${yqTxt(D.q.latest)} 申報中，個股可查）` : "");
   $("q-body").innerHTML = rows.slice(0, Q.n).map(r => `<tr class="click" data-c="${r.code}">
     <td>${stockCell(r.code, r.market)}</td><td class="n mono">${yi(r.q_revenue)}</td><td class="n mono">${pct(r.rev_yoy)}</td>
@@ -438,6 +440,7 @@ fetch("data/fin/index.json", {cache: "no-cache"}).then(r => r.json()).then(d => 
   chips("rev-sort", R, "sort", renderRev);
   chips("rev-mk", R, "mk", renderRev);
   chips("rev-min", R, "min", renderRev, Number);
+  TideLiq.mount("rev-liq", () => renderRev()); TideLiq.mount("q-liq", () => renderQ());
   chips("q-sort", Q, "sort", renderQ);
   chips("q-mk", Q, "mk", renderQ);
   $("rev-more").onclick = () => { R.n += 50; renderRev(); };

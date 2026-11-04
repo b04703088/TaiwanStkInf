@@ -137,6 +137,7 @@
       <select class="filter" id="minv" aria-label="最低市值">
         <option value="0">不限市值</option><option value="1e8" selected>市值 1 億以上</option><option value="1e9">10 億以上</option>
       </select>
+      <div id="liq"></div>
       <label class="chk-in"><input type="checkbox" id="noetf" checked> 排除 ETF</label>
       <label class="chk-in"><input type="checkbox" id="mine"> 只看自選</label>
       <input class="filter" id="q" type="search" placeholder="代號或名稱" autocomplete="off" aria-label="搜尋">
@@ -201,7 +202,8 @@ function rowsFor(){
     else if (S.etf === "all") rs = E.rows.filter(r => q || (r.w ?? 0) >= 1).map(r => ({...r, val: r.lots * 1000 * r.close}));
     else rs = E.rows.filter(r => r.e === +S.etf).map(r => ({...r, val: r.lots * 1000 * r.close}));
   } else rs = S.tab === "margin" ? M : U;
-  rs = rs.filter(r => (!S.mine || mine.has(r.code)) && (!q ? (S.tab === "etf" || ((r.val >= S.minv) && (!S.noetf || !/^0/.test(r.code))))
+  const one = S.tab === "etf" && S.etf !== "" && S.etf !== "all";   // 單一 ETF 的持股不到 200 檔，不套成交值濾網
+  rs = rs.filter(r => (!S.mine || mine.has(r.code)) && (!q ? (one || TideLiq.pass(r.code)) && (S.tab === "etf" || ((r.val >= S.minv) && (!S.noetf || !/^0/.test(r.code))))
     : r.code.toLowerCase().includes(q) || r.name.toLowerCase().includes(q)));
   const k = (SORTS[S.tab].find(x => x[0] === S.sort[S.tab]) || SORTS[S.tab][0])[2];
   return rs.filter(r => k(r) != null && isFinite(k(r))).sort((a, b) => k(a) - k(b));
@@ -210,6 +212,7 @@ function rowsFor(){
 function render(){
   document.querySelectorAll("#tabs button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === S.tab));
   $("etf").hidden = S.tab !== "etf";
+  $("liq").hidden = S.tab === "etf" && S.etf !== "" && S.etf !== "all";
   $("minv").hidden = S.tab === "etf"; $("noetf").parentNode.style.display = S.tab === "etf" ? "none" : "";
   $("sortc").innerHTML = SORTS[S.tab].map(([v, t]) => `<button data-v="${v}" aria-pressed="${S.sort[S.tab] === v}">${t}</button>`).join("");
   const rs = rowsFor();
@@ -289,6 +292,7 @@ async function init(){
   $("sortc").onclick = e => { const b = e.target.closest("button"); if (!b) return; S.sort[S.tab] = b.dataset.v; S.limit = 100; render(); };
   $("etf").onchange = e => { S.etf = e.target.value; S.open = null; render(); };
   $("minv").onchange = e => { S.minv = +e.target.value; render(); };
+  TideLiq.mount("liq", () => { if (D) render(); });
   $("noetf").onchange = e => { S.noetf = e.target.checked; render(); };
   $("mine").onchange = e => { S.mine = e.target.checked; render(); };
   $("q").oninput = e => { S.q = e.target.value; S.limit = 100; render(); };

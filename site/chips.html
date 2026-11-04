@@ -187,11 +187,7 @@
         <button data-v="上市" aria-pressed="false">上市</button>
         <button data-v="上櫃" aria-pressed="false">上櫃</button>
       </div>
-      <div class="chips" id="minv">
-        <button data-v="0" aria-pressed="false">成交不限</button>
-        <button data-v="0.5" aria-pressed="true">5 千萬以上</button>
-        <button data-v="3" aria-pressed="false">3 億以上</button>
-      </div>
+      <div id="minv"></div>
       <label class="chk-in"><input type="checkbox" id="noetf" checked> 排除 ETF</label>
       <span class="hint" id="hint"></span>
     </div>
@@ -246,7 +242,7 @@ function cols(){
 }
 
 function sorted(){
-  let rows = ROWS.filter(r => (!S.mk || r.market === S.mk) && (r.value ?? 0) >= S.minv && (!S.noetf || !/^00/.test(r.code)));
+  let rows = ROWS.filter(r => (!S.mk || r.market === S.mk) && TideLiq.pass(r.code) && (!S.noetf || !/^00/.test(r.code)));
   let key, desc = true;
   if (S.t === "inst") { key = S.who + (S.per === "s" ? "s" : S.per); desc = S.dir === "buy"; }
   if (S.t === "sbl") { key = {up: "sbl5", down: "sbl5", bal: "sbl", days: "sbl_days"}[S.sbl]; desc = S.sbl !== "down"; }
@@ -319,7 +315,7 @@ fetch("data/chips/chips.json", {cache: "no-cache"}).then(r => r.json()).then(d =
   $("sub").textContent = `${d.date.replaceAll("-", "/")}・三大法人買賣超、借券賣出、現股當沖每天晚上更新；集保大戶每週五更新。點表格的股票看近 20 日明細。`;
   $("stats").innerHTML = [["外資", m[1], "億"], ["投信", m[2], "億"], ["自營商", m[3], "億"], ["當沖占成交量", m[6], "%"]]
     .map(([k, v, u]) => `<div class="stat"><div class="k">${k}${u === "億" ? "買賣超" : ""}</div><div class="v mono ${u === "億" ? cls(v) : ""}">${v == null ? "–" : (u === "億" && v > 0 ? "+" : "") + fx(v, u === "%" ? 1 : 1)}</div><div class="s">${u === "億" ? "億元（張數 × 收盤估算）" : "現股當沖股數 ÷ 成交股數"}</div></div>`).join("");
-  chipBind("mk", "mk"); chipBind("minv", "minv", Number); chipBind("mwho", "mwho", v => v, chart);
+  chipBind("mk", "mk"); TideLiq.mount("minv", () => render()); chipBind("mwho", "mwho", v => v, chart);
   $("noetf").onchange = e => { S.noetf = e.target.checked; render(); };
   $("more").onclick = () => { S.n += 50; render(); };
   document.querySelectorAll(".tabs a").forEach(a => a.onclick = e => { e.preventDefault(); S.t = a.dataset.t; S.n = 50; history.replaceState(null, "", "#" + S.t); render(); });

@@ -291,6 +291,7 @@
             <button type="button" data-v="etf" aria-pressed="false">ETF</button>
           </div>
         </div>
+        <div id="liq"></div>
         <input class="search" id="search" type="search" placeholder="搜尋代號或名稱" aria-label="搜尋代號或名稱">
       </div>
 
@@ -414,7 +415,7 @@ function filtered() {
     (state.market === "all" || r.market === state.market) &&
     (state.kind === "all" || (state.kind === "etf") === isEtf(r.code)) &&
     (state.node == null || nodeMembers(state.node).has(r.code)) &&
-    (!q || r.code.toLowerCase().includes(q) || r.name.toLowerCase().includes(q)));
+    (q ? r.code.toLowerCase().includes(q) || r.name.toLowerCase().includes(q) : TideLiq.pass(r.code)));
 }
 
 function renderNodeBar(list) {
@@ -475,6 +476,7 @@ document.querySelectorAll(".seg").forEach(seg => {
   });
 });
 $("search").addEventListener("input", e => { state.q = e.target.value; state.shown = PAGE_SIZE; renderTable(); });
+TideLiq.mount("liq", () => { state.shown = PAGE_SIZE; if (state.rows && state.rows.length) render(); });
 $("moreBtn").addEventListener("click", () => { state.shown += PAGE_SIZE; renderTable(); });
 $("rows").addEventListener("click", e => {
   const t = e.target.closest(".ind-tag[data-node]"); if (!t) return;
