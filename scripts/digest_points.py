@@ -618,8 +618,31 @@ def disp_exit(iso, stems, days=4):
     return out
 
 
+# ───────────── 去槓桿進度（殺乾淨了沒） ─────────────
+def delev(iso):
+    """margin_site.deleverage 的燈號＋五項檢查＋台股正 2 ETF／主動式 ETF 融資（同融資頁）。"""
+    import margin_site
+    d = margin_site.deleverage_from_disk(D)
+    if not d or d["date"] != iso:
+        return []
+    m, ref = d["market"], d["ref"]
+    out = ["## 去槓桿進度", "",
+           f"**{'🟢' if d['level'] == 3 else '🟡' if d['level'] == 2 else '🔴'} {d['label']}**（符合 {d['hits']} / {len(d['checks'])} 項）。"
+           f"加權離 {_md(m['taiex_peak_date'])} 高點 {m['taiex_dd']:+.1f}%，融資張數離 {_md(m['peak_date'])} 高點 {m['dd']:+.1f}%，"
+           f"估計維持率 {m['ratio']:.1f}%。"
+           + (f"上一次洗盤（{_md(ref['date'])}）張數 {ref['dd']:+.1f}%、維持率低點 {ref['ratio']:.0f}%。" if ref else ""), ""]
+    out += _tbl(["檢查", "現況", "達標"], [[c["k"], c["t"], "✅" if c["hit"] else "—"] for c in d["checks"]])
+    pc = lambda v: "—" if v is None else f"{v:+.1f}%"
+    rows = [[f"{e['code']} {e['name']}", f"{e['fin']:,.0f} 張" + ("（新高）" if e["fin"] >= e["fin_peak"] else ""), pc(e["f5"]), pc(e["f20"]),
+             pc(e["u5"]), "—" if e["flow5"] is None else _yi(e["flow5"])] for e in d["etfs"]]
+    a = d["active"]
+    rows.append(["主動式 ETF 合計", f"{a['fin']:,.0f} 張", pc(a["f5"]), pc(a["f20"]), "", ""])
+    out += [""] + _tbl(["槓桿部位", "融資餘額", "融資 5 日", "融資 20 日", "受益單位 5 日", "淨申贖 5 日"], rows)
+    return out
+
+
 # 重要分點買賣超、近期內部人事件；資金流向、舊版 CB／ETF 段落先不放，要放回時把名稱加回 SECTIONS（順序即網頁順序）。
-SECTIONS = ("disp_exit", "etf_brief", "cb_brief", "watch", "insider")
+SECTIONS = ("delev", "disp_exit", "etf_brief", "cb_brief", "watch", "insider")
 
 
 def build(day, px_files, chip_files):
@@ -634,7 +657,7 @@ def build(day, px_files, chip_files):
     fns = {f.__name__: (f, a) for f, a in ((flows, (px_files, chip_files, day)), (watch, (day,)), (cb, (iso, prev_iso, names)),
                                            (etf, (iso, prev_iso, names)), (insider, (iso, since5, px)), (shift, (iso, prev_iso)),
                                            (cb_brief, (iso, prev_iso, names)), (etf_brief, (iso, since5)),
-                                           (disp_exit, (iso, stems)))}
+                                           (disp_exit, (iso, stems)), (delev, (iso,)))}
     for f, args in (fns[k] for k in SECTIONS):
         try:
             sec = f(*args)

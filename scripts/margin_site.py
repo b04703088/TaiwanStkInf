@@ -5,6 +5,8 @@
   data/margin/stocks.json   最新一天全部個股：融資餘額與 1／5／20 日增減、股價漲跌、
                             融資市值、估計融資成本與維持率、融券餘額、券資比、融資使用率
   data/margin/s/<代號>.json 個股近 SERIES_N 個交易日：收盤、融資餘額、融券餘額、估計維持率、不限用途借貸擔保張數
+  data/margin/delev.json    去槓桿進度（殺乾淨了沒）：大盤融資張數離高點、連續大減、維持率、
+                            台股正 2／反 1 ETF 的融資與受益單位、主動式 ETF 融資合計（見 deleverage()）
 不限用途款項借貸（data/pledge/，證交所借貸款項擔保品餘額表）：個股被拿去質押借錢的張數與限額；
   大盤加總擔保市值＝Σ(擔保張數 × 1000 × 收盤)。
 
@@ -238,10 +240,159 @@ def build(data_dir):
     index = _read(mdir / "index.csv") if (mdir / "index.csv").exists() else []
     market = market_series(data_dir, days[-MARKET_N:], summary, index)
     return {
+        "delev": deleverage(data_dir, days[-MARKET_N:], market),
         "market": {"date": d0, "cols": MARKET_COLS, "rows": market},
         "stocks": {"date": d0, "cols": STOCK_COLS, "rows": stocks},
         "series": {f"{k[1]}": v for k, v in series.items()},
     }
+
+
+# ───────────── 去槓桿進度（殺乾淨了沒） ─────────────
+# 2026-11-04 Leo：看槓桿有沒有殺乾淨。樣板是 2026/7 的洗盤：融資張數 7/3→7/30 減 10.3%、
+# 7/28–29 連兩天單日減 2%～3.7%、估計維持率低點 154%，隔天指數 +8%。00631L 融資在下跌中增加、反彈後才降。
+LEV_ETFS = [("00631L", "lev"), ("00675L", "lev"), ("00685L", "lev"), ("00663L", "lev"), ("00632R", "inv")]
+DELEV = {
+    "peak_n": 60,        # 張數高點：近 60 個交易日
+    "dd": -8.0,          # 張數離高點 ≤ -8%
+    "drop2": -2.0,       # 單日張數減 ≥ 2%，近 5 日內連 2 天
+    "ratio": 150.0,      # 大盤估計維持率 ≤ 150%
+}
+DELEV_N = 120            # 走勢保留天數
+
+
+def _is_active(code):
+    return code.startswith("00") and code.endswith("A") and code[2:-1].isdigit()
+
+
+def etf_units(data_dir, codes):
+    """data/etf/aum：{code: {date: (units, flow)}}，同一資料日以較晚的檔案為準。
+    單位數是該交易日盤前揭露的已發行單位數（反映前一交易日的申購贖回）。"""
+    out = {c: {} for c in codes}
+    for f in sorted(Path(data_dir).glob("etf/aum/[0-9]*.csv")):
+        for r in _read(f):
+            c = r.get("etf")
+            if c in out and _f(r.get("units")) is not None:
+                out[c][r["date"]] = (_f(r["units"]), _f(r.get("flow")) or 0.0)
+    return out
+
+
+def _chg_n(vals, n):
+    """vals 最後一筆對 n 筆前的 %（缺值往前找最近一筆有值的）"""
+    v = [x for x in vals if x is not None]
+    return pct(v[-1], v[-1 - n]) if len(v) > n else None
+
+
+def deleverage(data_dir, days, market):
+    """days：load_days 的結果；market：market_series 的列（MARKET_COLS）。"""
+    if not days or not market:
+        return None
+    C = {c: i for i, c in enumerate(MARKET_COLS)}
+    mk = [r for r in market if r[C["twse_lots"]] is not None]
+    if not mk:
+        return None
+    lots = [r[C["twse_lots"]] + (r[C["tpex_lots"]] or 0) for r in mk]
+    ratio = [r[C["all_ratio"]] for r in mk]
+    dates = [r[0] for r in mk]
+    taiex = [r[C["taiex"]] for r in mk]
+    d1 = [None] + [pct(b, a) for a, b in zip(lots, lots[1:])]
+
+    def dd_at(i):
+        lo = max(0, i - DELEV["peak_n"] + 1)
+        pk = max(range(lo, i + 1), key=lambda j: lots[j])
+        return pk, pct(lots[i], lots[pk])
+
+    i = len(lots) - 1
+    pk, dd = dd_at(i)
+    ix_pk = max(range(max(0, i - DELEV["peak_n"] + 1), i + 1), key=lambda j: taiex[j] or 0)
+    last5 = d1[-5:]
+    two = any(a is not None and b is not None and a <= DELEV["drop2"] and b <= DELEV["drop2"] for a, b in zip(last5, last5[1:]))
+
+    # 上一次洗盤：20 個交易日以前維持率最低的一天
+    ref = None
+    old = [j for j in range(len(ratio) - 20) if ratio[j] is not None]
+    if old:
+        j = min(old, key=lambda j: ratio[j])
+        pj, ddj = dd_at(j)
+        ref = {"date": dates[j], "ratio": ratio[j], "dd": ddj, "peak_date": dates[pj],
+               "max_drop": min((x for x in d1[pj + 1:j + 1] if x is not None), default=None),
+               "next5": pct(taiex[min(j + 5, i)], taiex[j]) if taiex[j] else None}
+
+    # ETF：融資張數（含收盤）＋受益單位
+    want = [c for c, _ in LEV_ETFS]
+    units = etf_units(data_dir, want)
+    tail = days[-DELEV_N:]
+    etfs = []
+    for code, grp in LEV_ETFS:
+        rows, name = [], ""
+        for d, rs, closes in tail:
+            r = next((x for k, x in rs.items() if k[1] == code), None)
+            if r:
+                name = name or r.get("name", "")
+            u = units[code].get(d)
+            rows.append([d, _f(r.get("fin_bal")) if r else None, closes.get(("TWSE", code)),
+                         u[0] if u else None, round(u[1] / 1e8, 2) if u else None])
+        if not any(x[1] for x in rows):
+            continue
+        fin = [x[1] for x in rows]
+        un = [x[3] for x in rows]
+        flow5 = [x[4] for x in rows[-5:] if x[4] is not None]
+        flow20 = [x[4] for x in rows[-20:] if x[4] is not None]
+        etfs.append({"code": code, "name": name, "group": grp, "fin": fin[-1], "f1": _chg_n(fin, 1),
+                     "f5": _chg_n(fin, 5), "f20": _chg_n(fin, 20),
+                     "fin_peak": max(x for x in fin if x is not None),
+                     "units": next((x for x in reversed(un) if x is not None), None),
+                     "u5": _chg_n(un, 5), "u20": _chg_n(un, 20),
+                     "flow5": round(sum(flow5), 1) if flow5 else None, "flow20": round(sum(flow20), 1) if flow20 else None,
+                     "close": rows[-1][2], "r5": _chg_n([x[2] for x in rows], 5),
+                     "rows": rows})
+    act = []
+    for d, rs, closes in tail:
+        n = v = 0.0
+        for k, r in rs.items():
+            if _is_active(k[1]):
+                b = _f(r.get("fin_bal")) or 0
+                n += b
+                v += b * 1000 * (closes.get(k) or 0)
+        act.append([d, int(n), round(v / 1e8, 1)])
+    an = [x[1] for x in act]
+    active = {"fin": an[-1], "val": act[-1][2], "f1": _chg_n(an, 1), "f5": _chg_n(an, 5), "f20": _chg_n(an, 20),
+              "peak": max(an), "rows": act}
+
+    e631 = next((e for e in etfs if e["code"] == "00631L"), None)
+    checks = [
+        {"key": "dd", "k": "張數離高點 ≤ -8%", "hit": dd is not None and dd <= DELEV["dd"],
+         "t": f"融資張數離近 {DELEV['peak_n']} 日高點 {dd:+.1f}%" if dd is not None else "融資張數離高點 –",
+         "d": f"高點 {dates[pk]}；{DELEV['dd']:.0f}% 以下才算真的減肥（7 月洗盤減了 10%）"},
+        {"key": "drop2", "k": "連 2 天單日減 ≥ 2%", "hit": two,
+         "t": "近 5 日單日張數：" + "、".join("–" if x is None else f"{x:+.1f}%" for x in last5[-3:]),
+         "d": f"連 2 天單日減 {-DELEV['drop2']:.0f}% 以上＝斷頭潮（7 月是 -2.0%、-3.7%）"},
+        {"key": "ratio", "k": "大盤維持率 ≤ 150%", "hit": ratio[-1] is not None and ratio[-1] <= DELEV["ratio"],
+         "t": f"大盤估計維持率 {ratio[-1]:.1f}%" if ratio[-1] is not None else "大盤估計維持率 –",
+         "d": f"{DELEV['ratio']:.0f}% 附近開始大量追繳（7 月低點 154%）"},
+        {"key": "lev", "k": "00631L 融資＋單位同減", "hit": bool(e631 and (e631["f5"] or 0) < 0 and (e631["u5"] or 0) < 0),
+         "t": (f"00631L 融資 5 日 {e631['f5']:+.1f}%、單位數 5 日 {e631['u5']:+.1f}%" if e631 and e631["f5"] is not None and e631["u5"] is not None else "00631L –"),
+         "d": "融資和受益單位同時下降＝槓桿 ETF 散戶退場"},
+        {"key": "active", "k": "主動式 ETF 融資轉減", "hit": active["f5"] is not None and active["f5"] < 0,
+         "t": f"主動式 ETF 融資 5 日 {active['f5']:+.1f}%" if active["f5"] is not None else "主動式 ETF 融資 –",
+         "d": "主動式 ETF 的融資開始減少"},
+    ]
+    hits = sum(c["hit"] for c in checks)
+    level, label = (3, "接近殺乾淨") if hits >= 4 else (2, "去槓桿進行中") if hits >= 2 else (1, "還沒殺乾淨")
+    return {"date": dates[-1], "level": level, "label": label, "hits": hits, "checks": checks, "rules": DELEV,
+            "market": {"lots": lots[-1], "peak": lots[pk], "peak_date": dates[pk], "dd": dd, "d1": d1[-1],
+                       "ratio": ratio[-1], "taiex_dd": pct(taiex[-1], taiex[ix_pk]), "taiex_peak_date": dates[ix_pk],
+                       "rows": [[dates[k], lots[k], ratio[k], taiex[k]] for k in range(max(0, i - DELEV_N + 1), i + 1)]},
+            "ref": ref, "etfs": etfs, "active": active}
+
+
+def deleverage_from_disk(data_dir):
+    """給盤後摘要用：自己讀資料算一次。"""
+    data_dir = Path(data_dir)
+    days = load_days(data_dir, MARKET_N)
+    mdir = data_dir / "margin"
+    summary = _read(mdir / "summary.csv") if (mdir / "summary.csv").exists() else []
+    index = _read(mdir / "index.csv") if (mdir / "index.csv").exists() else []
+    return deleverage(data_dir, days, market_series(data_dir, days, summary, index))
 
 
 def write_margin(data_dir, out_dir):
@@ -253,6 +404,8 @@ def write_margin(data_dir, out_dir):
     dump = lambda p, o: p.write_text(json.dumps(o, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")  # noqa: E731
     dump(out_dir / "market.json", payload["market"])
     dump(out_dir / "stocks.json", payload["stocks"])
+    if payload.get("delev"):
+        dump(out_dir / "delev.json", payload["delev"])
     for code, rows in payload["series"].items():
         dump(out_dir / "s" / f"{code}.json", {"cols": ["date", "close", "fin", "sht", "ratio", "ul", "ul_lim"], "rows": rows})
     return payload
