@@ -247,6 +247,51 @@
   style.textContent = CSS;
   document.head.appendChild(style);
 
+  /* ---------- 成交值濾網（全站共用，選擇存在這台裝置） ----------
+     2026-11-04 Leo：所有拿全市場或超過 200 檔個股排名的表都要有。資料 data/liq.json＝近 5 日平均成交值（億）。
+     頁面用法：TideLiq.mount(容器元素, 重畫函式)；篩選時 rows.filter(r => TideLiq.pass(r.code))，搜尋代號時可略過。 */
+  window.TideLiq = (function () {
+    var OPTS = [[0, "不限"], [0.5, "≥ 0.5 億"], [1, "≥ 1 億"], [5, "≥ 5 億"], [20, "≥ 20 億"]];
+    var KEY = "tide.liq", th = 1, V = null, subs = [], boxes = [];
+    try { var sv = localStorage.getItem(KEY); if (sv != null && sv !== "" && !isNaN(+sv)) th = +sv; } catch (e) {}
+    var fire = function () { subs.forEach(function (f) { try { f(th); } catch (e) { console.error(e); } }); };
+    var paint = function () {
+      boxes.forEach(function (b) {
+        b.querySelectorAll("button").forEach(function (x) { x.setAttribute("aria-pressed", +x.dataset.v === th); });
+      });
+    };
+    var ready = fetch("data/liq.json", { cache: "no-cache" }).then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) { V = d && d.v ? d.v : {}; api.date = d && d.date; api.n = d && d.n; fire(); })
+      .catch(function () { V = {}; });
+    var api = {
+      ready: ready,
+      get: function () { return th; },
+      val: function (code) { return V ? V[code] : undefined; },
+      /* 沒載入完或「不限」時全部通過；沒有成交值資料的代號當成 0 */
+      pass: function (code) { return !th || !V || (V[code] || 0) >= th; },
+      set: function (v) { th = +v || 0; try { localStorage.setItem(KEY, th); } catch (e) {} paint(); fire(); },
+      mount: function (el, onChange) {
+        if (typeof el === "string") el = document.getElementById(el);
+        if (onChange) subs.push(onChange);
+        if (!el) return;
+        el.classList.add("liq");
+        el.title = "近 5 個交易日平均成交值；選擇會套用到全站的排名表";
+        el.innerHTML = '<span class="liq-k">日均成交值</span>' + OPTS.map(function (o) {
+          return '<button type="button" data-v="' + o[0] + '" aria-pressed="' + (o[0] === th) + '">' + o[1] + "</button>";
+        }).join("");
+        el.addEventListener("click", function (e) { var b = e.target.closest("button"); if (b) api.set(b.dataset.v); });
+        boxes.push(el);
+      },
+    };
+    var st = document.createElement("style");
+    st.textContent = ".liq{display:inline-flex;flex-wrap:wrap;align-items:center;gap:6px}.liq[hidden]{display:none}" +
+      ".liq .liq-k{font-size:12px;color:var(--text-faint);margin-right:2px}" +
+      ".liq button{background:none;border:1px solid var(--line-strong);color:var(--text-muted);padding:5px 11px;border-radius:3px;cursor:pointer;font:inherit;font-size:13px}" +
+      ".liq button[aria-pressed=true]{border-color:var(--text-faint);color:var(--text)}";
+    document.head.appendChild(st);
+    return api;
+  })();
+
   var nav = document.querySelector("nav.gnav");
   if (!nav) return;
   nav.setAttribute("aria-label", "主選單");

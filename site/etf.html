@@ -525,6 +525,7 @@
             <button type="button" data-v="all" aria-pressed="false">全部成交量</button>
           </div>
         </div>
+        <div id="actLiq"></div>
         <input class="search" id="actSearch" type="search" autocomplete="off" placeholder="搜尋股票" aria-label="搜尋股票">
       </div>
       <div class="chips act-chips" id="actChips" role="group" aria-label="選擇 ETF"></div>
@@ -1191,7 +1192,7 @@ function renderActive() {
     <div class="stat"><span>最多 ETF 同時買進</span><b>${crowd ? esc(crowd.name) : "—"}</b><small class="mono">${crowd ? crowd.nb + " 檔 ETF" : ""}</small></div>
     <div class="stat"><span>${act.side === "buy" ? "買超" : "賣超"}佔當日量最高</span><b>${heavy ? esc(heavy.name) : "—"}</b><small class="mono">${heavy ? fmtPct(heavy.r1) + " · 近 5 日 " + fmtPct(heavy.r5) : ""}</small></div>`;
   const q = act.q.trim().toLowerCase();
-  const list = all.filter(s => (act.side === "buy" ? s.amt > 0 : s.amt < 0) && (!q || s.code.toLowerCase().includes(q) || s.name.toLowerCase().includes(q)));
+  const list = all.filter(s => (act.side === "buy" ? s.amt > 0 : s.amt < 0) && (q ? s.code.toLowerCase().includes(q) || s.name.toLowerCase().includes(q) : TideLiq.pass(s.code)));
   applySort("actTable", list, { amt: s => s.amt * sg, sh: s => s.sh * sg, r1: s => s.r1 == null ? null : s.r1 * sg,
     r5: s => s.r5 == null ? null : s.r5 * sg, nb: s => act.side === "buy" ? s.nb : s.ns });
   $("actAmtLabel").textContent = act.side === "buy" ? "買超金額（億）" : "賣超金額（億）";
@@ -1234,6 +1235,7 @@ $("actChips").addEventListener("click", e => {
 });
 sortable("actTable", { key: "amt", dir: -1 }, () => { act.shown = 50; renderActive(); });
 $("actSearch").addEventListener("input", e => { act.q = e.target.value; renderActive(); });
+TideLiq.mount("actLiq", () => { if (act.loaded) renderActive(); });
 $("actMore").addEventListener("click", () => { act.shown += 50; renderActive(); });
 loadActive().then(renderActive).catch(e => {
   console.error(e);

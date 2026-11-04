@@ -166,11 +166,7 @@
         <button data-v="上市" aria-pressed="false">上市</button>
         <button data-v="上櫃" aria-pressed="false">上櫃</button>
       </div>
-      <div class="chips" id="minv">
-        <button data-v="0" aria-pressed="false">成交不限</button>
-        <button data-v="0.5" aria-pressed="true">5 千萬以上</button>
-        <button data-v="3" aria-pressed="false">3 億以上</button>
-      </div>
+      <div id="minv"></div>
       <select class="filter" id="ind" aria-label="產業"><option value="">全部產業</option></select>
       <label class="chk-in"><input type="checkbox" id="noetf" checked> 排除 ETF</label>
       <input class="filter" id="q" type="search" placeholder="代號或名稱" autocomplete="off" aria-label="搜尋">
@@ -219,6 +215,7 @@
         <button data-v="med" aria-pressed="false">填息最快</button>
         <button data-v="yield" aria-pressed="false">平均殖利率</button>
       </div>
+      <div id="st-liq"></div>
     </div>
     <div class="tbl-wrap"><table>
       <thead><tr><th>股票</th><th class="n">除權息次數</th><th class="n">已填息</th><th class="n">填息率</th><th class="n">填息中位天數</th><th class="n">每次平均殖利率</th><th class="n hide-s">現價</th></tr></thead>
@@ -307,7 +304,7 @@ function renderChips(){
 function filtered(){
   const fs = ALL.filter(p => S.on.has(p[0])).map(p => p[3]);
   const q = S.q.trim().toLowerCase();
-  return ROWS.filter(r => (!S.mk || r.market === S.mk) && (r.value ?? 0) >= S.minv && (!S.ind || r.ind === +S.ind)
+  return ROWS.filter(r => (!S.mk || r.market === S.mk) && (q || TideLiq.pass(r.code)) && (!S.ind || r.ind === +S.ind)
     && (!S.noetf || !/^00/.test(r.code)) && (!q || r.code.toLowerCase().startsWith(q) || r.name.toLowerCase().includes(q))
     && fs.every(f => f(r)));
 }
@@ -371,7 +368,7 @@ function renderDiv(){
     || `<tr><td colspan="9" class="empty">沒有資料</td></tr>`;
   $("rc-more").hidden = rc.length <= V.rcN;
 
-  let sr = DV.stats.filter(r => r[1] >= 2 && PX[r[0]] != null && !/^0\d*B$/.test(r[0]))
+  let sr = DV.stats.filter(r => r[1] >= 2 && PX[r[0]] != null && !/^0\d*B$/.test(r[0]) && TideLiq.pass(r[0]))
     .map(r => ({code: r[0], n: r[1], f: r[2], rate: r[2] / r[1] * 100, med: r[3], yield: r[4]}));
   if (V.st === "rate") sr.sort((a, b) => b.rate - a.rate || (a.med ?? 999) - (b.med ?? 999));
   if (V.st === "med") sr = sr.filter(r => r.rate === 100).sort((a, b) => a.med - b.med || b.n - a.n);
@@ -411,7 +408,7 @@ fetch("data/screen/screen.json", {cache: "no-cache"}).then(r => r.json()).then(d
   ].map(([k, v, s]) => `<div class="stat"><div class="k">${k}</div><div class="v mono">${v}</div><div class="s">${s}</div></div>`).join("");
   $("ind").innerHTML += d.ind.map((x, i) => `<option value="${i}">${esc(x)}</option>`).join("");
   renderChips();
-  chipBind("mk", "mk"); chipBind("minv", "minv", Number);
+  chipBind("mk", "mk"); TideLiq.mount("minv", () => render()); TideLiq.mount("st-liq", () => { if (DV) renderDiv(); });
   chipBind("view", "view");
   $("ind").onchange = e => { S.ind = e.target.value; render(); };
   $("noetf").onchange = e => { S.noetf = e.target.checked; render(); };
