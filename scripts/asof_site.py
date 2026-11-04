@@ -153,7 +153,7 @@ PAGES = {
     "treasury": ["treasury", "broker"], "cb": ["cb", "price"], "cb-broker": ["cb", "broker"],
     "digest": ["digest", "note", "chips", "margin"], "stock": ["price", "chips", "broker", "mops"],
     "fin": ["revenue", "quarterly"], "analyst": ["analyst"],
-    "etf": ["etf"], "calendar": ["etf"], "commod": ["commod"], "us": ["us", "price"],
+    "etf": ["etf"], "calendar": ["etf"], "events": ["us", "mops", "alert"], "commod": ["commod"], "us": ["us", "price"],
 }
 
 

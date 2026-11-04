@@ -32,6 +32,7 @@ on:
       - "scripts/flow_site.py"
       - "scripts/rebalance_site.py"
       - "scripts/calendar_site.py"
+      - "scripts/events_site.py"
       - "scripts/analyst_site.py"
       - "scripts/mops_site.py"
       - "scripts/margin_site.py"

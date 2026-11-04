@@ -641,8 +641,20 @@ def delev(iso):
     return out
 
 
+def upcoming_events(iso, days=7):
+    """未來一週重要事件（scripts/events_site.py；指數調整、處置出關另有段落，這裡不重複）"""
+    import events_site as E
+    ev = E.upcoming(E.build(D, ROOT, today=date.fromisoformat(iso)), days=days)
+    if not ev:
+        return []
+    rows = [[f"{_md(e[0])}（{E.weekday(e[0])}）", e[1] or "", ("**" + e[4] + "**" if e[6] >= 3 else e[4]) + ("（估）" if e[7] else ""),
+             e[5].replace("|", "／")] for e in ev]
+    return ["## 未來一週重要事件", "", "時間為台灣時間；粗體＝會動到大盤的大事。完整行事曆在網站「市場行事曆」頁。", ""] + \
+        _tbl(["日期", "時間", "事件", "說明"], rows)
+
+
 # 重要分點買賣超、近期內部人事件；資金流向、舊版 CB／ETF 段落先不放，要放回時把名稱加回 SECTIONS（順序即網頁順序）。
-SECTIONS = ("delev", "disp_exit", "etf_brief", "cb_brief", "watch", "insider")
+SECTIONS = ("events", "delev", "disp_exit", "etf_brief", "cb_brief", "watch", "insider")
 
 
 def build(day, px_files, chip_files):
@@ -654,10 +666,10 @@ def build(day, px_files, chip_files):
     px = {r["code"]: float(r["close"]) for r in _read(px_files[i]) if r.get("close") and re.match(r"^[\d.]+$", r["close"])}
     out = []
     since5 = _iso(stems[max(0, i - 5)])   # 內部人事件看近 5 個交易日
-    fns = {f.__name__: (f, a) for f, a in ((flows, (px_files, chip_files, day)), (watch, (day,)), (cb, (iso, prev_iso, names)),
+    fns = {("events" if f is upcoming_events else f.__name__): (f, a) for f, a in ((flows, (px_files, chip_files, day)), (watch, (day,)), (cb, (iso, prev_iso, names)),
                                            (etf, (iso, prev_iso, names)), (insider, (iso, since5, px)), (shift, (iso, prev_iso)),
                                            (cb_brief, (iso, prev_iso, names)), (etf_brief, (iso, since5)),
-                                           (disp_exit, (iso, stems)), (delev, (iso,)))}
+                                           (disp_exit, (iso, stems)), (delev, (iso,)), (upcoming_events, (iso,)))}
     for f, args in (fns[k] for k in SECTIONS):
         try:
             sec = f(*args)
