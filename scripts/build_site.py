@@ -22,6 +22,7 @@
   data/mops/mops.json                重大訊息、股東會／法說會行事曆（見 scripts/mops_site.py）
   data/fin/index.json, s/<代號>.json  財報：月營收與季報（見 scripts/fin_site.py）
   data/margin/market.json, stocks.json, s/<代號>.json  融資融券、估計維持率（見 scripts/margin_site.py）
+  data/fragility.json                籌碼脆弱分數：六項籌碼結構訊號 0～2 分加總、回測（見 scripts/fragility_site.py）
   data/cost.json                     持股成本：主動式 ETF、融資、不限用途借貸的估計成本與維持率（見 scripts/cost_site.py）
   data/kline/index.json, s/<代號>.json  K 線：2022 年起每日價量＋還原因子事件（見 scripts/kline_site.py）
   data/chips/chips.json, s/<代號>.json 三大法人、借券賣出、當沖、集保大戶（見 scripts/chips_site.py）
@@ -106,6 +107,7 @@ import limitup_site  # noqa: E402
 import us_site  # noqa: E402
 import commod_site  # noqa: E402
 import cost_site  # noqa: E402
+import fragility_site  # noqa: E402
 import asof_site  # noqa: E402
 
 TPE = timezone(timedelta(hours=8))
@@ -175,6 +177,7 @@ def build(out: Path, days: int) -> list[str]:
     fin_site.write_fin(ROOT / "data", out / "data" / "fin")
     margin_site.write_margin(ROOT / "data", out / "data" / "margin")
     cost_site.write_cost(ROOT / "data", out / "data" / "cost.json")
+    fragility_site.write_fragility(ROOT / "data", out / "data" / "fragility.json")
     prices = kline_site.load_prices(ROOT / "data")
     kline_site.write_kline(ROOT / "data", out / "data" / "kline", prices)
     futures_site.write_futures(ROOT / "data", out / "data" / "futures.json")
