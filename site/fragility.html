@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101419">
+<title>籌碼脆弱｜潮汐</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#101419; --panel:#171C22; --panel-2:#1E242B;
+    --line:rgba(232,237,242,0.09); --line-strong:rgba(232,237,242,0.16);
+    --text:#E8EDF2; --text-muted:#A9B2BC; --text-faint:#8B95A0;
+    --brass:#C6A15B; --brass-soft:rgba(198,161,91,0.14); --rise:#E1594F; --fall:#3FAE72;
+    --radius-s:3px; --radius-m:6px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--ink); color:var(--text);
+    font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
+  h1,h2{font-family:'Noto Sans TC',sans-serif; margin:0; font-weight:700;}
+  h2{font-size:20px;}
+  .mono{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+  a{color:inherit;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
+  header.site{position:sticky; top:0; z-index:40; background:#101419; border-bottom:1px solid var(--line);}
+  .nav-row{display:flex; align-items:center; justify-content:space-between; padding:16px 28px;}
+  .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
+  .brand-mark{font-family:'Noto Sans TC',sans-serif; font-size:22px; font-weight:700;}
+  .brand-sub{font-size:12px; color:var(--text-faint);}
+  .page-head{padding:56px 0 8px;}
+  h1{font-size:32px;}
+  .desc{color:var(--text-muted); font-size:14.5px; margin:12px 0 0; max-width:52em;}
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden; margin-top:28px;}
+  .stat{background:var(--panel); padding:16px 20px;}
+  .stat .k{font-size:12.5px; color:var(--text-muted);}
+  .stat .v{font-size:26px; margin-top:2px;}
+  .stat .s{font-size:12px; color:var(--text-faint);}
+  section.block{margin-top:48px;}
+  .block-head{display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin-bottom:14px; flex-wrap:wrap;}
+  .hint{font-size:12.5px; color:var(--text-faint);}
+  .up{color:var(--rise);} .down{color:var(--fall);} .flat{color:var(--text-muted);}
+  .faint{color:var(--text-faint);} .muted{color:var(--text-muted);}
+
+  .tbl-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius-m);}
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  th, td{padding:9px 12px; border-bottom:1px solid var(--line); text-align:left; white-space:nowrap;}
+  th{font-size:12px; color:var(--text-muted); font-weight:500; background:var(--panel); position:sticky; top:0;}
+  td.n, th.n{text-align:right;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr.click{cursor:pointer;}
+  tbody tr.click:hover td{background:var(--panel);}
+  tbody tr.on td{background:var(--brass-soft);}
+  th[data-k]{cursor:pointer; user-select:none;} th[data-k]:hover{color:var(--text);} th.sorted{color:var(--text);}
+  .sname{font-weight:500;}
+  .sname a{text-decoration:none;} .sname a:hover{color:var(--text);}
+  .sname .mono{font-size:11.5px; color:var(--text-faint); margin-left:6px; font-weight:500;}
+  .tag{display:inline-block; font-size:11px; padding:0 5px; border-radius:var(--radius-s); border:1px solid var(--line-strong); color:var(--text-muted); margin-left:6px;}
+  .tag.ath{border-color:var(--rise); color:var(--rise);}
+  .star{color:var(--brass); margin-left:4px; font-size:12px;}
+  .gpath{display:block; font-size:11.5px; color:var(--text-faint);}
+  .show-s{display:none;}
+  .leaders{white-space:normal; min-width:14em; font-size:12.5px; color:var(--text-muted);}
+  .bar{display:inline-block; width:64px; height:6px; background:var(--line); border-radius:2px; vertical-align:middle; margin-right:8px; overflow:hidden;}
+  .bar i{display:block; height:100%; background:var(--rise);}
+  .dots{display:inline-flex; gap:2px; vertical-align:middle;}
+  .dots i{display:block; width:5px; height:12px; border-radius:1px; background:var(--line);}
+  .dots i.h{background:var(--rise);} .dots i.a{background:var(--rise); box-shadow:inset 0 -4px 0 var(--brass);}
+
+  .toolbar{display:flex; flex-wrap:wrap; gap:10px 18px; align-items:center; margin-top:28px;}
+  .chips{display:flex; flex-wrap:wrap; gap:6px;}
+  .chips button{background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:5px 11px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .chips button[aria-pressed="true"]{border-color:var(--text-faint); color:var(--text);}
+  .chk-in{font-size:13px; color:var(--text-muted); display:flex; align-items:center; gap:6px;}
+  .filter{background:var(--panel); border:1px solid var(--line-strong); color:var(--text); padding:6px 11px; border-radius:var(--radius-s); font:inherit; font-size:13px; width:12em;}
+  .filter:focus{outline:none; border-color:var(--text-faint);}
+  .pick{display:inline-flex; align-items:center; gap:8px; font-size:13px; background:var(--brass-soft); color:var(--text); padding:4px 10px; border-radius:var(--radius-s);}
+  .pick button{background:none; border:none; color:var(--text-muted); cursor:pointer; font:inherit; padding:0;}
+  .more{display:block; margin:14px auto 0; background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:7px 18px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .more:hover{color:var(--text); border-color:var(--text-faint);}
+  .empty{padding:20px 12px; color:var(--text-faint); font-size:13.5px;}
+  .note{font-size:12.5px; color:var(--text-faint); margin-top:18px; line-height:1.8;}
+
+  .chart{position:relative; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-m); padding:14px 16px 6px;}
+  .chart svg{display:block; width:100%; height:180px;}
+  .chart .axis{font-size:10.5px; fill:var(--text-faint); font-family:'IBM Plex Mono',monospace;}
+  .legend{display:flex; gap:16px; font-size:12px; color:var(--text-muted); margin-bottom:6px; flex-wrap:wrap;}
+  .legend i{display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:5px; vertical-align:-1px;}
+  .tip{position:absolute; pointer-events:none; background:var(--ink); border:1px solid var(--line-strong); border-radius:var(--radius-s); padding:8px 10px; font-size:12px; min-width:130px; box-shadow:0 4px 16px rgba(0,0,0,.4); display:none; z-index:5;}
+  .tip .d{color:var(--text-muted); margin-bottom:4px;}
+  .tip .r{display:flex; gap:12px; justify-content:space-between; white-space:nowrap;}
+  .tip .r b{font-weight:500; font-family:'IBM Plex Mono',monospace;}
+  footer.site{padding:48px 0; margin-top:64px; border-top:1px solid var(--line);}
+  @media (max-width:860px){
+    .nav-row{padding:14px 16px; flex-wrap:wrap; row-gap:10px;}
+    .wrap{padding:0 16px;}
+    .stats{grid-template-columns:repeat(2,1fr);} h1{font-size:26px;}
+    .hide-s{display:none;}
+    .chart svg{height:150px;}
+    .show-s{display:block;}
+  }
+  .pts{display:inline-flex; gap:2px; vertical-align:middle; margin-right:6px;}
+  .pts i{display:block; width:6px; height:12px; border-radius:1px; background:var(--line-strong);}
+  .pts i.h{background:var(--rise);}
+  .score{display:inline-block; min-width:2.2em; text-align:center; font-weight:600; padding:0 6px; border-radius:var(--radius-s);}
+  .score.s0{color:var(--text-faint);} .score.s1{color:var(--text);} .score.s2{background:var(--brass-soft); color:var(--brass);}
+  .score.s3{background:rgba(235,91,80,.16); color:var(--rise);}
+  .items{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden;}
+  .item{background:var(--panel); padding:14px 16px; font-size:13px; color:var(--text-muted);}
+  .item b{display:block; color:var(--text); font-size:14px; font-weight:600; margin-bottom:4px;}
+  .item .no{font-family:'IBM Plex Mono',monospace; color:var(--brass); margin-right:6px;}
+  .find{background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--brass); border-radius:var(--radius-m); padding:14px 18px; font-size:14px; color:var(--text-muted); line-height:1.8;}
+  .find b{color:var(--text); font-weight:600;}
+  td.c-val{font-size:12.5px;}
+  @media (max-width:860px){ .items{grid-template-columns:1fr;} th, td{padding:8px 8px;} }
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="nav-row">
+    <a href="index.html" class="brand"><span class="brand-mark">潮汐</span><span class="brand-sub">籌碼觀測站</span></a>
+    <nav class="gnav"></nav>
+  </div>
+</header>
+<script src="nav.js"></script>
+<main class="wrap">
+  <section class="page-head">
+    <h1>籌碼脆弱分數</h1>
+    <p class="desc" id="sub">載入中…</p>
+    <div class="stats" id="stats"></div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>六項訊號</h2><span class="hint">每項 0～2 分，加總 0～12 分（v1 門檻）</span></div>
+    <div class="items" id="items"></div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>回測：分數高的股票之後有沒有比較弱</h2>
+      <div class="chips" id="era">
+        <button data-v="full" aria-pressed="true">有分點資料後</button>
+        <button data-v="all" aria-pressed="false">全期間</button>
+      </div>
+    </div>
+    <div class="find" id="find"></div>
+    <div class="tbl-wrap" style="margin-top:14px"><table>
+      <thead><tr><th>總分</th><th class="n">樣本</th><th class="n">隔日 中位數</th><th class="n">5 日 中位數</th><th class="n">5 日 落後比例</th><th class="n">20 日 中位數</th><th class="n">20 日 落後比例</th></tr></thead>
+      <tbody id="bt"></tbody>
+    </table></div>
+    <div class="tbl-wrap" style="margin-top:14px"><table>
+      <thead><tr><th>單項 ≥ 1 分</th><th class="n">樣本</th><th class="n">隔日 中位數</th><th class="n">5 日 中位數</th><th class="n">5 日 落後比例</th><th class="n">20 日 中位數</th><th class="n">20 日 落後比例</th></tr></thead>
+      <tbody id="bti"></tbody>
+    </table></div>
+    <p class="note" id="btnote"></p>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>個股分數</h2><span class="hint" id="hint"></span></div>
+    <div class="toolbar" style="margin:0 0 12px">
+      <div class="chips" id="minf">
+        <button data-v="3" aria-pressed="true">3 分以上</button>
+        <button data-v="1" aria-pressed="false">1 分以上</button>
+        <button data-v="0" aria-pressed="false">全部</button>
+      </div>
+      <label class="chk-in"><input type="checkbox" id="mine"> 只看自選</label>
+      <input class="filter" id="q" type="search" placeholder="代號或名稱" autocomplete="off" aria-label="搜尋">
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>股票</th><th class="n">總分</th><th class="n">5 日漲幅</th><th class="n">1 大戶賣散戶接</th><th class="n">2 融資過熱</th><th class="n">3 當沖</th><th class="n">4 短線分點</th><th class="n">5 借券／券資</th><th class="n">6 投信成本</th></tr></thead>
+      <tbody id="body"></tbody>
+    </table></div>
+    <button class="more" id="more" hidden>顯示更多</button>
+    <p class="note">
+      只算成交金額 3,000 萬元以上的上市櫃普通股。欄位裡的小方塊是該項得分（0～2），後面是主要數值：
+      1＝近 5 日（前 15 大買超 − 前 15 大賣超）÷ 成交量；2＝融資 5 日增幅／融資使用率／估計維持率；3＝近 5 日當沖量 ÷ 成交量；
+      4＝近 3 日短線分點（隔日沖或翻手率 ≥ 30%）買超 ÷ 成交量；5＝借券賣出餘額 5 日增加 ÷ 股數／券資比；6＝投信近 20 日買超 ÷ 股數，括號是收盤相對投信買進均價。
+      「買賣家數差」要全部分點才算得出來，免費來源只有前 15 大，所以第 1 項先用集中度近似。分點資料從 2026/09/30 開始，之前沒有第 1、4 項。
+      融資限額＝股數 25%，用來推算股數。資料僅供參考，不構成投資建議。
+    </p>
+  </section>
+</main>
+<footer class="site"><div class="wrap"><p class="note" style="margin:0">資料僅供參考。</p></div></footer>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fx = (v, d = 1) => v == null ? "–" : (+v).toLocaleString("zh-TW", {minimumFractionDigits: d, maximumFractionDigits: d});
+const cls = v => v == null ? "faint" : v > 0 ? "up" : v < 0 ? "down" : "flat";
+const sg = (v, d = 1, u = "%") => v == null ? "–" : `${v > 0 ? "+" : ""}${(+v).toFixed(d)}${u}`;
+const Watch = window.TideWatch || {list: () => []};
+const S = {era: "full", min: 3, mine: false, q: "", n: 100};
+const BK = {"0": "0 分", "1-2": "1～2 分", "3-4": "3～4 分", "5+": "5 分以上"};
+let D, ROWS = [];
+
+const dots = p => `<span class="pts" title="${p} 分"><i class="${p >= 1 ? "h" : ""}"></i><i class="${p >= 2 ? "h" : ""}"></i></span>`;
+const cell = (p, txt) => `<td class="n mono c-val" data-v="${p * 1e4 + (txt.v ?? 0)}">${dots(p)}${txt.t}</td>`;
+const neg = v => v == null ? "–" : `${fx(v, 0)}%`;
+const st = (o, k) => o && o[k] != null ? o[k] : null;
+
+function btRow(label, r){
+  const h1 = r.h1, h5 = r.h5, h20 = r.h20;
+  const n = (h5 || h1 || {}).n;
+  return `<tr><td>${label}</td><td class="n mono">${n ? fx(n, 0) : "–"}</td>
+    <td class="n mono ${cls(st(h1, "med"))}">${sg(st(h1, "med"), 2)}</td>
+    <td class="n mono ${cls(st(h5, "med"))}">${sg(st(h5, "med"), 2)}</td><td class="n mono">${neg(st(h5, "neg"))}</td>
+    <td class="n mono ${cls(st(h20, "med"))}">${sg(st(h20, "med"), 2)}</td><td class="n mono">${neg(st(h20, "neg"))}</td></tr>`;
+}
+function renderBt(){
+  $("era").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === S.era));
+  $("bt").innerHTML = D.bt.filter(r => r.era === S.era).map(r => btRow(BK[r.bucket], r)).join("");
+  const nm = Object.fromEntries(D.items.map((it, i) => [it.key, `${i + 1} ${it.k}`]));
+  $("bti").innerHTML = D.bt_item.map(r => btRow(nm[r.key], r)).join("");
+}
+
+function render(){
+  const mine = new Set(Watch.list()), q = S.q.trim().toLowerCase();
+  const rows = ROWS.filter(r => r.score >= S.min && (!S.mine || mine.has(r.code))
+    && (!q || r.code.startsWith(q) || String(r.name).toLowerCase().includes(q)));
+  $("hint").textContent = `${rows.length} 檔・依總分排序`;
+  $("body").innerHTML = rows.slice(0, S.n).map(r => `<tr>
+    <td><span class="sname"><a href="stock.html#s=${encodeURIComponent(r.code)}">${esc(r.name)}</a><span class="mono">${esc(r.code)}</span></span>${mine.has(r.code) ? `<span class="star" title="自選">★</span>` : ""}</td>
+    <td class="n" data-v="${r.score}"><span class="score s${Math.min(3, Math.ceil(r.score / 2))} mono">${r.score}</span></td>
+    <td class="n mono ${cls(r.chg5)}">${sg(r.chg5)}</td>
+    ${cell(r.p_conc, {v: r.conc, t: sg(r.conc)})}
+    ${cell(r.p_fin, {v: r.fin5, t: `${sg(r.fin5, 0)}／${r.finuse == null ? "–" : fx(r.finuse, 0) + "%"}／${r.maint ?? "–"}`})}
+    ${cell(r.p_dt, {v: r.dt, t: r.dt == null ? "–" : fx(r.dt, 0) + "%"})}
+    ${cell(r.p_short, {v: r.short, t: r.short == null ? "–" : fx(r.short, 1) + "%"})}
+    ${cell(r.p_sbl, {v: r.sbl, t: `${sg(r.sbl, 2)}／${r.ssr == null ? "–" : fx(r.ssr, 0) + "%"}`})}
+    ${cell(r.p_trust, {v: r.trust, t: r.trust == null ? "–" : `${fx(r.trust, 2)}%（${sg(r.tcost)}）`})}
+  </tr>`).join("") || `<tr><td colspan="9" class="empty">${S.mine ? "自選股沒有符合條件的" : "沒有符合條件的股票"}</td></tr>`;
+  $("more").hidden = rows.length <= S.n;
+}
+
+fetch("data/fragility.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
+  D = d;
+  ROWS = d.rows.map(r => Object.fromEntries(d.cols.map((k, j) => [k, r[j]])));
+  const dt = d.date.replaceAll("-", "/");
+  $("sub").textContent = `${dt} 收盤。把「籌碼結構脆弱」拆成六項訊號，每項 0～2 分加總：分數越高，代表這檔的籌碼越可能是短線、槓桿或散戶在撐。下面附回測，看分數高的股票之後是不是真的比較弱。`;
+  const c = k => ROWS.filter(k).length, f = D.bt.find(r => r.era === "full" && r.bucket === "5+") || {};
+  $("stats").innerHTML = [
+    ["5 分以上", c(r => r.score >= 5), "最脆弱"],
+    ["3～4 分", c(r => r.score >= 3 && r.score <= 4), `共 ${ROWS.length} 檔有分數`],
+    ["大戶賣散戶接", c(r => r.p_conc >= 1), "第 1 項有分"],
+    ["5 分以上之後 5 日", f.h5 ? sg(f.h5.med, 1) : "–", f.h5 ? `落後同日中位數 ${fx(f.h5.neg, 0)}%・有分點資料後` : ""],
+  ].map(([k, v, s]) => `<div class="stat"><div class="k">${k}</div><div class="v mono">${v}</div><div class="s">${s}</div></div>`).join("");
+  $("items").innerHTML = d.items.map((it, i) => `<div class="item"><b><span class="no">${i + 1}</span>${esc(it.k)}</b>${esc(it.d)}</div>`).join("");
+  $("find").innerHTML = `<b>目前結論（v1）：</b>全期間（${d.bt_span[0].replaceAll("-", "/")} 起）六項加總沒有預測力，融資、當沖、借券、投信這幾項比較像「強勢股的特徵」，之後反而不弱。
+    真正有用的是第 1 項「漲完之後大分點在賣」：分點資料開始後（${(d.bk_start || "").replaceAll("-", "/")} 起），3 分以上的股票之後 5 日、20 日明顯落後。
+    不過分點資料只有約一個月、遇到的盤勢有限，先當參考，資料累積後再重新驗證。`;
+  $("btnote").textContent = "報酬＝之後 N 個交易日收盤對收盤，減去同一天所有有分數股票的中位數（個股報酬右偏，用平均數當基準會讓多數股票看起來都輸）。落後比例＝輸給同日中位數的比例，沒有訊號時約 50%。樣本是「每檔每天」，同一檔連續多天高分會重複計入。樣本少於 20 筆不顯示。";
+  renderBt();
+  $("era").querySelectorAll("button").forEach(b => b.onclick = () => { S.era = b.dataset.v; renderBt(); });
+  $("minf").querySelectorAll("button").forEach(b => b.onclick = () => {
+    $("minf").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+    S.min = +b.dataset.v; S.n = 100; render();
+  });
+  $("mine").onchange = e => { S.mine = e.target.checked; render(); };
+  $("q").oninput = e => { S.q = e.target.value; render(); };
+  $("more").onclick = () => { S.n += 200; render(); };
+  document.addEventListener("tide:watch", render);
+  render();
+}).catch(e => { $("sub").textContent = "資料載入失敗"; console.error(e); });
+</script>
+</body>
+</html>
