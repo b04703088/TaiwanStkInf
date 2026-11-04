@@ -137,9 +137,14 @@
       </div>
     </div>
     <div class="tbl-wrap"><table>
-      <thead><tr><th>股票</th><th>出關日</th><th class="n">還剩</th><th>處置期間</th><th class="n">處置前收盤</th><th class="n">最新收盤</th><th class="n">處置期間漲跌</th><th class="n hide-s">撮合</th><th class="hide-s">次別</th></tr></thead>
+      <thead><tr><th>股票</th><th>出關日</th><th class="n">還剩</th><th>處置期間</th><th class="n">處置前收盤</th><th class="n">最新收盤</th><th class="n">處置期間漲跌</th><th class="n hide-s">撮合</th><th class="hide-s">次別</th><th class="n">出關隔天收黑（歷史）</th></tr></thead>
       <tbody id="exit-body"></tbody>
     </table></div>
+    <div class="tbl-wrap" id="xs-wrap" style="margin-top:14px"><table>
+      <thead><tr><th>出關隔天統計</th><th class="n">樣本</th><th class="n">收黑比例</th><th class="n">開盤到收盤 平均</th><th class="n">中位</th><th class="n hide-s">前一天收盤到收盤 平均</th><th class="n hide-s">中位</th></tr></thead>
+      <tbody id="xs-body"></tbody>
+    </table></div>
+    <p class="hint" id="xs-hint" style="margin:8px 0 0"></p>
   </section>
 
   <section class="block" id="now">
@@ -243,7 +248,7 @@
 
   <p class="note">
     資料來源：臺灣證券交易所「公布處置有價證券」「公布注意有價證券」「注意累計次數異常」，證券櫃檯買賣中心「處置有價證券」「公布注意有價證券」「注意累計次數異常」，每個交易日盤後更新。只列股票與 ETF，不含權證、可轉債。<br>
-    「撮合」是處置期間人工撮合的間隔（約每 N 分鐘一次）；第一次處置多為 2–5 分鐘，第二次（再次）處置多為 20–25 分鐘並需預收款券。「狀態」「還剩」以台北今天日期判斷（含今天，扣除週末與已知休市日）；出關日是處置迄日後的第一個開盤日。「處置期間漲跌」＝最新收盤（已結束則為迄日收盤）÷ 處置前一個交易日收盤 − 1，收盤每個交易日盤後更新。<br>
+    「撮合」是處置期間人工撮合的間隔（約每 N 分鐘一次）；2026/8/10 改制後多為約 2 分鐘、期間 5 個營業日，第二次（再次）處置所有投資人都要預收款券；改制前第一次多為 5 分鐘、第二次 20–25 分鐘。「出關隔天收黑（歷史）」是同一類（改制後依第一次上市／第一次上櫃／第二次或再次分組）過去出關隔天收盤低於開盤的比例，見「即將出關」下方統計表；處置期間又被處置的，出關日以最後一次為準。「狀態」「還剩」以台北今天日期判斷（含今天，扣除週末與已知休市日）；出關日是處置迄日後的第一個開盤日。「處置期間漲跌」＝最新收盤（已結束則為迄日收盤）÷ 處置前一個交易日收盤 − 1，收盤每個交易日盤後更新。<br>
     「明天可能處置」依證交所、櫃買中心處置標準推算：連續 3 個營業日第一款，或連續 5 個營業日、最近 10 個營業日內 6 日、最近 30 個營業日內 12 日達第一至八款注意，就會被處置（上次處置公布前的注意不再計算）。用 2025 年起的資料回測，這套算法與實際處置公告完全吻合；名單上的股票隔天不一定會再被列注意，所以不一定會處置。「連續」「近 10／30 日」是本站依注意公告日數（以有公告的交易日計）算出的次數，僅供參考，實際是否處置以交易所公告為準。<br>
     「明天收盤觸發」「後天可能處置」「預測對帳」用本站依交易所「第四條異常標準之詳細數據及除外情形」反推的第一～四款規則推算：6 日累積漲跌幅是每日漲跌幅相加，起迄漲幅以除權息還原，偏離門檻同時比全體與同類股平均。觸發價只看第一款、假設偏離條件成立；第五～八款（券商集中度、本益比淨值比、券資比、存託憑證溢價）沒有資料，不在推算內。「歷史命中」是過去 120 個交易日同一分級的名單隔天（後天）實際被處置的比例。資料僅供參考，不構成投資建議。
   </p>
@@ -295,15 +300,34 @@ function renderStats(){
   const c30 = new Set(DISP.filter(r => r.ann_date >= addDays(D.generated, -30)).map(r => r.code)).size;
   document.getElementById("stats").innerHTML = [
     ["處置中", live.length, `上市 ${live.filter(r => r.market === "上市").length}・上櫃 ${live.filter(r => r.market === "上櫃").length}`],
-    ["3 日內出關", live.filter(r => weekdays(TODAY, r.end) <= 3).length, `明天出關 ${live.filter(r => weekdays(TODAY, r.end) <= 1).length} 檔`],
+    ["3 日內出關", live.filter(r => !continued(r) && weekdays(TODAY, r.end) <= 3).length, `明天出關 ${live.filter(r => !continued(r) && weekdays(TODAY, r.end) <= 1).length} 檔`],
     ["明天可能處置", CAND.length, `差一次注意就處置・${md(D.cand?.date)}`],
     ["最新注意股", today.length, `${md(last)}・近 30 天處置 ${c30} 檔`],
   ].map(([k, v, s]) => `<div class="stat"><div class="k">${k}</div><div class="v mono">${v}</div><div class="s">${s}</div></div>`).join("");
 }
 
 const X = {k: 3};
+/* 出關隔天統計分組（同 scripts/alert_site.exit_group） */
+const xgroup = r => r.start >= (D.exitstat?.reform || "9") ? (r.measure === "第一次處置" ? "first_" + r.market : "again")
+  : (r.measure === "第一次處置" ? "pre_first" : "pre_again");
+const XG = () => Object.fromEntries((D.exitstat?.groups || []).map(g => [g.key, g]));
+const pct = (v, d = 1) => v == null ? "–" : (v > 0 ? "+" : "") + v.toFixed(d) + "%";
+const sgn = v => v > 0 ? "up" : v < 0 ? "down" : "flat";
+/* 出關日前（含）又開始新處置的，算接續處置，不列入即將出關 */
+const continued = r => DISP.some(o => o.code === r.code && o.start > r.start && o.start <= r.exit);
+function renderExitStat(){
+  const s = D.exitstat, wrap = document.getElementById("xs-wrap");
+  if (!s?.groups?.length){ wrap.hidden = true; return; }
+  document.getElementById("xs-body").innerHTML = s.groups.map(g => `<tr${g.key.startsWith("pre") ? ' class="faint"' : ""}>
+    <td>${esc(g.label)}${g.key === "first_上櫃" ? ` <span class="tag soon">最明顯</span>` : ""}</td><td class="n mono">${g.n}</td>
+    <td class="n mono ${g.black >= 60 ? "down" : ""}">${g.black.toFixed(0)}%</td>
+    <td class="n mono ${sgn(g.oc_avg)}">${pct(g.oc_avg, 2)}</td><td class="n mono ${sgn(g.oc_med)}">${pct(g.oc_med, 2)}</td>
+    <td class="n mono hide-s ${sgn(g.ret_avg)}">${pct(g.ret_avg, 2)}</td><td class="n mono hide-s ${sgn(g.ret_med)}">${pct(g.ret_med, 2)}</td></tr>`).join("");
+  document.getElementById("xs-hint").textContent = `出關後第一個交易日的 K 棒。改制後＝處置起日 ${md(s.reform)} 起（期間 5 天、約每 2 分鐘撮合、第二次處置全額預收），改制前（2025 年起）列在下面當對照；樣本到 ${md(s.asof)}，同一檔連續處置合併算一次。收黑＝收盤低於開盤。`;
+}
 function renderExit(){
-  const live = DISP.filter(r => r.start <= TODAY && TODAY <= r.end).map(r => ({...r, left: weekdays(TODAY, r.end),
+  const xg = XG();
+  const live = DISP.filter(r => r.start <= TODAY && TODAY <= r.end && !continued(r)).map(r => ({...r, left: weekdays(TODAY, r.end),
     chg: r.close && r.pre_close ? (r.close / r.pre_close - 1) * 100 : null}));
   const rows = live.filter(r => r.left <= X.k).sort((a, b) => a.end.localeCompare(b.end) || (b.chg ?? -1e9) - (a.chg ?? -1e9));
   document.getElementById("exit-hint").textContent = `${rows.length} 檔・今天 ${md(TODAY)}`;
@@ -313,8 +337,9 @@ function renderExit(){
     <td class="mono">${md(r.start)}–${md(r.end)}</td>
     <td class="n mono">${num(r.pre_close)}</td><td class="n mono">${num(r.close)}</td>
     <td class="n mono ${r.chg == null ? "faint" : r.chg > 0 ? "up" : r.chg < 0 ? "down" : "flat"}">${r.chg == null ? "–" : (r.chg > 0 ? "+" : "") + r.chg.toFixed(1) + "%"}</td>
-    <td class="n mono hide-s">${ivCell(r.interval)}</td><td class="hide-s">${esc(r.measure)}</td></tr>`).join("")
-    || `<tr><td colspan="9" class="empty">這段期間沒有要出關的處置股</td></tr>`;
+    <td class="n mono hide-s">${ivCell(r.interval)}</td><td class="hide-s">${esc(r.measure)}</td>
+    <td class="n">${(g => g ? `<span class="mono ${g.black >= 60 ? "down" : "faint"}">${g.black.toFixed(0)}%</span> <span class="faint">${esc(g.label)}</span>` : "–")(xg[xgroup(r)])}</td></tr>`).join("")
+    || `<tr><td colspan="10" class="empty">這段期間沒有要出關的處置股</td></tr>`;
   bindRows("#exit-body");
 }
 
@@ -524,7 +549,7 @@ Promise.all([
     document.getElementById("track-day").innerHTML = M.track.days.slice(-10).reverse()
       .map(x => `<button data-v="${x.date}" aria-pressed="${x.date === T.day}">${md(x.date)}・${x.cases.length}</button>`).join("");
   }
-  renderStats(); renderExit(); renderNow(); renderNear(); renderNear2(); renderTrack(); renderAtt(); renderHist(); setupSearch();
+  renderStats(); renderExit(); renderExitStat(); renderNow(); renderNear(); renderNear2(); renderTrack(); renderAtt(); renderHist(); setupSearch();
   if (M){ chips("track-day", T, "day", renderTrack); chips("track-kind", T, "kind", renderTrack); }
   chips("exit-n", X, "k", renderExit, Number);
   chips("att-day", A, "day", renderAtt);

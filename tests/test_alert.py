@@ -122,3 +122,15 @@ class SiteTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ExitChainTest(unittest.TestCase):
+    def test_chain_and_group(self):
+        d = [{"code": "2466", "market": "上市", "start": "2026-10-30", "end": "2026-11-05", "exit": "2026-11-06", "measure": "第二次處置"},
+             {"code": "2466", "market": "上市", "start": "2026-11-04", "end": "2026-11-10", "exit": "2026-11-11", "measure": "第二次處置"},
+             {"code": "4577", "market": "上櫃", "start": "2026-10-30", "end": "2026-11-05", "exit": "2026-11-06", "measure": "第一次處置"},
+             {"code": "4577", "market": "上櫃", "start": "2026-09-01", "end": "2026-09-05", "exit": "2026-09-08", "measure": "第一次處置"}]
+        up = S.upcoming_exits(d, "2026-11-04", "2026-11-12")
+        self.assertEqual([(c["code"], c["exit"], c["chain_start"], c["group"]) for c in up],
+                         [("4577", "2026-11-06", "2026-10-30", "first_上櫃"), ("2466", "2026-11-11", "2026-10-30", "again")])
+        self.assertEqual(S.exit_group("第一次處置", "上市", "2026-07-01"), "pre_first")

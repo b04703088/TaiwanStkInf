@@ -584,8 +584,42 @@ def shift(iso, prev_iso, top=3):
 
 
 # 2026-11-03 Leo：摘要下方只留 ETF 調整（重要時程＋近期大額調整的主動式 ETF）、CB（重要時程＋新增事件）、
+# ───────────── 快出關的處置股 ─────────────
+def disp_exit(iso, stems, days=4):
+    """出關日在資料日 D 之後 days 個交易日內的處置股（接續處置的以最後一段為準），附出關隔天歷史統計。"""
+    import alert_site
+    hp = D / "no_trading_days.txt"
+    hol = set(hp.read_text(encoding="utf-8").split()) if hp.exists() else set()
+    disp = [x for x in _read(D / "alert" / "disposal.csv") if alert_site.is_stock(x["code"]) and x.get("end")]
+    for x in disp:
+        x["exit"] = alert_site.next_open(x["end"], hol)
+    t = iso
+    for _ in range(days):
+        t = alert_site.next_open(t, hol)
+    up = alert_site.upcoming_exits(disp, iso, t)
+    if not up:
+        return []
+    st = alert_site.exit_stats(disp, D) or {"groups": []}
+    g = {x["key"]: x for x in st["groups"]}
+    alert_site.add_prices(up, D, iso)
+    rows = []
+    for c in up:
+        x = g.get(c["group"])
+        try:
+            chg = f"{float(c['close']) / float(c['pre_close']) * 100 - 100:+.1f}%"
+        except (KeyError, TypeError, ValueError, ZeroDivisionError):
+            chg = ""
+        rows.append([_md(c["exit"]), f"{c['code']} {c['name']}（{'市' if c['market'] == '上市' else '櫃'}）",
+                     c["measure"].replace("處置", ""), chg,
+                     (f"**{x['black']:.0f}%**" if x["black"] >= 60 else f"{x['black']:.0f}%") + f"（{x['label']}，開到收中位 {x['oc_med']:+.1f}%）" if x else ""])
+    out = ["## 快出關的處置股", "", f"出關日在未來 {days} 個交易日內；處置期間又被處置的以最後一次為準。", ""]
+    out += _tbl(["出關日", "股票", "次別", "處置期間漲跌", "出關隔天收黑（歷史）"], rows)
+    out += ["", "歷史統計是改制（處置起日 2026/8/10）後同一類出關隔天收盤低於開盤的比例；第一次處置的上櫃股最明顯，第二次／再次沒有偏向。"]
+    return out
+
+
 # 重要分點買賣超、近期內部人事件；資金流向、舊版 CB／ETF 段落先不放，要放回時把名稱加回 SECTIONS（順序即網頁順序）。
-SECTIONS = ("etf_brief", "cb_brief", "watch", "insider")
+SECTIONS = ("disp_exit", "etf_brief", "cb_brief", "watch", "insider")
 
 
 def build(day, px_files, chip_files):
@@ -599,7 +633,8 @@ def build(day, px_files, chip_files):
     since5 = _iso(stems[max(0, i - 5)])   # 內部人事件看近 5 個交易日
     fns = {f.__name__: (f, a) for f, a in ((flows, (px_files, chip_files, day)), (watch, (day,)), (cb, (iso, prev_iso, names)),
                                            (etf, (iso, prev_iso, names)), (insider, (iso, since5, px)), (shift, (iso, prev_iso)),
-                                           (cb_brief, (iso, prev_iso, names)), (etf_brief, (iso, since5)))}
+                                           (cb_brief, (iso, prev_iso, names)), (etf_brief, (iso, since5)),
+                                           (disp_exit, (iso, stems)))}
     for f, args in (fns[k] for k in SECTIONS):
         try:
             sec = f(*args)
