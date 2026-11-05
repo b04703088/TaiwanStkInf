@@ -42,6 +42,13 @@
   .md p, .md li{font-size:14.5px; color:var(--text); line-height:1.85;}
   .md ul, .md ol{padding-left:1.3em; margin:6px 0;}
   .md strong{color:var(--text); font-weight:700;}
+  /* 大項目＋小項目：大項目不加圓點、粗體當小標，小項目用圓點 */
+  .md ul.grp{list-style:none; padding-left:0;}
+  .md ul.grp > li{margin:10px 0 2px; font-weight:700;}
+  .md ul.grp > li > strong{font-weight:700;}
+  .md ul.sub{list-style:disc; padding-left:1.3em; margin:2px 0 4px;}
+  .md ul.sub > li{font-weight:400; line-height:1.75; color:var(--text);}
+  .md ul.sub > li::marker{color:var(--text-faint);}
   .md a{color:var(--text-muted);}
   .md .tbl{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius-m); margin:8px 0 6px;}
   .md table{width:100%; border-collapse:collapse; font-size:13px;}
@@ -117,9 +124,23 @@ function md(src){
       continue;
     }
     if (/^\s*([-*]|\d+\.) /.test(l)){
-      const ol = /^\s*\d+\./.test(l), it = [];
-      while (i < L.length && /^\s*([-*]|\d+\.) /.test(L[i])) it.push(L[i++].replace(/^\s*([-*]|\d+\.) /, ""));
-      out.push(`<${ol ? "ol" : "ul"}>${it.map(x => `<li>${inl(x)}</li>`).join("")}</${ol ? "ol" : "ul"}>`);
+      // 條列：縮排 2 格以上＝小項目，掛在上一個大項目底下
+      const it = [];
+      while (i < L.length && /^\s*([-*]|\d+\.) /.test(L[i])){
+        const m = L[i++].match(/^(\s*)([-*]|\d+\.) (.*)$/);
+        it.push({d: m[1].replace(/\t/g, "  ").length, ol: /\d/.test(m[2]), t: m[3]});
+      }
+      const build = (a, d) => {
+        let h = "", k = 0;
+        while (k < a.length){
+          const x = a[k++], kids = [];
+          while (k < a.length && a[k].d > x.d + 1) kids.push(a[k++]);
+          h += `<li>${inl(x.t)}${kids.length ? build(kids, d + 1) : ""}</li>`;
+        }
+        const ol = a[0].ol, cls = d ? ' class="sub"' : (a.some((x, j) => j + 1 < a.length && a[j + 1].d > x.d + 1) ? ' class="grp"' : "");
+        return `<${ol ? "ol" : "ul"}${cls}>${h}</${ol ? "ol" : "ul"}>`;
+      };
+      out.push(build(it, 0));
       continue;
     }
     if (!l.trim()){ i++; continue; }
