@@ -3121,10 +3121,12 @@ date,series,value,source
 2026-11-03,us10y,4.952,yahoo:^TNX
 2026-11-03,usdtwd,32.5851,yahoo:TWD=X
 2026-11-03,vix,20.83,yahoo:^VIX
-2026-11-04,dxy,101.492,yahoo:DX-Y.NYB
+2026-11-04,dxy,101.51,yahoo:DX-Y.NYB
 2026-11-04,hyg,77.52,yahoo:HYG
 2026-11-04,ief,91.66,yahoo:IEF
 2026-11-04,us10y,4.894,yahoo:^TNX
 2026-11-04,usdtwd,32.733,yahoo:TWD=X
 2026-11-04,vix,16.61,yahoo:^VIX
-2026-11-05,usdtwd,32.815,yahoo:TWD=X
+2026-11-05,dxy,101.54,yahoo:DX-Y.NYB
+2026-11-05,usdtwd,32.904,yahoo:TWD=X
+2026-11-05,vix,16.84,yahoo:^VIX
