@@ -63,10 +63,16 @@ class MatchTest(unittest.TestCase):
         self.assertEqual(m["m"][0][2:5], [500, 520, 20])
         self.assertEqual(res["known"]["1111"][0][:4], ["A", "分點A", 1, 0])
 
-    def test_oversized_is_low(self):
-        rows = [br("m", "2222", "2026-09", "B", 100, "in", "B", 1, "X", 500, 50)]
-        m = IB.build(rows)["match"]["2222|2026-09"]
-        self.assertEqual((m["conf"], m["cov"]), ("低", 4.5))
+    def test_levels(self):
+        rows = [br("m", "2222", "2026-09", "B", 100, "in", "B", 1, "X", 500, 50),     # 4.5 倍：不列
+                br("m", "3333", "2026-09", "B", 100, "in", "B", 1, "Y", 115, 0),      # 單一 1.15 倍：中
+                br("m", "3333", "2026-09", "B", 100, "in", "B", 2, "W", 98, 0),       # 單一 0.98 倍優先
+                br("m", "4444", "2026-09", "B", 100, "in", "B", 1, "V", 115, 0)]
+        days = [day("m", "3333", "2026-09", b, 5, 5, 0, 100, 0) for b in "YW"] + [day("m", "4444", "2026-09", "V", 5, 5, 0, 115, 0)]
+        m = IB.build(rows, days)["match"]
+        self.assertNotIn("2222|2026-09", m)
+        self.assertEqual((m["3333|2026-09"]["conf"], m["3333|2026-09"]["m"][0][0]), ("高", "W"))
+        self.assertEqual(m["4444|2026-09"]["conf"], "中")
 
     def test_live_progress(self):
         rows = [br("m", "1111", "2026-09", "S", 500, "in", "S", 1, "A", 0, 500),

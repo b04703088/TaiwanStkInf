@@ -12,13 +12,15 @@
        反向那幾天的淨額合計 ≤ 同方向那幾天合計的 15%
      前 30 天就已經同方向做了期間淨額一半以上的分點（本來就常買賣這檔的）排除；
      但如果前一個月這家公司內部人也同方向在買賣（連續出貨），不做這個排除。
-  2. 淨額不超過 L 兩倍的候選，從大到小納入，合計達 L 的 85% 就停，最多 3 個；
-     都超過兩倍時只取最接近 L 的一個（大分點，混了很多別人的單）。
+  2. 先找「單一分點」淨額最接近 L 的，落在 0.85～1.2 倍就只取它；
+     找不到時，淨額不超過 L 兩倍的候選從大到小加總，達 L 的 85% 就停，最多 3 個。
   3. 吻合度 = 納入分點淨額合計 ÷ L
-       高：0.85～2，而且納入的分點都有每日資料（逐日一面倒）
-       中：0.6～3，而且都有每日資料
-       低：0.3～6 但沒有每日資料（還沒查或不在候選範圍），或 0.3～0.6、3～6；其餘不列
-     月報的分點前 15 名裡，隨便一個分點剛好落在 0.6～3 倍的機率不低，所以「中」以上一定要逐日也一面倒。
+       高：單一分點、差 5% 以內，而且逐日一面倒
+       中：單一分點 0.85～1.2 倍，或多個分點合計差 5% 以內，而且都逐日一面倒
+       低：0.6～2 倍的其他情況，僅供參考；其餘不列
+     門檻怎麼來的（2026-11-05 用 4～9 月 977 筆檢查）：把內部人的方向反過來（賣當成買）再比一次，當作「隨便
+     找也會對到」的基準。單一分點差 5% 以內：真實 208 筆、反向只有 36 筆；0.85～1.2 倍：119 對 89；1.2～2 倍：
+     287 對 262（跟亂猜差不多）；多分點加總不論吻合度都跟反向差不多。所以只有「單一分點而且很準」才算高。
   公司層級：同一分點「高」一次或「中」兩次以上 → 已知內部人分點。
 
 申報追蹤（事前申報的轉讓期間內，還沒有月報）
@@ -31,9 +33,10 @@ MAX_OPP = 0.35
 DIR_DAYS = 0.50
 OPP_NET = 0.15
 ENOUGH = 0.85
+EXACT = 0.05        # 「高」：單一分點淨額跟內部人張數差 5% 以內
+SINGLE_LO, SINGLE_HI = 0.85, 1.2
 HIGH_MAX = 2.0
 MID_MAX = 3.0
-LOW_MAX = 6.0
 MAX_PICK = 3
 
 
@@ -104,12 +107,12 @@ def _entry(r, d, sg):
     return [r["bid"], r["broker"], int(dn), int(din), int(dout), d[0] if d else None, dd, od]
 
 
-def _conf(cov, all_daily):
-    if ENOUGH <= cov <= HIGH_MAX and all_daily:
+def _conf(cov, all_daily, single):
+    if single and all_daily and abs(cov - 1) <= EXACT:
         return "高"
-    if 0.6 <= cov <= MID_MAX and all_daily:
+    if all_daily and (single and SINGLE_LO <= cov <= SINGLE_HI or abs(cov - 1) <= EXACT):
         return "中"
-    if 0.3 <= cov <= LOW_MAX:
+    if 0.6 <= cov <= HIGH_MAX:
         return "低"
     return ""
 
@@ -134,21 +137,21 @@ def match_month(key, j, days, win_all):
     cands = [r for r in w_in["rows"]
              if sg * r["net"] >= MIN_SHARE * lots and one_sided(r, dk(r), sg)
              and pre_net.get(r["bid"], 0) < 0.5 * sg * r["net"]]
-    small = sorted((r for r in cands if sg * r["net"] <= HIGH_MAX * lots), key=lambda r: -sg * r["net"])
     picked, tot = [], 0.0
-    for r in small[:MAX_PICK]:
-        picked.append(r)
-        tot += sg * r["net"]
-        if tot >= ENOUGH * lots:
-            break
-    if not picked or tot < 0.6 * lots:
-        big = sorted((r for r in cands if sg * r["net"] > HIGH_MAX * lots), key=lambda r: sg * r["net"])
-        if big and (not picked or abs(sg * big[0]["net"] / lots - 1) < abs(tot / lots - 1)):
-            picked, tot = [big[0]], sg * big[0]["net"]
+    if cands:  # 單一分點最接近內部人張數的
+        best = min(cands, key=lambda r: abs(sg * r["net"] / lots - 1))
+        if SINGLE_LO <= sg * best["net"] / lots <= SINGLE_HI:
+            picked, tot = [best], sg * best["net"]
+    if not picked:  # 多個分點加起來
+        for r in sorted((r for r in cands if sg * r["net"] <= HIGH_MAX * lots), key=lambda r: -sg * r["net"])[:MAX_PICK]:
+            picked.append(r)
+            tot += sg * r["net"]
+            if tot >= ENOUGH * lots:
+                break
     if not picked:
         return None
     cov = tot / lots
-    conf = _conf(cov, all(dk(r) is not None for r in picked))
+    conf = _conf(cov, all(dk(r) is not None for r in picked), len(picked) == 1)
     if not conf:
         return None
     return {"dir": j["dir"], "lots": int(lots), "d1": w_in["d1"], "d2": w_in["d2"],
