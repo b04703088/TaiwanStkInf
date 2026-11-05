@@ -23,7 +23,7 @@
   h2{font-size:20px;}
   .mono{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
   a{color:inherit;}
-  .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
+  .wrap{max-width:1480px; margin:0 auto; padding:0 28px;}   /* 合併表 18 欄，比其他頁寬 */
   header.site{position:sticky; top:0; z-index:40; background:#101419; border-bottom:1px solid var(--line);}
   .nav-row{display:flex; align-items:center; justify-content:space-between; padding:16px 28px;}
   .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
@@ -101,12 +101,20 @@
     .show-s{display:block;}
   }
   select.filter{width:auto;}
-  .tabs{display:flex; gap:0; border-bottom:1px solid var(--line); margin-top:36px;}
-  .tabs button{background:none; border:none; border-bottom:2px solid transparent; color:var(--text-muted); padding:10px 16px; cursor:pointer; font:inherit; font-size:15px;}
-  .tabs button[aria-pressed="true"]{color:var(--text); border-bottom-color:var(--brass);}
-  tr.sub-row td{background:var(--panel-2); font-size:12.5px; color:var(--text-muted);}
   .warn{color:var(--brass);}
-  @media (max-width:860px){ th, td{padding:8px 8px;} .tabs button{padding:9px 10px; font-size:14px;} }
+  /* 三組欄位：主動式 ETF／融資／不限用途，用左邊框分組 */
+  th.g, td.g{border-left:1px solid var(--line-strong);}
+  th .gl{display:block; font-size:10.5px; letter-spacing:.04em; color:var(--text-faint); line-height:1.3;}
+  th.g-etf .gl{color:var(--brass);} th.g-m .gl{color:#7FA8D6;} th.g-u .gl{color:#B08FD0;}
+  .legend-g{display:flex; flex-wrap:wrap; gap:6px 16px; font-size:12.5px; color:var(--text-muted);}
+  .legend-g b{font-weight:500;} .legend-g .e{color:var(--brass);} .legend-g .m{color:#7FA8D6;} .legend-g .u{color:#B08FD0;}
+  sup.b{color:var(--brass); font-size:10px; margin-left:1px;}
+  tr.detail td{background:var(--panel-2); padding:6px 12px 10px 28px;}
+  tr.detail table{font-size:12.5px; width:auto; min-width:60%;}
+  tr.detail th{background:none; position:static; padding:5px 10px;}
+  tr.detail td.c{background:none; padding:5px 10px; border-bottom:1px solid var(--line); color:var(--text-muted);}
+  .note p{margin:0 0 10px;}
+  @media (max-width:860px){ th, td{padding:8px 8px;} tr.detail td{padding-left:8px;} }
 </style>
 </head>
 <body>
@@ -124,31 +132,29 @@
     <div class="stats" id="stats"></div>
   </section>
 
-  <div class="tabs" id="tabs">
-    <button data-v="etf" aria-pressed="true">主動式 ETF</button>
-    <button data-v="margin" aria-pressed="false">融資</button>
-    <button data-v="ul" aria-pressed="false">不限用途借貸</button>
-  </div>
-
-  <section class="block" style="margin-top:20px">
+  <section class="block" style="margin-top:36px">
     <div class="toolbar" style="margin:0 0 12px">
+      <select class="filter" id="sort" aria-label="排序"></select>
+      <select class="filter" id="has" aria-label="只看">
+        <option value="">三種部位都列</option><option value="etf">有主動式 ETF 持股</option><option value="m">有融資</option><option value="u">有不限用途借貸</option><option value="all">三種都有</option>
+      </select>
       <select class="filter" id="etf" aria-label="選 ETF"></select>
-      <div class="chips" id="sortc"></div>
       <select class="filter" id="minv" aria-label="最低市值">
-        <option value="0">不限市值</option><option value="1e8" selected>市值 1 億以上</option><option value="1e9">10 億以上</option>
+        <option value="0">不限市值</option><option value="1e8" selected>合計市值 1 億以上</option><option value="1e9">10 億以上</option>
       </select>
       <div id="liq"></div>
       <label class="chk-in"><input type="checkbox" id="noetf" checked> 排除 ETF</label>
       <label class="chk-in"><input type="checkbox" id="mine"> 只看自選</label>
       <input class="filter" id="q" type="search" placeholder="代號或名稱" autocomplete="off" aria-label="搜尋">
     </div>
+    <div class="legend-g" style="margin:0 0 6px"><span><b class="e">主動式 ETF</b>：持股成本、損益、停損倍數</span><span><b class="m">融資</b>：融資戶成本、維持率</span><span><b class="u">不限用途</b>：股票質借設質均價、維持率</span></div>
     <p class="hint" id="hint" style="margin:0 0 10px"></p>
     <div class="tbl-wrap"><table>
       <thead id="head"></thead>
       <tbody id="body"></tbody>
     </table></div>
     <button class="more" id="more" hidden>顯示更多</button>
-    <p class="note" id="note"></p>
+    <div class="note" id="note"></div>
   </section>
 </main>
 <footer class="site"><div class="wrap"><p class="note" style="margin:0">資料僅供參考，不構成投資建議。</p></div></footer>
@@ -166,17 +172,33 @@ const sname = r => `<span class="sname"><a href="stock.html#s=${encodeURICompone
 const Watch = window.TideWatch || {list: () => []};
 const multCell = m => m == null ? "–" : m >= 1 ? `<b class="warn">${m.toFixed(2)}×</b>` : `${m.toFixed(2)}×`;
 const baseCell = b => b == null ? "–" : `<span class="${b >= 50 ? "warn" : "faint"}">${b}%</span>`;
+const chgCell = v => v == null ? "–" : `<span class="${cls(v)}">${sint(v)}</span>`;
+// 起始部位 ≥50%：成本主要是假設值，在成本旁標 *
+const costCell = (c, b) => c == null ? "–" : num(c) + (b >= 50 ? `<sup class="b" title="起始部位 ${b}%，成本主要是假設值">*</sup>` : "");
+const ratioCell = v => v == null ? "–" : `<span class="${v < 130 ? "up" : v < 150 ? "warn" : "muted"}">${v}%</span>`;
 
-const S = {tab: "etf", etf: "", sort: {etf: "val", margin: "val", ul: "val"}, minv: 1e8, noetf: true, mine: false, q: "", limit: 100, open: null};
-let D, E = {}, M = [], U = [];
+const S = {etf: "", sort: "val", has: "", minv: 1e8, noetf: true, mine: false, q: "", limit: 100, open: null};
+let D, E = {}, M = [], U = [], ROWS = [];
 
-const SORTS = {
-  etf: [["val", "持有市值", r => -r.val], ["pnl", "被套最深（停損壓力）", r => r.pnl], ["gain", "獲利最多（停利壓力）", r => -r.pnl],
-    ["mult", "停損倍數最高", r => r.mult == null ? null : -r.mult],
-    ["cut", "近 5 日減碼", r => r.d5 < 0 ? r.d5 * r.close : null], ["add", "近 5 日加碼", r => r.d5 > 0 ? -r.d5 * r.close : null]],
-  margin: [["val", "融資市值", r => -r.val], ["ratio", "維持率最低", r => r.ratio], ["call", "最接近追繳", r => -r.call_dist], ["b5", "5 日融資增加", r => -(r.b5 ?? -1e12)]],
-  ul: [["val", "擔保市值", r => -r.val], ["ratio", "維持率最低", r => r.ratio], ["call", "最接近追繳", r => -r.call_dist], ["use", "使用率最高", r => -(r.use ?? -1)]],
-};
+// 排序（全部列，不只畫面上的）；回傳 null 的列不列出
+const SORTS = [
+  ["val", "合計市值（三種部位）", r => -r.val],
+  ["e_val", "ETF 持有市值", r => r.e ? -r.e.val : null],
+  ["e_pnl", "ETF 被套最深（停損壓力）", r => r.e ? r.e.pnl : null],
+  ["e_gain", "ETF 獲利最多（停利壓力）", r => r.e ? -r.e.pnl : null],
+  ["e_mult", "ETF 停損倍數最高", r => r.e?.mult == null ? null : -r.e.mult],
+  ["e_cut", "ETF 近 5 日減碼", r => r.e?.d5 < 0 ? r.e.d5 * r.close : null],
+  ["e_add", "ETF 近 5 日加碼", r => r.e?.d5 > 0 ? -r.e.d5 * r.close : null],
+  ["m_val", "融資市值", r => r.m ? -r.m.val : null],
+  ["m_ratio", "融資維持率最低", r => r.m ? r.m.ratio : null],
+  ["m_call", "融資最接近追繳", r => r.m ? -r.m.call_dist : null],
+  ["m_b5", "融資 5 日增加", r => r.m?.b5 == null ? null : -r.m.b5],
+  ["u_val", "不限用途擔保市值", r => r.u ? -r.u.val : null],
+  ["u_ratio", "不限用途維持率最低", r => r.u ? r.u.ratio : null],
+  ["u_call", "不限用途最接近追繳", r => r.u ? -r.u.call_dist : null],
+  ["u_use", "不限用途使用率最高", r => r.u?.use == null ? null : -r.u.use],
+  ["gap", "三種成本差距最大", r => r.gap == null ? null : -r.gap],
+];
 
 function stats(){
   const c = D.calib || [], tw = c.find(x => x[0] === "TWSE"), tp = c.find(x => x[0] === "TPEx");
@@ -191,72 +213,86 @@ function stats(){
     ["融資估計跌破 130%", `${under} 檔`, `130%～150%：${near} 檔（融資市值 1 億以上）`],
     ["不限用途跌破 130%", `${ul.filter(r => r.ratio < 130).length} 檔`, `130%～150%：${ul.filter(r => r.ratio >= 130 && r.ratio < 150).length} 檔（擔保市值 1 億以上）`],
   ].map(([k, v, s]) => `<div class="stat"><div class="k">${k}</div><div class="v mono">${v}</div><div class="s">${s}</div></div>`).join("");
-  $("sub").textContent = `融資 ${D.margin?.date ?? "–"}・不限用途 ${D.ul?.date ?? "–"}・主動式 ETF 最新持股。用每天成交均價（VWAP）推估主動式 ETF、融資戶、股票質借的平均成本，看現價離成本多遠、跌到哪裡會被追繳。`;
+  $("sub").textContent = `融資 ${D.margin?.date ?? "–"}・不限用途 ${D.ul?.date ?? "–"}・主動式 ETF 最新持股。用每天成交均價（VWAP）推估主動式 ETF、融資戶、股票質借的平均成本，三種部位併成一張表：每檔股票一列，看現價離各方成本多遠、跌到哪裡會被追繳。`;
+}
+
+// 每檔股票一列：主動式 ETF（合計或單一 ETF）＋融資＋不限用途
+function merge(){
+  const one = S.etf !== "";
+  const er = one ? E.rows.filter(r => r.e === +S.etf).map(r => ({...r, val: r.lots * 1000 * r.close})) : E.agg;
+  const by = new Map();
+  const get = r => { let x = by.get(r.code); if (!x) by.set(r.code, x = {code: r.code, name: r.name, close: r.close}); return x; };
+  er.forEach(r => get(r).e = r);
+  if (!one) { M.forEach(r => get(r).m = r); U.forEach(r => get(r).u = r); }
+  else { const mm = new Map(M.map(r => [r.code, r])), uu = new Map(U.map(r => [r.code, r]));
+    by.forEach(x => { x.m = mm.get(x.code); x.u = uu.get(x.code); }); }
+  ROWS = [...by.values()].map(x => {
+    x.close = x.e?.close ?? x.m?.close ?? x.u?.close;
+    x.val = (x.e?.val || 0) + (x.m?.val || 0) + (x.u?.val || 0);
+    const cs = [x.e?.cost, x.m?.cost, x.u?.cost].filter(c => c > 0);
+    x.gap = cs.length >= 2 ? (Math.max(...cs) / Math.min(...cs) - 1) * 100 : null;
+    return x;
+  });
 }
 
 function rowsFor(){
-  const mine = new Set(Watch.list()), q = S.q.trim().toLowerCase();
-  let rs;
-  if (S.tab === "etf") {
-    if (S.etf === "") rs = E.agg;
-    else if (S.etf === "all") rs = E.rows.filter(r => q || (r.w ?? 0) >= 1).map(r => ({...r, val: r.lots * 1000 * r.close}));
-    else rs = E.rows.filter(r => r.e === +S.etf).map(r => ({...r, val: r.lots * 1000 * r.close}));
-  } else rs = S.tab === "margin" ? M : U;
-  const one = S.tab === "etf" && S.etf !== "" && S.etf !== "all";   // 單一 ETF 的持股不到 200 檔，不套成交值濾網
-  rs = rs.filter(r => (!S.mine || mine.has(r.code)) && (!q ? (one || TideLiq.pass(r.code)) && (S.tab === "etf" || ((r.val >= S.minv) && (!S.noetf || !/^0/.test(r.code))))
-    : r.code.toLowerCase().includes(q) || r.name.toLowerCase().includes(q)));
-  const k = (SORTS[S.tab].find(x => x[0] === S.sort[S.tab]) || SORTS[S.tab][0])[2];
+  const mine = new Set(Watch.list()), q = S.q.trim().toLowerCase(), one = S.etf !== "";   // 單一 ETF 的持股不到 200 檔，不套成交值濾網
+  const has = {etf: r => r.e, m: r => r.m, u: r => r.u, all: r => r.e && r.m && r.u}[S.has] || (() => true);
+  let rs = ROWS.filter(r => has(r) && (!S.mine || mine.has(r.code)) && (q ? r.code.toLowerCase().includes(q) || r.name.toLowerCase().includes(q)
+    : (one || TideLiq.pass(r.code)) && r.val >= S.minv && (!S.noetf || !/^0/.test(r.code))));
+  const k = (SORTS.find(x => x[0] === S.sort) || SORTS[0])[2];
   return rs.filter(r => k(r) != null && isFinite(k(r))).sort((a, b) => k(a) - k(b));
 }
 
+const COLS = 17;
 function render(){
-  document.querySelectorAll("#tabs button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === S.tab));
-  $("etf").hidden = S.tab !== "etf";
-  $("liq").hidden = S.tab === "etf" && S.etf !== "" && S.etf !== "all";
-  $("minv").hidden = S.tab === "etf"; $("noetf").parentNode.style.display = S.tab === "etf" ? "none" : "";
-  $("sortc").innerHTML = SORTS[S.tab].map(([v, t]) => `<button data-v="${v}" aria-pressed="${S.sort[S.tab] === v}">${t}</button>`).join("");
+  $("liq").hidden = S.etf !== "";
+  const one = S.etf !== "", e1 = one ? E.etfs[+S.etf] : null;
+  $("hint").innerHTML = (one ? `ETF 欄位：${esc(e1.code)} ${esc(e1.name)}，持股資料 ${e1.start} 起 ${e1.n} 份，最新 ${e1.date}。` :
+    `ETF 欄位是全部主動式 ETF 合計（${E.etfs.length} 檔），點一列看各 ETF 的成本。`) +
+    `融資 ${D.margin?.date ?? "–"}、不限用途 ${D.ul?.date ?? "–"} 收盤；成數都假設 60%，追繳價＝成本 × 60% × 130%。成本旁 <sup class="b">*</sup> 表示起始部位過半、成本主要是假設值。`;
+  const g = (cls, gl, t, extra = "") => `<th class="n ${cls}${extra}"${t ? ` title="${t}"` : ""}><span class="gl">${gl}</span>`;
+  $("head").innerHTML = `<tr><th>股票</th><th class="n">收盤</th>
+    ${g("g g-etf", "ETF", "")}張數</th>${g("g-etf", "ETF", "")}成本</th>${g("g-etf", "ETF", "")}損益</th>
+    ${g("g-etf", "ETF", "持股 ÷ 近 5 日成交量（扣當沖）", " hide-s")}停損倍數</th>${g("g-etf", "ETF", "", " hide-s")}5 日增減</th>
+    ${g("g g-m", "融資", "", " hide-s")}張數</th>${g("g-m", "融資", "")}成本</th>${g("g-m", "融資", "")}維持率</th>${g("g-m", "融資", "", " hide-s")}距追繳</th>${g("g-m", "融資", "", " hide-s")}5 日增減</th>
+    ${g("g g-u", "不限用途", "", " hide-s")}張數</th>${g("g-u", "不限用途", "")}設質均價</th>${g("g-u", "不限用途", "")}維持率</th>${g("g-u", "不限用途", "", " hide-s")}距追繳</th>${g("g-u", "不限用途", "", " hide-s")}使用率</th>
+    <th class="n g hide-s" title="主動式 ETF＋融資＋不限用途的市值合計">合計市值</th></tr>`;
   const rs = rowsFor();
-  let head, row;
-  if (S.tab === "etf") {
-    const all = S.etf === "all", one = S.etf !== "" && !all, agg = S.etf === "";
-    const e = one ? E.etfs[+S.etf] : null;
-    $("hint").innerHTML = one ? `${esc(e.code)} ${esc(e.name)}：持股資料 ${e.start} 起 ${e.n} 份，最新 ${e.date}` :
-      all ? `每檔 ETF 的每個部位分開列（只列權重 1% 以上；搜尋時全列）。套很深、或獲利很多又開始減碼的部位，要留意經理人停損／停利賣壓` :
-      `全部主動式 ETF 合計（${E.etfs.length} 檔），點一列看各 ETF 的成本。持股資料最早 ${E.etfs.reduce((a, x) => a < x.start ? a : x.start, "9999")} 起`;
-    const chgCell = v => v == null ? "–" : `<span class="${cls(v)}">${sint(v)}</span>`;
-    head = `<tr><th>股票</th>${all ? "<th>ETF</th>" : ""}${agg ? '<th class="n">ETF 數</th>' : '<th class="n">權重</th>'}<th class="n">持有張數</th><th class="n">估計成本</th><th class="n">收盤</th><th class="n">損益</th>
-      <th class="n" title="持股 ÷ 近 5 日成交量（扣當沖）">停損倍數</th><th class="n">5 日增減</th><th class="n hide-s">20 日增減</th><th class="n hide-s">起始部位</th><th class="n hide-s">市值</th></tr>`;
-    row = r => `<tr class="${agg ? "click" : ""}${S.open === r.code && agg ? " on" : ""}" data-code="${esc(r.code)}"><td>${sname(r)}</td>
-      ${all ? `<td class="faint" style="font-size:12.5px">${esc(E.etfs[r.e].code)} ${esc(E.etfs[r.e].name.replace("主動", ""))}</td>` : ""}
-      <td class="n mono">${agg ? r.n : (r.w == null ? "–" : r.w.toFixed(2) + "%")}</td><td class="n mono">${int(r.lots)}</td>
-      <td class="n mono">${num(r.cost)}</td><td class="n mono">${num(r.close)}</td><td class="n mono" data-v="${r.pnl}">${pct(r.pnl)}</td>
-      <td class="n mono" data-v="${r.mult ?? ""}">${multCell(r.mult)}</td>
-      <td class="n mono" data-v="${r.d5 ?? ""}">${chgCell(r.d5)}</td><td class="n mono hide-s" data-v="${r.d20 ?? ""}">${chgCell(r.d20)}</td>
-      <td class="n mono hide-s">${baseCell(r.base)}</td><td class="n mono hide-s" data-v="${r.val}">${yi(r.val)}</td></tr>` + (agg && S.open === r.code ? detail(r.code) : "");
-  } else {
-    const ul = S.tab === "ul";
-    const src = ul ? D.ul : D.margin;
-    $("hint").innerHTML = `${src.date} 收盤・成本從 ${src.start} 起逐日推估・${ul ? "借貸成數假設 60%" : "融資成數 60%"}，追繳價＝成本 × 成數 × 130%`;
-    head = `<tr><th>股票</th><th class="n">${ul ? "擔保張數" : "融資張數"}</th><th class="n hide-s">${ul ? "使用率" : "5 日增減"}</th><th class="n">${ul ? "擔保市值" : "融資市值"}</th>
-      <th class="n">${ul ? "設質均價" : "估計成本"}</th><th class="n">收盤</th><th class="n">維持率</th><th class="n">追繳價</th><th class="n">距追繳</th><th class="n hide-s">起始部位</th></tr>`;
-    row = r => `<tr data-code="${esc(r.code)}"><td>${sname(r)}</td><td class="n mono">${int(r.bal)}</td>
-      <td class="n mono hide-s">${ul ? (r.use == null ? "–" : r.use.toFixed(1) + "%") : `<span class="${cls(r.b5)}">${sint(r.b5)}</span>`}</td>
-      <td class="n mono" data-v="${r.val}">${yi(r.val)}</td><td class="n mono">${num(r.cost)}</td><td class="n mono">${num(r.close)}</td>
-      <td class="n mono ${r.ratio < 130 ? "up" : r.ratio < 150 ? "warn" : "muted"}">${r.ratio}%</td>
-      <td class="n mono">${num(r.call)}</td><td class="n mono" data-v="${r.call_dist}">${pct(r.call_dist)}</td><td class="n mono hide-s">${baseCell(r.base)}</td></tr>`;
-  }
-  $("head").innerHTML = head;
-  $("body").innerHTML = rs.slice(0, S.limit).map(row).join("") || `<tr><td colspan="10" class="empty">沒有符合條件的股票</td></tr>`;
+  const row = r => { const e = r.e, m = r.m, u = r.u, click = !one && e;
+    return `<tr class="${click ? "click" : ""}${click && S.open === r.code ? " on" : ""}" data-code="${esc(r.code)}"><td>${sname(r)}</td>
+      <td class="n mono">${num(r.close)}</td>
+      <td class="n mono g" data-v="${e?.lots ?? ""}">${e ? int(e.lots) : "–"}</td>
+      <td class="n mono" data-v="${e?.cost ?? ""}">${e ? costCell(e.cost, e.base) : "–"}</td>
+      <td class="n mono" data-v="${e?.pnl ?? ""}">${e ? pct(e.pnl) : "–"}</td>
+      <td class="n mono hide-s" data-v="${e?.mult ?? ""}">${e ? multCell(e.mult) : "–"}</td>
+      <td class="n mono hide-s" data-v="${e?.d5 ?? ""}">${e ? chgCell(e.d5) : "–"}</td>
+      <td class="n mono g hide-s" data-v="${m?.bal ?? ""}">${m ? int(m.bal) : "–"}</td>
+      <td class="n mono" data-v="${m?.cost ?? ""}">${m ? costCell(m.cost, m.base) : "–"}</td>
+      <td class="n mono" data-v="${m?.ratio ?? ""}">${m ? ratioCell(m.ratio) : "–"}</td>
+      <td class="n mono hide-s" data-v="${m?.call_dist ?? ""}">${m ? pct(m.call_dist) : "–"}</td>
+      <td class="n mono hide-s" data-v="${m?.b5 ?? ""}">${m ? chgCell(m.b5) : "–"}</td>
+      <td class="n mono g hide-s" data-v="${u?.bal ?? ""}">${u ? int(u.bal) : "–"}</td>
+      <td class="n mono" data-v="${u?.cost ?? ""}">${u ? costCell(u.cost, u.base) : "–"}</td>
+      <td class="n mono" data-v="${u?.ratio ?? ""}">${u ? ratioCell(u.ratio) : "–"}</td>
+      <td class="n mono hide-s" data-v="${u?.call_dist ?? ""}">${u ? pct(u.call_dist) : "–"}</td>
+      <td class="n mono hide-s" data-v="${u?.use ?? ""}">${u?.use == null ? "–" : u.use.toFixed(1) + "%"}</td>
+      <td class="n mono g hide-s" data-v="${r.val}">${yi(r.val)}</td></tr>` + (click && S.open === r.code ? detail(r.code) : ""); };
+  $("body").innerHTML = rs.slice(0, S.limit).map(row).join("") || `<tr><td colspan="${COLS + 1}" class="empty">沒有符合條件的股票</td></tr>`;
   $("more").hidden = rs.length <= S.limit;
-  $("note").innerHTML = NOTES[S.tab]();
+  $("note").innerHTML = `<p><b class="warn">主動式 ETF</b>　${NOTES.etf()}</p><p><b style="color:#7FA8D6">融資</b>　${NOTES.margin()}</p><p><b style="color:#B08FD0">不限用途</b>　${NOTES.ul()}</p>`;
 }
 
+// 點合計列：展開各 ETF 對這檔股票的部位
 function detail(code){
-  return E.rows.filter(r => r.code === code).sort((a, b) => b.lots - a.lots).map(r => { const e = E.etfs[r.e];
-    return `<tr class="sub-row"><td>　${esc(e.code)} ${esc(e.name)}</td><td class="n mono">${r.w == null ? "–" : r.w.toFixed(2) + "%"}</td><td class="n mono">${int(r.lots)}</td>
-      <td class="n mono">${num(r.cost)}</td><td class="n mono">${num(r.close)}</td><td class="n mono">${pct(r.pnl)}</td><td class="n mono">${multCell(r.mult)}</td>
-      <td class="n mono">${r.d5 == null ? "–" : `<span class="${cls(r.d5)}">${sint(r.d5)}</span>`}</td><td class="n mono hide-s">${r.d20 == null ? "–" : sint(r.d20)}</td>
-      <td class="n mono hide-s">${baseCell(r.base)}</td><td class="hide-s"></td></tr>`; }).join("");
+  const rs = E.rows.filter(r => r.code === code).sort((a, b) => b.lots - a.lots);
+  return `<tr class="detail"><td colspan="${COLS + 1}"><table data-nosort><thead><tr><th>ETF</th><th class="n">權重</th><th class="n">持有張數</th><th class="n">估計成本</th><th class="n">損益</th>
+    <th class="n">停損倍數</th><th class="n">5 日增減</th><th class="n">20 日增減</th><th class="n">起始部位</th></tr></thead><tbody>` +
+    rs.map(r => { const e = E.etfs[r.e];
+      return `<tr><td class="c">${esc(e.code)} ${esc(e.name)}</td><td class="c n mono">${r.w == null ? "–" : r.w.toFixed(2) + "%"}</td><td class="c n mono">${int(r.lots)}</td>
+        <td class="c n mono">${num(r.cost)}</td><td class="c n mono">${pct(r.pnl)}</td><td class="c n mono">${multCell(r.mult)}</td>
+        <td class="c n mono">${chgCell(r.d5)}</td><td class="c n mono">${chgCell(r.d20)}</td><td class="c n mono">${baseCell(r.base)}</td></tr>`; }).join("") +
+    `</tbody></table></td></tr>`;
 }
 
 const NOTES = {
@@ -281,21 +317,26 @@ async function init(){
   E = {etfs: obj(et.etf_cols, et.etfs), rows: obj(et.cols, et.rows), agg: obj(et.agg_cols, et.agg), vol_days: et.vol_days};
   M = D.margin ? obj(D.margin.cols, D.margin.rows) : [];
   U = D.ul ? obj(D.ul.cols, D.ul.rows) : [];
-  $("etf").innerHTML = `<option value="">全部主動式 ETF 合計</option><option value="all">所有部位（逐檔 ETF 分開列）</option>` + E.etfs.map((e, i) => `<option value="${i}">${esc(e.code)} ${esc(e.name)}</option>`).join("");
+  $("etf").innerHTML = `<option value="">ETF 欄：全部主動式 ETF 合計</option>` + E.etfs.map((e, i) => `<option value="${i}">ETF 欄：${esc(e.code)} ${esc(e.name)}</option>`).join("");
+  $("sort").innerHTML = SORTS.map(([v, t]) => `<option value="${v}">排序：${t}</option>`).join("");
   const h = new URLSearchParams(location.hash.slice(1));
-  if (["etf", "margin", "ul"].includes(h.get("t"))) S.tab = h.get("t");
+  // 舊網址 #t=etf / margin / ul 對到合併表的排序
+  const old = {etf: "e_val", margin: "m_val", ul: "u_val"}[h.get("t")];
+  if (old) S.sort = old;
+  if (h.get("sort")) { const s = h.get("sort"), t = {etf: "e_", margin: "m_", ul: "u_"}[h.get("t")] || "";
+    if (SORTS.some(x => x[0] === t + s)) S.sort = t + s; else if (SORTS.some(x => x[0] === s)) S.sort = s; }
   if (h.get("s")) { S.q = h.get("s"); $("q").value = S.q; }
-  if (h.get("e") === "all") { S.etf = "all"; $("etf").value = "all"; }
-  if (h.get("sort") && SORTS[S.tab].some(x => x[0] === h.get("sort"))) S.sort[S.tab] = h.get("sort");
-  stats(); render();
-  $("tabs").onclick = e => { const b = e.target.closest("button"); if (!b) return; S.tab = b.dataset.v; S.limit = 100; S.open = null; history.replaceState(null, "", "#t=" + S.tab); render(); };
-  $("sortc").onclick = e => { const b = e.target.closest("button"); if (!b) return; S.sort[S.tab] = b.dataset.v; S.limit = 100; render(); };
-  $("etf").onchange = e => { S.etf = e.target.value; S.open = null; render(); };
-  $("minv").onchange = e => { S.minv = +e.target.value; render(); };
+  $("sort").value = S.sort;
+  merge(); stats(); render();
+  const re = () => { S.limit = 100; render(); };
+  $("sort").onchange = e => { S.sort = e.target.value; history.replaceState(null, "", "#sort=" + S.sort); re(); };
+  $("has").onchange = e => { S.has = e.target.value; re(); };
+  $("etf").onchange = e => { S.etf = e.target.value; S.open = null; merge(); re(); };
+  $("minv").onchange = e => { S.minv = +e.target.value; re(); };
   TideLiq.mount("liq", () => { if (D) render(); });
-  $("noetf").onchange = e => { S.noetf = e.target.checked; render(); };
-  $("mine").onchange = e => { S.mine = e.target.checked; render(); };
-  $("q").oninput = e => { S.q = e.target.value; S.limit = 100; render(); };
+  $("noetf").onchange = e => { S.noetf = e.target.checked; re(); };
+  $("mine").onchange = e => { S.mine = e.target.checked; re(); };
+  $("q").oninput = e => { S.q = e.target.value; re(); };
   $("more").onclick = () => { S.limit += 200; render(); };
   $("body").onclick = e => { const tr = e.target.closest("tr.click"); if (!tr || e.target.closest("a")) return; S.open = S.open === tr.dataset.code ? null : tr.dataset.code; render(); };
 }
