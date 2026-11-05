@@ -101,3 +101,25 @@ def write_insider(data_dir, out_path, today=None):
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     return payload
+
+
+RECENT_DAYS = 5
+
+
+def write_brokers(data_dir, out_path):
+    """內部人分點比對 → data/insider/brokers.json（insider.html「分點答案」「申報追蹤」用）"""
+    import insider_broker as IB
+    d = Path(data_dir) / "insider"
+    rows = _read(d / "brokers.csv")
+    if not rows:
+        return None
+    res = IB.build(rows, _read(d / "broker_days.csv"))
+    files = sorted(p for p in (Path(data_dir) / "broker").glob("[0-9]" * 4 + "/" + "[0-9]" * 8 + ".csv"))
+    files = files[-RECENT_DAYS:]
+    daily = [r for p in files for r in _read(p)]
+    res["recent"] = IB.recent(res["known"], daily)
+    res["recent_days"] = [f"{p.stem[:4]}-{p.stem[4:6]}-{p.stem[6:]}" for p in files]
+    out_path = Path(out_path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(res, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    return res

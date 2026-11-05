@@ -7,6 +7,10 @@ on:
       month:
         description: "重抓某個月 YYYY-MM（留空 = 最近 3 個月還沒抓的）"
         required: false
+      broker_minutes:
+        description: "內部人分點比對最多跑幾分鐘（0 = 不跑；回補時可加大）"
+        required: false
+        default: "0"
 
 permissions:
   contents: write
@@ -18,7 +22,7 @@ concurrency:
 jobs:
   fetch:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 200
     steps:
       - uses: actions/checkout@v4
 
@@ -33,6 +37,12 @@ jobs:
           args=(--skip-transfer --max-minutes 50)
           [ -n "$IN_MONTH" ] && args+=(--month "$IN_MONTH")
           python fetch_insider.py "${args[@]}"
+
+      - name: 內部人分點比對
+        if: always() && inputs.broker_minutes != '' && inputs.broker_minutes != '0'
+        env:
+          IN_MIN: ${{ inputs.broker_minutes }}
+        run: python -u fetch_insider_broker.py --max-minutes "$IN_MIN"
 
       - name: Commit data
         if: always()

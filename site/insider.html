@@ -93,6 +93,10 @@
   .brk .tag{margin-right:4px; font-size:11px; padding:0 5px;}
   .tag.hi{border-color:var(--rise); color:var(--rise);}
   .tag.sus{border-style:dashed;}
+  .tag.new{border-color:var(--brass); color:var(--panel); background:var(--brass); font-weight:600;}
+  .prog{display:inline-block; width:64px; height:6px; background:var(--line); border-radius:3px; vertical-align:middle; margin-right:6px; overflow:hidden;}
+  .prog i{display:block; height:100%; background:var(--fall);}
+  .known-box{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-s); padding:10px 14px; margin:0 0 14px; font-size:13px; line-height:1.7;}
   th[data-k]{cursor:pointer; user-select:none;}
   th[data-k]:hover{color:var(--text);}
   th[data-k] .arr{font-size:10px; margin-left:3px; color:var(--brass);}
@@ -167,6 +171,18 @@
     </div>
   </section>
 
+  <section class="block" id="live" hidden>
+    <div class="block-head"><h2>申報追蹤：轉讓期間內，內部人分點賣了多少</h2><span class="hint" id="l-hint"></span></div>
+    <p class="desc" style="margin:0 0 14px">在市場賣出的事前申報（一般交易、鉅額、盤後），轉讓期間已經開始的公司。
+      「內部人分點」是用過去月報比對出來、這家公司內部人慣用的分點；進度＝這些分點在轉讓期間內的賣超 ÷ 申報張數。
+      還沒有比對紀錄的公司，列出期間內天天在賣、買賣一面倒的可疑分點。</p>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>股票</th><th>申報人</th><th class="n">申報張數</th><th class="hide-s">轉讓期間</th>
+        <th>內部人分點 期間賣超（張）</th><th>進度</th><th class="hide-s">可疑分點</th></tr></thead>
+      <tbody id="l-body"></tbody>
+    </table></div>
+  </section>
+
   <section class="block" id="pre">
     <div class="block-head"><h2>事前申報：預定轉讓持股</h2><span class="hint" id="p-hint"></span></div>
     <p class="desc" style="margin:0 0 14px">內部人要在市場上賣股、贈與或交付信託，得在轉讓前 3 天先申報。「一般交易」「鉅額」是準備在市場上賣，最直接；
@@ -212,6 +228,36 @@
     <button class="more" id="m-more" hidden>顯示更多</button>
   </section>
 
+  <section class="block" id="ans" hidden>
+    <div class="block-head"><h2>分點答案：月報實際買賣 × 分點進出</h2><span class="hint" id="a-hint"></span></div>
+    <p class="desc" style="margin:0 0 14px">拿每月事後申報的集中市場實際買賣張數，對照同一段期間這檔股票的買超／賣超前 15 大分點，
+      找出淨買賣張數吻合、而且天天同方向的分點，推定是內部人下單的分點。賣出且當月有事前申報時，期間縮到申報的轉讓期間。
+      吻合度＝分點淨買賣合計 ÷ 內部人實際張數。<b>高</b>＝單一分點、張數差 5% 以內，而且逐日幾乎天天同方向；
+      <b>中</b>＝單一分點 0.85～1.2 倍或多個分點合計很準，也要逐日同方向；<b>低</b>僅供參考。
+      （拿反方向的分點當對照組測過：「高」真實 275 筆、隨便對也會中的不到 100 筆；「中」跟對照組差不多，要重複出現才算數。）
+      同一分點「高」一次或「中」兩次以上，就列為這家公司的內部人分點，之後拿來追蹤申報期間的進度。</p>
+    <div id="a-known"></div>
+    <div class="toolbar">
+      <div class="chips" id="a-month"></div>
+      <div class="chips" id="a-view">
+        <button data-v="S" aria-pressed="true">內部人賣</button>
+        <button data-v="B" aria-pressed="false">內部人買</button>
+        <button data-v="" aria-pressed="false">全部</button>
+      </div>
+      <div class="chips" id="a-conf">
+        <button data-v="hm" aria-pressed="true">高＋中</button>
+        <button data-v="all" aria-pressed="false">含低</button>
+      </div>
+      <div class="chips" id="a-liq"></div>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>股票</th><th class="n">內部人淨買賣（張）</th><th class="n">約金額</th><th>推定分點（同方向淨張數）</th>
+        <th class="n">吻合度</th><th class="hide-s">比對期間</th><th class="hide-s">申報人</th></tr></thead>
+      <tbody id="a-body"></tbody>
+    </table></div>
+    <button class="more" id="a-more" hidden>顯示更多</button>
+  </section>
+
   <section class="block" id="pledge" hidden>
     <div class="block-head"><h2>設質／解質</h2><span class="hint" id="g-hint"></span></div>
     <p class="desc" style="margin:0 0 14px">內部人把股票質押給銀行、券商借錢（設質），或還錢拿回股票（解質），每月申報。
@@ -251,7 +297,7 @@ const addDays = (d, n) => { const t = new Date(d + "T00:00:00"); t.setDate(t.get
 const per = p => (p || "").split("~").map(md).join("～");
 const md = d => d ? (d.slice(0, 4) === TODAY.slice(0, 4) ? d.slice(5) : d) : "–";
 
-let D, PX = {}, NAME = {}, PXDATE = "", TR = [], PRE = [], PLG = [];
+let D, PX = {}, NAME = {}, PXDATE = "", TR = [], PRE = [], PLG = [], B = null, NEWDAY = "9";
 const S = {q: ""}, P = {kind: "mkt", days: 30, n: 50}, G = {month: "", view: "add", n: 50, open: new Set()}, M = {month: "", view: "buy", n: 50, open: new Set()};
 
 function objs(t){ return (t?.rows || []).map(r => Object.fromEntries(t.cols.map((k, i) => [k, r[i]]))); }
@@ -271,7 +317,7 @@ function renderPre(){
   document.getElementById("p-body").innerHTML = shown.map(r => {
     const pc = r.held ? r.shares / r.held * 100 : null;
     const k = KIND(r.method);
-    return `<tr><td class="mono">${md(r.date)}</td><td>${stockCell(r)}</td>
+    return `<tr><td class="mono">${md(r.date)}${r.date >= NEWDAY ? ' <span class="tag new" title="最新一天的申報">新</span>' : ""}</td><td>${stockCell(r)}</td>
       <td class="person"><span class="sname">${esc(short(r.name))}</span><span class="role">${esc(short(r.role))}</span></td>
       <td><span class="tag ${k === "mkt" ? "sell" : ""}">${esc(r.method.replace(/\(每日得轉讓股數限制\)/, ""))}</span></td>
       <td class="n mono">${lots(r.shares)}</td><td class="n mono">${pc != null ? pc.toFixed(pc >= 10 ? 0 : 1) + "%" : "–"}</td>
@@ -381,7 +427,8 @@ function renderStats(){
   document.getElementById("stats").innerHTML =
     stat(`${M.month} 集中市場淨買進`, `${nb.length} 家`, `約 ${yi(nb.reduce((s, c) => s + (c.amt || 0), 0))}`) +
     stat(`${M.month} 集中市場淨賣出`, `${ns.length} 家`, `約 ${yi(-ns.reduce((s, c) => s + (c.amt || 0), 0))}`) +
-    stat("近 30 天申報市場賣出", `${pre.length} 筆`, `${new Set(pre.map(r => r.code)).size} 家，約 ${yi(preAmt)}`) +
+    stat(`最新申報日 ${md(NEWDAY)}`, `${PRE.filter(r => r.date >= NEWDAY && KIND(r.method) === "mkt").length} 筆市場賣出`,
+      `當天共 ${PRE.filter(r => r.date >= NEWDAY).length} 筆；近 30 天市場賣出 ${pre.length} 筆、約 ${yi(preAmt)}`) +
     stat(`${G.month || M.month} 董監設質／解質`, `${lots(padd)}／${lots(psub)}`, `張，設質 ${pm.filter(r => r.ds_padd).length} 家、解質 ${pm.filter(r => r.ds_psub).length} 家`);
 }
 
@@ -465,9 +512,74 @@ async function renderChart(){
   const last = px[px.length - 1];
   document.getElementById("c-hint").textContent = `收盤 ${last[1]}（${last[0]}）；柱子＝每月申報的集中市場淨買賣，滑鼠移上去看是誰`;
 }
-function renderAll(){ renderPre(); renderPledge(); renderMonth(); renderChart(); }
+
+/* 分點答案、申報追蹤（data/insider/brokers.json） */
+const A = {month: "", view: "S", conf: "hm", n: 50};
+const CONF = c => `<span class="tag ${c === "高" ? "hi" : c === "低" ? "sus" : ""}">${c}</span>`;
+const isActive = r => { const [a, b] = (r.period || "").split("~"); return a && a <= TODAY && b >= addDays(TODAY, -5); };
+function knownBox(code){
+  const ks = B?.known?.[code] || [], rc = B?.recent?.[code] || [];
+  if (!ks.length) return "";
+  const rd = B.recent_days || [];
+  return `<div class="known-box"><b>${esc(NAME[code] || code)} 的內部人分點：</b>` + ks.map(a =>
+    `${esc(a[1])}<span class="faint mono">（${a[2] ? "高 " + a[2] + " 次" : ""}${a[2] && a[3] ? "、" : ""}${a[3] ? "中 " + a[3] + " 次" : ""}，${a[6] === "S" ? "賣" : a[6] === "B" ? "買" : "買賣"}，最近 ${a[4]}）</span>`).join("、") +
+    (rd.length ? `<br><span class="faint">近 ${rd.length} 個交易日（${md(rd[0])}～${md(rd[rd.length - 1])}）進出前 15 大：</span>` +
+      (rc.length ? rc.map(a => `${esc(a[1])} <span class="mono ${cls(a[2])}">${a[2] > 0 ? "+" : ""}${a[2].toLocaleString()} 張</span><span class="faint">（${a[3]} 天）</span>`).join("、")
+        : '<span class="faint">沒有出現</span>') : "") + "</div>";
+}
+function renderLive(){
+  const box = document.getElementById("live");
+  const live = (B?.live || []).filter(x => qmatch({code: x.code, company: NAME[x.code] || "", name: ""}) || PRE.some(r => r.code === x.code && qmatch(r)));
+  box.hidden = !B?.live?.length;
+  if (box.hidden) return;
+  document.getElementById("l-hint").textContent = `${live.length} 家，分點資料到 ${md((B.live[0] || {}).d2)}`;
+  document.getElementById("l-body").innerHTML = live.map(x => {
+    const ppl = PRE.filter(r => r.code === x.code && KIND(r.method) === "mkt" && isActive(r));
+    const r0 = ppl[0] || {code: x.code, company: NAME[x.code] || x.code, market: x.market};
+    const who = [...new Set(ppl.map(r => short(r.name)))];
+    const isNew = ppl.some(r => r.date >= NEWDAY);
+    const kn = x.known.filter(a => a[3]);
+    const knTxt = kn.length ? kn.map(a => `${esc(a[1])} ${a[2] == null ? '<span class="faint">不在前15</span>' : `<span class="mono ${a[2] > 0 ? "down" : "up"}">${a[2] > 0 ? "賣 " + a[2].toLocaleString() : "買 " + (-a[2]).toLocaleString()}</span>`}`).join("<br>")
+      : '<span class="faint">還沒有比對紀錄</span>';
+    const p = x.prog;
+    const prog = p != null ? `<span class="prog"><i style="width:${Math.min(100, p * 100).toFixed(0)}%"></i></span><span class="mono">${(p * 100).toFixed(0)}%</span>` : '<span class="faint">–</span>';
+    const sus = x.sus.map(e => `${esc(e[1])} <span class="mono down">賣 ${e[2].toLocaleString()}</span>${e[5] ? `<span class="faint">（${e[6]}/${e[5]} 天）</span>` : ""}`).join("<br>");
+    return `<tr><td>${stockCell(r0)}${isNew ? ' <span class="tag new">新</span>' : ""}</td>
+      <td class="who">${esc(who.slice(0, 2).join("、")) || "–"}${who.length > 2 ? `<span class="faint"> 等 ${who.length} 人</span>` : ""}</td>
+      <td class="n mono">${x.lots.toLocaleString()}</td><td class="mono hide-s faint">${md(x.d1)}～${esc(per(ppl.map(r => r.period.split("~")[1]).sort().pop() || ""))}</td>
+      <td class="brk-cell brk">${knTxt}</td><td>${prog}</td><td class="brk-cell brk hide-s">${sus || '<span class="faint">–</span>'}</td></tr>`;
+  }).join("") || `<tr><td colspan="7" class="empty">${S.q ? "這檔股票目前沒有在轉讓期間內的市場賣出申報" : "目前沒有"}</td></tr>`;
+}
+function renderAns(){
+  const box = document.getElementById("ans");
+  box.hidden = !B?.match;
+  if (box.hidden) return;
+  document.getElementById("a-known").innerHTML = S.q ? knownBox(S.q) : "";
+  const names = (code, month, dir) => [...new Set(TR.filter(r => r.code === code && r.month === month && !r.dup && (dir === "B" ? r.buy_mkt > r.sell_mkt : r.sell_mkt > r.buy_mkt))
+    .sort((a, b) => Math.abs(b.buy_mkt - b.sell_mkt) - Math.abs(a.buy_mkt - a.sell_mkt)).map(r => short(r.name)))];
+  const rows = Object.entries(B.match).map(([k, m]) => { const [code, month] = k.split("|"); return {...m, code, month, company: NAME[code] || code, market: ""}; })
+    .filter(m => (S.q ? qmatch(m) : m.month === A.month && (!A.view || m.dir === A.view) && TideLiq.pass(m.code))
+      && (A.conf === "all" || m.conf !== "低"))
+    .map(m => ({...m, amt: money(m.code, m.lots * 1000)}))
+    .sort((a, b) => S.q ? b.month.localeCompare(a.month) : (b.amt ?? b.lots) - (a.amt ?? a.lots));
+  const cnt = c => rows.filter(r => r.conf === c).length;
+  document.getElementById("a-hint").textContent = `${rows.length} 筆：高 ${cnt("高")}、中 ${cnt("中")}` + (A.conf === "all" ? `、低 ${cnt("低")}` : "");
+  document.getElementById("a-body").innerHTML = rows.slice(0, A.n).map(m => {
+    const sg = m.dir === "B" ? 1 : -1, who = names(m.code, m.month, m.dir);
+    const brk = m.m.map(e => `${esc(e[1])} <span class="mono ${sg > 0 ? "up" : "down"}">${sg > 0 ? "+" : "−"}${e[2].toLocaleString()}</span>` +
+      (e[5] ? `<span class="faint">（${e[6]}/${e[5]} 天同向）</span>` : "")).join("<br>");
+    return `<tr><td>${stockCell(m)}${S.q ? `<span class="mono faint" style="margin-left:8px;font-size:12px">${m.month}</span>` : ""}</td>
+      <td class="n mono ${sg > 0 ? "up" : "down"}">${sg > 0 ? "+" : "−"}${m.lots.toLocaleString()}</td><td class="n mono">${yi(m.amt)}</td>
+      <td class="brk-cell brk">${brk}</td><td class="n">${CONF(m.conf)}<span class="mono">${m.cov.toFixed(2)}</span></td>
+      <td class="mono hide-s faint">${md(m.d1)}～${md(m.d2)}</td>
+      <td class="who hide-s">${esc(who.slice(0, 2).join("、"))}${who.length > 2 ? `<span class="faint"> 等 ${who.length} 人</span>` : ""}</td></tr>`;
+  }).join("") || `<tr><td colspan="7" class="empty">${S.q ? "這檔股票最近幾個月沒有比對到內部人分點" : "沒有資料"}</td></tr>`;
+  document.getElementById("a-more").hidden = rows.length <= A.n;
+  document.getElementById("a-month").style.display = document.getElementById("a-view").style.display = document.getElementById("a-liq").style.display = S.q ? "none" : "";
+}
+function renderAll(){ renderLive(); renderPre(); renderAns(); renderPledge(); renderMonth(); renderChart(); }
 function setQ(v){
-  S.q = (v || "").trim().toLowerCase(); P.n = G.n = M.n = 50; M.open.clear(); G.open.clear();
+  S.q = (v || "").trim().toLowerCase(); P.n = G.n = M.n = A.n = 50; M.open.clear(); G.open.clear();
   document.getElementById("q").value = v || "";
   document.getElementById("q-clear").hidden = !S.q;
   const hit = S.q && [...TR, ...PRE, ...PLG].find(r => r.code === S.q);
@@ -495,11 +607,16 @@ Promise.all([
     PXDATE = days[days.length - 1];
     return fetch(`data/daily/${PXDATE}.json`, {cache: "no-cache"}).then(r => r.json());
   }).catch(() => null),
-]).then(([d, px]) => {
-  D = d; TR = objs(D.trades); PRE = objs(D.transfer); PLG = objs(D.pledge);
+  fetch("data/insider/brokers.json", {cache: "no-cache"}).then(r => r.ok ? r.json() : null).catch(() => null),
+]).then(([d, px, bk]) => {
+  D = d; B = bk; TR = objs(D.trades); PRE = objs(D.transfer); PLG = objs(D.pledge);
   if (px){ const ci = Object.fromEntries(px.columns.map((k, i) => [k, i])); for (const r of px.rows){ const c = +r[ci.close]; if (c) PX[r[ci.code]] = c; NAME[r[ci.code]] = r[ci.name]; } }
   for (const r of [...TR, ...PRE]) NAME[r.code] ||= r.company;
   M.month = D.months[0] || ""; G.month = (D.pmonths || [])[0] || "";
+  NEWDAY = PRE.length ? PRE[0].date : "9";
+  const am = B?.match ? [...new Set(Object.keys(B.match).map(k => k.split("|")[1]))].sort().reverse() : [];
+  A.month = am[0] || "";
+  document.getElementById("a-month").innerHTML = am.map((m, i) => `<button data-v="${m}" aria-pressed="${i === 0}">${+m.slice(5)} 月</button>`).join("");
   for (const r of PLG){ const n = NAME[r.code]; if (n) r.company = n; }
   document.getElementById("g-month").innerHTML = (D.pmonths || []).map((m, i) => `<button data-v="${m}" aria-pressed="${i === 0}">${+m.slice(5)} 月</button>`).join("");
   document.getElementById("m-month").innerHTML = D.months.map((m, i) => `<button data-v="${m}" aria-pressed="${i === 0}">${+m.slice(5)} 月</button>`).join("");
@@ -516,6 +633,9 @@ Promise.all([
   document.getElementById("p-more").onclick = () => { P.n += 50; renderPre(); };
   document.getElementById("g-more").onclick = () => { G.n += 50; renderPledge(); };
   document.getElementById("m-more").onclick = () => { M.n += 50; renderMonth(); };
+  chips("a-month", A, "month", renderAns); chips("a-view", A, "view", renderAns); chips("a-conf", A, "conf", renderAns);
+  TideLiq.mount("a-liq", () => { if (B) renderAns(); });
+  document.getElementById("a-more").onclick = () => { A.n += 50; renderAns(); };
   const q = document.getElementById("q");
   q.oninput = () => setQ(q.value);
   document.getElementById("q-clear").onclick = () => setQ("");

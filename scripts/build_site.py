@@ -20,6 +20,7 @@
   data/alert/model.json              注意股規則推算：觸發價、後天名單、對帳（見 scripts/attention_model.py）
   data/treasury.json                 庫藏股買回計畫與進度（見 scripts/treasury_site.py）
   data/insider/insider.json          內部人事前申報、每月持股異動與設質解質（見 scripts/insider_site.py）
+  data/insider/brokers.json          內部人分點比對：月報 × 分點進出、申報期間追蹤（見 scripts/insider_broker.py）
   data/mops/mops.json                重大訊息、股東會／法說會行事曆（見 scripts/mops_site.py）
   data/fin/index.json, s/<代號>.json  財報：月營收與季報（見 scripts/fin_site.py）
   data/liq.json                      全站共用成交值濾網：各代號近 5 日平均成交值（億，見 scripts/liq_site.py、nav.js TideLiq）
@@ -177,6 +178,7 @@ def build(out: Path, days: int) -> list[str]:
     attention_model.write_model(ROOT / "data", out / "data" / "alert" / "model.json")
     treasury_site.write_treasury(ROOT / "data", out / "data" / "treasury.json")
     insider_site.write_insider(ROOT / "data", out / "data" / "insider" / "insider.json")
+    insider_site.write_brokers(ROOT / "data", out / "data" / "insider" / "brokers.json")
     mops_site.write_mops(ROOT / "data", out / "data" / "mops" / "mops.json")
     fin_site.write_fin(ROOT / "data", out / "data" / "fin")
     margin_site.write_margin(ROOT / "data", out / "data" / "margin")
