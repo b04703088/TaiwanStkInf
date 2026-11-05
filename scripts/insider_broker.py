@@ -22,7 +22,7 @@
   公司層級：同一分點「高」一次或「中」兩次以上 → 已知內部人分點。
 
 申報追蹤（事前申報的轉讓期間內，還沒有月報）
-  列出這家公司已知內部人分點在期間內的賣超（進度 = 賣超合計 ÷ 申報張數），另列最多 2 個一面倒的可疑分點。
+  列出這家公司已知內部人分點在期間內的賣超（進度 = 賣超合計 ÷ 申報張數），另列最多 2 個一面倒、賣超不超過申報張數 3 倍的可疑分點（外資券商除外）。
 """
 from collections import defaultdict
 
@@ -195,6 +195,7 @@ def build(brokers, days=()):
             kn.append([a[0], a[1], int(sg * r["net"]) if r else None, 1 if a in known.get(code, []) else 0])
         kb = {a[0] for a in ks}
         sus = [r for r in j["in"]["rows"] if r["bid"] not in kb and (key + (r["bid"],)) in dd and not _foreign(r["broker"])
+               and sg * r["net"] <= MID_MAX * j["lots"]
                and one_sided(r, dd[key + (r["bid"],)], sg)]
         sus.sort(key=lambda r: -sg * r["net"])
         done = sum(x[2] or 0 for x in kn if x[3] and (x[2] or 0) > 0)
