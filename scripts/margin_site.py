@@ -7,6 +7,9 @@
   data/margin/s/<代號>.json 個股近 SERIES_N 個交易日：收盤、融資餘額、融券餘額、估計維持率、不限用途借貸擔保張數
   data/margin/delev.json    去槓桿進度（殺乾淨了沒）：大盤融資張數離高點、連續大減、維持率、
                             台股正 2／反 1 ETF 的融資與受益單位、主動式 ETF 融資合計（見 deleverage()）
+  data/margin/level.json    融資水位（融資金額 ÷ 市值）近幾年走勢、分位、平均 ±σ、歷次過熱後指數回檔；
+                            融資使用率、券資比的歷史分位（歷史來自 data/margin/level.csv，見 backfill_margin_level.py）
+  data/margin/period.json   大盤期間統計（近 5/20/60/120 日）與近一年單日融資增減極值
 不限用途款項借貸（data/pledge/，證交所借貸款項擔保品餘額表）：個股被拿去質押借錢的張數與限額；
   大盤加總擔保市值＝Σ(擔保張數 × 1000 × 收盤)。
 
@@ -18,6 +21,7 @@
 """
 import csv
 import json
+import re
 from pathlib import Path
 
 FIN_RATIO = 0.6       # 融資成數
@@ -71,6 +75,43 @@ def load_days(data_dir, limit):
         d = rows[0]["date"]
         days.append((d, {(r["market"], r["code"]): r for r in rows}, closes_for(data_dir, d)))
     return days
+
+
+# ───────────── 融資水位（占市值）每日彙總 ─────────────
+# 市值：融資限額＝上市（櫃）股份 25%，所以 股數 ≈ 限額 × 4，市值 ≈ Σ 限額 × 4 × 1000 × 收盤（只算一般股，不含 ETF）。
+# 只涵蓋可融資的股票（全額交割、停止信用交易的不在名單內），是近似值；看的是自己跟自己比的相對位置。
+LEVEL_COLS = ["date", "market", "fin_lots", "fin_amount", "sht_lots", "use_bal", "use_lim", "mcap", "x_amt", "x_mcap"]
+STOCK_RE = re.compile(r"^[1-9]\d{3}$")
+EXCL = "2330"   # 台積電：市值占上市四成、融資極少，算「不含台積電」的水位
+
+
+def level_rows(d, rows, closes, summary):
+    """單日彙總 → [每市場一列 dict]。rows：{(market, code): row}；summary：{market: summary row}。"""
+    out = []
+    for m in ("TWSE", "TPEx"):
+        s = summary.get(m)
+        if not s:
+            continue
+        use_bal = use_lim = mcap = x_amt = x_mcap = 0.0
+        for (mk, code), r in rows.items():
+            if mk != m:
+                continue
+            bal, lim = _f(r.get("fin_bal")) or 0, _f(r.get("fin_limit")) or 0
+            if lim > 0:
+                use_bal += bal
+                use_lim += lim
+            c = closes.get((mk, code))
+            if c and lim > 0 and STOCK_RE.match(code):
+                cap = lim * 4 * 1000 * c
+                mcap += cap
+                if code == EXCL:
+                    x_mcap, x_amt = cap, bal * 1000 * c * FIN_RATIO
+        if not mcap:
+            continue
+        out.append({"date": d, "market": m, "fin_lots": s.get("fin_lots", ""), "fin_amount": s.get("fin_amount", ""),
+                    "sht_lots": s.get("sht_lots", ""), "use_bal": int(use_bal), "use_lim": int(use_lim),
+                    "mcap": int(mcap), "x_amt": int(x_amt), "x_mcap": int(x_mcap)})
+    return out
 
 
 class CostTracker:

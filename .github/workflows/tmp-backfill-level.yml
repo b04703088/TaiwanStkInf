@@ -1,0 +1,36 @@
+name: TMP backfill margin level (delete before merge)
+
+on:
+  push:
+    branches: [claude/project-thread-5vrl07]
+    paths: [".github/workflows/tmp-backfill-level.yml"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tmp-backfill-level
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Backfill
+        timeout-minutes: 270
+        run: python backfill_margin_level.py --start 2022-01-01 --end 2025-06-30 --max-minutes 260
+      - name: Commit
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/margin/level.csv data/margin/index.csv
+          git diff --cached --quiet && exit 0
+          git commit -m "data: margin level backfill"
+          for i in 1 2 3; do git pull --rebase -q origin claude/project-thread-5vrl07 && git push origin HEAD:claude/project-thread-5vrl07 && exit 0; sleep 10; done
+          exit 1
