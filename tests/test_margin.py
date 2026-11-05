@@ -129,5 +129,24 @@ class SiteTest(unittest.TestCase):
         self.assertEqual(out["active"]["fin"], 124)
 
 
+class LevelTest(unittest.TestCase):
+    def test_level_rows_mcap_excl_tsmc(self):
+        rows = {("TWSE", "2330"): {"fin_bal": "10", "fin_limit": "100"},
+                ("TWSE", "1101"): {"fin_bal": "50", "fin_limit": "200"},
+                ("TWSE", "00631L"): {"fin_bal": "70", "fin_limit": "300"}}
+        closes = {("TWSE", "2330"): 1000.0, ("TWSE", "1101"): 20.0, ("TWSE", "00631L"): 30.0}
+        summ = {"TWSE": {"fin_lots": "130", "fin_amount": "1000000", "sht_lots": "5"}}
+        (r,) = margin_site.level_rows("2026-11-05", rows, closes, summ)
+        self.assertEqual(r["mcap"], 100 * 4 * 1000 * 1000 + 200 * 4 * 1000 * 20)   # ETF 不算市值
+        self.assertEqual(r["x_mcap"], 100 * 4 * 1000 * 1000)
+        self.assertEqual(r["x_amt"], int(10 * 1000 * 1000 * margin_site.FIN_RATIO))
+        self.assertEqual((r["use_bal"], r["use_lim"]), (130, 600))                     # 使用率含 ETF
+
+    def test_fwd_dd(self):
+        tx = [100, 110, 99, 120] + [120] * 60
+        self.assertEqual(margin_site._fwd_dd(tx, 0), -10.0)
+        self.assertIsNone(margin_site._fwd_dd(tx, 10))
+
+
 if __name__ == "__main__":
     unittest.main()
