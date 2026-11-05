@@ -1,5 +1,5 @@
 name: TMP insider broker backfill
-# 暫時：在功能分支上回補內部人分點比對資料，合併前刪除
+# 暫時：在功能分支上回補內部人分點比對資料，合併前刪除（第 2 輪：候選分點逐日資料）
 on:
   push:
     branches: [claude/project-thread-8aykev]
@@ -18,7 +18,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: python -u fetch_insider_broker.py --max-minutes 170
+      - run: python -u fetch_insider_broker.py --max-minutes 120
         continue-on-error: true
       - name: Commit
         if: always()

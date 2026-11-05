@@ -51,8 +51,11 @@ DAY_COLS = ["kind", "code", "ref", "bid", "d1", "d2", "days", "buy_days", "sell_
 MIN_LOTS = 100      # 內部人淨買賣至少幾張才查
 ONE_WAY = 0.6       # 淨額 ÷ 總買賣（買＋賣）下限
 PRE_DAYS = 30
-MIN_SHARE = 0.10    # 候選分點：同方向淨額 ≥ 內部人張數的 10% 才查每日
-LIVE_TOP = 5        # 申報追蹤：同方向前幾名查每日
+DAY_LO, DAY_HI = 0.3, 3.0   # 候選分點：同方向淨額在內部人張數的 0.3～3 倍
+MAX_OPP = 0.35      # 而且反向張數 ≤ 同方向的 35%，才查每日
+LIVE_TOP = 5        # 申報追蹤：同方向前幾名（外資券商除外）查每日
+FOREIGN = ("美林", "摩根", "高盛", "花旗", "瑞銀", "麥格理", "法銀巴黎", "德意志", "野村", "大和", "瑞士信貸", "香港上海匯豐",
+           "法國興業", "巴克萊", "星展", "新加坡商", "港商")
 LIVE_TAIL = 5       # 轉讓期間結束後再追幾天（等最後幾天的分點資料）
 MKT = ("一般交易", "鉅額", "盤後")
 DELAY = 0.3
@@ -173,8 +176,17 @@ def fetch_range(code, d1, d2):
     return rows
 
 
+def _opp_ok(r, sg):
+    din, dout = (float(r["buy"]), float(r["sell"])) if sg > 0 else (float(r["sell"]), float(r["buy"]))
+    return dout <= MAX_OPP * din
+
+
+def is_foreign(name):
+    return any(k in (name or "") for k in FOREIGN)
+
+
 def day_jobs(jlist, rows, have):
-    """要查每日進出的 (job, row)：同方向淨額夠大的分點；have = {(kind, code, ref, bid): 已查的 d2}"""
+    """要查每日進出的 (job, row)：淨額跟內部人張數同量級、買賣一面倒的分點；have = {(kind, code, ref, bid): 已查的 d2}"""
     by = {}
     for r in rows:
         if r["win"] == "in" and r["bid"]:
@@ -185,9 +197,9 @@ def day_jobs(jlist, rows, have):
         sg = 1 if j["dir"] == "B" else -1
         rs = [r for r in by.get(k, []) if sg * float(r["net"]) > 0]
         if j["kind"] == "m":
-            cands = [r for r in rs if sg * float(r["net"]) >= MIN_SHARE * j["lots"]]
+            cands = [r for r in rs if DAY_LO * j["lots"] <= sg * float(r["net"]) <= DAY_HI * j["lots"] and _opp_ok(r, sg)]
         else:
-            cands = sorted(rs, key=lambda r: -sg * float(r["net"]))[:LIVE_TOP]
+            cands = sorted((r for r in rs if not is_foreign(r["broker"])), key=lambda r: -sg * float(r["net"]))[:LIVE_TOP]
         out += [(j, r) for r in cands if have.get(k + (r["bid"],), "") < r["d2"]]
     return out
 

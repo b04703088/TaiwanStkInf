@@ -15,9 +15,10 @@
   2. 淨額不超過 L 兩倍的候選，從大到小納入，合計達 L 的 85% 就停，最多 3 個；
      都超過兩倍時只取最接近 L 的一個（大分點，混了很多別人的單）。
   3. 吻合度 = 納入分點淨額合計 ÷ L
-       高：0.85～2，而且納入的分點都有每日資料
-       中：0.6～3
-       低：0.3～0.6 或 3～6；其餘不列
+       高：0.85～2，而且納入的分點都有每日資料（逐日一面倒）
+       中：0.6～3，而且都有每日資料
+       低：0.3～6 但沒有每日資料（還沒查或不在候選範圍），或 0.3～0.6、3～6；其餘不列
+     月報的分點前 15 名裡，隨便一個分點剛好落在 0.6～3 倍的機率不低，所以「中」以上一定要逐日也一面倒。
   公司層級：同一分點「高」一次或「中」兩次以上 → 已知內部人分點。
 
 申報追蹤（事前申報的轉讓期間內，還沒有月報）
@@ -34,6 +35,14 @@ HIGH_MAX = 2.0
 MID_MAX = 3.0
 LOW_MAX = 6.0
 MAX_PICK = 3
+
+
+FOREIGN = ("美林", "摩根", "高盛", "花旗", "瑞銀", "麥格理", "法銀巴黎", "德意志", "野村", "大和", "瑞士信貸", "香港上海匯豐",
+           "法國興業", "巴克萊", "星展", "新加坡商", "港商")
+
+
+def _foreign(name):
+    return any(k in (name or "") for k in FOREIGN)
 
 
 def _f(v):
@@ -98,7 +107,7 @@ def _entry(r, d, sg):
 def _conf(cov, all_daily):
     if ENOUGH <= cov <= HIGH_MAX and all_daily:
         return "高"
-    if 0.6 <= cov <= MID_MAX:
+    if 0.6 <= cov <= MID_MAX and all_daily:
         return "中"
     if 0.3 <= cov <= LOW_MAX:
         return "低"
@@ -185,7 +194,7 @@ def build(brokers, days=()):
             r = rows.get(a[0])
             kn.append([a[0], a[1], int(sg * r["net"]) if r else None, 1 if a in known.get(code, []) else 0])
         kb = {a[0] for a in ks}
-        sus = [r for r in j["in"]["rows"] if r["bid"] not in kb and (key + (r["bid"],)) in dd
+        sus = [r for r in j["in"]["rows"] if r["bid"] not in kb and (key + (r["bid"],)) in dd and not _foreign(r["broker"])
                and one_sided(r, dd[key + (r["bid"],)], sg)]
         sus.sort(key=lambda r: -sg * r["net"])
         done = sum(x[2] or 0 for x in kn if x[3] and (x[2] or 0) > 0)
