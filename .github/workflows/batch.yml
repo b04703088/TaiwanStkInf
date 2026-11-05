@@ -127,7 +127,7 @@ jobs:
               [ "$dom" -ge 18 ] && [ "$dom" -le 28 ] && on insider
               if [ $wk = 1 ]; then on alert; on adjust; on cb; on mops; on chips; on macro; on commod; on dusk_next; fi ;;
             dusk)
-              on analyst; on mops; on treasury; on treasury_broker; on cb_broker ;;
+              on analyst; on mops; on treasury; on treasury_broker; on cb_broker; on insider_broker ;;
             night)
               on analyst
               if [ $wk = 1 ]; then on margin_wait; on mops; on chips; on digest; on macro; on commod; fi ;;
@@ -185,6 +185,12 @@ jobs:
         continue-on-error: true
         # 進行中 CB 標的在各流程階段的分點買賣超，對照 config/cb_regulars.csv 的常客分點
         run: python fetch_cb_broker.py --max-minutes 15
+
+      - name: 內部人分點比對（月報實際買賣 × 分點、事前申報期間追蹤）
+        if: always() && steps.s.outputs.insider_broker == '1'
+        continue-on-error: true
+        # 申報追蹤每天重查轉讓期間內的分點賣超；新月報出來後（每月 18～28 日抓）補查該月
+        run: python fetch_insider_broker.py --max-minutes 25
 
       - name: 融資融券
         if: always() && (steps.s.outputs.margin == '1' || steps.s.outputs.margin_wait == '1')
