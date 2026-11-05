@@ -38,7 +38,7 @@ AMD,2025-11-04,,nasdaq
 AMD,2026-02-03,,nasdaq
 AMD,2026-05-05,,nasdaq
 AMD,2026-08-04,,nasdaq
-AMD,2026-11-03,amc,nasdaq
+AMD,2026-11-03,,nasdaq
 AMKR,2022-02-14,,nasdaq
 AMKR,2022-05-02,,nasdaq
 AMKR,2022-08-01,,nasdaq
@@ -98,7 +98,7 @@ ANET,2025-11-04,,nasdaq
 ANET,2026-02-12,amc,nasdaq
 ANET,2026-05-05,,nasdaq
 ANET,2026-08-04,,nasdaq
-ANET,2026-11-03,amc,nasdaq
+ANET,2026-11-03,,nasdaq
 AVGO,2022-03-03,,nasdaq
 AVGO,2022-05-26,,nasdaq
 AVGO,2022-09-01,,nasdaq
@@ -416,7 +416,7 @@ SMCI,2025-11-04,,nasdaq
 SMCI,2026-02-03,,nasdaq
 SMCI,2026-05-05,,nasdaq
 SMCI,2026-08-11,,nasdaq
-SMCI,2026-11-03,amc,nasdaq
+SMCI,2026-11-03,,nasdaq
 TER,2022-01-26,,nasdaq
 TER,2022-04-26,,nasdaq
 TER,2022-07-26,,nasdaq
