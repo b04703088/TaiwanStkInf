@@ -217,7 +217,7 @@
     <div class="chart" id="lvl-chart"></div>
     <div class="grid2" style="margin-top:16px">
       <div class="panel"><div class="colh">上次融資這麼熱，大盤怎麼走？</div><div id="lvl-sum"></div></div>
-      <div class="panel" style="padding:6px 8px"><table data-nosort><thead><tr><th>過熱期間</th><th class="n">天數</th><th class="n">水位高點</th><th class="n">起點指數</th><th class="n">之後 60 日最大回檔</th></tr></thead><tbody id="lvl-ep"></tbody></table></div>
+      <div class="panel" style="padding:6px 8px"><div style="overflow-x:auto"><table data-nosort><thead><tr><th>過熱期間</th><th class="n">天數</th><th class="n">水位高點</th><th class="n">起點指數</th><th class="n" title="從過熱開始到結束後 60 個交易日">最大回檔</th></tr></thead><tbody id="lvl-ep"></tbody></table></div></div>
     </div>
   </section>
 
@@ -236,7 +236,7 @@
   <section class="block">
     <div class="block-head"><h2>期間統計</h2><span class="hint" id="per-hint"></span></div>
     <div class="grid2">
-      <div class="panel" style="padding:6px 8px"><table data-nosort><thead id="per-head"></thead><tbody id="per-body"></tbody></table><p class="sum-line" id="per-sum" style="padding:0 8px 8px"></p></div>
+      <div class="panel" style="padding:6px 8px"><div style="overflow-x:auto"><table data-nosort><thead id="per-head"></thead><tbody id="per-body"></tbody></table></div><p class="sum-line" id="per-sum" style="padding:0 8px 8px"></p></div>
       <div class="panel" style="padding:6px 8px"><div class="grid2" style="gap:8px">
         <div><div class="colh" style="padding:8px 8px 0">近一年單日融資增加最多</div><table data-nosort><thead><tr><th>日期</th><th class="n" id="xu-h">億</th><th class="n">當日指數</th></tr></thead><tbody id="x-up"></tbody></table></div>
         <div><div class="colh" style="padding:8px 8px 0">近一年單日融資減少最多</div><table data-nosort><thead><tr><th>日期</th><th class="n" id="xd-h">億</th><th class="n">當日指數</th></tr></thead><tbody id="x-dn"></tbody></table></div>
@@ -306,7 +306,7 @@
 
   <p class="note">
     資料來源：證交所「融資融券彙總」、櫃買中心「上櫃股票融資融券餘額」、證交所「每日市場成交資訊」（加權指數）、「借貸款項擔保品餘額表」；每個交易日晚上更新。<br>
-    <b>融資水位</b>＝融資金額 ÷ 總市值。總市值用「融資限額 × 4 × 收盤」推算（限額＝股份的 25%），只涵蓋可融資的一般股，是近似值，重點是跟自己的歷史比。上市另算「不含台積電」：台積電占上市市值四成、融資極少，含進去水位會被台積電股價左右。分位＝目前數值在資料期間內的百分位（100＝期間最高）。<b>過熱</b>＝水位高於期間平均＋1 個標準差，相隔不到 20 個交易日的兩段併成一段、少於 3 個交易日的不算；「之後 60 日最大回檔」＝過熱第一天起 60 個交易日內，加權指數從區間高點到低點的最大跌幅。<br>
+    <b>融資水位</b>＝融資金額 ÷ 總市值。總市值用「融資限額 × 4 × 收盤」推算（限額＝股份的 25%），只涵蓋可融資的一般股，是近似值，重點是跟自己的歷史比。上市另算「不含台積電」：台積電占上市市值四成、融資極少，含進去水位會被台積電股價左右。分位＝目前數值在資料期間內的百分位（100＝期間最高）。<b>過熱</b>＝水位高於期間平均＋1 個標準差，相隔不到 20 個交易日的兩段併成一段、少於 3 個交易日的不算；「最大回檔」＝從過熱第一天到過熱結束後 60 個交易日，加權指數從區間高點到低點的最大跌幅；機率比較則是以每一天為起點、看之後 60 個交易日。<br>
     <b>融資使用率</b>＝融資餘額 ÷ 融資限額；<b>券資比</b>＝融券 ÷ 融資。兩者偏高都代表籌碼緊繃。<br>
     <b>估計維持率</b>：官方不公布。大盤＝Σ(各股融資餘額 × 收盤) ÷ 官方融資金額。個股＝收盤 ÷ (估計融資平均成本 × 融資成數 6 成)；平均成本從資料第一天起推算（當天既有餘額以收盤計、之後融資買進以當日收盤計入、償還以平均成本扣除），除權息、減資、資料天數不足都會讓估計失真，只能當參考。推估維持率低於 50% 多半是減資、分割等沒還原造成的失真，維持率表不列。<b>追繳價</b>＝推估成本 × 6 成 × 130%，收盤跌破就會被追繳；<b>融資戶損益</b>＝收盤 ÷ 推估成本 − 1。<br>
     <b>殺融資判讀（今天在殺嗎）</b>：大盤估計維持率跌破 140%、融資餘額 5 日減 3% 以上且加權指數 5 日跌 3% 以上、單日融資餘額減 1% 以上、融資減少的股票超過 65%。<b>殺乾淨了沒</b>：以 2026 年 7 月洗盤當樣板（融資張數 7/3→7/30 減 10.3%、7/28–29 連兩天單日減 2.0%、3.7%，估計維持率低點 154%），檢查融資張數離近 60 日高點減 8% 以上、近 5 日內連 2 天單日減 2% 以上、大盤估計維持率 150% 以下、00631L 融資與受益單位 5 日同時減少、主動式 ETF 融資合計 5 日減少；符合 4 項以上「接近殺乾淨」、2～3 項「去槓桿進行中」。<br>
@@ -509,7 +509,7 @@ function renderLevel() {
   const past = eps.filter(e => e.dd != null);
   $("lvl-sum").innerHTML = `<p class="sum-line">目前 ${LV_NAME[k]} 水位 <b class="mono">${st.now.toFixed(3)}%</b>，${LV.first.slice(0, 7).replace("-", "/")} 以來第 <b class="mono">${st.pct}</b> 百分位，離平均 <b class="mono">${(z > 0 ? "+" : "") + z.toFixed(1)}σ</b>${z > LV.rules.sigma ? "，<b class=\"up\">處於過熱區</b>" : ""}。</p>
     ${live ? `<p class="sum-line">這一段過熱從 <b class="mono">${ymd(live.start)}</b> 開始，已經 <b class="mono">${live.days}</b> 個交易日。</p>` : ""}
-    ${past.length ? `<p class="sum-line">過去 ${past.length} 次過熱，之後 60 個交易日指數最大回檔平均 <b class="mono down">${(past.reduce((s, e) => s + e.dd, 0) / past.length).toFixed(1)}%</b>。</p>` : ""}
+    ${past.length ? `<p class="sum-line">過去 ${past.length} 次過熱，從過熱開始到結束後 60 個交易日，指數最大回檔平均 <b class="mono down">${(past.reduce((s, e) => s + e.dd, 0) / past.length).toFixed(1)}%</b>。</p>` : ""}
     ${heat && heat.hot_big != null ? `<p class="sum-line">過熱期間的任一天起算，60 日內出現 ${LV.rules.dd_big}% 以上回檔的機率 <b class="mono up">${heat.hot_big}%</b>；所有交易日平均只有 <b class="mono">${heat.base_big}%</b>。</p>` : ""}
     <p class="hint" style="margin:10px 0 0">資料從 ${LV.first} 起，樣本少時只能當參考。</p>`;
   $("lvl-ep").innerHTML = eps.slice().reverse().map(e => `<tr><td class="mono">${ymd(e.start)}${e.end !== e.start ? "–" + ymd(e.end) : ""}</td><td class="n mono">${e.days}</td><td class="n mono">${e.peak.toFixed(3)}%</td><td class="n mono">${num(Math.round(e.taiex))}</td><td class="n mono ${e.dd == null ? "faint" : "down"}">${e.dd == null ? "進行中" : e.dd.toFixed(1) + "%"}</td></tr>`).join("") || `<tr><td colspan="5" class="empty">資料期間內沒有過熱</td></tr>`;

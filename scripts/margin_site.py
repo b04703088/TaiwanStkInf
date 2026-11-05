@@ -332,12 +332,13 @@ def _stat(vals):
             "pct": None if now is None else round(sum(1 for x in v if x <= now) / len(v) * 100)}
 
 
-def _fwd_dd(tx, i, n=FWD_N):
-    """第 i 天起 n 個交易日內，指數從區間內高點到之後低點的最大跌幅（%）；資料不足回傳 None。"""
-    if i + n >= len(tx) or tx[i] is None:
+def _fwd_dd(tx, i, n=FWD_N, j=None):
+    """第 i 天起到第 j 天（預設 i）之後 n 個交易日內，指數從區間內高點到之後低點的最大跌幅（%）；資料不足回傳 None。"""
+    j = i if j is None else j
+    if j + n >= len(tx) or tx[i] is None:
         return None
     pk, dd = tx[i], 0.0
-    for v in tx[i:i + n + 1]:
+    for v in tx[i:j + n + 1]:
         if v is None:
             continue
         pk = max(pk, v)
@@ -410,7 +411,7 @@ def level_series(data_dir, days):
         for s0, e0 in eps:
             pk = max(range(s0, e0 + 1), key=lambda j: col[k][j] or 0)
             out.append({"start": dates[s0], "end": dates[e0], "peak_date": dates[pk], "peak": col[k][pk],
-                        "taiex": tx[s0], "dd": fwd[s0], "days": e0 - s0 + 1})
+                        "taiex": tx[s0], "dd": _fwd_dd(tx, s0, FWD_N, e0), "days": e0 - s0 + 1})
         hot = [fwd[i] for i in on if fwd[i] is not None]
         base = [x for x in fwd if x is not None]
         share = lambda v: round(sum(1 for x in v if x <= DD_BIG) / len(v) * 100) if v else None  # noqa: E731
