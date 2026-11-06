@@ -42,6 +42,7 @@ on:
       - "scripts/fin_site.py"
       - "scripts/screen_site.py"
       - "scripts/chips_site.py"
+      - "scripts/trust_site.py"
       - "scripts/futures_site.py"
       - "scripts/settle_site.py"
       - "scripts/insider_site.py"

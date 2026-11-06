@@ -146,7 +146,7 @@ PAGES = {
     "ranking": ["price"], "flow": ["price"], "newhigh": ["price"], "limitup": ["price"],
     "industry": ["price", "industry"], "kline": ["price", "chips", "broker"],
     "screen": ["price", "chips", "revenue", "quarterly"],
-    "chips": ["chips", "sbl", "tdcc"], "futures": ["futures"], "settle": ["futures", "price"],
+    "chips": ["chips", "sbl", "tdcc"], "trust": ["chips", "price"], "futures": ["futures"], "settle": ["futures", "price"],
     "broker": ["broker"], "local": ["broker"], "watch": ["watch"],
     "margin": ["margin", "pledge"], "cost": ["etf", "margin", "pledge", "price"],
     "insider": ["insider_m", "insider_t"], "news": ["mops"], "alert": ["alert"],

@@ -27,6 +27,7 @@
   data/cost.json                     持股成本：主動式 ETF、融資、不限用途借貸的估計成本與維持率（見 scripts/cost_site.py）
   data/kline/index.json, s/<代號>.json  K 線：2022 年起每日價量＋還原因子事件（見 scripts/kline_site.py）
   data/chips/chips.json, s/<代號>.json 三大法人、借券賣出、當沖、集保大戶（見 scripts/chips_site.py）
+  data/trust/index.json, <日期>.json 投信每日全部買賣超與佔成交量比（見 scripts/trust_site.py）
   data/futures.json                  期貨選擇權籌碼：法人未平倉、P/C ratio、大額交易人（見 scripts/futures_site.py）
   data/settle.json                   結算日套利：股期十大特法 ÷ 近 5 日量、價差、自營商週期累積（見 scripts/settle_site.py）
   data/digest/index.json, points/<日期>.md, notes/  盤後摘要：重點、新聞與現象（見 scripts/digest_site.py）
@@ -100,6 +101,7 @@ import margin_site  # noqa: E402
 import kline_site  # noqa: E402
 import screen_site  # noqa: E402
 import chips_site  # noqa: E402
+import trust_site  # noqa: E402
 import futures_site  # noqa: E402
 import settle_site  # noqa: E402
 import stock_site  # noqa: E402
@@ -192,6 +194,7 @@ def build(out: Path, days: int) -> list[str]:
                      today=datetime.now(TPE).date().isoformat())
     commod_site.write_commod(ROOT / "data", ROOT, out / "data" / "commod.json", prices=prices)
     chips = chips_site.write_chips(ROOT / "data", out / "data" / "chips")
+    trust_site.write_trust(ROOT / "data", out / "data" / "trust")
     screen_site.write_screen(ROOT / "data", out / "data" / "screen", today=datetime.now(TPE).date(), prices=prices,
                              extra={"chips": chips} if chips else None)
     stock_site.write_stock(out, datetime.now(TPE).date())  # 讀上面各頁剛寫好的 JSON，要放最後
