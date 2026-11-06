@@ -1,16 +1,16 @@
 {
- "generated": "2026-11-06 18:45",
+ "generated": "2026-11-06 19:31",
  "fetched_days": 2,
  "left_days": 0,
- "news": 1469,
+ "news": 1489,
  "cats": {
-  "other": 188,
-  "fin": 557,
-  "call": 81,
-  "capital": 157,
-  "hr": 143,
-  "board": 126,
-  "ma": 107,
+  "other": 189,
+  "fin": 564,
+  "call": 82,
+  "capital": 160,
+  "hr": 146,
+  "board": 128,
+  "ma": 110,
   "legal": 5,
   "buyback": 29,
   "div": 36,
@@ -19,8 +19,8 @@
   "attn": 13
  },
  "exright": 246,
- "calls": 441,
- "events": 65,
+ "calls": 442,
+ "events": 66,
  "unparsed": [
   "5347世界 2026-11-06"
  ],
