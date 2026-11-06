@@ -1,26 +1,28 @@
 {
- "generated": "2026-11-05 21:24",
+ "generated": "2026-11-06 15:17",
  "fetched_days": 2,
  "left_days": 0,
- "news": 1163,
+ "news": 1031,
  "cats": {
-  "fin": 436,
-  "capital": 142,
-  "ma": 94,
-  "other": 154,
-  "call": 78,
-  "hr": 106,
-  "board": 76,
-  "buyback": 22,
+  "other": 136,
+  "fin": 391,
+  "call": 65,
+  "capital": 112,
+  "hr": 89,
+  "board": 85,
+  "ma": 80,
   "legal": 4,
-  "clarify": 3,
-  "shm": 18,
-  "attn": 7,
-  "div": 23
+  "buyback": 19,
+  "div": 24,
+  "clarify": 2,
+  "shm": 16,
+  "attn": 8
  },
- "exright": 245,
- "calls": 408,
- "events": 68,
- "unparsed": [],
+ "exright": 246,
+ "calls": 428,
+ "events": 51,
+ "unparsed": [
+  "5347世界 2026-11-06"
+ ],
  "errors": []
 }
