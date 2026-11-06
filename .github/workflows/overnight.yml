@@ -1,0 +1,76 @@
+name: Fetch overnight US
+
+# 隔夜美股：美股收盤（台北 05:00，夏令 04:00）後抓美股、美債／美元／VIX、原物料，
+# 寫 data/digest/overnight.md 給 07:52 盤前更新直接讀，網站的美股連動頁也提早更新。
+# 原本只有 08:30 早班 batch 才抓美股，盤前更新只能靠網路搜尋，常找不到昨晚收盤。
+#
+# 台北週二～週六早上（美股週一～週五收盤）。GitHub 排程會延遲，所以排兩次：
+# 第二次若發現 overnight.md 已經是最新美股交易日就只是沒有新資料、不 commit。
+# 想更準時可以用 cron-job.org 打 workflow_dispatch。
+on:
+  schedule:
+    - cron: "15 21 * * 1-5"   # 台北 05:15 週二～週六
+    - cron: "45 22 * * 1-5"   # 台北 06:45 週二～週六（備援）
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write  # 跑完叫 Deploy site（GITHUB_TOKEN 的 push 不會觸發其他 workflow）
+
+concurrency:
+  group: fetch-overnight
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 美股收盤
+        continue-on-error: true
+        # 財報日 08:30 早班再抓，這裡只抓價格
+        run: python -u fetch_us.py --no-earnings
+
+      - name: 匯率、美債、美元、VIX、信用利差
+        continue-on-error: true
+        run: python -u fetch_macro.py
+
+      - name: 原物料
+        continue-on-error: true
+        timeout-minutes: 15
+        run: python -u fetch_commod.py
+
+      - name: 隔夜美股摘要
+        run: python scripts/overnight.py
+
+      - name: Commit data
+        id: c
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data
+          if [ "$GITHUB_REF_NAME" != "${{ github.event.repository.default_branch }}" ]; then
+            echo "不是預設分支（測試用），只列出變動、不 commit"; git diff --cached --stat | tail -20; exit 0
+          fi
+          # overnight.md 只有產生時間變了不算新資料
+          if git diff --cached --quiet -- data ':!data/digest/overnight.md'; then
+            echo "No new data"; exit 0
+          fi
+          git commit -q -m "data: overnight US $(TZ=Asia/Taipei date +%F)"
+          for i in 1 2 3; do
+            if git pull --rebase -q && git push; then echo "pushed=1" >> "$GITHUB_OUTPUT"; exit 0; fi
+            sleep 10
+          done
+          exit 1
+
+      - name: 部署網站
+        if: steps.c.outputs.pushed == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --repo "$GITHUB_REPOSITORY" --ref "$GITHUB_REF_NAME"

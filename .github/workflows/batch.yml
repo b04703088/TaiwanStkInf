@@ -243,6 +243,12 @@ jobs:
         # 美股連動頁用；早上抓前一晚收盤，跑完就部署
         run: python -u fetch_us.py
 
+      - name: 隔夜美股摘要
+        if: always() && steps.s.outputs.us == '1'
+        continue-on-error: true
+        # 05:15 的 overnight.yml 是主要的；這裡用 08:30 的新數字再算一次
+        run: python scripts/overnight.py
+
       - name: 盤後數字摘要
         if: always() && steps.s.outputs.digest == '1'
         continue-on-error: true
