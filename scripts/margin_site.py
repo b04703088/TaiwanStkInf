@@ -7,6 +7,8 @@
   data/margin/s/<代號>.json 個股近 SERIES_N 個交易日：收盤、融資餘額、融券餘額、估計維持率、不限用途借貸擔保張數
   data/margin/delev.json    去槓桿進度（殺乾淨了沒）：大盤融資張數離高點、連續大減、維持率、
                             台股正 2／反 1 ETF 的融資與受益單位、主動式 ETF 融資合計（見 deleverage()）
+  data/margin/level.json    融資水位（融資金額 ÷ 市值）近幾年走勢、分位、平均 ±σ、歷次過熱後指數回檔；
+                            融資使用率、券資比的歷史分位（歷史來自 data/margin/level.csv，見 backfill_margin_level.py）
 不限用途款項借貸（data/pledge/，證交所借貸款項擔保品餘額表）：個股被拿去質押借錢的張數與限額；
   大盤加總擔保市值＝Σ(擔保張數 × 1000 × 收盤)。
 
@@ -18,6 +20,7 @@
 """
 import csv
 import json
+import re
 from pathlib import Path
 
 FIN_RATIO = 0.6       # 融資成數
@@ -71,6 +74,43 @@ def load_days(data_dir, limit):
         d = rows[0]["date"]
         days.append((d, {(r["market"], r["code"]): r for r in rows}, closes_for(data_dir, d)))
     return days
+
+
+# ───────────── 融資水位（占市值）每日彙總 ─────────────
+# 市值：融資限額＝上市（櫃）股份 25%，所以 股數 ≈ 限額 × 4，市值 ≈ Σ 限額 × 4 × 1000 × 收盤（只算一般股，不含 ETF）。
+# 只涵蓋可融資的股票（全額交割、停止信用交易的不在名單內），是近似值；看的是自己跟自己比的相對位置。
+LEVEL_COLS = ["date", "market", "fin_lots", "fin_amount", "sht_lots", "use_bal", "use_lim", "mcap", "x_amt", "x_mcap"]
+STOCK_RE = re.compile(r"^[1-9]\d{3}$")
+EXCL = "2330"   # 台積電：市值占上市四成、融資極少，算「不含台積電」的水位
+
+
+def level_rows(d, rows, closes, summary):
+    """單日彙總 → [每市場一列 dict]。rows：{(market, code): row}；summary：{market: summary row}。"""
+    out = []
+    for m in ("TWSE", "TPEx"):
+        s = summary.get(m)
+        if not s:
+            continue
+        use_bal = use_lim = mcap = x_amt = x_mcap = 0.0
+        for (mk, code), r in rows.items():
+            if mk != m:
+                continue
+            bal, lim = _f(r.get("fin_bal")) or 0, _f(r.get("fin_limit")) or 0
+            if lim > 0:
+                use_bal += bal
+                use_lim += lim
+            c = closes.get((mk, code))
+            if c and lim > 0 and STOCK_RE.match(code):
+                cap = lim * 4 * 1000 * c
+                mcap += cap
+                if code == EXCL:
+                    x_mcap, x_amt = cap, bal * 1000 * c * FIN_RATIO
+        if not mcap:
+            continue
+        out.append({"date": d, "market": m, "fin_lots": s.get("fin_lots", ""), "fin_amount": s.get("fin_amount", ""),
+                    "sht_lots": s.get("sht_lots", ""), "use_bal": int(use_bal), "use_lim": int(use_lim),
+                    "mcap": int(mcap), "x_amt": int(x_amt), "x_mcap": int(x_mcap)})
+    return out
 
 
 class CostTracker:
@@ -156,7 +196,7 @@ MARKET_COLS = ["date", "twse_amt", "tpex_amt", "twse_lots", "tpex_lots", "twse_s
                "twse_ratio", "tpex_ratio", "all_ratio", "n_up", "n_down", "taiex", "ul_lots", "ul_amt"]
 STOCK_COLS = ["market", "code", "name", "close", "r1", "r5", "r20", "fin", "f1", "f5", "f5p", "f20", "f20p",
               "fin_val", "cost", "ratio", "sht", "s5", "ss_ratio", "use",
-              "ul", "ul1", "ul5", "ul5p", "ul20p", "ul_val", "ul_use", "sf", "val5"]
+              "ul", "ul1", "ul5", "ul5p", "ul20p", "ul_val", "ul_use", "sf", "val5", "sp", "s1", "s20"]
 
 
 def avg_value(data_dir, dates):
@@ -219,7 +259,8 @@ def build(data_dir):
             return x[2].get(k) if x else None
 
         f1, f5, f20 = fin_at(1), fin_at(5), fin_at(20)
-        sht5 = _f(ref[5][1][k].get("sht_bal")) if ref[5] and k in ref[5][1] else None
+        sht_at = lambda n: _f(ref[n][1][k].get("sht_bal")) if ref[n] and k in ref[n][1] else None  # noqa: E731
+        sht1, sht5, sht20 = sht_at(1), sht_at(5), sht_at(20)
         def ul_at(n):
             x = days[-1 - n] if len(days) > n else None
             return _f(pledge.get(x[0], {}).get(k, {}).get("ul_bal")) if x else None
@@ -252,6 +293,10 @@ def build(data_dir):
             round(u0 / ulim * 100, 2) if u0 is not None and ulim else None,
             _f(p0.get("sf_bal")),
             round(val5[k]) if val5.get(k) else None,
+            # 近 20 日融資餘額（迷你走勢圖）
+            [None if x[2] is None else int(x[2]) for x in series.get(k, [])[-20:]] if fin else None,
+            None if sht is None or sht1 is None else int(sht - sht1),
+            None if sht is None or sht20 is None else int(sht - sht20),
         ])
     stocks.sort(key=lambda x: -(x[13] or 0))
 
@@ -260,10 +305,120 @@ def build(data_dir):
     market = market_series(data_dir, days[-MARKET_N:], summary, index)
     return {
         "delev": deleverage(data_dir, days[-MARKET_N:], market),
+        "level": level_series(data_dir, days),
         "market": {"date": d0, "cols": MARKET_COLS, "rows": market},
         "stocks": {"date": d0, "cols": STOCK_COLS, "rows": stocks},
         "series": {f"{k[1]}": v for k, v in series.items()},
     }
+
+
+# ───────────── 融資水位歷史（level.json） ─────────────
+LEVEL_YEARS = 5          # 分位、平均 ±σ 用最近幾年
+HEAT_SIGMA = 1.0         # 水位 > 平均 + 1σ 算過熱
+HEAT_GAP = 20            # 兩段過熱相隔不到 20 個交易日視為同一段
+HEAT_MIN = 3            # 過熱至少連續幾個交易日才算一段（排除單日雜訊）
+FWD_N = 60               # 過熱後看幾個交易日的指數最大回檔
+DD_BIG = -10.0           # 「大回檔」門檻（%）
+
+
+def _stat(vals):
+    v = [x for x in vals if x is not None]
+    if len(v) < 2:
+        return None
+    mean = sum(v) / len(v)
+    sd = (sum((x - mean) ** 2 for x in v) / (len(v) - 1)) ** 0.5
+    now = vals[-1]
+    return {"now": now, "mean": round(mean, 4), "sd": round(sd, 4), "min": min(v), "max": max(v),
+            "pct": None if now is None else round(sum(1 for x in v if x <= now) / len(v) * 100)}
+
+
+def _fwd_dd(tx, i, n=FWD_N, j=None):
+    """第 i 天起到第 j 天（預設 i）之後 n 個交易日內，指數從區間內高點到之後低點的最大跌幅（%）；資料不足回傳 None。"""
+    j = i if j is None else j
+    if j + n >= len(tx) or tx[i] is None:
+        return None
+    pk, dd = tx[i], 0.0
+    for v in tx[i:j + n + 1]:
+        if v is None:
+            continue
+        pk = max(pk, v)
+        dd = min(dd, (v / pk - 1) * 100)
+    return round(dd, 1)
+
+
+def level_series(data_dir, days):
+    data_dir = Path(data_dir)
+    mdir = data_dir / "margin"
+    hist = {}
+    if (mdir / "level.csv").exists():
+        for r in _read(mdir / "level.csv"):
+            hist[(r["date"], r["market"])] = r
+    summ = {}
+    if (mdir / "summary.csv").exists():
+        for r in _read(mdir / "summary.csv"):
+            summ.setdefault(r["date"], {})[r["market"]] = r
+    for d, rows, closes in days:
+        if (d, "TWSE") in hist and (d, "TPEx") in hist:
+            continue
+        for r in level_rows(d, rows, closes, summ.get(d, {})):
+            hist[(d, r["market"])] = {k: str(v) for k, v in r.items()}
+    idx = {}
+    if (mdir / "index.csv").exists():
+        idx = {r["date"]: _f(r["taiex"]) for r in _read(mdir / "index.csv")}
+    dates = sorted({d for d, m in hist if (d, "TWSE") in hist and (d, "TPEx") in hist})
+    if not dates:
+        return None
+    cut = f"{int(dates[-1][:4]) - LEVEL_YEARS}{dates[-1][4:]}"
+    dates = [d for d in dates if d > cut]
+    rows = []
+    for d in dates:
+        a, b = hist[(d, "TWSE")], hist[(d, "TPEx")]
+        g = lambda r, k: _f(r.get(k)) or 0  # noqa: E731
+        lv = lambda amt, cap: round(amt / cap * 100, 4) if cap else None  # noqa: E731
+        fin = g(a, "fin_lots") + g(b, "fin_lots")
+        lim = g(a, "use_lim") + g(b, "use_lim")
+        rows.append([d,
+                     lv(g(a, "fin_amount") - g(a, "x_amt"), g(a, "mcap") - g(a, "x_mcap")),
+                     lv(g(b, "fin_amount"), g(b, "mcap")),
+                     lv(g(a, "fin_amount"), g(a, "mcap")),
+                     round((g(a, "use_bal") + g(b, "use_bal")) / lim * 100, 3) if lim else None,
+                     round((g(a, "sht_lots") + g(b, "sht_lots")) / fin * 100, 3) if fin else None,
+                     int(g(a, "fin_lots")), int(g(b, "fin_lots")),
+                     round((g(a, "fin_amount") + g(b, "fin_amount")) / 1e8, 1),
+                     idx.get(d)])
+    cols = ["date", "twse_x", "tpex", "twse", "use", "ss", "twse_lots", "tpex_lots", "amt", "taiex"]
+    col = {c: [r[i] for r in rows] for i, c in enumerate(cols)}
+    col["lots"] = [x + y for x, y in zip(col["twse_lots"], col["tpex_lots"])]
+    tx = col["taiex"]
+    fwd = [_fwd_dd(tx, i) for i in range(len(rows))]
+    stats, heat = {}, {}
+    for k in ("twse_x", "tpex", "twse", "use", "ss", "lots", "amt"):
+        stats[k] = _stat(col[k])
+    for k in ("twse_x", "tpex"):
+        st = stats[k]
+        if not st:
+            continue
+        th = st["mean"] + HEAT_SIGMA * st["sd"]
+        on = [i for i, v in enumerate(col[k]) if v is not None and v > th]
+        eps = []
+        for i in on:
+            if eps and i - eps[-1][1] <= HEAT_GAP:
+                eps[-1][1] = i
+            else:
+                eps.append([i, i])
+        eps = [e for e in eps if e[1] - e[0] + 1 >= HEAT_MIN]
+        out = []
+        for s0, e0 in eps:
+            pk = max(range(s0, e0 + 1), key=lambda j: col[k][j] or 0)
+            out.append({"start": dates[s0], "end": dates[e0], "peak_date": dates[pk], "peak": col[k][pk],
+                        "taiex": tx[s0], "dd": _fwd_dd(tx, s0, FWD_N, e0), "days": e0 - s0 + 1})
+        hot = [fwd[i] for i in on if fwd[i] is not None]
+        base = [x for x in fwd if x is not None]
+        share = lambda v: round(sum(1 for x in v if x <= DD_BIG) / len(v) * 100) if v else None  # noqa: E731
+        heat[k] = {"th": round(th, 4), "episodes": out, "hot_big": share(hot), "base_big": share(base),
+                   "hot_n": len(hot), "base_n": len(base)}
+    return {"date": dates[-1], "first": dates[0], "cols": cols, "rows": rows, "stats": stats, "heat": heat,
+            "rules": {"years": LEVEL_YEARS, "sigma": HEAT_SIGMA, "gap": HEAT_GAP, "min": HEAT_MIN, "fwd": FWD_N, "dd_big": DD_BIG}}
 
 
 # ───────────── 去槓桿進度（殺乾淨了沒） ─────────────
@@ -425,6 +580,8 @@ def write_margin(data_dir, out_dir):
     dump(out_dir / "stocks.json", payload["stocks"])
     if payload.get("delev"):
         dump(out_dir / "delev.json", payload["delev"])
+    if payload.get("level"):
+        dump(out_dir / "level.json", payload["level"])
     for code, rows in payload["series"].items():
         dump(out_dir / "s" / f"{code}.json", {"cols": ["date", "close", "fin", "sht", "ratio", "ul", "ul_lim"], "rows": rows})
     return payload
