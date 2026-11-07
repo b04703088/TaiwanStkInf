@@ -1,4 +1,6 @@
 date,time,news_id,code,name,kind,year,analysts,prev,value,chg_pct,high,low,target,bull,neutral,bear,close,url
+2026-11-07,10:10,6651913,3661,世芯-KY,eps,2026,16,141.14,139.83,-0.93,176.72,114.85,6000,,,,,https://news.cnyes.com/news/id/6651913
+2026-11-07,10:10,6651912,4991,環宇-KY,tp,,6,663,580.5,-12.44,710,490,580.5,5,1,0,291,https://news.cnyes.com/news/id/6651912
 2026-11-07,08:10,6651863,6515,穎崴,eps,2026,10,93.27,91.34,-2.07,103.52,88.08,8175,,,,,https://news.cnyes.com/news/id/6651863
 2026-11-07,08:10,6651862,5347,世界,eps,2026,17,6.04,6.09,0.83,6.5,5.83,194,,,,,https://news.cnyes.com/news/id/6651862
 2026-11-07,08:10,6651861,6669,緯穎,eps,2026,15,125.04,127.64,2.08,153.23,118.1,2600,,,,,https://news.cnyes.com/news/id/6651861
