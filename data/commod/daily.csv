@@ -88569,7 +88569,13 @@ date,key,close,source
 2026-11-05,wti,90.52,yahoo
 2026-11-05,zinc,3780.5,sinag
 2026-11-06,aluminum,3071.5,sinag
+2026-11-06,bci,4344.0,cnyes
+2026-11-06,bcti,2636.0,cnyes
+2026-11-06,bdi,2805.0,cnyes
+2026-11-06,bdti,5480.0,cnyes
+2026-11-06,bpi,2003.0,cnyes
 2026-11-06,brent,97.76,yahoo
+2026-11-06,bsi,1815.0,cnyes
 2026-11-06,ccfi,1924.69,sse
 2026-11-06,ccfi_eu,1860.07,sse
 2026-11-06,ccfi_usw,1834.84,sse
