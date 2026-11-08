@@ -195,7 +195,7 @@ def fetch_progress(programs, today, budget_s):
 
 
 # ---------------- 董事會決議買回的重訊公告時間 ----------------
-_ANN_SKIP = re.compile(r"註銷|減資|完畢|屆滿|執行情形|達(?:已發行|新台幣|一定)|金額達|認股|轉讓員工|子公司|變更登記|不買回|停止|終止")
+_ANN_SKIP = re.compile(r"註銷|減資|完畢|屆滿|執行情形|達(?:已發行|新台幣|一定)|金額達|認股|子公司|變更登記|不買回|停止|終止")
 
 
 def is_buyback_notice(subject):
