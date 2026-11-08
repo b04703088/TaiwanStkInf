@@ -372,6 +372,7 @@ Promise.all([getJ("data/margin/market.json"), getJ("data/margin/stocks.json"), g
   import("./industry-tags.js").then(async mod => { await mod.loadIndustry(); IND = mod; renderRatio(); renderStocks(); }).catch(() => {});
 });
 
+const sgn = v => v == null || !isFinite(v) ? "–" : (v > 0 ? "+" : "") + Math.round(v).toLocaleString("zh-TW");
 function back(n) { return M.length > n ? M[M.length - 1 - n] : null; }
 const pbar = (p, hot) => p == null ? "" : `<div class="pbar${hot ? " hot" : ""}"><i style="left:${Math.max(0, Math.min(100, p))}%"></i></div>`;
 const span = () => LV ? `近 ${Math.max(1, Math.round(LV.rows.length / 245))} 年` : "";
@@ -390,6 +391,7 @@ function renderTop() {
   $("stats").innerHTML = [
     [lots ? "融資張數（上市＋上櫃）" : "融資餘額（上市＋上櫃）", lots ? num(m.lots.toFixed(1)) + " 萬張" : num(Math.round(m.amt)) + " 億",
       pbar(st[k]?.pct) + `${pTxt(st[k])}　今日 <span class="${cls(d1)}">${pct(d1, 2)}</span>　5 日 <span class="${cls(d5)}">${pct(d5, 2)}</span>`
+      + (lots || !p1 ? "" : `<br>今日 <span class="${cls(m.amt - p1.amt)}">${sgn(m.amt - p1.amt)} 億</span>：上市 <span class="${cls(m.twse_amt - p1.twse_amt)}">${sgn(m.twse_amt - p1.twse_amt)}</span>、上櫃 <span class="${cls(m.tpex_amt - p1.tpex_amt)}">${sgn(m.tpex_amt - p1.tpex_amt)}</span>`)
       + (lots ? "" : `<br><span class="faint">金額會被股價放大，看純槓桿請切張數</span>`)],
     ["融資水位（融資 ÷ 市值）", sx ? `${lvTxt(sx)}` : "–",
       pbar(sx?.pct, sx && sx.now > sx.mean + sx.sd) + `上市不含台積電 ${pTxt(sx)}<br>上櫃 ${lvTxt(so)}（第 ${so?.pct ?? "–"} 百分位）`],
