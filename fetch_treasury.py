@@ -7,10 +7,13 @@
      價格區間、預定買回期間、是否執行完畢；執行完畢後才有實際買回股數、金額、均價、佔股本比例。
   2. 個股「買回達一定標準」申報 t35sb01（每買回達已發行股數 2% 或金額 3 億元要申報一次）
      只抓還在買回期間內的計畫，當作執行中的進度（實際買到的可能更多）。
+  3. 董事會決議買回的重大訊息公告時間（發言日期＋時間，判斷盤前／盤中／盤後）
+     先找 data/mops/news（fetch_mops_news.py 已抓的重訊），沒有的再查新版觀測站 t05st02 當天清單。
 
 輸出 data/treasury/
   programs.csv   每次買回計畫一列（見 PROG_COLS）；每次重抓查詢區間內的資料，舊資料保留
   progress.csv   執行中計畫的達標申報（見 PROGRESS_COLS）
+  announce.csv   每次計畫的董事會決議重訊公告日期、時間、主旨（見 ANN_COLS；找不到的 ann_date 留空，不再重查）
 
 用法：python fetch_treasury.py [--since 2024-01-01]   （預設：前年 1 月 1 日起）
 """
@@ -40,6 +43,8 @@ PROG_COLS = ["market", "code", "name", "board_date", "purpose", "cap_amount", "p
 PROGRESS_COLS = ["market", "code", "board_date", "seq", "report_date", "buy_date", "shares", "amount", "avg_price",
                  "held_shares", "held_pct", "note"]
 KEY = ("market", "code", "board_date", "start")
+ANN_COLS = ["market", "code", "board_date", "ann_date", "ann_time", "subject"]
+ANN_WINDOW = 4  # 決議日起 4 天內（含）的重訊
 
 
 # ---------------- 小工具 ----------------
@@ -189,6 +194,101 @@ def fetch_progress(programs, today, budget_s):
     return out, errors
 
 
+# ---------------- 董事會決議買回的重訊公告時間 ----------------
+_ANN_SKIP = re.compile(r"註銷|減資|完畢|屆滿|執行情形|達(?:已發行|新台幣|一定)|金額達|認股|子公司|變更登記|不買回|停止|終止")
+
+
+def is_buyback_notice(subject):
+    """董事會決議買回庫藏股的那則重訊（不是達標申報、執行完畢、註銷減資、代子公司公告）"""
+    s = subject or ""
+    return bool(re.search(r"買回|庫藏股", s)) and not _ANN_SKIP.search(s)
+
+
+def pick_notice(rows, prog):
+    """同代號、決議日起 ANN_WINDOW 天內的買回公告，挑最早的（更正公告排後面）。"""
+    d0 = prog["board_date"]
+    d1 = (date.fromisoformat(d0) + timedelta(days=ANN_WINDOW - 1)).isoformat()
+    c = [r for r in rows if r["code"] == prog["code"] and d0 <= r["date"] <= d1 and is_buyback_notice(r["subject"])]
+    if not c:
+        return None
+    c.sort(key=lambda r: ("更正" in r["subject"], "決議" not in r["subject"], r["date"], r["time"]))
+    return c[0]
+
+
+def ann_window(prog):
+    d0 = date.fromisoformat(prog["board_date"])
+    return [d0 + timedelta(days=i) for i in range(ANN_WINDOW)]
+
+
+def _local_news():
+    """data/mops/news/*.csv → ({代號: [重訊]}, 已抓完的日期)"""
+    d = ROOT / "data" / "mops"
+    by, days = {}, set()
+    for f in sorted((d / "news").glob("*.csv")):
+        for r in _read(f):
+            if r.get("cat") == "buyback" or is_buyback_notice(r.get("subject")):
+                by.setdefault(r["code"], []).append(r)
+    if (d / "days.txt").exists():
+        days = {x.strip() for x in (d / "days.txt").read_text(encoding="utf-8").split() if x.strip()}
+    return by, days
+
+
+def fill_announce(programs, old, today, budget_s, fetch_day=None):
+    """回傳 (announce rows, errors)。已找到（或確定找不到）的沿用；其餘先找本地重訊，再查觀測站當天清單。
+    fetch_day(date) → [重訊]（測試時換掉）。查某天的清單會順便拿到前一天晚上發的，所以窗內每天都查。"""
+    if fetch_day is None:
+        import fetch_mops_news as M
+
+        def fetch_day(d):
+            res = M.mops("t05st02", {"year": str(d.year - 1911), "month": f"{d.month:02d}", "day": f"{d.day:02d}"})
+            time.sleep(0.4)
+            return [r for r in M.parse_list(res) if is_buyback_notice(r["subject"])]
+    have = {(r["market"], r["code"], r["board_date"]): r for r in old}
+    local, covered = _local_news()
+    cache, out, errors, t0, n_api = {}, [], [], time.time(), 0
+    for p in sorted({(p["market"], p["code"], p["board_date"]): p for p in programs}.values(),
+                    key=lambda p: p["board_date"], reverse=True):
+        k = (p["market"], p["code"], p["board_date"])
+        if k in have and (have[k]["ann_date"] or have[k].get("subject") == "-"):
+            out.append(have[k])
+            continue
+        win = ann_window(p)
+        rows = list(local.get(p["code"], []))
+        hit = pick_notice(rows, p)
+        complete = True
+        if not hit:
+            for d in win:
+                if d > today:
+                    complete = False
+                    break
+                if d.isoformat() in covered:
+                    continue
+                if d not in cache:
+                    if time.time() - t0 > budget_s or len(errors) >= 10:
+                        complete = False
+                        break
+                    try:
+                        cache[d] = fetch_day(d)
+                        n_api += 1
+                    except Exception as e:  # noqa: BLE001
+                        errors.append(f"公告時間 {d}：{str(e)[:120]}")  # 連錯 10 次就不再查
+                        cache[d] = None
+                if cache[d] is None:
+                    complete = False
+                    continue
+                rows += cache[d]
+                hit = pick_notice(rows, p)
+                if hit:
+                    break
+        if hit:
+            out.append({**dict(zip(("market", "code", "board_date"), k)), "ann_date": hit["date"],
+                        "ann_time": hit["time"][:5], "subject": hit["subject"][:120]})
+        elif complete and win[-1] < today:
+            out.append({**dict(zip(("market", "code", "board_date"), k)), "ann_date": "", "ann_time": "", "subject": "-"})
+    print(f"公告時間：{sum(1 for r in out if r['ann_date'])}／{len(programs)} 筆找到，查觀測站 {n_api} 天", flush=True)
+    return sorted(out, key=lambda r: (r["board_date"], r["code"]), reverse=True), errors
+
+
 # ---------------- 主程式 ----------------
 def _read(path):
     if not path.exists():
@@ -210,6 +310,7 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--since", help="董事會決議日查詢起日 YYYY-MM-DD（預設：前年 1 月 1 日）")
     ap.add_argument("--max-minutes", type=float, default=10, help="達標申報抓取時間上限（分鐘）")
+    ap.add_argument("--ann-minutes", type=float, default=5, help="公告時間查觀測站的時間上限（分鐘；回補時加大）")
     a = ap.parse_args(argv)
     OUT.mkdir(parents=True, exist_ok=True)
     today = datetime.now(C.TPE).date()
@@ -236,6 +337,11 @@ def main(argv=None):
         _write(OUT / "progress.csv", PROGRESS_COLS,
                sorted(prog, key=lambda r: (r["code"], r["buy_date"], r["seq"])))
     print(f"執行中 {len(active(programs, today))} 筆，達標申報 {len(prog)} 筆")
+
+    ann, errs = fill_announce(programs, _read(OUT / "announce.csv"), today, a.ann_minutes * 60)
+    errors += errs
+    if ann:
+        _write(OUT / "announce.csv", ANN_COLS, ann)
 
     (OUT / "sources.json").write_text(json.dumps({
         "generated": datetime.now(C.TPE).strftime("%Y-%m-%d %H:%M"), "since": since.isoformat(),

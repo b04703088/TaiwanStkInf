@@ -62,6 +62,55 @@ class ProgressTest(unittest.TestCase):
         self.assertEqual([F.in_period(r, prog) for r in rows], [True, False])  # 107 年的舊申報不算這次
 
 
+class AnnounceTest(unittest.TestCase):
+    PROG = {"market": "sii", "code": "1437", "board_date": "2026-10-17"}
+
+    def test_notice_filter(self):
+        yes = ["公告本公司董事會決議買回庫藏股", "公告董事會決議買回本公司股份", "公告本公司董事會決議第十七次買回庫藏股事宜",
+               "本公司董事會決議通過買回公司股份"]
+        no = ["公告本公司買回股份金額達新台幣三億元以上", "公告本公司買回庫藏股執行完畢", "公告本公司買回庫藏股期間屆滿執行情形",
+              "公告本公司董事會決議註銷庫藏股暨訂定減資基準日", "公告本公司庫藏股買回數量達已發行股份總數百分之二",
+              "代子公司Winking Studios Limited公告庫藏股執行情形", "公告本公司董事會決議授權董事長訂定庫藏股轉讓員工認股基準日"]
+        self.assertTrue(all(F.is_buyback_notice(x) for x in yes))
+        self.assertFalse(any(F.is_buyback_notice(x) for x in no))
+
+    def test_fill(self):
+        calls = []
+        day = {"2026-10-17": [], "2026-10-18": [], "2026-10-19": [
+            {"date": "2026-10-19", "time": "16:54:01", "code": "1437", "subject": "公告本公司董事會決議第十七次買回庫藏股事宜"},
+            {"date": "2026-10-19", "time": "08:10:00", "code": "1437", "subject": "(更正)公告本公司董事會決議買回庫藏股"},
+            {"date": "2026-10-19", "time": "10:00:00", "code": "9999", "subject": "公告本公司董事會決議買回庫藏股"}]}
+
+        def fetch(d):
+            calls.append(d.isoformat())
+            return day.get(d.isoformat(), [])
+        orig = F._local_news
+        F._local_news = lambda: ({}, {"2026-10-18"})
+        try:
+            ann, err = F.fill_announce([self.PROG], [], date(2026, 11, 8), 60, fetch)
+            self.assertEqual(calls, ["2026-10-17", "2026-10-19"])  # 本地已抓過的日子不查、找到就停
+            self.assertEqual((ann[0]["ann_date"], ann[0]["ann_time"]), ("2026-10-19", "16:54"))  # 更正公告排後面
+            # 窗內都查過還沒有 → 記「-」，下次不再查
+            day["2026-10-19"] = []
+            ann, _ = F.fill_announce([self.PROG], [], date(2026, 11, 8), 60, fetch)
+            self.assertEqual((ann[0]["ann_date"], ann[0]["subject"]), ("", "-"))
+            calls.clear()
+            F.fill_announce([self.PROG], ann, date(2026, 11, 8), 60, fetch)
+            self.assertEqual(calls, [])
+            # 窗還沒過完（今天 10/18）不記
+            ann, _ = F.fill_announce([self.PROG], [], date(2026, 10, 18), 60, fetch)
+            self.assertEqual(ann, [])
+        finally:
+            F._local_news = orig
+
+    def test_session(self):
+        td = {"2026-11-05", "2026-11-06"}
+        S = treasury_site.session
+        self.assertEqual([S("2026-11-06", "08:30", td), S("2026-11-06", "13:30", td), S("2026-11-06", "13:31", td),
+                          S("2026-11-07", "10:00", td), S("2026-11-09", "17:00", td), S("2026-11-04", "10:00", td)],
+                         ["盤前", "盤中", "盤後", "休市", "盤後", "休市"])
+
+
 class SiteTest(unittest.TestCase):
     def test_build(self):
         p = programs()
@@ -79,6 +128,11 @@ class SiteTest(unittest.TestCase):
         self.assertEqual((a["prog_shares"], a["prog_amount"], a["prog_date"], a["prog_held_pct"]),
                          (1500000, 34000000, "2026-11-01", 3.1))
         self.assertEqual((rows[1]["plan_shares"], rows[1]["price_lo"], rows[1]["prog_shares"]), (28000000, 17.85, None))
+        ann = [{"market": "otc", "code": "3303", "board_date": "2026-10-06", "ann_date": "2026-10-06", "ann_time": "13:43",
+                "subject": "x"}]
+        rows = [dict(zip(d["cols"], r)) for r in treasury_site.build(p, progress, None, announce=ann, tdays={"2026-10-06"})["rows"]]
+        self.assertEqual((rows[0]["ann_date"], rows[0]["ann_time"], rows[0]["ann_sess"]), ("2026-10-06", "13:43", "盤後"))
+        self.assertIsNone(rows[1]["ann_time"])
 
 
 if __name__ == "__main__":
