@@ -223,12 +223,18 @@
 
   <section class="block">
     <div class="block-head"><h2>大盤融資餘額與維持率</h2>
+      <div class="chips" id="mkt" aria-label="市場">
+        <button data-v="all" aria-pressed="true">上市＋上櫃</button>
+        <button data-v="twse" aria-pressed="false">上市</button>
+        <button data-v="tpex" aria-pressed="false">上櫃</button>
+      </div>
       <div class="chips" id="rng">
         <button data-v="60" aria-pressed="false">近 3 個月</button>
         <button data-v="120" aria-pressed="true">近 6 個月</button>
         <button data-v="250" aria-pressed="false">近 1 年</button>
       </div>
     </div>
+    <p class="hint" id="mnow" style="margin:0 0 8px"></p>
     <div class="chart" id="mchart"></div>
     <div class="chart" id="rchart" style="margin-top:12px"></div>
   </section>
@@ -519,32 +525,62 @@ function renderLevel() {
 
 /* ---------- 大盤圖：融資＋指數＋每日增減柱；維持率（上市／上櫃） ---------- */
 const getRng = chips("rng", renderChart);
+const getCMkt = chips("mkt", renderChart);
+const MKN = {all: "上市＋上櫃", twse: "上市", tpex: "上櫃"};
+// 依市場取值：金額（億）或張數（萬張）
+const mval = (r, mk, lots) => { if (!r) return null; if (mk === "all") return lots ? r.lots : r.amt;
+  const v = r[mk + (lots ? "_lots" : "_amt")]; return v == null ? null : lots ? v / 1e4 : v; };
+const sg = (v, d = 0) => v == null || !isFinite(v) ? "–" : (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v).toLocaleString("zh-TW", {minimumFractionDigits: d, maximumFractionDigits: d});
 function renderChart() {
   if (!M.length) return;
-  const n = +getRng(), lots = U(), k = lots ? "lots" : "amt", rows = M.slice(-n), off = M.length - rows.length;
-  const W = 1000, L = 56, R = 58, T = 10, H1 = 200, G = 14, H2 = 60, B = 22, H = T + H1 + G + H2 + B;
+  const n = +getRng(), lots = U(), mk = getCMkt(), rows = M.slice(-n), off = M.length - rows.length;
+  const V = rows.map(r => mval(r, mk, lots)), unit = lots ? "萬張" : "億", fd = lots ? 1 : 0;
+  const W = 1000, L = 56, R = 58, T = 10, H1 = 200, G = 14, H2 = 70, B = 22, H = T + H1 + G + H2 + B;
   const X = i => L + (rows.length < 2 ? 0 : i / (rows.length - 1) * (W - L - R));
-  const [a1, b1] = extent(rows.map(r => r[k])), [ai, bi] = extent(rows.map(r => r.taiex));
+  const [a1, b1] = extent(V), [ai, bi] = extent(rows.map(r => r.taiex));
   const Y1 = v => T + H1 - (v - a1) / (b1 - a1) * H1, YI = v => T + H1 - (v - ai) / (bi - ai) * H1;
-  const dl = rows.map((r, i) => { const p = M[off + i - 1]; return p && r[k] != null && p[k] != null ? r[k] - p[k] : null; });
+  const dl = rows.map((r, i) => { const pv = mval(M[off + i - 1], mk, lots); return pv != null && V[i] != null ? V[i] - pv : null; });
   const dm = Math.max(...dl.filter(v => v != null).map(Math.abs), 1e-9), T2 = T + H1 + G, Z = T2 + H2 / 2;
   const bw = Math.max(1, (W - L - R) / rows.length * 0.7);
-  const bars = dl.map((v, i) => { if (v == null) return ""; const h = Math.abs(v) / dm * H2 / 2; return `<rect x="${(X(i) - bw / 2).toFixed(1)}" y="${(v > 0 ? Z - h : Z).toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(.5, h).toFixed(1)}" fill="${v > 0 ? "var(--rise)" : "var(--fall)"}" opacity=".85"/>`; }).join("");
+  const bh = v => Math.abs(v) / dm * (H2 / 2 - 2);
+  const bars = dl.map((v, i) => { if (v == null) return ""; const h = bh(v); return `<rect x="${(X(i) - bw / 2).toFixed(1)}" y="${(v > 0 ? Z - h : Z).toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(.5, h).toFixed(1)}" fill="${v > 0 ? "var(--rise)" : "var(--fall)"}" opacity=".85"/>`; }).join("");
+  // 標註：區間單日最大減少、最大增加、最新一天
+  const idx = f => dl.reduce((b, v, i) => v != null && (b < 0 || f(v, dl[b])) ? i : b, -1);
+  const iDn = idx((v, b) => v < b), iUp = idx((v, b) => v > b), iLast = rows.length - 1;
+  const lab = (i, txt, c) => { if (i < 0 || dl[i] == null) return ""; const v = dl[i], x = X(i), right = x > W - R - 120, left = x < L + 120;
+    const an = right ? "end" : left ? "start" : "middle", y = v < 0 ? Z + bh(v) + 11 : Z - bh(v) - 4;
+    return `<text x="${x.toFixed(1)}" y="${Math.min(T2 + H2 + 8, Math.max(T2 - 2, y)).toFixed(1)}" text-anchor="${an}" style="fill:${c};font-size:11px">${txt}</text>`; };
+  const md2 = d => d.slice(5).replace("-", "/");
+  const marks = [iDn !== iLast ? lab(iDn, `${md2(rows[iDn].date)} ${sg(dl[iDn], fd)}`, "var(--fall)") : "",
+    iUp !== iLast && dl[iUp] > 0 ? lab(iUp, `${md2(rows[iUp].date)} ${sg(dl[iUp], fd)}`, "var(--rise)") : "",
+    lab(iLast, `今日 ${sg(dl[iLast], fd)}`, dl[iLast] < 0 ? "var(--fall)" : "var(--rise)")].join("");
+  // 線尾標最新值
+  const lv = V[iLast], lt = rows[iLast].taiex;
+  const ends = (lv == null ? "" : `<circle cx="${X(iLast).toFixed(1)}" cy="${Y1(lv).toFixed(1)}" r="3.5" fill="var(--brass)"/><text x="${(X(iLast) - 8).toFixed(1)}" y="${(Y1(lv) + (Y1(lv) < T + 20 ? 16 : -8)).toFixed(1)}" text-anchor="end" style="fill:var(--brass);font-size:12px;font-weight:600">${sg(lv, fd).replace(/^[+]/, "")} ${unit}</text>`);
   const fmtL = v => lots ? v.toFixed(0) : Math.round(v).toLocaleString();
   const tk = (a, b, y, f, x, an) => [0, 1, 2, 3].map(j => { const v = a + (b - a) * j / 3; return `<line x1="${L}" x2="${W - R}" y1="${y(v).toFixed(1)}" y2="${y(v).toFixed(1)}" stroke="var(--line)"/><text x="${x}" y="${(y(v) + 4).toFixed(1)}" text-anchor="${an}">${f(v)}</text>`; }).join("");
   const tkr = (a, b, y, f, x) => [0, 1, 2, 3].map(j => { const v = a + (b - a) * j / 3; return `<text x="${x}" y="${(y(v) + 4).toFixed(1)}">${f(v)}</text>`; }).join("");
   const step = Math.max(1, Math.round(rows.length / 6));
   const xl = rows.map((r, i) => i % step ? "" : `<text x="${X(i).toFixed(1)}" y="${H - 4}" text-anchor="middle">${r.date.slice(2, 7).replace("-", "/")}</text>`).join("");
-  const unit = lots ? "萬張" : "億";
-  $("mchart").innerHTML = `<div class="legend"><span><i style="background:var(--brass)"></i>融資${lots ? "張數（萬張" : "餘額（億"}，左軸）</span><span><i style="background:var(--text-muted)"></i>加權指數（右軸）</span><span><i style="background:var(--rise);height:7px;width:7px"></i><i style="background:var(--fall);height:7px;width:7px"></i>每日融資增減</span></div>
+  // 圖上方一行：最新值與今日增減（合計時拆上市／上櫃）
+  const last = rows[iLast], prev = M[off + iLast - 1];
+  const dd = m => { const a = mval(last, m, lots), b = mval(prev, m, lots); return a != null && b != null ? a - b : null; };
+  const pc = (a, b) => a != null && b ? (a / b - 1) * 100 : null;
+  const p5 = M[M.length - 6];
+  $("mnow").innerHTML = `<b>${MKN[mk]}</b> ${ymd(last.date)} 融資${lots ? "張數" : "餘額"} <b class="mono">${sg(lv, fd).replace(/^[+]/, "")} ${unit}</b>　今日 <b class="mono ${cls(dl[iLast])}">${sg(dl[iLast], fd)} ${unit}</b>（<span class="${cls(dl[iLast])}">${pct(pc(lv, mval(prev, mk, lots)), 2)}</span>）`
+    + (mk === "all" ? `：上市 <span class="mono ${cls(dd("twse"))}">${sg(dd("twse"), fd)}</span>、上櫃 <span class="mono ${cls(dd("tpex"))}">${sg(dd("tpex"), fd)}</span>` : "")
+    + `　5 日 <span class="mono ${cls(pc(lv, mval(p5, mk, lots)))}">${p5 ? sg(lv - mval(p5, mk, lots), fd) + " " + unit : "–"}</span>`;
+  $("mchart").innerHTML = `<div class="legend"><span><i style="background:var(--brass)"></i>${MKN[mk]}融資${lots ? "張數（萬張" : "餘額（億"}，左軸）</span><span><i style="background:var(--text-muted)"></i>加權指數（右軸）</span><span><i style="background:var(--rise);height:7px;width:7px"></i><i style="background:var(--fall);height:7px;width:7px"></i>每日融資增減（${unit}，標出區間最大增減與今日）</span></div>
     <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="大盤融資與加權指數">
     ${tk(a1, b1, Y1, fmtL, L - 6, "end")}${tkr(ai, bi, YI, v => Math.round(v).toLocaleString(), W - R + 6)}
-    <path d="${pathOf(rows.map(r => r.taiex), X, YI)}" fill="none" stroke="var(--text-muted)" stroke-width="1.2"/><path d="${pathOf(rows.map(r => r[k]), X, Y1)}" fill="none" stroke="var(--brass)" stroke-width="2"/>
-    <line x1="${L}" x2="${W - R}" y1="${Z}" y2="${Z}" stroke="var(--line-strong)"/>${bars}<text x="${L - 6}" y="${T2 + 9}" text-anchor="end">+${lots ? dm.toFixed(1) : Math.round(dm)}</text><text x="${L - 6}" y="${T2 + H2}" text-anchor="end">−${lots ? dm.toFixed(1) : Math.round(dm)}</text>
+    <path d="${pathOf(rows.map(r => r.taiex), X, YI)}" fill="none" stroke="var(--text-muted)" stroke-width="1.2"/><path d="${pathOf(V, X, Y1)}" fill="none" stroke="var(--brass)" stroke-width="2"/>${ends}
+    <line x1="${L}" x2="${W - R}" y1="${Z}" y2="${Z}" stroke="var(--line-strong)"/>${bars}${marks}<text x="${L - 6}" y="${T2 + 9}" text-anchor="end">+${lots ? dm.toFixed(1) : Math.round(dm)}</text><text x="${L - 6}" y="${T2 + H2}" text-anchor="end">−${lots ? dm.toFixed(1) : Math.round(dm)}</text>
     ${xl}<line id="cx" y1="${T}" y2="${T2 + H2}" stroke="var(--line-strong)" visibility="hidden"/><rect class="hit" x="${L}" y="${T}" width="${W - L - R}" height="${T2 + H2 - T}" fill="transparent"/></svg><div class="tip"></div>`;
   hover("mchart", $("mchart").querySelector("svg"), W, L, R, rows.length, X, i => {
-    const r = rows[i], p = M[off + i - 1], d1 = p && chg(r[k], p[k]);
-    return `<b class="mono">${r.date}</b><br>融資 <span class="mono">${lots ? r.lots.toFixed(1) : num(Math.round(r.amt))} ${unit}</span> <span class="mono ${cls(dl[i])}">${dl[i] == null ? "" : (dl[i] > 0 ? "+" : "") + (lots ? dl[i].toFixed(2) : Math.round(dl[i]))}（${pct(d1, 2)}）</span><br>加權指數 <span class="mono">${num(r.taiex)}</span><br>融資減 ${int(r.n_down)}／增 ${int(r.n_up)} 檔`;
+    const r = rows[i], p = M[off + i - 1];
+    const d = m => { const a = mval(r, m, lots), b = mval(p, m, lots); return a != null && b != null ? a - b : null; };
+    const line = (nm, m) => `${nm} <span class="mono">${sg(mval(r, m, lots), fd).replace(/^[+]/, "")}</span> <span class="mono ${cls(d(m))}">${sg(d(m), fd)}</span>`;
+    return `<b class="mono">${r.date}</b>（${unit}，今日增減）<br>${line("合計", "all")}<br>${line("上市", "twse")}<br>${line("上櫃", "tpex")}<br>加權指數 <span class="mono">${num(r.taiex)}</span><br>融資減 ${int(r.n_down)}／增 ${int(r.n_up)} 檔`;
   }, "cx");
   renderRatioChart(rows);
 }
