@@ -4,6 +4,7 @@
   etf      主動式 ETF 對各股的估計平均成本（每檔 ETF × 每檔股票），etf_agg 為全部主動式 ETF 合計
   margin   個股融資估計平均成本、維持率、130% 追繳價
   ul       個股不限用途借貸（股票質借）估計設質均價、維持率、130% 追繳價
+  cut      融資＋不限用途合計增減（1／5／20 日張數變化、同期漲跌），cost.html「去槓桿排行」用
   calib    大盤校驗：Σ(融資張數 × 估計成本 × 融資成數) 對比官方融資金額
 
 估計方式（移動平均成本法）：
@@ -350,11 +351,52 @@ def build_ul(data_dir, prices, events=None):
             "rows": _cost_rows(books, rows, prices, d, lambda m: UL_RATIO, "ul_bal", extra)}
 
 
+CUT_DAYS = (1, 5, 20)
+
+
+def build_cut(data_dir, prices):
+    """融資＋不限用途合計張數，最近 1／5／20 個交易日的增減。兩份資料日期對齊才算（缺一邊的日子不比）。"""
+    def load(sub):
+        return {p.name: p for p in Path(data_dir).glob(f"{sub}/[0-9][0-9][0-9][0-9]/[0-9]*.csv")}
+    mf, uf = load("margin"), load("pledge")
+    days = sorted(set(mf) & set(uf))[-(max(CUT_DAYS) + 1):]
+    if len(days) < 2:
+        return None
+
+    def bal(name):
+        out = {}
+        for r in _read(mf[name]):
+            out.setdefault(r["code"], [r.get("name", "").strip(), 0, 0])[1] = _f(r.get("fin_bal")) or 0
+        for r in _read(uf[name]):
+            out.setdefault(r["code"], [r.get("name", "").strip(), 0, 0])[2] = _f(r.get("ul_bal")) or 0
+        return out
+
+    now = bal(days[-1])
+    d = _read(mf[days[-1]])[0]["date"]
+    refs = {n: days[-1 - n] for n in CUT_DAYS if len(days) > n}
+    old = {n: bal(f) for n, f in refs.items()}
+    ref_dates = {n: _read(mf[f])[0]["date"] for n, f in refs.items()}
+    rows = []
+    for code, (name, m, u) in now.items():
+        close = prices.close(code, d)
+        if not close or m + u <= 0 and all(sum(old[n].get(code, [0, 0, 0])[1:]) <= 0 for n in old):
+            continue
+        row = [code, name, close, int(m), int(u)]
+        for n in CUT_DAYS:
+            o = old.get(n, {}).get(code)
+            pc = prices.close(code, ref_dates[n]) if n in ref_dates else None
+            row += [None, None, None] if o is None else [int(m - o[1]), int(u - o[2]), _r((close / pc - 1) * 100, 1) if pc else None]
+        rows.append(row)
+    cols = ["code", "name", "close", "m", "u"] + [f"{k}{n}" for n in CUT_DAYS for k in ("m", "u", "p")]
+    return {"date": d, "from": {str(n): ref_dates[n] for n in ref_dates}, "cols": cols, "rows": rows}
+
+
 def build(data_dir):
     prices, ev = Prices(data_dir), share_events(data_dir)
     margin, calib = build_margin(data_dir, prices, ev)
     return {"params": {"fin_ratio": FIN_RATIO, "ul_ratio": UL_RATIO, "call": CALL * 100},
-            "etf": build_etf(data_dir, prices, ev), "margin": margin, "ul": build_ul(data_dir, prices, ev), "calib": calib}
+            "etf": build_etf(data_dir, prices, ev), "margin": margin, "ul": build_ul(data_dir, prices, ev), "calib": calib,
+            "cut": build_cut(data_dir, prices)}
 
 
 def write_cost(data_dir, out_path):

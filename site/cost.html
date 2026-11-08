@@ -114,6 +114,9 @@
   tr.detail th{background:none; position:static; padding:5px 10px;}
   tr.detail td.c{background:none; padding:5px 10px; border-bottom:1px solid var(--line); color:var(--text-muted);}
   .note p{margin:0 0 10px;}
+  /* 去槓桿排行：維持率一欄、分級色塊 */
+  .rt{font-weight:600;}
+  .rank{color:var(--text-faint); width:2.2em;}
   @media (max-width:860px){ th, td{padding:8px 8px;} tr.detail td{padding-left:8px;} }
 </style>
 </head>
@@ -132,7 +135,32 @@
     <div class="stats" id="stats"></div>
   </section>
 
-  <section class="block" style="margin-top:36px">
+  <section class="block" style="margin-top:40px" id="cut">
+    <div class="block-head"><h2>融資＋不限用途 減最多</h2><span class="hint" id="cut-hint"></span></div>
+    <div class="toolbar" style="margin:0 0 12px">
+      <div class="chips" id="cut-n"><button data-n="1">1 日</button><button data-n="5" aria-pressed="true">5 日</button><button data-n="20">20 日</button></div>
+      <select class="filter" id="cut-sort" aria-label="排序">
+        <option value="amt">依減少金額</option><option value="pct">依減幅 %</option><option value="lots">依減少張數</option>
+      </select>
+      <div id="cut-liq"></div>
+      <label class="chk-in"><input type="checkbox" id="cut-noetf" checked> 排除 ETF</label>
+      <label class="chk-in"><input type="checkbox" id="cut-mine"> 只看自選</label>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th class="rank">#</th><th>股票</th><th class="n">合計增減(張)</th><th class="n hide-s">減幅</th><th class="n">減少金額</th>
+        <th class="n" title="融資＋不限用途合併：Σ(張數×收盤) ÷ Σ(張數×成本×60%)">維持率</th>
+        <th class="n g">收盤</th><th class="n" id="cut-px">5 日漲跌</th><th class="n hide-s">融資增減</th><th class="n hide-s">不限用途增減</th><th class="n hide-s">剩餘張數</th></tr></thead>
+      <tbody id="cut-body"></tbody>
+    </table></div>
+    <button class="more" id="cut-more" hidden>顯示更多</button>
+    <p class="note">合計增減＝融資餘額＋不限用途擔保餘額的張數變化（負數＝減少）；減幅＝減少張數 ÷ 期初合計張數；減少金額＝減少張數 × 今日收盤（是股票市值，不是官方公布的融資金額＝借款，兩者差約成數 6 成，也不能直接跟大盤融資增減比）。
+      維持率是兩種部位合併（融資成本、設質均價都用本頁下方的 VWAP 推估，成數假設 60%，取整數）：<span class="up">紅字</span> 低於 130% 追繳線、<span class="warn">黃字</span> 130～150%、灰字安全；300% 以上只寫 300%+；
+      實際借款約是推估的 88%（見下方大盤校驗），真實維持率普遍比表上略高，紅字代表「接近或可能已被追繳」而非一定斷頭；
+      推估低於 50% 多半是減資／分割造成失真，不列入。滑過維持率看融資、不限用途各自的數字。漲跌用收盤價未還原，除權息當期會偏低。</p>
+  </section>
+
+  <section class="block" style="margin-top:48px">
+    <div class="block-head" style="margin-bottom:6px"><h2>三種部位成本</h2></div>
     <div class="toolbar" style="margin:0 0 12px">
       <select class="filter" id="sort" aria-label="排序"></select>
       <select class="filter" id="has" aria-label="只看">
@@ -175,7 +203,8 @@ const baseCell = b => b == null ? "–" : `<span class="${b >= 50 ? "warn" : "fa
 const chgCell = v => v == null ? "–" : `<span class="${cls(v)}">${sint(v)}</span>`;
 // 起始部位 ≥50%：成本主要是假設值，在成本旁標 *
 const costCell = (c, b) => c == null ? "–" : num(c) + (b >= 50 ? `<sup class="b" title="起始部位 ${b}%，成本主要是假設值">*</sup>` : "");
-const ratioCell = v => v == null ? "–" : `<span class="${v < 130 ? "up" : v < 150 ? "warn" : "muted"}">${v}%</span>`;
+const rtxt = v => v >= 300 ? "300%+" : Math.round(v) + "%";
+const ratioCell = v => v == null ? "–" : v < 50 ? `<span class="faint" title="推估 ${v}%，多半是減資／分割失真">–</span>` : `<span class="${v < 130 ? "up" : v < 150 ? "warn" : "muted"}">${rtxt(v)}</span>`;
 
 const S = {etf: "", sort: "val", has: "", minv: 1e8, noetf: true, mine: false, q: "", limit: 100, open: null};
 let D, E = {}, M = [], U = [], ROWS = [];
@@ -283,6 +312,60 @@ function render(){
   $("note").innerHTML = `<p><b class="warn">主動式 ETF</b>　${NOTES.etf()}</p><p><b style="color:#7FA8D6">融資</b>　${NOTES.margin()}</p><p><b style="color:#B08FD0">不限用途</b>　${NOTES.ul()}</p>`;
 }
 
+// ---- 融資＋不限用途 減最多 ----
+const C = {n: 5, sort: "amt", noetf: true, mine: false, limit: 30};
+let CUT = [];
+function cutPrep(){
+  const c = D.cut; if (!c) return;
+  const mm = new Map(M.map(r => [r.code, r])), uu = new Map(U.map(r => [r.code, r]));
+  CUT = obj(c.cols, c.rows).map(r => {
+    const m = mm.get(r.code), u = uu.get(r.code);
+    // 合併維持率：兩邊都有可信成本（推估 ≥50%）才算進分母
+    const parts = [[m, r.m], [u, r.u]].filter(([x, b]) => x && x.cost > 0 && x.ratio >= 50 && b > 0);
+    const den = parts.reduce((s, [x, b]) => s + b * x.cost * 0.6, 0), lots = parts.reduce((s, [, b]) => s + b, 0);
+    r.ratio = den ? lots * r.close / den * 100 : null;
+    r.mr = m?.ratio >= 50 ? m.ratio : null; r.ur = u?.ratio >= 50 ? u.ratio : null;
+    return r;
+  });
+}
+function cutRatio(r){
+  const v = r.ratio; if (v == null) return "–";
+  const sub = [r.mr != null ? `融資 ${rtxt(r.mr)}` : "", r.ur != null ? `不限用途 ${rtxt(r.ur)}` : ""].filter(Boolean).join("・");
+  return `<span class="rt ${v < 130 ? "up" : v < 150 ? "warn" : "muted"}" title="${sub}">${rtxt(v)}</span>`;
+}
+function cutRender(){
+  const c = D.cut;
+  if (!c) { $("cut-body").innerHTML = `<tr><td colspan="11" class="empty">沒有資料</td></tr>`; return; }
+  const n = C.n, mine = new Set(Watch.list());
+  $("cut-hint").textContent = `${c.from[n] ?? "–"} → ${c.date}（${n} 個交易日）`;
+  $("cut-px").textContent = `${n} 日漲跌`;
+  const rs = CUT.map(r => { const dm = r["m" + n], du = r["u" + n]; if (dm == null) return null;
+      const d = dm + du, base = r.m + r.u - d;
+      return {...r, dm, du, d, px: r["p" + n], cp: base > 0 ? d / base * 100 : null, amt: d * 1000 * r.close}; })
+    .filter(r => r && r.d < 0 && (!C.noetf || !/^0/.test(r.code)) && (!C.mine || mine.has(r.code)) && TideLiq.pass(r.code));
+  const key = {amt: r => r.amt, pct: r => r.cp ?? 0, lots: r => r.d}[C.sort];
+  rs.sort((a, b) => key(a) - key(b));
+  $("cut-body").innerHTML = rs.slice(0, C.limit).map((r, i) => `<tr><td class="rank mono">${i + 1}</td><td>${sname(r)}</td>
+      <td class="n mono" data-v="${r.d}">${chgCell(r.d)}</td><td class="n mono hide-s" data-v="${r.cp ?? ""}">${pct(r.cp)}</td>
+      <td class="n mono" data-v="${-r.amt}">${yi(-r.amt)}</td><td class="n mono" data-v="${r.ratio ?? ""}">${cutRatio(r)}</td>
+      <td class="n mono g">${num(r.close)}</td><td class="n mono" data-v="${r.px ?? ""}">${pct(r.px)}</td>
+      <td class="n mono hide-s" data-v="${r.dm}">${chgCell(r.dm)}</td><td class="n mono hide-s" data-v="${r.du}">${chgCell(r.du)}</td>
+      <td class="n mono hide-s" data-v="${r.m + r.u}">${int(r.m + r.u)}</td></tr>`).join("")
+    || `<tr><td colspan="11" class="empty">這段期間沒有符合條件、合計減少的股票</td></tr>`;
+  $("cut-more").hidden = rs.length <= C.limit;
+}
+function cutInit(){
+  cutPrep(); cutRender();
+  const re = () => { C.limit = 30; cutRender(); };
+  $("cut-n").onclick = e => { const b = e.target.closest("button"); if (!b) return; C.n = +b.dataset.n;
+    $("cut-n").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); re(); };
+  $("cut-sort").onchange = e => { C.sort = e.target.value; re(); };
+  $("cut-noetf").onchange = e => { C.noetf = e.target.checked; re(); };
+  $("cut-mine").onchange = e => { C.mine = e.target.checked; re(); };
+  $("cut-more").onclick = () => { C.limit += 100; cutRender(); };
+  TideLiq.mount("cut-liq", () => { if (D) cutRender(); });
+}
+
 // 點合計列：展開各 ETF 對這檔股票的部位
 function detail(code){
   const rs = E.rows.filter(r => r.code === code).sort((a, b) => b.lots - a.lots);
@@ -327,7 +410,7 @@ async function init(){
     if (SORTS.some(x => x[0] === t + s)) S.sort = t + s; else if (SORTS.some(x => x[0] === s)) S.sort = s; }
   if (h.get("s")) { S.q = h.get("s"); $("q").value = S.q; }
   $("sort").value = S.sort;
-  merge(); stats(); render();
+  merge(); stats(); render(); cutInit();
   const re = () => { S.limit = 100; render(); };
   $("sort").onchange = e => { S.sort = e.target.value; history.replaceState(null, "", "#sort=" + S.sort); re(); };
   $("has").onchange = e => { S.has = e.target.value; re(); };
