@@ -161,8 +161,10 @@ def collect(data: Path, today: date):
             why = "、".join(purpose.get(x, x) for x in (r["purpose"] or "").split(",") if x)
             done = f"；已完成，買了 {_lots(r['bought_shares'])} 張，執行率 {_num(r['exec_pct'])}%，均價 {_num(r['avg_price'])} 元" \
                 if r["done"] == "Y" else ""
+            when = f"{r['ann_date'][5:].replace('-', '/')} {r['ann_time']} {r['ann_sess'] or ''}公告，" \
+                if r.get("ann_date") and r.get("ann_time") else ""
             add(r["code"], r["board_date"], "treasury", f"董事會決議買回庫藏股 {_lots(r['plan_shares'])} 張",
-                f"價格 {_num(r['price_lo'])}～{_num(r['price_hi'])} 元，期間 {r['start']}～{r['end']}" + (f"，目的：{why}" if why else "") + done, href)
+                when + f"價格 {_num(r['price_lo'])}～{_num(r['price_hi'])} 元，期間 {r['start']}～{r['end']}" + (f"，目的：{why}" if why else "") + done, href)
             if r["done"] == "Y":
                 if r["end"] and r["end"] <= today.isoformat():  # 提前買完的完成日不明，重訊那筆會列出
                     add(r["code"], r["end"], "treasury", f"庫藏股買回期間結束：買了 {_lots(r['bought_shares'])} 張",

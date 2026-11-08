@@ -80,6 +80,10 @@
   .chips button[aria-pressed="true"]{border-color:var(--text-faint); color:var(--text);}
   .tag.act{border-color:var(--brass); color:var(--brass);}
   .tag.pend{border-style:dashed;}
+  .ann{white-space:nowrap; font-size:12.5px;}
+  .ann .sess{display:inline-block; font-size:11px; padding:0 5px; margin-left:5px; border-radius:var(--radius-s); border:1px solid var(--line-strong); color:var(--text-muted);}
+  .ann .sess.in{border-color:var(--brass); color:var(--brass);}
+  .ann .sess.pre{border-color:var(--rise); color:var(--rise);}
   .pos{font-size:11.5px; margin-left:6px;}
   .bar{display:inline-block; width:64px; height:6px; border-radius:2px; background:var(--line); vertical-align:middle; margin-right:6px; overflow:hidden;}
   .bar i{display:block; height:100%; background:var(--brass);}
@@ -136,7 +140,7 @@
       <input class="filter" id="q" type="search" placeholder="篩選：代號、名稱或分點" autocomplete="off" aria-label="篩選股票">
     </div>
     <div class="tbl-wrap"><table>
-      <thead><tr><th>股票</th><th class="n">預定張數</th><th class="n">買回價格區間</th><th class="n">收盤</th>
+      <thead><tr><th>股票</th><th>決議公告</th><th class="n">預定張數</th><th class="n">買回價格區間</th><th class="n">收盤</th>
         <th class="n hide-s">預定金額</th><th class="hide-s">買回期間</th><th class="hide-s">已申報進度</th><th>公司派分點本期買超</th></tr></thead>
       <tbody id="a-body"></tbody>
     </table></div>
@@ -172,7 +176,7 @@
       <input class="filter" id="d-q" type="search" placeholder="查個股：代號、名稱或分點" autocomplete="off" aria-label="查詢已結束的個股">
     </div>
     <div class="tbl-wrap"><table>
-      <thead id="d-head"><tr><th data-k="code">股票</th><th class="hide-s" data-k="end">買回期間</th><th class="n" data-k="lots">預定／實際張數</th><th data-k="exec">執行率</th><th class="n" data-k="avg">平均買價</th>
+      <thead id="d-head"><tr><th data-k="code">股票</th><th class="hide-s" data-k="ann">決議公告</th><th class="hide-s" data-k="end">買回期間</th><th class="n" data-k="lots">預定／實際張數</th><th data-k="exec">執行率</th><th class="n" data-k="avg">平均買價</th>
         <th class="n" data-k="vs">收盤 vs 均價</th><th class="n hide-s" data-k="amt">買回金額</th><th class="n hide-s" data-k="pct">佔股本</th><th data-k="brk">推定買回分點</th></tr></thead>
       <tbody id="d-body"></tbody>
     </table></div>
@@ -186,6 +190,8 @@
     買回期間過半天數淨買超、淨賣超那幾天的賣超合計 ≤ 淨買超日買超 15%、賣出 ≤ 買進 35% 的分點，從買超最多的開始加總到實際張數的 85%（超過也算）；
     吻合度＝分點買超合計 ÷ 實際買回張數，85%～200% 標「高」、60% 以上「中」、30% 以上「低」。買回前 60 天就常買這檔的分點會排除。
     同一分點也有其他客戶，吻合不代表確定，僅供參考；買回張數太少、沒擠進前 15 名的計畫比對不到。<br>
+    決議公告：董事會決議買回那則重大訊息的發言日期與時間（2024 年起比對）。09:00 前標「盤前」、09:00～13:30「盤中」、13:30 後「盤後」，
+    盤後與休市日公告的要到下一個交易日才會反應。<br>
     預定金額＝預定買回股數 × 最新收盤（法定上限另見各公司公告）。「待公告」是期間已過、結果還沒公告的計畫。資料僅供參考，不構成投資建議。
   </p>
 </main>
@@ -204,6 +210,16 @@ const TODAY = local(new Date());
 const addDays = (d, n) => { const t = new Date(d + "T00:00:00"); t.setDate(t.getDate() + n); return local(t); };
 const dayDiff = (a, b) => Math.round((new Date(b + "T00:00:00") - new Date(a + "T00:00:00")) / 864e5);
 const md = d => d ? (d.slice(0, 4) === TODAY.slice(0, 4) ? d.slice(5) : d) : "–";
+/* 董事會決議買回的重訊公告時間：盤前（開盤前就知道）、盤中（當天就能反應）、盤後／休市（下一個交易日才反應） */
+const SESS = {"盤前": ["pre", "09:00 前公告，當天開盤就會反應"], "盤中": ["in", "盤中公告，當天盤中就可能反應"],
+  "盤後": ["", "收盤後公告，下一個交易日才反應"], "休市": ["", "休市日公告，下一個交易日才反應"]};
+const annKey = r => r.ann_date ? r.ann_date + " " + r.ann_time : null;
+function annCell(r){
+  if (!r.ann_date) return `<span class="faint" title="沒找到董事會決議買回的重訊">–</span>`;
+  const s = SESS[r.ann_sess] || ["", ""];
+  const late = r.ann_date !== r.board_date ? `（董事會 ${md(r.board_date)}）` : "";
+  return `<span class="ann" title="重大訊息發言時間 ${r.ann_date} ${r.ann_time}${late}${s[1] ? "：" + s[1] : ""}"><span class="mono">${md(r.ann_date)} ${esc(r.ann_time)}</span>${r.ann_sess ? `<span class="sess ${s[0]}">${r.ann_sess}</span>` : ""}</span>`;
+}
 
 let D, ALL = [], ACT = [], DONE = [], PX = {}, PXDATE = "";
 const A = {sort: "new", q: "", n: 50}, Dn = {days: 90, sort: "end", dir: -1, q: "", n: 50}, Cn = {n: 30, q: ""};
@@ -329,7 +345,7 @@ function timeBar(r){
 function renderActive(){
   let rows = ACT.filter(match);
   const S = {
-    new: (a, b) => b.board_date.localeCompare(a.board_date) || a.code.localeCompare(b.code),
+    new: (a, b) => b.board_date.localeCompare(a.board_date) || (annKey(b) || "").localeCompare(annKey(a) || "") || a.code.localeCompare(b.code),
     amt: (a, b) => (b.planAmt ?? -1) - (a.planAmt ?? -1),
     pos: (a, b) => (a.gap == null) - (b.gap == null) || Math.abs(a.gap) - Math.abs(b.gap),
     end: (a, b) => a.pending - b.pending || (a.end || "9").localeCompare(b.end || "9"),
@@ -340,6 +356,7 @@ function renderActive(){
     const prog = r.prog_shares && r.plan_shares ? r.prog_shares / r.plan_shares * 100 : null;
     return `<tr>
     <td title="董事會決議 ${r.board_date}・目的：${purpose(r.purpose)}">${stockCell(r)}${r.pending ? ' <span class="tag pend" title="買回期間已過，等公司公告結果">待公告</span>' : r.board_date >= addDays(TODAY, -7) ? ' <span class="tag act">新</span>' : ""}</td>
+    <td>${annCell(r)}</td>
     <td class="n mono">${lots(r.plan_shares)}</td>
     <td class="n mono">${num(r.price_lo)}–${num(r.price_hi)}</td>
     <td class="n mono">${num(r.c)}${r.posHtml}</td>
@@ -347,13 +364,13 @@ function renderActive(){
     <td class="hide-s">${timeBar(r)}</td>
     <td class="hide-s">${prog != null ? `<span class="bar"><i style="width:${Math.min(prog, 100)}%"></i></span><span class="mono" style="font-size:12px" title="最後申報買回日 ${r.prog_date}">${lots(r.prog_shares)} 張・${prog.toFixed(0)}%</span>` : '<span class="faint">未達申報標準</span>'}</td>
     <td class="brk-cell">${brkLive(r)}</td></tr>`;
-  }).join("") || `<tr><td colspan="8" class="empty">沒有符合的計畫</td></tr>`;
+  }).join("") || `<tr><td colspan="9" class="empty">沒有符合的計畫</td></tr>`;
   document.getElementById("a-more").hidden = rows.length <= A.n;
 }
 
 /* 已結束：排序欄位（點表頭切換大→小／小→大，空值一律排最後） */
 const DKEY = {
-  code: r => r.code, end: r => r.end || null, lots: r => r.bought_shares, exec: r => r.exec_pct, avg: r => r.avg_price,
+  code: r => r.code, ann: annKey, end: r => r.end || null, lots: r => r.bought_shares, exec: r => r.exec_pct, avg: r => r.avg_price,
   vs: r => r.vsAvg, amt: r => r.bought_amount, pct: r => r.issued_pct,
   brk: r => { const b = BRK[r.code + "|" + r.board_date]; return b && b.m ? b.cov : null; },
 };
@@ -379,6 +396,7 @@ function renderDone(){
   document.getElementById("d-hint").textContent = `${rows.length} 筆・收盤 ${PXDATE}`;
   document.getElementById("d-body").innerHTML = rows.slice(0, Dn.n).map(r => `<tr${r.reason ? ` title="未執行完畢原因：${esc(r.reason)}"` : ""}>
     <td title="目的：${purpose(r.purpose)}">${stockCell(r)}</td>
+    <td class="hide-s">${annCell(r)}</td>
     <td class="mono faint hide-s">${md(r.start)}–${md(r.end)}</td>
     <td class="n mono">${lots(r.plan_shares)} <span class="faint">／</span>${lots(r.bought_shares)}</td>
     <td><span class="bar"><i style="width:${Math.min(r.exec_pct || 0, 100)}%"></i></span><span class="mono" style="font-size:12px">${r.exec_pct != null ? r.exec_pct.toFixed(0) + "%" : "–"}</span></td>
@@ -386,7 +404,7 @@ function renderDone(){
     <td class="n mono ${cls(r.vsAvg)}">${pct(r.vsAvg)}</td>
     <td class="n mono hide-s">${yi(r.bought_amount)}</td>
     <td class="n mono hide-s">${r.issued_pct != null ? r.issued_pct.toFixed(2) + "%" : "–"}</td>
-    <td class="brk-cell">${brkDone(r)}</td></tr>`).join("") || `<tr><td colspan="9" class="empty">${Dn.q ? "這段期間沒有符合的買回，試試「全部」" : "這段期間沒有資料"}</td></tr>`;
+    <td class="brk-cell">${brkDone(r)}</td></tr>`).join("") || `<tr><td colspan="10" class="empty">${Dn.q ? "這段期間沒有符合的買回，試試「全部」" : "這段期間沒有資料"}</td></tr>`;
   document.getElementById("d-more").hidden = rows.length <= Dn.n;
 }
 
