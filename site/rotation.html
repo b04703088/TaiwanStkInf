@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101419">
+<title>族群輪動｜潮汐</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#101419; --panel:#171C22; --panel-2:#1E242B;
+    --line:rgba(232,237,242,0.09); --line-strong:rgba(232,237,242,0.16);
+    --text:#E8EDF2; --text-muted:#A9B2BC; --text-faint:#8B95A0;
+    --brass:#C6A15B; --brass-soft:rgba(198,161,91,0.14); --rise:#E1594F; --fall:#3FAE72;
+    --radius-s:3px; --radius-m:6px;
+    --q-lead:#E1594F; --q-weak:#C98500; --q-lag:#3FAE72; --q-imp:#3987E5;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--ink); color:var(--text);
+    font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
+  h1,h2,h3{font-family:'Noto Sans TC',sans-serif; margin:0; font-weight:700;}
+  .mono{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+  a{color:inherit;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
+  header.site{position:sticky; top:0; z-index:40; background:#101419; border-bottom:1px solid var(--line);}
+  .nav-row{display:flex; align-items:center; justify-content:space-between; padding:16px 28px;}
+  .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
+  .brand-mark{font-family:'Noto Sans TC',sans-serif; font-size:22px; font-weight:700;}
+  .brand-sub{font-size:12px; color:var(--text-faint);}
+  .page-head{padding:56px 0 8px;}
+  .feature-head{display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:end;}
+  h1{font-size:32px;}
+  .desc{color:var(--text-muted); font-size:14.5px; margin:0;}
+  .subtabs{display:flex; gap:6px; margin-top:28px; border-bottom:1px solid var(--line); overflow-x:auto;}
+  .subtabs a{padding:10px 16px; font-size:14px; color:var(--text-muted); text-decoration:none; border-bottom:2px solid transparent; margin-bottom:-1px; white-space:nowrap;}
+  .subtabs a:hover{color:var(--text);}
+  .subtabs a[aria-current="page"]{color:var(--text); border-bottom-color:var(--text);}
+  .bar{margin-top:22px; display:flex; align-items:center; gap:10px 14px; flex-wrap:wrap; font-size:13px; color:var(--text-muted);}
+  .seg{display:inline-flex; border:1px solid var(--line-strong); border-radius:var(--radius-s); overflow:hidden;}
+  .seg button{background:none; border:none; color:var(--text-muted); padding:6px 12px; cursor:pointer; font:inherit; font-size:13px;}
+  .seg button + button{border-left:1px solid var(--line-strong);}
+  .seg button[aria-pressed="true"]{background:var(--active); color:var(--text);}
+  .lab{font-size:12px; color:var(--text-faint);}
+  .jump{display:flex; gap:4px 16px; flex-wrap:wrap; font-size:13px; margin-left:auto;}
+  .jump a{color:var(--text-muted); text-decoration:none;} .jump a:hover{color:var(--text);}
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden; margin-top:20px;}
+  .stat{background:var(--panel); padding:16px 20px; min-width:0;}
+  .stat .k{font-size:12.5px; color:var(--text-muted);}
+  .stat .v{font-size:22px; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .stat .s{font-size:12px; color:var(--text-faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .up{color:var(--rise);} .down{color:var(--fall);} .flat{color:var(--text-muted);} .faint{color:var(--text-faint);}
+  section.blk{margin-top:40px; scroll-margin-top:80px;}
+  .blk-hd{display:flex; flex-wrap:wrap; gap:8px 14px; align-items:baseline; margin-bottom:12px;}
+  .blk-hd h2{font-size:19px;}
+  .blk-hd .sub{font-size:12.5px; color:var(--text-faint);}
+  .blk-hd .right{margin-left:auto; display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-m); padding:16px 18px 12px;}
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  th,td{padding:9px 8px; text-align:right; border-bottom:1px solid var(--line); white-space:nowrap;}
+  th{font-weight:500; color:var(--text-muted); font-size:12px;}
+  th.l, td.l{text-align:left;}
+  tbody tr.g{cursor:pointer;} tbody tr.g:hover{background:var(--panel);}
+  .gname{font-weight:500;}
+  .st{display:inline-block; font-size:10.5px; padding:0 5px; border-radius:var(--radius-s); border:1px solid var(--line-strong); color:var(--text-faint); margin-right:6px; vertical-align:1px;}
+  .q{display:inline-block; font-size:11.5px; padding:0 7px; border-radius:999px; border:1px solid currentColor; line-height:1.6;}
+  .q.lead{color:var(--q-lead);} .q.weak{color:var(--q-weak);} .q.lag{color:var(--q-lag);} .q.imp{color:var(--q-imp);}
+  .ud{font-size:12.5px;}
+  .note{font-size:12.5px; color:var(--text-faint); margin-top:14px; line-height:1.8;}
+  .empty{padding:28px 10px; color:var(--text-faint); text-align:center;}
+  /* 資金流向條 */
+  .flows{display:grid; grid-template-columns:repeat(2,1fr); gap:0 28px;}
+  .fl{display:grid; grid-template-columns:9.5em 1fr 4.6em; align-items:center; gap:8px; font-size:12.5px; padding:3px 0;}
+  .fl .nm{white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--text-muted);}
+  .fl .tr{position:relative; height:12px;}
+  .fl .tr::before{content:""; position:absolute; left:50%; top:-3px; bottom:-3px; border-left:1px solid var(--line-strong);}
+  .fl .tr i{position:absolute; top:2px; height:8px; border-radius:2px;}
+  .fl .tr b{position:absolute; top:-1px; width:2px; height:14px; background:var(--text-faint); border-radius:1px;}
+  .fl .vv{text-align:right;}
+  .fkey{display:flex; gap:16px; flex-wrap:wrap; font-size:12px; color:var(--text-faint); margin-top:10px;}
+  .fkey i{display:inline-block; width:14px; height:8px; border-radius:2px; vertical-align:0; margin-right:5px;}
+  /* 輪動圖 */
+  .rrg-ctl{display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; margin-bottom:10px;}
+  .chips{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;}
+  .chip{display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--text-muted); background:none; border:1px solid var(--line-strong); border-radius:999px; padding:2px 10px; cursor:pointer; font-family:inherit;}
+  .chip i{width:9px; height:9px; border-radius:50%; flex:none; background:var(--line-strong);}
+  .chip[aria-pressed="true"]{color:var(--text); background:var(--panel-2);}
+  .btn{background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:5px 11px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .btn:hover{color:var(--text);}
+  .rrg-plot{position:relative;}
+  .rrg-plot svg{display:block; width:100%; height:auto; touch-action:manipulation;}
+  .rrg-plot text{font-family:'Noto Sans TC',sans-serif;}
+  .rrg-plot .ax{font-family:'IBM Plex Mono',monospace; font-size:10.5px; fill:var(--text-faint);}
+  .rrg-plot .ql{font-size:14px; font-weight:700; opacity:.85;}
+  .rrg-plot .lb{font-size:12px; paint-order:stroke; stroke:var(--panel); stroke-width:3px; pointer-events:none;}
+  .rrg-plot g.s{cursor:pointer;}
+  .rrg-plot g.s.dim{opacity:.12;}
+  .rrg-plot .wk{font-family:'IBM Plex Mono',monospace; font-size:12px; fill:var(--text-muted);}
+  .tip{position:absolute; pointer-events:none; background:var(--ink); border:1px solid var(--line-strong); border-radius:var(--radius-s); padding:8px 10px; font-size:12px; min-width:160px; box-shadow:0 4px 16px rgba(0,0,0,.4); display:none; z-index:5;}
+  .tip .d{color:var(--text); font-weight:600; margin-bottom:4px;}
+  .tip .r{display:flex; gap:10px; white-space:nowrap;} .tip .r b{margin-left:auto; font-weight:500; font-family:'IBM Plex Mono',monospace;}
+  .quads{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:14px;}
+  .qbox{border:1px solid var(--line); border-radius:var(--radius-m); padding:10px 12px; font-size:13px; min-width:0;}
+  .qbox h3{font-size:14px; margin-bottom:2px;}
+  .qbox .qd{font-size:11.5px; color:var(--text-faint); margin-bottom:6px;}
+  .qbox ul{list-style:none; margin:0; padding:0;}
+  .qbox li{padding:2px 0; display:flex; gap:6px; justify-content:space-between;}
+  .qbox li a{text-decoration:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .qbox li .ch{font-size:11px; color:var(--brass); white-space:nowrap;}
+  /* 漲跌前十 */
+  .movers{display:grid; grid-template-columns:1fr 1fr; gap:24px;}
+  .movers h3{font-size:15px; margin-bottom:6px;}
+  .sname a{text-decoration:none;} .sname .mono{color:var(--text-faint); font-size:12px; margin-left:5px;}
+  .tag{display:inline-block; font-size:10.5px; padding:0 5px; border-radius:var(--radius-s); border:1px solid currentColor; margin-left:6px;}
+  .grp{font-size:12px; color:var(--text-faint); max-width:12em; overflow:hidden; text-overflow:ellipsis; display:inline-block; vertical-align:bottom;}
+  /* 各族群 */
+  .cards{display:grid; grid-template-columns:repeat(3,1fr); gap:12px;}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-m); padding:14px 16px; min-width:0; scroll-margin-top:80px;}
+  .card.hl{border-color:var(--brass);}
+  .card-hd{display:flex; align-items:baseline; gap:8px; margin-bottom:6px;}
+  .card-hd h3{font-size:15.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .card-hd .q{margin-left:auto; flex:none;}
+  .rets{display:grid; grid-template-columns:repeat(4,1fr); gap:4px; font-size:12px; color:var(--text-faint);}
+  .rets b{display:block; font-size:15px; font-weight:600;}
+  .card svg{display:block; width:100%; height:auto; margin:8px 0 4px;}
+  .card .meta{font-size:11.5px; color:var(--text-faint);}
+  .mem{display:flex; flex-wrap:wrap; gap:4px 10px; font-size:12.5px; margin-top:8px;}
+  .mem a{text-decoration:none; white-space:nowrap;}
+  .mem a span{font-family:'IBM Plex Mono',monospace; font-size:11.5px; margin-left:3px;}
+  footer.site{padding:48px 0; margin-top:64px; border-top:1px solid var(--line);}
+  @media (max-width:860px){
+    .nav-row{padding:14px 16px; flex-wrap:wrap; row-gap:10px;}
+    .wrap{padding:0 16px;}
+    .feature-head{grid-template-columns:1fr; gap:14px;}
+    .stats{grid-template-columns:repeat(2,1fr);} h1{font-size:26px;}
+    .jump{margin-left:0;}
+    th,td{padding:8px 6px;} .hide-m{display:none;}
+    .flows{grid-template-columns:1fr;}
+    .quads{grid-template-columns:repeat(2,1fr);}
+    .movers{grid-template-columns:1fr;}
+    .cards{grid-template-columns:1fr 1fr;}
+  }
+  @media (max-width:560px){
+    .cards{grid-template-columns:1fr;}
+    .fl{grid-template-columns:7.5em 1fr 4.2em;}
+    .grp{max-width:6em;}
+  }
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="nav-row">
+    <a href="index.html" class="brand"><span class="brand-mark">潮汐</span><span class="brand-sub">籌碼觀測站</span></a>
+    <nav class="gnav"></nav>
+  </div>
+</header>
+<script src="nav.js"></script>
+<main class="wrap">
+  <section class="page-head">
+    <div class="feature-head">
+      <div><h1>族群輪動</h1></div>
+      <p class="desc">把細分族群做成等權指數，跟加權指數比強弱：誰在領先、誰開始轉弱、誰從落後區爬上來。搭配成交值佔比的變化，看資金今天往哪個族群移動。</p>
+    </div>
+    <nav class="subtabs" aria-label="成交排行子頁">
+      <a href="ranking.html">個股排行</a>
+      <a href="flow.html">族群資金流向</a>
+      <a href="rotation.html" aria-current="page">族群輪動</a>
+    </nav>
+    <div class="bar">
+      <span class="lab">族群</span>
+      <div class="seg" data-k="set"><button data-v="theme" aria-pressed="true">AI 供應鏈族群</button><button data-v="chain" aria-pressed="false">產業鏈產業</button></div>
+      <nav class="jump" aria-label="頁內跳轉"><a href="#tbl">總表</a><a href="#flow">資金流向</a><a href="#rrg">輪動圖</a><a href="#movers">漲跌前十</a><a href="#cards">各族群</a></nav>
+    </div>
+    <div class="stats" id="stats"></div>
+  </section>
+
+  <section class="blk" id="tbl">
+    <div class="blk-hd"><h2>族群總表</h2><span class="sub" id="tblSub"></span></div>
+    <table>
+      <thead><tr>
+        <th class="l">族群</th><th class="hide-m">檔數</th><th>今日</th><th class="hide-m">昨日</th><th>5 日</th><th>20 日</th><th class="hide-m">60 日</th><th>今年</th>
+        <th class="hide-m">上漲／下跌</th><th class="hide-m">一年新高</th><th class="hide-m">成交值佔比</th><th>資金流向</th><th>輪動</th>
+      </tr></thead>
+      <tbody id="rows"><tr><td class="empty" colspan="13">載入中…</td></tr></tbody>
+    </table>
+    <p class="note">族群漲跌＝成分股等權平均（每檔權重一樣，不會被台積電之類的權值股主導），用每天的漲跌 ÷ 前一日參考價連乘，除權息不算下跌。「今年」從去年最後一個交易日起算。資金流向＝今天成交值佔比 − 昨天成交值佔比（百分點），正的代表大盤的錢往這裡移。一年新高＝還原收盤創近 250 個交易日新高的檔數。點一列跳到該族群卡片。</p>
+  </section>
+
+  <section class="blk" id="flow">
+    <div class="blk-hd"><h2>資金流向</h2><span class="sub" id="flowSub"></span><div class="right"><div class="seg" data-k="fm"><button data-v="pp" aria-pressed="true">佔比變化（百分點）</button><button data-v="rel" aria-pressed="false">相對自己（%）</button></div></div></div>
+    <div class="panel"><div class="flows" id="flows"></div>
+      <div class="fkey"><span><i style="background:var(--rise)"></i>今天流入</span><span><i style="background:var(--fall)"></i>今天流出</span><span><i style="background:var(--text-faint);width:3px"></i>昨天的流向</span><span id="fUnit"></span></div>
+    </div>
+  </section>
+
+  <section class="blk" id="rrg">
+    <div class="blk-hd"><h2>輪動圖</h2><span class="sub">族群相對加權指數的強弱（橫軸）與動能（縱軸），一週一點</span></div>
+    <div class="panel">
+      <div class="rrg-ctl">
+        <span class="lab">軌跡</span>
+        <div class="seg" data-k="per"><button data-v="5" aria-pressed="true">1 個月</button><button data-v="13" aria-pressed="false">3 個月</button><button data-v="26" aria-pressed="false">半年</button><button data-v="52" aria-pressed="false">1 年</button></div>
+        <button class="btn" type="button" id="topN">成交值前 10</button>
+        <button class="btn" type="button" id="all">全部</button>
+        <button class="btn" type="button" id="none">清除</button>
+        <button class="btn" type="button" id="play">▶ 播放近半年</button>
+      </div>
+      <div class="chips" id="chips"></div>
+      <div class="rrg-plot" id="rrgPlot"></div>
+      <div class="quads" id="quads"></div>
+    </div>
+    <p class="note">橫軸（相對強度）＝族群指數 ÷ 加權指數，再除以這個比值自己的 50 日平均 × 100；超過 100 代表最近比大盤強。縱軸（動能）＝相對強度 ÷ 10 個交易日前的相對強度 × 100；超過 100 代表強度還在往上。點越靠右上越強，大圓點是最新一週。<br>
+    四個象限通常順時針輪動：<b style="color:var(--q-imp)">改善</b>（弱但轉強）→ <b style="color:var(--q-lead)">領先</b>（強且變強）→ <b style="color:var(--q-weak)">轉弱</b>（強但動能下降）→ <b style="color:var(--q-lag)">落後</b>（弱且變弱）。從改善進領先是常見的進場訊號，從領先掉到轉弱要留意獲利了結。滑過或點線條可單獨看一個族群；象限清單裡標「上週○○」的是這週剛換進來的。</p>
+  </section>
+
+  <section class="blk" id="movers">
+    <div class="blk-hd"><h2>漲跌前十</h2><span class="sub" id="movSub"></span><div class="right" id="liq"></div></div>
+    <div class="movers"><div><h3 class="up">漲幅前十</h3><table data-nosort><tbody id="gain"></tbody></table></div><div><h3 class="down">跌幅前十</h3><table data-nosort><tbody id="lose"></tbody></table></div></div>
+  </section>
+
+  <section class="blk" id="cards">
+    <div class="blk-hd"><h2>各族群</h2><span class="sub">依今日漲跌排序・線＝近 60 日族群指數（實線）對加權指數（虛線）</span></div>
+    <div class="cards" id="cardList"></div>
+  </section>
+
+  <p class="note">AI 供應鏈族群依主要產品整理（config/rotation_groups.csv），同一檔股票可能出現在多個族群，單一檔的族群（如 BMC）只當參考。產業鏈產業來自櫃買中心產業價值鏈平台，不使用官方產業分類。資料為收盤後計算，僅供參考。</p>
+</main>
+<footer class="site"><div class="wrap"><p class="note" style="margin:0">資料僅供參考。</p></div></footer>
+<script type="module">
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const cls = v => v == null ? "flat" : v > 0 ? "up" : v < 0 ? "down" : "flat";
+const sgn = (v, d = 2) => v == null || !isFinite(v) ? "–" : (v > 0 ? "+" : "") + v.toFixed(d);
+const pctS = (v, d = 1) => v == null || !isFinite(v) ? "–" : sgn(v, d) + "%";
+const narrow = () => matchMedia("(max-width:600px)").matches;
+const PAL = ["#3987e5","#e66767","#199e70","#c98500","#d55181","#9085e9","#d95926","#4fb6c9","#8fb339","#b07cc6","#e0a84b","#5f8fd0"];
+const QN = {lead: "領先", weak: "轉弱", lag: "落後", imp: "改善"};
+const QD = {lead: "強勢且還在變強", weak: "強勢但動能下降", lag: "弱勢且還在變弱", imp: "弱勢但開始轉強"};
+
+let R, G = [], T = 0, YE = 0;
+const st = {set: "theme", fm: "pp", per: 5, sel: null, focus: null, play: null};
+
+// ── 計算 ──────────────────────────────────────────
+const ret = (g, n) => T - n < 0 ? null : (g.idx[T] / g.idx[T - n] - 1) * 100;
+const RS_MA = 50, MOM = 10;
+function rrgSeries(g){
+  // 相對強度：族群/加權 ÷ 自己 50 日均 × 100；動能：相對強度 ÷ 10 日前 × 100
+  const n = R.days.length, ratio = g.idx.map((v, k) => v / R.taiex[k]);
+  const rs = new Array(n).fill(null), mom = new Array(n).fill(null);
+  let sum = 0;
+  for (let k = 0; k < n; k++){
+    sum += ratio[k]; if (k >= RS_MA) sum -= ratio[k - RS_MA];
+    if (k >= RS_MA - 1) rs[k] = ratio[k] / (sum / RS_MA) * 100;
+    if (k >= RS_MA - 1 + MOM && rs[k - MOM]) mom[k] = rs[k] / rs[k - MOM] * 100;
+  }
+  return {rs, mom};
+}
+const quad = (x, y) => x == null || y == null ? null : x >= 100 ? (y >= 100 ? "lead" : "weak") : (y >= 100 ? "imp" : "lag");
+
+function prep(){
+  const days = R.days;
+  T = days.length - 1;
+  const y = days[T].slice(0, 4);
+  YE = days.findLastIndex(d => d.slice(0, 4) < y);
+  G = R.sets[st.set].map((g, i) => {
+    const {rs, mom} = rrgSeries(g);
+    const sh = g.sh, s0 = sh[sh.length - 1], s1 = sh[sh.length - 2], s2 = sh[sh.length - 3];
+    const q = quad(rs[T], mom[T]), qPrev = quad(rs[T - 5], mom[T - 5]);
+    return {...g, i, rs, mom, q, qPrev,
+      r1: ret(g, 1), r1y: T >= 2 ? (g.idx[T - 1] / g.idx[T - 2] - 1) * 100 : null, r5: ret(g, 5), r20: ret(g, 20), r60: ret(g, 60),
+      ytd: YE >= 0 ? (g.idx[T] / g.idx[YE] - 1) * 100 : null,
+      share: s0, flow: s1 == null ? null : s0 - s1, flowY: s2 == null ? null : s1 - s2,
+      rel: s1 ? (s0 / s1 - 1) * 100 : null, relY: s2 ? (s1 / s2 - 1) * 100 : null};
+  });
+}
+
+// ── 統計列 ────────────────────────────────────────
+function renderStats(){
+  const tx = R.taiex, tr = (tx[T] / tx[T - 1] - 1) * 100;
+  const best = [...G].sort((a, b) => b.r1 - a.r1)[0], worst = [...G].sort((a, b) => a.r1 - b.r1)[0];
+  const fin = [...G].filter(g => g.flow != null).sort((a, b) => b.flow - a.flow)[0];
+  const cnt = k => G.filter(g => g.q === k).length, moved = G.filter(g => g.q && g.qPrev && g.q !== g.qPrev).length;
+  $("stats").innerHTML = [
+    ["加權指數", `<span class="mono">${tx[T].toLocaleString("zh-TW", {maximumFractionDigits: 0})}</span>`, `<span class="${cls(tr)}">${pctS(tr, 2)}</span>・${R.date.replaceAll("-", "/")}`],
+    ["今天最強／最弱", `<span class="${cls(best.r1)}">${esc(best.n)}</span>`, `<span class="${cls(best.r1)}">${pctS(best.r1, 2)}</span>　最弱 ${esc(worst.n)} <span class="${cls(worst.r1)}">${pctS(worst.r1, 2)}</span>`],
+    ["資金流入最多", fin ? esc(fin.n) : "–", fin ? `<span class="${cls(fin.flow)}">${sgn(fin.flow)} 百分點</span>・佔大盤 ${fin.share.toFixed(2)}%` : ""],
+    ["輪動象限", `<span class="mono" style="font-size:18px"><span style="color:var(--q-lead)">${cnt("lead")}</span> / <span style="color:var(--q-weak)">${cnt("weak")}</span> / <span style="color:var(--q-lag)">${cnt("lag")}</span> / <span style="color:var(--q-imp)">${cnt("imp")}</span></span>`, `領先／轉弱／落後／改善・本週 ${moved} 個換象限`],
+  ].map(([k, v, s]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join("");
+}
+
+// ── 總表 ──────────────────────────────────────────
+const qTag = (q, prev) => q ? `<span class="q ${q}" title="${prev && prev !== q ? `上週：${QN[prev]}` : QD[q]}">${QN[q]}${prev && prev !== q ? "＊" : ""}</span>` : `<span class="faint">–</span>`;
+const num = v => v == null || !isFinite(v) ? -1e9 : v.toFixed(4);
+function renderTable(){
+  $("tblSub").textContent = st.set === "theme" ? "預設依上游 → 下游排列，點標題可排序" : "櫃買中心產業價值鏈，點標題可排序";
+  $("rows").innerHTML = G.map(g => {
+    const pc = (v, hide) => `<td class="mono ${cls(v)}${hide ? " hide-m" : ""}" data-v="${num(v)}">${pctS(v)}</td>`;
+    return `<tr class="g" data-i="${g.i}">
+      <td class="l">${g.st ? `<span class="st">${esc(g.st)}</span>` : ""}<span class="gname">${esc(g.n)}</span></td>
+      <td class="mono hide-m">${g.codes.length}</td>
+      ${pc(g.r1)}${pc(g.r1y, true)}${pc(g.r5)}${pc(g.r20)}${pc(g.r60, true)}${pc(g.ytd)}
+      <td class="mono hide-m ud" data-v="${g.up - g.dn}"><span class="up">${g.up}</span> / <span class="down">${g.dn}</span></td>
+      <td class="mono hide-m" data-v="${g.nh}">${g.nh ? `<span class="up">${g.nh}</span>` : `<span class="faint">0</span>`}</td>
+      <td class="mono hide-m" data-v="${g.share}">${g.share.toFixed(2)}%</td>
+      <td class="mono ${cls(g.flow)}" data-v="${num(g.flow)}">${sgn(g.flow)}</td>
+      <td data-v="${{lead: 4, imp: 3, weak: 2, lag: 1}[g.q] || 0}">${qTag(g.q, g.qPrev)}</td></tr>`;
+  }).join("");
+  document.querySelectorAll("#rows tr.g").forEach(tr => tr.onclick = () => {
+    const el = document.querySelector(`.card[data-i="${tr.dataset.i}"]`); if (!el) return;
+    document.querySelectorAll(".card.hl").forEach(c => c.classList.remove("hl"));
+    el.classList.add("hl"); el.scrollIntoView({behavior: "smooth", block: "center"});
+  });
+}
+
+// ── 資金流向條 ────────────────────────────────────
+function renderFlows(){
+  const rel = st.fm === "rel", f = g => rel ? g.rel : g.flow, fy = g => rel ? g.relY : g.flowY, fmt = v => rel ? pctS(v, 0) : sgn(v);
+  const xs = G.filter(g => f(g) != null).sort((a, b) => f(b) - f(a));
+  const mx = Math.max(0.01, ...xs.flatMap(g => [Math.abs(f(g)), Math.abs(fy(g) ?? 0)]));
+  $("fUnit").textContent = rel ? "單位：今天佔比 ÷ 昨天佔比 − 1（%），小族群的變化也看得到" : "單位：成交值佔比變化（百分點），大族群的移動比較明顯";
+  const d = R.days, md = s => `${+s.slice(5, 7)}/${+s.slice(8, 10)}`;
+  $("flowSub").textContent = `${md(d[T])} 對 ${md(d[T - 1])} 的成交值佔比變化，依流入多到少排`;
+  const half = Math.ceil(xs.length / 2), cols = narrow() ? [xs] : [xs.slice(0, half), xs.slice(half)];
+  const row = g => {
+    const v = f(g), w = Math.abs(v) / mx * 50, y = fy(g) == null ? null : 50 + fy(g) / mx * 50;
+    return `<div class="fl" title="${esc(g.n)}：今天 ${fmt(v)}、昨天 ${fmt(fy(g))}；佔大盤 ${g.share.toFixed(2)}%"><span class="nm">${esc(g.n)}</span>
+      <span class="tr"><i style="${v >= 0 ? "left:50%" : `left:${50 - w}%`};width:${w.toFixed(2)}%;background:var(--${v >= 0 ? "rise" : "fall"})"></i>${y == null ? "" : `<b style="left:calc(${y.toFixed(2)}% - 1px)"></b>`}</span>
+      <span class="vv mono ${cls(v)}">${fmt(v)}</span></div>`;
+  };
+  $("flows").innerHTML = cols.map(c => `<div>${c.map(row).join("")}</div>`).join("");
+}
+
+// ── 輪動圖 ────────────────────────────────────────
+const colorOf = i => { const j = st.sel.indexOf(i); return j < 0 ? "var(--line-strong)" : PAL[j % PAL.length]; };
+function defaultSel(){ return [...G].sort((a, b) => b.share - a.share).slice(0, narrow() ? 6 : 10).map(g => g.i); }
+function renderChips(){
+  const sel = new Set(st.sel);
+  $("chips").innerHTML = G.map(g => `<button type="button" class="chip" data-i="${g.i}" aria-pressed="${sel.has(g.i)}"><i style="${sel.has(g.i) ? `background:${colorOf(g.i)}` : ""}"></i>${esc(g.n)}</button>`).join("");
+  $("chips").querySelectorAll(".chip").forEach(b => b.onclick = () => {
+    const i = +b.dataset.i; st.sel = sel.has(i) ? st.sel.filter(x => x !== i) : [...st.sel, i]; st.focus = null; renderChips(); renderRRG();
+  });
+}
+function renderRRG(endK = T){
+  const plot = $("rrgPlot"), nw = narrow();
+  const W = nw ? 360 : 1060, H = nw ? 360 : 520, L = 40, Rm = 12, Tm = 12, B = 28;
+  const pts = st.per;
+  const ks = []; for (let j = pts - 1; j >= 0; j--){ const k = endK - j * 5; if (k >= 0) ks.push(k); }
+  const ser = st.sel.map(i => G[i]).map(g => ({g, p: ks.map(k => g.rs[k] != null && g.mom[k] != null ? {k, x: g.rs[k], y: g.mom[k]} : null).filter(Boolean)})).filter(s => s.p.length);
+  // 軸：以 100 為中心、四邊對稱，至少 ±2
+  let dx = 2, dy = 2;
+  for (const s of ser) for (const p of s.p){ dx = Math.max(dx, Math.abs(p.x - 100)); dy = Math.max(dy, Math.abs(p.y - 100)); }
+  if (st.play){ dx = Math.max(dx, st.play.dx); dy = Math.max(dy, st.play.dy); }
+  dx *= 1.12; dy *= 1.12;
+  const X = v => L + (v - (100 - dx)) / (2 * dx) * (W - L - Rm), Y = v => Tm + (1 - (v - (100 - dy)) / (2 * dy)) * (H - Tm - B);
+  const cx = X(100), cy = Y(100);
+  const nice = d => { const raw = d / 2.5, p = 10 ** Math.floor(Math.log10(raw)), m = raw / p; return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 5 ? 5 : 10) * p; };
+  const ticks = (d, f) => { const s = nice(d), o = []; for (let v = Math.ceil((100 - d) / s) * s; v <= 100 + d + 1e-9; v += s) o.push(f(+v.toFixed(4))); return o.join(""); };
+  const tx = ticks(dx, v => `<line x1="${X(v).toFixed(1)}" x2="${X(v).toFixed(1)}" y1="${Tm}" y2="${H - B}" stroke="var(--line)"/><text class="ax" x="${X(v).toFixed(1)}" y="${H - B + 16}" text-anchor="middle">${+v.toFixed(2)}</text>`);
+  const ty = ticks(dy, v => `<line x1="${L}" x2="${W - Rm}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}" stroke="var(--line)"/><text class="ax" x="${L - 6}" y="${(Y(v) + 3.5).toFixed(1)}" text-anchor="end">${+v.toFixed(2)}</text>`);
+  const qbg = (x, y, w, h, c) => `<rect x="${x}" y="${y}" width="${Math.max(0, w)}" height="${Math.max(0, h)}" fill="${c}" opacity=".06"/>`;
+  const ql = (t, x, y, a, c) => `<text class="ql" x="${x}" y="${y}" text-anchor="${a}" fill="${c}">${t}</text>`;
+  const md = s => `${+s.slice(5, 7)}/${+s.slice(8, 10)}`;
+  const focus = st.focus;
+  const lines = ser.map(s => {
+    const c = colorOf(s.g.i), last = s.p[s.p.length - 1], dim = focus != null && focus !== s.g.i;
+    const path = s.p.map(p => `${X(p.x).toFixed(1)},${Y(p.y).toFixed(1)}`).join(" ");
+    const dots = s.p.slice(0, -1).map((p, j) => `<circle cx="${X(p.x).toFixed(1)}" cy="${Y(p.y).toFixed(1)}" r="${(2 + j / s.p.length * 1.5).toFixed(1)}" fill="${c}" opacity="${(0.35 + 0.5 * j / s.p.length).toFixed(2)}"/>`).join("");
+    return `<g class="s${dim ? " dim" : ""}" data-i="${s.g.i}"><polyline points="${path}" fill="none" stroke="${c}" stroke-width="${focus === s.g.i ? 2.6 : 1.6}" stroke-linejoin="round" stroke-linecap="round" opacity=".85"/>${dots}
+      <circle cx="${X(last.x).toFixed(1)}" cy="${Y(last.y).toFixed(1)}" r="${nw ? 5 : 6}" fill="${c}" stroke="var(--panel)" stroke-width="2"/>
+      <circle cx="${X(last.x).toFixed(1)}" cy="${Y(last.y).toFixed(1)}" r="14" fill="transparent"/></g>`;
+  }).join("");
+  // 標籤：最新點旁邊，簡單避讓
+  const placed = [];
+  const labels = ser.map(s => {
+    if (focus != null && focus !== s.g.i) return "";
+    const last = s.p[s.p.length - 1], nm = s.g.n.length > 8 ? s.g.n.slice(0, 8) + "…" : s.g.n, w = nm.length * 12 + 4;
+    const right = X(last.x) + 9 + w < W - Rm, lx = right ? X(last.x) + 9 : X(last.x) - 9 - w;
+    for (const dyy of [4, -10, 18, -24, 32]){
+      const ly = Y(last.y) + dyy;
+      if (placed.some(o => Math.abs(o.y - ly) < 13 && lx < o.x + o.w && o.x < lx + w)) continue;
+      placed.push({x: lx, y: ly, w});
+      return `<text class="lb" x="${(right ? lx : lx + w).toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="${right ? "start" : "end"}" fill="${colorOf(s.g.i)}">${esc(nm)}</text>`;
+    }
+    return "";
+  }).join("");
+  const wk = st.play ? `<text class="wk" x="${W - Rm - 8}" y="${H - B - 30}" text-anchor="end">${R.days[endK].replaceAll("-", "/")}</text>` : "";
+  plot.innerHTML = ser.length ? `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="族群輪動圖">
+    ${qbg(cx, Tm, W - Rm - cx, cy - Tm, "var(--q-lead)")}${qbg(cx, cy, W - Rm - cx, H - B - cy, "var(--q-weak)")}${qbg(L, cy, cx - L, H - B - cy, "var(--q-lag)")}${qbg(L, Tm, cx - L, cy - Tm, "var(--q-imp)")}
+    ${tx}${ty}<line x1="${cx}" x2="${cx}" y1="${Tm}" y2="${H - B}" stroke="var(--line-strong)"/><line x1="${L}" x2="${W - Rm}" y1="${cy}" y2="${cy}" stroke="var(--line-strong)"/>
+    ${ql("改善", L + 8, Tm + 20, "start", "var(--q-imp)")}${ql("領先", W - Rm - 8, Tm + 20, "end", "var(--q-lead)")}
+    ${ql("落後", L + 8, H - B - 10, "start", "var(--q-lag)")}${ql("轉弱", W - Rm - 8, H - B - 10, "end", "var(--q-weak)")}
+    <text class="ax" x="${W - Rm}" y="${H - 2}" text-anchor="end">相對強度 →</text><text class="ax" x="${L + 4}" y="${Tm + 36}">↑ 動能</text>
+    ${lines}${labels}${wk}</svg><div class="tip" id="rtip"></div>` : `<div class="empty">上面選幾個族群，或按「成交值前 10」</div>`;
+  if (!ser.length) return;
+  const tip = $("rtip");
+  plot.querySelectorAll("g.s").forEach(el => {
+    const g = G[+el.dataset.i], s = ser.find(x => x.g.i === g.i), last = s.p[s.p.length - 1], first = s.p[0];
+    el.addEventListener("pointerenter", e => {
+      if (st.play) return;
+      tip.innerHTML = `<div class="d" style="color:${colorOf(g.i)}">${esc(g.n)}</div><div class="r">相對強度<b>${last.x.toFixed(2)}</b></div><div class="r">動能<b>${last.y.toFixed(2)}</b></div>` +
+        `<div class="r">象限<b>${QN[quad(last.x, last.y)]}</b></div><div class="r faint">軌跡 ${md(R.days[first.k])} → ${md(R.days[last.k])}</div>` +
+        `<div class="r">5 日 / 20 日<b class="${cls(g.r5)}">${pctS(g.r5)} / ${pctS(g.r20)}</b></div>`;
+      tip.style.display = "block";
+      const b = plot.getBoundingClientRect(), x = e.clientX - b.left, tw = tip.offsetWidth;
+      tip.style.left = `${Math.max(0, Math.min(b.width - tw, x > b.width / 2 ? x - tw - 16 : x + 16))}px`;
+      tip.style.top = `${Math.max(0, e.clientY - b.top - tip.offsetHeight - 12)}px`;
+    });
+    el.addEventListener("pointerleave", () => { tip.style.display = "none"; });
+    el.addEventListener("click", () => { st.focus = st.focus === g.i ? null : g.i; renderRRG(endK); });
+  });
+}
+function renderQuads(){
+  const by = {lead: [], weak: [], lag: [], imp: []};
+  for (const g of G) if (g.q) by[g.q].push(g);
+  const order = ["imp", "lead", "weak", "lag"];
+  $("quads").innerHTML = order.map(q => `<div class="qbox"><h3 style="color:var(--q-${q})">${QN[q]} <span class="mono faint" style="font-size:12px;font-weight:500">${by[q].length}</span></h3><div class="qd">${QD[q]}</div><ul>${
+    by[q].sort((a, b) => b.rs[T] - a.rs[T]).map(g => `<li><a href="#c${g.i}" data-i="${g.i}">${esc(g.n)}</a>${g.qPrev && g.qPrev !== q ? `<span class="ch" title="上週在${QN[g.qPrev]}，本週轉入">上週${QN[g.qPrev]}</span>` : `<span class="mono faint" style="font-size:11.5px">${pctS(g.r5)}</span>`}</li>`).join("") || `<li class="faint">無</li>`}</ul></div>`).join("");
+  $("quads").querySelectorAll("a[data-i]").forEach(a => a.onclick = e => {
+    e.preventDefault(); const i = +a.dataset.i;
+    if (!st.sel.includes(i)) st.sel = [...st.sel, i];
+    st.focus = i; renderChips(); renderRRG(); $("rrg").scrollIntoView({behavior: "smooth"});
+  });
+}
+function play(){
+  if (st.play){ clearInterval(st.play.timer); st.play = null; $("play").textContent = "▶ 播放近半年"; renderRRG(); return; }
+  const start = Math.max(RS_MA + MOM + (st.per - 1) * 5, T - 25 * 5);
+  // 固定軸範圍，畫面才不會一直縮放
+  let dx = 2, dy = 2;
+  for (const i of st.sel){ const g = G[i]; for (let k = start - (st.per - 1) * 5; k <= T; k++) if (k >= 0 && g.rs[k] != null && g.mom[k] != null){ dx = Math.max(dx, Math.abs(g.rs[k] - 100)); dy = Math.max(dy, Math.abs(g.mom[k] - 100)); } }
+  let k = start;
+  st.play = {dx, dy, timer: setInterval(() => {
+    k += 5; if (k > T){ k = T; }
+    renderRRG(k);
+    if (k >= T){ clearInterval(st.play.timer); st.play = null; $("play").textContent = "▶ 播放近半年"; renderRRG(); }
+  }, 450)};
+  st.focus = null; $("play").textContent = "■ 停止"; renderRRG(k);
+}
+
+// ── 漲跌前十 ──────────────────────────────────────
+function renderMovers(){
+  const groupsOf = {};
+  for (const g of G) for (const c of g.codes) (groupsOf[c] ||= []).push(g.n);
+  const xs = Object.keys(groupsOf).map(c => { const s = R.stocks[c]; return s && s[1] != null ? {c, n: s[0], p: s[1] / 100, v: s[3], g: groupsOf[c]} : null; })
+    .filter(x => x && TideLiq.pass(x.c));
+  const th = TideLiq.get();
+  $("movSub").textContent = `${st.set === "theme" ? "AI 供應鏈族群" : "產業鏈產業"}成分股 ${xs.length} 檔${th ? `（近 5 日均成交值 ≥ ${th} 億）` : ""}`;
+  const row = x => {
+    const lim = x.p >= 9.5 ? `<span class="tag up">漲停</span>` : x.p <= -9.5 ? `<span class="tag down">跌停</span>` : "";
+    return `<tr><td class="l"><span class="sname"><a href="kline.html#s=${encodeURIComponent(x.c)}">${esc(x.n)}<span class="mono">${x.c}</span></a></span>${lim}</td>
+      <td class="l"><span class="grp" title="${esc(x.g.join("、"))}">${esc(x.g.join("、"))}</span></td>
+      <td class="mono ${cls(x.p)}">${pctS(x.p, 2)}</td><td class="mono faint hide-m">${(x.v / 100).toFixed(1)} 億</td></tr>`;
+  };
+  $("gain").innerHTML = [...xs].sort((a, b) => b.p - a.p).slice(0, 10).map(row).join("") || `<tr><td class="empty">沒有資料</td></tr>`;
+  $("lose").innerHTML = [...xs].sort((a, b) => a.p - b.p).slice(0, 10).map(row).join("") || `<tr><td class="empty">沒有資料</td></tr>`;
+}
+
+// ── 各族群卡片 ────────────────────────────────────
+function spark(g){
+  const n = 60, k0 = Math.max(0, T - n + 1), W = 300, H = 56;
+  const a = [], b = [];
+  for (let k = k0; k <= T; k++){ a.push(g.idx[k] / g.idx[k0]); b.push(R.taiex[k] / R.taiex[k0]); }
+  const all = [...a, ...b], mx = Math.max(...all), mn = Math.min(...all), rg = mx - mn || 1;
+  const P = s => s.map((v, i) => `${(i / (s.length - 1) * W).toFixed(1)},${(H - 3 - (v - mn) / rg * (H - 6)).toFixed(1)}`).join(" ");
+  const c = a[a.length - 1] >= b[b.length - 1] ? "var(--rise)" : "var(--fall)";
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><polyline points="${P(b)}" fill="none" stroke="var(--text-faint)" stroke-width="1" stroke-dasharray="3 3" vector-effect="non-scaling-stroke"/><polyline points="${P(a)}" fill="none" stroke="${c}" stroke-width="1.8" vector-effect="non-scaling-stroke"/></svg>`;
+}
+function renderCards(){
+  const MAXM = st.set === "theme" ? 14 : 10;
+  $("cardList").innerHTML = [...G].sort((a, b) => (b.r1 ?? -1e9) - (a.r1 ?? -1e9)).map(g => {
+    const mem = g.codes.map(c => ({c, s: R.stocks[c]})).filter(x => x.s).sort((a, b) => b.s[3] - a.s[3]);
+    const rel = g.r20 != null ? g.r20 - (R.taiex[T] / R.taiex[T - 20] - 1) * 100 : null;
+    return `<div class="card" id="c${g.i}" data-i="${g.i}">
+      <div class="card-hd">${g.st ? `<span class="st">${esc(g.st)}</span>` : ""}<h3 title="${esc(g.n)}">${esc(g.n)}</h3>${qTag(g.q, g.qPrev)}</div>
+      <div class="rets"><span>今日<b class="mono ${cls(g.r1)}">${pctS(g.r1)}</b></span><span>昨日<b class="mono ${cls(g.r1y)}">${pctS(g.r1y)}</b></span><span>5 日<b class="mono ${cls(g.r5)}">${pctS(g.r5)}</b></span><span>20 日<b class="mono ${cls(g.r20)}">${pctS(g.r20)}</b></span></div>
+      ${spark(g)}
+      <div class="meta">${g.codes.length} 檔・佔大盤 ${g.share.toFixed(2)}%・資金流向 <span class="${cls(g.flow)}">${sgn(g.flow)}</span>・20 日比大盤 <span class="${cls(rel)}">${sgn(rel, 1)}</span> 百分點${g.note ? `・${esc(g.note)}` : ""}</div>
+      <div class="mem">${mem.slice(0, MAXM).map(x => `<a href="kline.html#s=${encodeURIComponent(x.c)}" title="${x.c}・成交 ${(x.s[3] / 100).toFixed(1)} 億">${esc(x.s[0])}<span class="${cls(x.s[1])}">${pctS(x.s[1] / 100)}</span></a>`).join("")}${mem.length > MAXM ? `<span class="faint">…另 ${mem.length - MAXM} 檔</span>` : ""}</div>
+    </div>`;
+  }).join("");
+}
+
+function renderAll(){
+  prep();
+  if (st.sel == null) st.sel = defaultSel();
+  renderStats(); renderTable(); renderFlows(); renderChips(); renderRRG(); renderQuads(); renderMovers(); renderCards();
+}
+
+document.querySelectorAll(".seg").forEach(seg => seg.addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  const k = seg.dataset.k;
+  if (st.play) play();
+  st[k] = k === "per" ? +b.dataset.v : b.dataset.v;
+  seg.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  if (k === "set"){ st.sel = null; st.focus = null; history.replaceState(null, "", st.set === "chain" ? "?set=chain" : location.pathname); renderAll(); }
+  else if (k === "fm") renderFlows();
+  else renderRRG();
+}));
+$("topN").onclick = () => { st.sel = defaultSel(); st.focus = null; renderChips(); renderRRG(); };
+$("all").onclick = () => { st.sel = G.map(g => g.i); st.focus = null; renderChips(); renderRRG(); };
+$("none").onclick = () => { st.sel = []; st.focus = null; renderChips(); renderRRG(); };
+$("play").onclick = play;
+TideLiq.mount($("liq"), () => { if (R) renderMovers(); });
+
+try {
+  R = await fetch("data/rotation.json", {cache: "no-cache"}).then(r => r.json());
+  if (new URLSearchParams(location.search).get("set") === "chain"){
+    st.set = "chain";
+    document.querySelectorAll('.seg[data-k="set"] button').forEach(x => x.setAttribute("aria-pressed", x.dataset.v === "chain"));
+  }
+  renderAll();
+} catch (e) {
+  console.error(e);
+  $("rows").innerHTML = `<tr><td class="empty" colspan="13">資料載入失敗</td></tr>`;
+}
+</script>
+</body>
+</html>
