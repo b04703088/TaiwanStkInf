@@ -224,13 +224,14 @@
     </div>
     <div class="toolbar"><div class="chips" id="f-cat"></div></div>
     <div class="tbl-wrap"><table>
-      <thead><tr><th>股票</th><th>主旨</th></tr></thead>
+      <thead><tr><th>股票</th><th>主旨</th><th class="n" title="公告後第一個交易日收盤漲跌（13:30 後公告算下一個交易日）">首日</th><th class="n" title="首日漲跌減同市場普通股平均">超額</th><th class="n hide-s" title="首日起 5 個交易日累計超額">5 日超額</th></tr></thead>
       <tbody id="feed-body"></tbody>
     </table></div>
     <button class="more" id="feed-more" hidden>顯示更多</button>
   </section>
 
   <p class="note">
+    股價反應：首日＝公告後第一個能反應的交易日（13:30 以前公告算當天，13:30 以後與假日算下一個交易日）的收盤漲跌；超額＝首日漲跌減同市場（上市或上櫃）普通股平均漲跌；5 日超額＝首日起 5 個交易日累計。還沒開盤反應的顯示「待開盤」。同一天有多則公告時反應會重複計入，看的是當天股價，不一定全是這則公告造成。<br>
     資料來源：公開資訊觀測站「每日重大訊息」（上市、上櫃；不含興櫃）。分類由主旨關鍵字自動判斷，可能有誤；「代子公司公告」多為子公司背書保證、取得設備等，預設隱藏。<br>
     股東會日期取自「董事會決議召開股東會」公告內容，法說會日期取自法說會公告內容與觀測站「法說會一覽表」（含簡報檔）；同一場有更正公告時以最新一次為準。董事會開會日期多半不會事先發重訊，所以這裡只看得到董事會「決議」。<br>
     除權息取自證交所、櫃買中心「除權除息預告表」，金額不足時用公司的除權息公告補上；股票股利以每股配發金額（元）表示。重訊下方的摘要由公告內容自動擷取，可能不完整。<br>
@@ -320,6 +321,9 @@ function renderCats(){
 }
 const evName = k => k === "常會" || k === "臨時會" ? "股東" + k : k === "除權" || k === "除息" || k === "除權息" ? k + "交易日" : k;
 const evTxt = r => r.ev_date ? `<span class="evd">→ ${evName(r.ev_kind)} ${r.ev_date}</span>` : "";
+const pend = r => D.px_date && (r.date > D.px_date || (r.date === D.px_date && (r.time || "") >= "13:30"));
+const rx = (v, bold, x = "", r = null) => v == null ? `<td class="n mono faint${x}" data-v="">${bold && r && pend(r) ? "待開盤" : "–"}</td>`
+  : `<td class="n mono${x}" data-v="${v}"><span class="${v > 0 ? "up" : v < 0 ? "down" : "flat"}"${bold && Math.abs(v) >= 3 ? ' style="font-weight:700"' : ""}>${v > 0 ? "+" : ""}${v.toFixed(1)}%</span></td>`;
 function renderFeed(){
   renderCats();
   const rows = feedRows();
@@ -328,8 +332,8 @@ function renderFeed(){
   document.getElementById("feed-body").innerHTML = rows.slice(0, F.n).map(r => `<tr>
     <td class="click" data-c="${esc(r.code)}">${stockCell(r.code, r.name)}<div class="tm mono">${multi ? r.date.slice(5) + " " : ""}${(r.time || "").slice(0, 5)}</div></td>
     <td class="wrap-cell"><span class="tag ${r.cat}">${esc(CATN[r.cat] || r.cat)}</span> <span class="subj${r.sub ? " sub" : ""}">${esc(r.subject)}</span>${evTxt(r)}${
-      r.summary ? `<span class="sum">${esc(r.summary)}</span>` : ""}</td></tr>`).join("")
-    || `<tr><td colspan="2" class="empty">沒有符合的重訊</td></tr>`;
+      r.summary ? `<span class="sum">${esc(r.summary)}</span>` : ""}</td>${rx(r.r1)}${rx(r.ex1, true, "", r)}${rx(r.ex5, false, " hide-s")}</tr>`).join("")
+    || `<tr><td colspan="5" class="empty">沒有符合的重訊</td></tr>`;
   document.getElementById("feed-more").hidden = rows.length <= F.n;
   document.querySelectorAll("#feed-body td[data-c]").forEach(el => el.onclick = () => pickStock(el.dataset.c, true));
 }

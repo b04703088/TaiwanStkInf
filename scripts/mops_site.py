@@ -5,6 +5,11 @@
          法說會另外併入觀測站法說會專區（data/mops/calls.csv，有簡報連結）
   divs   除權息：證交所／櫃買中心除權除息預告表（data/mops/exright.csv）＋除權息重訊，同一檔同一天合併
   cats   分類代碼 → 中文
+
+重訊股價反應（news 的 r1、ex1、ex5 欄）
+  首日＝公告後第一個能反應的交易日：13:30 以前（盤前、盤中）公告算當天，13:30 以後（含假日）算下一個交易日。
+  r1 首日漲跌％；ex1 首日超額＝r1 − 同市場（上市／上櫃）普通股平均漲跌；ex5 首日起 5 個交易日累計超額（不足 5 天就算到最新）。
+  漲跌用交易所「漲跌 ÷ 參考價」，除權息不算跌。還沒開盤反應的留空。
 """
 import csv
 import json
@@ -14,7 +19,8 @@ from pathlib import Path
 
 NEWS_DAYS = 30
 PAST_DAYS = 30
-NEWS = ["date", "time", "code", "name", "market", "cat", "sub", "subject", "ev_kind", "ev_date", "summary"]
+NEWS = ["date", "time", "code", "name", "market", "cat", "sub", "subject", "ev_kind", "ev_date", "summary", "r1", "ex1", "ex5"]
+STOCK = re.compile(r"^[1-9]\d{3}$")
 MEETS = ["ev_date", "code", "name", "market", "ev_kind", "ev_note", "date", "subject", "link"]
 DIVS = ["ex_date", "code", "name", "market", "kind", "cash", "stock", "pay_date"]
 MEET_KINDS = {"常會", "臨時會", "法說會"}
@@ -95,21 +101,72 @@ def dividends(rows, exright, since):
     return res
 
 
-def build(rows, today=None, exright=(), calls=()):
+def daily_returns(data_dir, since):
+    """{date: ({code: 漲跌%}, {"TWSE": 平均, "TPEx": 平均})}，since 之後的交易日。"""
+    out = {}
+    for f in sorted(Path(data_dir).glob("[0-9][0-9][0-9][0-9]/[0-9]*.csv"), key=lambda p: p.name):
+        if len(f.stem) != 8:
+            continue
+        d = f"{f.stem[:4]}-{f.stem[4:6]}-{f.stem[6:]}"
+        if d < since:
+            continue
+        ret, agg = {}, {}
+        for r in _read(f):
+            try:
+                c, ch = float(r["close"]), float(r["change"])
+            except (TypeError, ValueError):
+                continue
+            if c - ch <= 0:
+                continue
+            v = ch / (c - ch) * 100
+            ret[r["code"]] = v
+            if STOCK.match(r["code"]):
+                a = agg.setdefault(r["market"], [0.0, 0])
+                a[0] += v
+                a[1] += 1
+        out[d] = (ret, {m: a[0] / a[1] for m, a in agg.items() if a[1]})
+    return out
+
+
+def add_reaction(news, rets):
+    days = sorted(rets)
+    mk = {"sii": "TWSE", "otc": "TPEx"}
+    for r in news:
+        d0 = r["date"] if (r.get("time") or "") < "13:30" else r["date"] + "~"
+        i = next((k for k, d in enumerate(days) if d >= d0), None)
+        if i is None:
+            continue
+        m = mk.get(r.get("market"), "TWSE")
+        seq = []
+        for d in days[i:i + 5]:
+            ret, avg = rets[d]
+            if r["code"] not in ret:
+                break
+            seq.append((ret[r["code"]], ret[r["code"]] - avg.get(m, 0)))
+        if not seq:
+            continue
+        r["r1"], r["ex1"] = round(seq[0][0], 2), round(seq[0][1], 2)
+        r["ex5"] = round(sum(x for _, x in seq), 2) if len(seq) > 1 else None
+
+
+def build(rows, today=None, exright=(), calls=(), rets=None):
     if not rows:
         return None
     gen = max(r["date"] for r in rows)
     today = today or date.fromisoformat(gen)
     since = (today - timedelta(days=NEWS_DAYS)).isoformat()
     news = sorted((r for r in rows if r["date"] > since), key=lambda r: (r["date"], r["time"], r["code"]), reverse=True)
+    if rets:
+        add_reaction(news, rets)
     past = (today - timedelta(days=PAST_DAYS)).isoformat()
     meets = meetings(rows, past, calls)
     divs = dividends(rows, exright, past)
     return {
         "generated": gen,
+        "px_date": max(rets) if rets else None,
         "first": min(r["date"] for r in rows),
         "cats": CATS,
-        "news": {"cols": NEWS, "rows": [[(r.get(k) if r.get(k) != "-" else None) or None for k in NEWS] for r in news]},
+        "news": {"cols": NEWS, "rows": [[r.get(k) if k in ("r1", "ex1", "ex5") else (r.get(k) if r.get(k) != "-" else None) or None for k in NEWS] for r in news]},
         "meets": {"cols": MEETS, "rows": [[r.get(k) or None for k in MEETS] for r in meets]},
         "divs": {"cols": DIVS, "rows": [[_num(k, r.get(k)) for k in DIVS] for r in divs]},
     }
@@ -128,7 +185,8 @@ def _num(k, v):
 def write_mops(data_dir, out_path, today=None):
     today = today or datetime.now(timezone(timedelta(hours=8))).date()
     d = Path(data_dir) / "mops"
-    payload = build(read_news(data_dir), today, _read(d / "exright.csv"), _read(d / "calls.csv"))
+    rets = daily_returns(data_dir, (today - timedelta(days=NEWS_DAYS + 3)).isoformat())
+    payload = build(read_news(data_dir), today, _read(d / "exright.csv"), _read(d / "calls.csv"), rets)
     if payload is None:
         return None
     out_path = Path(out_path)
