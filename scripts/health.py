@@ -35,6 +35,64 @@ WEIGHT_LOW_ERROR, WEIGHT_LOW_WARN, WEIGHT_HIGH_ERROR = 70.0, 80.0, 105.0
 COUNT_JUMP_WARN = 0.25  # 成分股數與前一份相差超過 25%
 PRICE_MIN_ROWS = 1000   # 上市櫃合計一天應有數千檔
 
+# 每一項的爬蟲資料來源（可以直接打開看的網頁；爬蟲實際打的是同一站的 API）
+TWSE, TPEX = "https://www.twse.com.tw/zh/", "https://www.tpex.org.tw/zh-tw/"
+FUBON_DJ = "https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zco.djhtm"
+MOPS = "https://mops.twse.com.tw/mops/"
+SOURCES = {
+    "price": [("證交所", TWSE + "trading/historical/mi-index.html"),
+              ("櫃買中心", "https://www.tpex.org.tw/www/zh-tw/afterTrading/dailyQuotes")],
+    "broker": [("富邦證券 分點進出", FUBON_DJ)],
+    "watch": [("富邦證券 分點進出", "https://fubon-ebrokerdj.fbs.com.tw/z/zg/zgb/zgb0.djhtm")],
+    "tip": [("臺灣指數公司 技術通告", "https://taiwanindex.com.tw/downloads/technical_notice")],
+    "msci": [("MSCI 審核", "https://app2.msci.com/eqb/gimi/stdindex/index_review.html")],
+    "cb": [("證券商業同業公會 承銷公告", "https://web.twsa.org.tw/Edoc2/Default.aspx"),
+           ("櫃買中心 轉債發行", "https://www.tpex.org.tw/openapi/v1/bond_ISSBD5_data")],
+    "cb-pre": [("證期局 申報案件", "https://www.sfb.gov.tw/ch/home.jsp?id=1016&parentpath=0,6,52"),
+               ("公開資訊觀測站", MOPS)],
+    "mops": [("公開資訊觀測站 重大訊息", MOPS)],
+    "industry": [("櫃買中心 產業價值鏈", "https://ic.tpex.org.tw/")],
+    "aum": [("證交所 ETF 淨值揭露", "https://mis.twse.com.tw/stock/etf_nav.jsp?ex=tse")],
+    "chips": [("證交所 三大法人", TWSE + "trading/foreign/t86.html"),
+              ("證交所 借券", TWSE + "trading/margin/twt93u.html"),
+              ("證交所 當沖", TWSE + "trading/day-trading/twtb4u.html"),
+              ("櫃買中心 三大法人", "https://www.tpex.org.tw/www/zh-tw/insti/dailyTrade?type=Daily&sect=EW")],
+    "futures": [("期交所 三大法人", "https://www.taifex.com.tw/cht/3/futContractsDate")],
+    "tdcc": [("集保 股權分散表", "https://opendata.tdcc.com.tw/getOD.ashx?id=1-5")],
+}
+# ETF 持股：各投信官網（{code} 會換成代號）
+ETF_SOURCES = {
+    "yuanta": "https://www.yuantaetfs.com/",
+    "fubon": "https://websys.fsit.com.tw/FubonETF/Trade/Assets.aspx",
+    "cathay": "https://www.cathaysite.com.tw/",
+    "capital": "https://www.capitalfund.com.tw/",
+    "fuhhwa": "https://www.fhtrust.com.tw/",
+    "president": "https://www.ezmoney.com.tw/ETF/Transaction/PCF",
+    "ctbc": "https://www.ctbcinvestments.com.tw/",
+    "nomura": "https://www.nomurafunds.com.tw/",
+    "allianz": "https://etf.allianzgi.com.tw/",
+    "kgi": "https://www.kgifund.com.tw/",
+    "taishin": "https://www.tsit.com.tw/ETF/Home/ETFSeriesDetail/{code}",
+    "sinopac": "https://sitc.sinopac.com/SinopacEtfs/Etfs/SinglePcf/{code}",
+    "mega": "https://www.megafunds.com.tw/MEGA/etf/trade_pcf.aspx",
+    "firstsec": "https://www.fsitc.com.tw/",
+    "ab": "https://www.alliancebernstein.com/tw/zh-tw/investor.html",
+    "jpmorgan": "https://am.jpmorgan.com/tw/zh/asset-management/per/",
+    "franklin": "https://www.ftft.com.tw/",
+    "uob": "https://www.uobam.com.tw/",
+    "esun": "https://www.esunam.com/",
+    "union": "https://www.usitc.com.tw/",
+    "hnitc": "https://www.hnfunds.com.tw/",
+}
+
+
+def sources(item, issuer=None, issuer_name=""):
+    """這一項的資料來源 [[名稱, 網址], …]。"""
+    if item["kind"] == "etf":
+        url = ETF_SOURCES.get(issuer or "")
+        return [[f"{issuer_name or issuer}投信官網", url.format(code=item["id"])]] if url else []
+    return [list(x) for x in SOURCES.get(item["id"], SOURCES.get(item["kind"], []))]
+
 
 def _num(s):
     try:
@@ -70,8 +128,10 @@ def check(data_dir=ROOT / "data", now=None):
     expected = expected_trading_day(now, holidays)
     items = []
 
-    def add(kind, key, name, level, date, msg, **stats):
-        items.append({"kind": kind, "id": key, "name": name, "level": level, "date": date, "msg": msg, **stats})
+    def add(kind, key, name, level, date, msg, issuer=None, issuer_name="", **stats):
+        it = {"kind": kind, "id": key, "name": name, "level": level, "date": date, "msg": msg, **stats}
+        it["src"] = sources(it, issuer, issuer_name)
+        items.append(it)
 
     # ---------- 股價 ----------
     price_files = sorted(data_dir.glob("[0-9][0-9][0-9][0-9]/[0-9]*.csv"), key=lambda p: p.name)
@@ -100,9 +160,10 @@ def check(data_dir=ROOT / "data", now=None):
     lst = etf_dir / "etf_list.csv"
     for info in (_read(lst) if lst.exists() else []):
         code, name = info["etf"], f'{info["name"]}（{info.get("issuer_name", "")}）'
+        who = {"issuer": info.get("issuer"), "issuer_name": info.get("issuer_name", "")}
         files = sorted((etf_dir / code).glob("[0-9]*.csv"))
         if not files:
-            add("etf", code, name, "error", None, "還沒有任何持股資料")
+            add("etf", code, name, "error", None, "還沒有任何持股資料", **who)
             continue
         d = _date(files[-1].stem)
         rows = _read(files[-1])
@@ -134,7 +195,7 @@ def check(data_dir=ROOT / "data", now=None):
         else:
             msg = ""
         level = "error" if errs else ("warn" if warns else "ok")
-        add("etf", code, name, level, d, "；".join(errs + warns) or msg, **stats)
+        add("etf", code, name, level, d, "；".join(errs + warns) or msg, **who, **stats)
 
     # ---------- 券商分點 ----------
     bfiles = sorted((f for f in (data_dir / "broker").glob("[0-9][0-9][0-9][0-9]/[0-9]*.csv")
@@ -331,6 +392,8 @@ def report(h):
         for i in h["items"]:
             if i["level"] == lv:
                 lines.append(f"{tag}  {i['id']:8} {i['name']}  資料日 {i['date'] or '-'}  {i['msg']}")
+                if i.get("src"):
+                    lines.append("          來源 " + "  ".join(f"{n} {u}" for n, u in i["src"]))
     return "\n".join(lines)
 
 

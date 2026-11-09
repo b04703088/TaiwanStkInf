@@ -51,6 +51,9 @@
   .dot.ok{background:var(--fall);} .dot.warn{background:var(--warn);} .dot.error{background:var(--rise);}
   .lvl.warn{color:var(--warn);} .lvl.error{color:var(--rise);}
   .faint{color:var(--text-faint);}
+  td.src a{color:var(--text-muted); text-decoration:underline; text-decoration-color:var(--line-strong); text-underline-offset:3px; font-size:12.5px;}
+  td.src a:hover{color:var(--text);}
+  td.src{line-height:1.9;}
   .show-m{display:none; color:var(--text);}
   .note{font-size:12.5px; color:var(--text-faint); margin-top:18px; line-height:1.8;}
   footer.site{padding:48px 0; margin-top:64px; border-top:1px solid var(--line);}
@@ -88,7 +91,7 @@
   </div>
   <div class="tbl">
     <table>
-      <thead><tr><th>狀態</th><th>項目</th><th class="hide-m">名稱</th><th class="hide-m">資料日</th><th class="num hide-m">落後</th><th class="num hide-m">檔數</th><th class="num hide-m">權重加總</th><th>說明</th></tr></thead>
+      <thead><tr><th>狀態</th><th>項目</th><th class="hide-m">名稱</th><th class="hide-m">資料日</th><th class="num hide-m">落後</th><th class="num hide-m">檔數</th><th class="num hide-m">權重加總</th><th>說明</th><th>來源</th></tr></thead>
       <tbody id="rows"></tbody>
     </table>
   </div>
@@ -116,8 +119,9 @@ function render(){
     <td class="num mono hide-m">${i.lag ?? "–"}</td>
     <td class="num mono hide-m">${i.n ?? i.rows ?? "–"}</td>
     <td class="num mono hide-m">${i.wsum != null ? i.wsum.toFixed(1) + "%" : "–"}</td>
-    <td class="msg"><span class="show-m">${esc(i.name)}・${esc(i.date || "–")}<br></span>${esc(i.msg)}</td></tr>`).join("")
-    : `<tr><td colspan="8" class="faint" style="padding:28px 14px">全部正常 ✓</td></tr>`;
+    <td class="msg"><span class="show-m">${esc(i.name)}・${esc(i.date || "–")}<br></span>${esc(i.msg)}</td>
+    <td class="src">${(i.src || []).map(([n, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(n)}</a>`).join("<br>") || "–"}</td></tr>`).join("")
+    : `<tr><td colspan="9" class="faint" style="padding:28px 14px">全部正常 ✓</td></tr>`;
 }
 document.querySelectorAll(".filters button").forEach(b => b.onclick = () => {
   mode = b.dataset.f;
