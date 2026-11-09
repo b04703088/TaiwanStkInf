@@ -143,7 +143,7 @@ def datasets():
 
 PAGES = {
     "index": ["price", "broker", "chips", "etf", "alert", "insider_t"],
-    "ranking": ["price"], "flow": ["price"], "newhigh": ["price"], "limitup": ["price"],
+    "ranking": ["price"], "flow": ["price"], "rotation": ["price"], "newhigh": ["price"], "limitup": ["price"],
     "industry": ["price", "industry"], "kline": ["price", "chips", "broker"],
     "screen": ["price", "chips", "revenue", "quarterly"],
     "chips": ["chips", "sbl", "tdcc"], "trust": ["chips", "price"], "futures": ["futures"], "settle": ["futures", "price"],
