@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101419">
+<title>當沖與隔日沖｜潮汐</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+<style>
+  :root{
+    --ink:#101419; --panel:#171C22; --panel-2:#1E242B;
+    --line:rgba(232,237,242,0.09); --line-strong:rgba(232,237,242,0.16);
+    --text:#E8EDF2; --text-muted:#A9B2BC; --text-faint:#8B95A0;
+    --brass:#C6A15B; --brass-soft:rgba(198,161,91,0.14); --rise:#E1594F; --fall:#3FAE72;
+    --radius-s:3px; --radius-m:6px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--ink); color:var(--text);
+    font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
+  h1,h2{font-family:'Noto Sans TC',sans-serif; margin:0; font-weight:700;}
+  h2{font-size:20px;}
+  .mono{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+  a{color:inherit;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
+  header.site{position:sticky; top:0; z-index:40; background:#101419; border-bottom:1px solid var(--line);}
+  .nav-row{display:flex; align-items:center; justify-content:space-between; padding:16px 28px;}
+  .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
+  .brand-mark{font-family:'Noto Sans TC',sans-serif; font-size:22px; font-weight:700;}
+  .brand-sub{font-size:12px; color:var(--text-faint);}
+  .page-head{padding:56px 0 8px;}
+  .eyebrow{font-size:13px; color:var(--brass); margin-bottom:10px;}
+  h1{font-size:32px;}
+  .desc{color:var(--text-muted); font-size:14.5px; margin:12px 0 0; max-width:52em;}
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden; margin-top:28px;}
+  .stat{background:var(--panel); padding:16px 20px;}
+  .stat .k{font-size:12.5px; color:var(--text-muted);}
+  .stat .v{font-size:26px; margin-top:2px;}
+  .stat .s{font-size:12px; color:var(--text-faint);}
+  section.block{margin-top:48px;}
+  .block-head{display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin-bottom:14px; flex-wrap:wrap;}
+  .hint{font-size:12.5px; color:var(--text-faint);}
+  .up{color:var(--rise);} .down{color:var(--fall);} .flat{color:var(--text-muted);}
+  .faint{color:var(--text-faint);}
+  .muted{color:var(--text-muted);}
+
+  /* 查個股 */
+  .search{position:relative; max-width:460px;}
+  .search input{width:100%; background:var(--panel); border:1px solid var(--line-strong); color:var(--text); padding:11px 14px; border-radius:var(--radius-m); font:inherit; font-size:15px;}
+  .search input:focus{outline:none; border-color:var(--text-faint);}
+  .sugg{position:absolute; left:0; right:0; top:calc(100% + 4px); background:var(--panel-2); border:1px solid var(--line-strong); border-radius:var(--radius-m); z-index:10; overflow:hidden;}
+  .sugg div{padding:8px 14px; cursor:pointer; font-size:14px;}
+  .sugg div:hover, .sugg div.on{background:var(--brass-soft);}
+  .stock{margin-top:16px; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-m); padding:18px 20px;}
+  .stock .top{display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap;}
+  .stock .nm{font-size:20px; font-weight:700;}
+  .stock .nm .mono{font-size:14px; color:var(--text-muted); margin-left:8px; font-weight:500;}
+  .stock .px{font-size:15px;}
+  .kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-top:16px; padding-top:14px; border-top:1px solid var(--line);}
+  .kpi .k{font-size:12px; color:var(--text-muted);}
+  .kpi .v{font-size:20px; margin-top:2px;}
+  .kpi .s{font-size:12px; color:var(--text-faint); margin-top:2px;}
+  .views{display:flex; height:8px; border-radius:2px; overflow:hidden; margin-top:8px; background:var(--line);}
+  .views i{display:block; height:100%;}
+  .views .b{background:var(--rise);} .views .n{background:var(--text-faint);} .views .r{background:var(--fall);}
+
+  /* 表格 */
+  .tbl-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius-m);}
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  th, td{padding:9px 12px; border-bottom:1px solid var(--line); text-align:left; white-space:nowrap;}
+  th{font-size:12px; color:var(--text-muted); font-weight:500; background:var(--panel); position:sticky; top:0;}
+  td.n, th.n{text-align:right;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr.click{cursor:pointer;}
+  tbody tr.click:hover td{background:var(--panel);}
+  td.wrap-cell{white-space:normal; min-width:18em;}
+  .sname{font-weight:500;}
+  .sname .mono{font-size:11.5px; color:var(--text-faint); margin-left:6px; font-weight:500;}
+  .toolbar{display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin-bottom:12px;}
+  .chips{display:flex; flex-wrap:wrap; gap:6px;}
+  .chips button{background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:5px 11px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .chips button[aria-pressed="true"]{border-color:var(--text-faint); color:var(--text);}
+  .more{display:block; margin:14px auto 0; background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:7px 18px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .more:hover{color:var(--text); border-color:var(--text-faint);}
+  .empty{padding:20px 0; color:var(--text-faint); font-size:13.5px;}
+  .note{font-size:12.5px; color:var(--text-faint); margin-top:18px; line-height:1.8;}
+  footer.site{padding:48px 0; margin-top:64px; border-top:1px solid var(--line);}
+  @media (max-width:860px){
+    .nav-row{padding:14px 16px; flex-wrap:wrap; row-gap:10px;}
+    .wrap{padding:0 16px;}
+    .stats, .kpis{grid-template-columns:repeat(2,1fr);} h1{font-size:26px;}
+    .hide-s{display:none;}
+    td.wrap-cell{min-width:14em;}
+  }
+  .chart{border:1px solid var(--line); border-radius:var(--radius-m); background:var(--panel); padding:10px 8px 4px; position:relative;}
+  .chart svg{display:block; width:100%; height:auto; overflow:visible;}
+  .chart text{fill:var(--text-faint); font-size:11px; font-family:'IBM Plex Mono',monospace;}
+  .legend{display:flex; gap:16px; flex-wrap:wrap; font-size:12px; color:var(--text-muted); margin:0 0 8px 8px;}
+  .legend i{display:inline-block; width:14px; height:3px; vertical-align:middle; margin-right:6px; border-radius:1px;}
+  .tip{position:absolute; pointer-events:none; background:var(--ink); border:1px solid var(--line-strong); border-radius:var(--radius-s); padding:7px 10px; font-size:12px; line-height:1.7; white-space:nowrap; display:none; z-index:5;}
+  .why{font-size:13px; color:var(--text-muted); margin:-4px 0 14px; max-width:60em;}
+  .gauge{position:relative; height:10px; border-radius:5px; overflow:hidden; display:flex; margin-top:10px;}
+  .gauge i{flex:1; display:block;}
+  .gauge-wrap{position:relative; margin-top:6px;}
+  .gauge-pin{position:absolute; top:-4px; width:3px; height:18px; background:var(--text); border-radius:1px; transform:translateX(-1px);}
+  .gauge-lab{display:flex; justify-content:space-between; font-size:11px; color:var(--text-faint); margin-top:4px;}
+  .pbar{display:inline-block; width:64px; height:6px; border-radius:2px; background:var(--line); vertical-align:middle; margin-right:6px; overflow:hidden;}
+  .pbar i{display:block; height:100%;}
+  .split{display:flex; height:22px; border-radius:var(--radius-s); overflow:hidden; margin:6px 0 4px; font-size:11.5px;}
+  .split div{display:flex; align-items:center; justify-content:center; color:#fff; white-space:nowrap; overflow:hidden;}
+  .two{display:grid; grid-template-columns:1fr 1fr; gap:20px;}
+  .two h3{font-size:14px; margin:0 0 8px; font-weight:500; color:var(--text-muted);}
+  @media (max-width:860px){ .two{grid-template-columns:1fr;} }
+  .wrap{max-width:1360px;}
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="nav-row">
+    <a href="index.html" class="brand"><span class="brand-mark">潮汐</span><span class="brand-sub">籌碼觀測站</span></a>
+    <nav class="gnav"></nav>
+  </div>
+</header>
+<script src="nav.js"></script>
+<main class="wrap">
+  <section class="page-head">
+    <div class="eyebrow">籌碼動向</div>
+    <h1>當沖與隔日沖：短線客今天賺賠、明天誰要倒貨</h1>
+    <p class="desc" id="sub">載入中…</p>
+    <div class="stats" id="stats"></div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>大盤當沖</h2><span class="hint" id="m-hint"></span></div>
+    <p class="why">線＝當沖占普通股成交金額；柱＝當沖客合計損益（扣證交稅與手續費，億元）。當沖比重衝高、當沖客又大賠，常是短線過熱後的洗盤。</p>
+    <div class="chart" id="m-chart"></div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>個股當沖</h2><span class="hint" id="s-hint"></span></div>
+    <div class="toolbar">
+      <div class="chips" id="s-tab">
+        <button data-v="amt" aria-pressed="true">當沖金額最大</button>
+        <button data-v="win" aria-pressed="false">當沖客賺最多</button>
+        <button data-v="lose" aria-pressed="false">賠最多</button>
+        <button data-v="rate" aria-pressed="false">當沖率最高</button>
+        <button data-v="surge" aria-pressed="false">當沖率暴增</button>
+      </div>
+      <div id="liq"></div>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>股票</th><th class="n">收盤</th><th class="n">漲跌</th><th class="n">當沖金額（億）</th><th class="n">當沖率</th><th class="n">比 20 日均</th><th class="n hide-s">當沖買均</th><th class="n hide-s">當沖賣均</th><th class="n">買在全天</th><th class="n hide-s">收盤比買均</th><th class="n">當沖客損益（萬）</th><th class="n">損益率</th></tr></thead>
+      <tbody id="s-body"></tbody>
+    </table></div>
+    <button class="more" id="s-more" hidden>顯示更多</button>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>隔日沖分點：今天買了什麼</h2><span class="hint" id="t-hint"></span></div>
+    <p class="why">這些分點習慣隔天開盤就賣。今天買超越多、占成交量越高的股票，明天開盤賣壓越重。</p>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>股票</th><th class="n">收盤</th><th class="n">漲跌</th><th class="n">隔日沖合計買超（張）</th><th class="n">約當金額（億）</th><th class="n">占當天成交量</th><th>哪些分點</th></tr></thead>
+      <tbody id="t-body"></tbody>
+    </table></div>
+    <button class="more" id="t-more" hidden>顯示更多</button>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>昨天買的，今天賣了幾成</h2><span class="hint" id="y-hint"></span></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>股票</th><th>分點</th><th class="n">昨天買超（張）</th><th class="n">約當金額（億）</th><th class="n">今天買賣超（張）</th><th class="n">賣掉幾成</th><th class="n">估計扣稅損益（萬）</th><th class="n">今天漲跌</th></tr></thead>
+      <tbody id="y-body"></tbody>
+    </table></div>
+    <button class="more" id="y-more" hidden>顯示更多</button>
+    <div class="note">
+      <p>當沖：只算上市櫃普通股。當沖客損益＝當沖賣出金額 − 當沖買進金額 − 證交稅（賣出 0.15%）− 手續費（0.1425% 打三折，買賣兩邊）。交易所資料不分先買後賣或先賣後買，也不含留倉；數字 T+2 才定案，最近兩天可能小幅修正。個股表只列當沖買進金額 ≥ 1,000 萬的股票。當沖率＝當沖股數 ÷ 成交股數；買在全天＝當沖買均在當天最低到最高的位置（0%＝最低）。</p>
+      <p>隔日沖分點：用本站分點評分（買超隔天賣出比例 ≥ 50%，或 ≥ 35% 且買進當天平均漲 3% 以上，至少 5 次）分出來的 <span id="nb"></span> 個分點。分點資料來自富邦證券分點進出，每檔只有前 15 大買賣超、只抓成交金額 ≥ 3,000 萬的股票，所以今天沒進前 15 大的會顯示「未上榜」。金額用當天成交均價（成交金額 ÷ 成交股數）估算；損益只算今天賣掉的部分，不含手續費。</p>
+      <p>資料來源：證交所、櫃買中心現股當沖統計與每日收盤行情；富邦證券分點進出明細。</p>
+      <details><summary>隔日沖分點清單</summary><p id="br-list"></p></details>
+    </div>
+  </section>
+</main>
+<footer class="site"><div class="wrap"><p class="note" style="margin:0">資料僅供參考，不構成投資建議。</p></div></footer>
+<script type="module">
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fx = (v, d = 0) => v == null || !isFinite(v) ? "–" : (+v).toLocaleString("zh-TW", {minimumFractionDigits: d, maximumFractionDigits: d});
+const cls = v => v == null ? "faint" : v > 0 ? "up" : v < 0 ? "down" : "flat";
+const sg = (v, d = 1) => v == null ? "–" : (v > 0 ? "+" : "") + fx(v, d);
+const BC = ["#3FAE72", "#7FA8D6", "#C6A15B", "#E08A4F", "#E1594F"];  // 平靜→極度恐慌
+const bandIdx = s => s == null ? -1 : s < 20 ? 0 : s < 40 ? 1 : s < 60 ? 2 : s < 80 ? 3 : 4;
+const BN = ["平靜", "正常", "緊張", "恐慌", "極度恐慌"];
+const pathOf = (vals, X, Y) => { let d = "", pen = false; vals.forEach((v, i) => { if (v == null) { pen = false; return; } d += (pen ? "L" : "M") + X(i).toFixed(1) + "," + Y(v).toFixed(1); pen = true; }); return d; };
+const extent = (vals, pad = 0.05) => { const v = vals.filter(x => x != null && isFinite(x)); if (!v.length) return [0, 1]; let a = Math.min(...v), b = Math.max(...v); const p = (b - a || Math.abs(b) || 1) * pad; return [a - p, b + p]; };
+const md = d => d.slice(2, 7).replace("-", "/");
+function chips(id, cb) {
+  const el = $(id); let v = el.querySelector('[aria-pressed="true"]').dataset.v;
+  el.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return;
+    el.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); v = b.dataset.v; cb(); });
+  return () => v;
+}
+function hover(box, W, L, R, n, X, html) {
+  const svg = box.querySelector("svg"), tip = box.querySelector(".tip"), cx = svg.querySelector(".cx");
+  svg.querySelector(".hit").addEventListener("pointermove", ev => {
+    const r = svg.getBoundingClientRect(), px = (ev.clientX - r.left) / r.width * W;
+    const i = Math.max(0, Math.min(n - 1, Math.round((px - L) / (W - L - R) * (n - 1))));
+    cx.setAttribute("x1", X(i)); cx.setAttribute("x2", X(i)); cx.setAttribute("visibility", "visible");
+    tip.innerHTML = html(i); tip.style.display = "block";
+    const b = box.getBoundingClientRect(), x = ev.clientX - b.left;
+    tip.style.left = (x > b.width / 2 ? x - tip.offsetWidth - 12 : x + 12) + "px"; tip.style.top = "36px";
+  });
+  svg.addEventListener("pointerleave", () => { tip.style.display = "none"; cx.setAttribute("visibility", "hidden"); });
+}
+const xlabels = (rows, X, H) => { const step = Math.max(1, Math.round(rows.length / 6)); return rows.map((r, i) => i % step ? "" : `<text x="${X(i).toFixed(1)}" y="${H - 4}" text-anchor="middle">${md(r[0])}</text>`).join(""); };
+const ticks = (a, b, Y, f, x, an, L, W, R, grid = true) => [0, 1, 2, 3].map(j => { const v = a + (b - a) * j / 3; return (grid ? `<line x1="${L}" x2="${W - R}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}" stroke="var(--line)"/>` : "") + `<text x="${x}" y="${(Y(v) + 4).toFixed(1)}" text-anchor="${an}">${f(v)}</text>`; }).join("");
+
+let J = null;
+const lim = {s: 30, t: 20, y: 20};
+const getTab = chips("s-tab", () => { lim.s = 30; renderStocks(); });
+const obj = (cols, rows) => rows.map(r => Object.fromEntries(cols.map((c, i) => [c, r[i]])));
+fetch("data/daytrade.json").then(r => r.ok ? r.json() : null).catch(() => null).then(j => {
+  if (!j) { $("sub").textContent = "還沒有資料。"; return; }
+  J = j; J.M = obj(j.m_cols, j.market); J.S = obj(j.s_cols, j.stocks);
+  if (j.flip) { J.T = obj(j.flip.today_cols, j.flip.today); J.Y = obj(j.flip.yest_cols, j.flip.yest); }
+  renderTop(); renderChart(); renderStocks(); renderFlip();
+  if (window.TideLiq) TideLiq.mount($("liq"), () => { renderStocks(); renderFlip(); });
+});
+const pass = c => !window.TideLiq || TideLiq.pass(c);
+const sname = (c, n) => `<a href="stock.html#s=${esc(c)}" class="sname" style="text-decoration:none">${esc(n)}<span class="mono">${esc(c)}</span></a>`;
+const td = (v, html, x = "") => `<td class="n mono${x}" data-v="${v ?? ""}">${html}</td>`;
+const pc = (v, d = 2) => v == null ? "–" : `<span class="${cls(v)}">${sg(v, d)}%</span>`;
+
+function renderTop() {
+  const M = J.M, last = M[M.length - 1], m20 = M.slice(-20), win = m20.filter(r => r.pnl > 0).length, sum20 = m20.reduce((s, r) => s + r.pnl, 0);
+  $("sub").textContent = `資料到 ${J.date}。當沖客今天賺還是賠、哪些股票被當沖最兇；隔日沖分點今天買了什麼、昨天買的今天倒了幾成。`;
+  const st = [
+    ["當沖占成交金額", `${fx(last.ratio, 1)}<small>%</small>`, `近一年第 ${J.p_ratio} 百分位・當沖 ${fx(last.amt, 0)} 億`],
+    ["當沖客今天", `<span class="${cls(last.pnl)}">${sg(last.pnl, 2)}</span><small>億</small>`, `扣稅費前價差 ${sg(last.gross, 2)} 億`],
+    ["近 20 日當沖客", `<span class="${cls(sum20)}">${sg(sum20, 1)}</span><small>億</small>`, `賺 ${win} 天／賠 ${20 - win} 天`],
+    ["隔日沖分點今天買", J.T ? `${fx(J.T.reduce((s, r) => s + (r.amt || 0), 0), 1)}<small>億</small>` : "–", J.T ? `${J.T.length} 檔（分點資料 ${J.flip.d1}）` : "還沒有分點資料"],
+  ];
+  $("stats").innerHTML = st.map(([k, v, s]) => `<div class="stat"><div class="k">${k}</div><div class="v mono">${v}</div><div class="s">${s}</div></div>`).join("");
+}
+
+function renderChart() {
+  const rows = J.M.map(r => [r.date, r.ratio, r.pnl]);
+  $("m-hint").textContent = `近 ${rows.length} 個交易日`;
+  const W = 1000, L = 52, R = 52, T = 10, H1 = 160, G = 14, H2 = 90, B = 22, H = T + H1 + G + H2 + B;
+  const X = i => L + (rows.length < 2 ? 0 : i / (rows.length - 1) * (W - L - R));
+  const [a, b] = extent(rows.map(r => r[1])), Y = v => T + H1 - (v - a) / (b - a) * H1;
+  const T2 = T + H1 + G, Z = T2 + H2 / 2, pm = Math.max(...rows.map(r => Math.abs(r[2])), 1);
+  const bw = Math.max(1, (W - L - R) / rows.length * 0.7);
+  const bars = rows.map((r, i) => { const h = Math.abs(r[2]) / pm * (H2 / 2 - 2); return `<rect x="${(X(i) - bw / 2).toFixed(1)}" y="${(r[2] > 0 ? Z - h : Z).toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(.5, h).toFixed(1)}" fill="${r[2] > 0 ? "var(--rise)" : "var(--fall)"}" opacity=".8"/>`; }).join("");
+  const last = rows[rows.length - 1];
+  $("m-chart").innerHTML = `<div class="legend"><span><i style="background:var(--brass)"></i>當沖占成交金額（%）</span><span><i style="background:var(--rise);width:7px;height:7px"></i><i style="background:var(--fall);width:7px;height:7px"></i>當沖客損益（億，下方）</span></div>
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="大盤當沖比重與當沖客損益">${ticks(a, b, Y, v => fx(v, 0) + "%", L - 6, "end", L, W, R)}
+    <path d="${pathOf(rows.map(r => r[1]), X, Y)}" fill="none" stroke="var(--brass)" stroke-width="1.8"/>
+    <text x="${W - R + 6}" y="${(Y(last[1]) + 4).toFixed(1)}" style="fill:var(--brass)">${fx(last[1], 1)}%</text>
+    <line x1="${L}" x2="${W - R}" y1="${Z}" y2="${Z}" stroke="var(--line-strong)"/>${bars}
+    <text x="${L - 6}" y="${T2 + 9}" text-anchor="end">+${fx(pm, 0)}</text><text x="${L - 6}" y="${T2 + H2}" text-anchor="end">−${fx(pm, 0)}</text>
+    ${xlabels(rows, X, H)}<line class="cx" y1="${T}" y2="${T2 + H2}" stroke="var(--line-strong)" visibility="hidden"/><rect class="hit" x="${L}" y="${T}" width="${W - L - R}" height="${T2 + H2 - T}" fill="transparent"/></svg><div class="tip"></div>`;
+  hover($("m-chart"), W, L, R, rows.length, X, i => { const r = J.M[i]; return `<b class="mono">${r.date}</b><br>當沖占成交金額 <span class="mono">${fx(r.ratio, 2)}%</span><br>當沖金額 <span class="mono">${fx(r.amt, 0)}</span> 億<br>當沖客損益 <span class="mono ${cls(r.pnl)}">${sg(r.pnl, 2)}</span> 億（扣稅費前 ${sg(r.gross, 2)}）`; });
+}
+
+function renderStocks() {
+  const tab = getTab();
+  let rows = J.S.filter(r => pass(r.code));
+  if (tab === "win") rows = rows.filter(r => r.pnl > 0).sort((a, b) => b.pnl - a.pnl);
+  else if (tab === "lose") rows = rows.filter(r => r.pnl < 0).sort((a, b) => a.pnl - b.pnl);
+  else if (tab === "rate") rows = rows.slice().sort((a, b) => b.rate - a.rate);
+  else if (tab === "surge") rows = rows.filter(r => r.amt >= 5 && r.x20).sort((a, b) => b.x20 - a.x20);
+  $("s-hint").textContent = `${J.date}・${rows.length} 檔（當沖金額 ≥ 1,000 萬）`;
+  $("s-body").innerHTML = rows.slice(0, lim.s).map(r => `<tr><td>${sname(r.code, r.name)}</td>${td(r.close, fx(r.close, 2))}${td(r.ret, pc(r.ret))}${td(r.amt, fx(r.amt, 2))}${td(r.rate, fx(r.rate, 1) + "%")}${td(r.x20, r.x20 == null ? "–" : `<span class="${r.x20 >= 1.5 ? "warn" : ""}">${fx(r.x20, 1)} 倍</span>`)}${td(r.bavg, fx(r.bavg, 2), " hide-s")}${td(r.savg, fx(r.savg, 2), " hide-s")}${td(r.pos, r.pos == null ? "–" : r.pos + "%")}${td(r.cvb, pc(r.cvb), " hide-s")}${td(r.pnl, `<span class="${cls(r.pnl)}">${sg(r.pnl, 0)}</span>`)}${td(r.pnlr, pc(r.pnlr))}</tr>`).join("") || `<tr><td colspan="12" class="empty">沒有符合的股票</td></tr>`;
+  $("s-more").hidden = rows.length <= lim.s;
+}
+$("s-more").onclick = () => { lim.s += 50; renderStocks(); };
+
+function renderFlip() {
+  const f = J.flip;
+  if (!f) { $("t-body").innerHTML = `<tr><td colspan="7" class="empty">還沒有分點資料</td></tr>`; return; }
+  $("nb").textContent = f.branches.length;
+  $("br-list").innerHTML = f.branches.map(b => `${esc(b[0])}（${b[1]} 次、隔日賣 ${fx(b[2], 0)}%）`).join("、");
+  const T = J.T.filter(r => pass(r.code));
+  $("t-hint").textContent = `${f.d1} 收盤後公布・${T.length} 檔`;
+  $("t-body").innerHTML = T.slice(0, lim.t).map(r => `<tr><td>${sname(r.code, r.name)}</td>${td(r.close, fx(r.close, 2))}${td(r.ret, pc(r.ret))}${td(r.lots, fx(r.lots))}${td(r.amt, fx(r.amt, 2))}${td(r.pct, r.pct == null ? "–" : `<span class="${r.pct >= 5 ? "warn" : ""}">${fx(r.pct, 1)}%</span>`)}<td class="wrap-cell muted" style="font-size:12.5px">${r.brokers.map(([n, x]) => `${esc(n)} ${fx(x)}`).join("、")}</td></tr>`).join("") || `<tr><td colspan="7" class="empty">沒有</td></tr>`;
+  $("t-more").hidden = T.length <= lim.t;
+  const Y = J.Y.filter(r => pass(r.code));
+  $("y-hint").textContent = `${f.d0} 買 → ${f.d1}`;
+  const st = r => r.st === "ok" ? (r.ratio == null ? "–" : `<span class="${r.ratio >= 70 ? "warn" : ""}">${r.ratio}%</span>`) : `<span class="faint">${r.st === "na" ? "沒抓分點" : "未上榜"}</span>`;
+  $("y-body").innerHTML = Y.slice(0, lim.y).map(r => `<tr><td>${sname(r.code, r.name)}</td><td>${esc(r.broker)}</td>${td(r.buy, fx(r.buy))}${td(r.amt, fx(r.amt, 2))}${td(r.net1, r.net1 == null ? "–" : `<span class="${cls(r.net1)}">${sg(r.net1, 0)}</span>`)}${td(r.ratio, st(r))}${td(r.pnl, r.pnl == null ? "–" : `<span class="${cls(r.pnl)}">${sg(r.pnl, 0)}</span>`)}${td(r.ret, pc(r.ret))}</tr>`).join("") || `<tr><td colspan="8" class="empty">沒有</td></tr>`;
+  $("y-more").hidden = Y.length <= lim.y;
+}
+$("t-more").onclick = () => { lim.t += 30; renderFlip(); };
+$("y-more").onclick = () => { lim.y += 30; renderFlip(); };
+</script>
+</body>
+</html>
