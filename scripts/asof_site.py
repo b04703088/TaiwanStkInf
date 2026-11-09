@@ -148,7 +148,7 @@ PAGES = {
     "screen": ["price", "chips", "revenue", "quarterly"],
     "chips": ["chips", "sbl", "tdcc"], "trust": ["chips", "price"], "futures": ["futures"], "settle": ["futures", "price"],
     "broker": ["broker"], "local": ["broker"], "watch": ["watch"],
-    "margin": ["margin", "pledge"], "cost": ["etf", "margin", "pledge", "price"],
+    "margin": ["margin", "pledge"], "cost": ["etf", "margin", "pledge", "price"], "heavy": ["etf", "margin", "pledge", "price"],
     "insider": ["insider_m", "insider_t"], "news": ["mops"], "alert": ["alert"],
     "treasury": ["treasury", "broker"], "cb": ["cb", "price"], "cb-broker": ["cb", "broker"],
     "digest": ["digest", "note", "chips", "margin"], "stock": ["price", "chips", "broker", "mops"],
