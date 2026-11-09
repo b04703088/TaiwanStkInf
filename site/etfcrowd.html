@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101419">
+<title>ETF擁擠度｜潮汐</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+<style>
+  :root{
+    --ink:#101419; --panel:#171C22; --panel-2:#1E242B;
+    --line:rgba(232,237,242,0.09); --line-strong:rgba(232,237,242,0.16);
+    --text:#E8EDF2; --text-muted:#A9B2BC; --text-faint:#8B95A0;
+    --brass:#C6A15B; --brass-soft:rgba(198,161,91,0.14); --rise:#E1594F; --fall:#3FAE72;
+    --radius-s:3px; --radius-m:6px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--ink); color:var(--text);
+    font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
+  h1,h2{font-family:'Noto Sans TC',sans-serif; margin:0; font-weight:700;}
+  h2{font-size:20px;}
+  .mono{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+  a{color:inherit;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
+  header.site{position:sticky; top:0; z-index:40; background:#101419; border-bottom:1px solid var(--line);}
+  .nav-row{display:flex; align-items:center; justify-content:space-between; padding:16px 28px;}
+  .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
+  .brand-mark{font-family:'Noto Sans TC',sans-serif; font-size:22px; font-weight:700;}
+  .brand-sub{font-size:12px; color:var(--text-faint);}
+  .page-head{padding:56px 0 8px;}
+  .eyebrow{font-size:13px; color:var(--brass); margin-bottom:10px;}
+  h1{font-size:32px;}
+  .desc{color:var(--text-muted); font-size:14.5px; margin:12px 0 0; max-width:52em;}
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden; margin-top:28px;}
+  .stat{background:var(--panel); padding:16px 20px;}
+  .stat .k{font-size:12.5px; color:var(--text-muted);}
+  .stat .v{font-size:26px; margin-top:2px;}
+  .stat .s{font-size:12px; color:var(--text-faint);}
+  section.block{margin-top:48px;}
+  .block-head{display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin-bottom:14px; flex-wrap:wrap;}
+  .hint{font-size:12.5px; color:var(--text-faint);}
+  .up{color:var(--rise);} .down{color:var(--fall);} .flat{color:var(--text-muted);}
+  .faint{color:var(--text-faint);}
+  .muted{color:var(--text-muted);}
+
+  /* 查個股 */
+  .search{position:relative; max-width:460px;}
+  .search input{width:100%; background:var(--panel); border:1px solid var(--line-strong); color:var(--text); padding:11px 14px; border-radius:var(--radius-m); font:inherit; font-size:15px;}
+  .search input:focus{outline:none; border-color:var(--text-faint);}
+  .sugg{position:absolute; left:0; right:0; top:calc(100% + 4px); background:var(--panel-2); border:1px solid var(--line-strong); border-radius:var(--radius-m); z-index:10; overflow:hidden;}
+  .sugg div{padding:8px 14px; cursor:pointer; font-size:14px;}
+  .sugg div:hover, .sugg div.on{background:var(--brass-soft);}
+  .stock{margin-top:16px; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-m); padding:18px 20px;}
+  .stock .top{display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap;}
+  .stock .nm{font-size:20px; font-weight:700;}
+  .stock .nm .mono{font-size:14px; color:var(--text-muted); margin-left:8px; font-weight:500;}
+  .stock .px{font-size:15px;}
+  .kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-top:16px; padding-top:14px; border-top:1px solid var(--line);}
+  .kpi .k{font-size:12px; color:var(--text-muted);}
+  .kpi .v{font-size:20px; margin-top:2px;}
+  .kpi .s{font-size:12px; color:var(--text-faint); margin-top:2px;}
+  .views{display:flex; height:8px; border-radius:2px; overflow:hidden; margin-top:8px; background:var(--line);}
+  .views i{display:block; height:100%;}
+  .views .b{background:var(--rise);} .views .n{background:var(--text-faint);} .views .r{background:var(--fall);}
+
+  /* 表格 */
+  .tbl-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius-m);}
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  th, td{padding:9px 12px; border-bottom:1px solid var(--line); text-align:left; white-space:nowrap;}
+  th{font-size:12px; color:var(--text-muted); font-weight:500; background:var(--panel); position:sticky; top:0;}
+  td.n, th.n{text-align:right;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr.click{cursor:pointer;}
+  tbody tr.click:hover td{background:var(--panel);}
+  td.wrap-cell{white-space:normal; min-width:18em;}
+  .sname{font-weight:500;}
+  .sname .mono{font-size:11.5px; color:var(--text-faint); margin-left:6px; font-weight:500;}
+  .toolbar{display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin-bottom:12px;}
+  .chips{display:flex; flex-wrap:wrap; gap:6px;}
+  .chips button{background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:5px 11px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .chips button[aria-pressed="true"]{border-color:var(--text-faint); color:var(--text);}
+  .more{display:block; margin:14px auto 0; background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:7px 18px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .more:hover{color:var(--text); border-color:var(--text-faint);}
+  .empty{padding:20px 0; color:var(--text-faint); font-size:13.5px;}
+  .note{font-size:12.5px; color:var(--text-faint); margin-top:18px; line-height:1.8;}
+  footer.site{padding:48px 0; margin-top:64px; border-top:1px solid var(--line);}
+  @media (max-width:860px){
+    .nav-row{padding:14px 16px; flex-wrap:wrap; row-gap:10px;}
+    .wrap{padding:0 16px;}
+    .stats, .kpis{grid-template-columns:repeat(2,1fr);} h1{font-size:26px;}
+    .hide-s{display:none;}
+    td.wrap-cell{min-width:14em;}
+  }
+  .chart{border:1px solid var(--line); border-radius:var(--radius-m); background:var(--panel); padding:10px 8px 4px; position:relative;}
+  .chart svg{display:block; width:100%; height:auto; overflow:visible;}
+  .chart text{fill:var(--text-faint); font-size:11px; font-family:'IBM Plex Mono',monospace;}
+  .legend{display:flex; gap:16px; flex-wrap:wrap; font-size:12px; color:var(--text-muted); margin:0 0 8px 8px;}
+  .legend i{display:inline-block; width:14px; height:3px; vertical-align:middle; margin-right:6px; border-radius:1px;}
+  .tip{position:absolute; pointer-events:none; background:var(--ink); border:1px solid var(--line-strong); border-radius:var(--radius-s); padding:7px 10px; font-size:12px; line-height:1.7; white-space:nowrap; display:none; z-index:5;}
+  .why{font-size:13px; color:var(--text-muted); margin:-4px 0 14px; max-width:60em;}
+  .gauge{position:relative; height:10px; border-radius:5px; overflow:hidden; display:flex; margin-top:10px;}
+  .gauge i{flex:1; display:block;}
+  .gauge-wrap{position:relative; margin-top:6px;}
+  .gauge-pin{position:absolute; top:-4px; width:3px; height:18px; background:var(--text); border-radius:1px; transform:translateX(-1px);}
+  .gauge-lab{display:flex; justify-content:space-between; font-size:11px; color:var(--text-faint); margin-top:4px;}
+  .pbar{display:inline-block; width:64px; height:6px; border-radius:2px; background:var(--line); vertical-align:middle; margin-right:6px; overflow:hidden;}
+  .pbar i{display:block; height:100%;}
+  .split{display:flex; height:22px; border-radius:var(--radius-s); overflow:hidden; margin:6px 0 4px; font-size:11.5px;}
+  .split div{display:flex; align-items:center; justify-content:center; color:#fff; white-space:nowrap; overflow:hidden;}
+  .two{display:grid; grid-template-columns:1fr 1fr; gap:20px;}
+  .two h3{font-size:14px; margin:0 0 8px; font-weight:500; color:var(--text-muted);}
+  @media (max-width:860px){ .two{grid-template-columns:1fr;} }
+  .wrap{max-width:1360px;}
+  .ov td{text-align:center; padding:6px 4px; font-size:12px;}
+  .ov th{font-size:11px; padding:6px 4px; white-space:normal; min-width:52px; text-align:center;}
+  .ov th.rh{text-align:left; white-space:nowrap;}
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="nav-row">
+    <a href="index.html" class="brand"><span class="brand-mark">潮汐</span><span class="brand-sub">籌碼觀測站</span></a>
+    <nav class="gnav"></nav>
+  </div>
+</header>
+<script src="nav.js"></script>
+<main class="wrap">
+  <section class="page-head">
+    <div class="eyebrow">ETF</div>
+    <h1>ETF 擁擠度：被 ETF 鎖住多少、申贖帶動多少</h1>
+    <p class="desc" id="sub">載入中…</p>
+    <div class="stats" id="stats"></div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>擠度排行</h2><span class="hint" id="c-hint"></span></div>
+    <p class="why">ETF 合計持有占發行股數越高、要越多天成交量才消化得完，代表流通籌碼越少；遇到 ETF 大贖回或剔除，賣壓也越集中。</p>
+    <div class="toolbar"><div id="liq"></div><input class="filter" id="q" type="search" placeholder="搜尋代號或名稱" autocomplete="off" aria-label="搜尋個股"></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>股票</th><th class="n">被幾檔持有</th><th class="n">ETF 合計（張）</th><th class="n">市值（億）</th><th class="n">占發行股數</th><th class="n">成交量天數</th><th class="n">近 5 日申贖帶動（張）</th><th class="n hide-s">約當（億）</th><th class="n">占 5 日均量</th><th class="hide-s">持有最多</th></tr></thead>
+      <tbody id="c-body"></tbody>
+    </table></div>
+    <button class="more" id="c-more" hidden>顯示更多</button>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>申購贖回帶動的被動買賣（近 5 個交易日）</h2><span class="hint" id="f-hint"></span></div>
+    <p class="why">被動式 ETF 有人申購，就得照權重買進成分股；贖回就賣。這是不看基本面的買賣，跟投信自己看好不一樣。</p>
+    <div class="two">
+      <div><h3>被動買進最多</h3><div class="tbl-wrap"><table><thead><tr><th>股票</th><th class="n">張數</th><th class="n">約當（億）</th></tr></thead><tbody id="f-up"></tbody></table></div></div>
+      <div><h3>被動賣出最多</h3><div class="tbl-wrap"><table><thead><tr><th>股票</th><th class="n">張數</th><th class="n">約當（億）</th></tr></thead><tbody id="f-dn"></tbody></table></div></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>ETF 持股重疊度</h2><span class="hint">規模前 14 大</span></div>
+    <p class="why">兩檔 ETF 各股權重取小的加總，100% ＝ 持股一模一樣。市值型彼此高度重疊，高股息型之間只有部分重疊；同時持有重疊高的 ETF 等於重複押同一批股票。</p>
+    <div class="tbl-wrap"><table class="ov" data-nosort><thead id="o-head"></thead><tbody id="o-body"></tbody></table></div>
+    <div class="note">
+      <p>資料：本站每天抓的各投信 ETF 完整持股（申購買回清單），每檔 ETF 用最新一份，近一個月沒更新的不算；部分投信隔天早上才公布，最新一天可能還缺幾檔。占發行股數用集保股權分散表的集保總股數近似；成交量天數＝ETF 合計股數 ÷ 近 20 日平均成交股數。只列 ETF 合計持有市值 ≥ 5 億的股票。</p>
+      <p>申贖帶動＝被動式 ETF 每天「前一份持股 × (本次受益單位數 ÷ 前次 − 1)」累加，換股剔除的不算；主動式 ETF 不算（經理人自己決定買賣）。單位數取自證交所 ETF 淨值揭露與投信公告，個別日期缺漏時那天略過。占 5 日均量＝近 5 日申贖帶動股數 ÷ 近 20 日平均單日成交股數。</p>
+      <p>資料來源：各投信申購買回清單、證交所 ETF 淨值揭露、證交所與櫃買中心每日收盤行情、集保結算所股權分散表。</p>
+    </div>
+  </section>
+</main>
+<footer class="site"><div class="wrap"><p class="note" style="margin:0">資料僅供參考，不構成投資建議。</p></div></footer>
+<script type="module">
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fx = (v, d = 0) => v == null || !isFinite(v) ? "–" : (+v).toLocaleString("zh-TW", {minimumFractionDigits: d, maximumFractionDigits: d});
+const cls = v => v == null ? "faint" : v > 0 ? "up" : v < 0 ? "down" : "flat";
+const sg = (v, d = 1) => v == null ? "–" : (v > 0 ? "+" : "") + fx(v, d);
+const BC = ["#3FAE72", "#7FA8D6", "#C6A15B", "#E08A4F", "#E1594F"];  // 平靜→極度恐慌
+const bandIdx = s => s == null ? -1 : s < 20 ? 0 : s < 40 ? 1 : s < 60 ? 2 : s < 80 ? 3 : 4;
+const BN = ["平靜", "正常", "緊張", "恐慌", "極度恐慌"];
+const pathOf = (vals, X, Y) => { let d = "", pen = false; vals.forEach((v, i) => { if (v == null) { pen = false; return; } d += (pen ? "L" : "M") + X(i).toFixed(1) + "," + Y(v).toFixed(1); pen = true; }); return d; };
+const extent = (vals, pad = 0.05) => { const v = vals.filter(x => x != null && isFinite(x)); if (!v.length) return [0, 1]; let a = Math.min(...v), b = Math.max(...v); const p = (b - a || Math.abs(b) || 1) * pad; return [a - p, b + p]; };
+const md = d => d.slice(2, 7).replace("-", "/");
+function chips(id, cb) {
+  const el = $(id); let v = el.querySelector('[aria-pressed="true"]').dataset.v;
+  el.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return;
+    el.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); v = b.dataset.v; cb(); });
+  return () => v;
+}
+function hover(box, W, L, R, n, X, html) {
+  const svg = box.querySelector("svg"), tip = box.querySelector(".tip"), cx = svg.querySelector(".cx");
+  svg.querySelector(".hit").addEventListener("pointermove", ev => {
+    const r = svg.getBoundingClientRect(), px = (ev.clientX - r.left) / r.width * W;
+    const i = Math.max(0, Math.min(n - 1, Math.round((px - L) / (W - L - R) * (n - 1))));
+    cx.setAttribute("x1", X(i)); cx.setAttribute("x2", X(i)); cx.setAttribute("visibility", "visible");
+    tip.innerHTML = html(i); tip.style.display = "block";
+    const b = box.getBoundingClientRect(), x = ev.clientX - b.left;
+    tip.style.left = (x > b.width / 2 ? x - tip.offsetWidth - 12 : x + 12) + "px"; tip.style.top = "36px";
+  });
+  svg.addEventListener("pointerleave", () => { tip.style.display = "none"; cx.setAttribute("visibility", "hidden"); });
+}
+const xlabels = (rows, X, H) => { const step = Math.max(1, Math.round(rows.length / 6)); return rows.map((r, i) => i % step ? "" : `<text x="${X(i).toFixed(1)}" y="${H - 4}" text-anchor="middle">${md(r[0])}</text>`).join(""); };
+const ticks = (a, b, Y, f, x, an, L, W, R, grid = true) => [0, 1, 2, 3].map(j => { const v = a + (b - a) * j / 3; return (grid ? `<line x1="${L}" x2="${W - R}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}" stroke="var(--line)"/>` : "") + `<text x="${x}" y="${(Y(v) + 4).toFixed(1)}" text-anchor="${an}">${f(v)}</text>`; }).join("");
+let J = null, lim = 50;
+const obj = (cols, rows) => rows.map(r => Object.fromEntries(cols.map((c, i) => [c, r[i]])));
+const pass = c => !window.TideLiq || TideLiq.pass(c);
+const sname = (c, n) => `<a href="stock.html#s=${esc(c)}" class="sname" style="text-decoration:none">${esc(n)}<span class="mono">${esc(c)}</span></a>`;
+const td = (v, html, x = "") => `<td class="n mono${x}" data-v="${v ?? ""}">${html}</td>`;
+fetch("data/etf/crowd.json").then(r => r.ok ? r.json() : null).catch(() => null).then(j => {
+  if (!j) { $("sub").textContent = "還沒有資料。"; return; }
+  J = j; J.R = obj(j.cols, j.rows);
+  const tot = j.etfs.reduce((s, e) => s + (e[3] || 0), 0), fin = j.flow_top.reduce((s, r) => s + r[3], 0);
+  $("sub").textContent = `持股資料到 ${j.date}。收錄 ${j.n_etf} 檔台股 ETF 的完整持股，看哪些股票被 ETF 鎖住最多籌碼、最近申購贖回帶動了多少被動買賣、各大 ETF 之間持股有多重疊。`;
+  const st = [["收錄 ETF", `${j.n_etf}<small>檔</small>`, `規模合計約 ${fx(tot / 1e12, 2)} 兆`],
+    ["ETF 合計持有 ≥ 5 億的股票", `${j.rows.length}<small>檔</small>`, `占發行股數 ≥ 10%：${J.R.filter(r => r.pct >= 10).length} 檔`],
+    ["近 5 日申贖帶動", `<span class="${cls(fin)}">${sg(fin, 0)}</span><small>億</small>`, `${j.flow_since} 起，正＝申購帶動買進`],
+    ["台積電被動買賣", (() => { const t = j.flow_top.find(r => r[0] === "2330"); return t ? `<span class="${cls(t[3])}">${sg(t[3], 0)}</span><small>億</small>` : "–"; })(), "近 5 日"]];
+  $("stats").innerHTML = st.map(([k, v, s]) => `<div class="stat"><div class="k">${k}</div><div class="v mono">${v}</div><div class="s">${s}</div></div>`).join("");
+  renderCrowd(); renderFlow(); renderOverlap();
+  if (window.TideLiq) TideLiq.mount($("liq"), () => { renderCrowd(); renderFlow(); });
+  $("q").addEventListener("input", () => { lim = 50; renderCrowd(); });
+});
+function renderCrowd() {
+  const q = $("q").value.trim().toLowerCase();
+  const rows = J.R.filter(r => (q ? r.code.startsWith(q) || r.name.toLowerCase().includes(q) : pass(r.code)));
+  $("c-hint").textContent = `${rows.length} 檔・依占發行股數排序`;
+  $("c-body").innerHTML = rows.slice(0, lim).map(r => `<tr><td>${sname(r.code, r.name)}</td>${td(r.n, r.n)}${td(r.lots, fx(r.lots))}${td(r.mv, fx(r.mv, 1))}${td(r.pct, r.pct == null ? "–" : `<span class="${r.pct >= 15 ? "warn" : ""}">${fx(r.pct, 2)}%</span>`)}${td(r.days, r.days == null ? "–" : fx(r.days, 1) + " 天")}${td(r.flow, `<span class="${cls(r.flow)}">${sg(r.flow, 0)}</span>`)}${td(r.flow_amt, r.flow_amt == null ? "–" : sg(r.flow_amt, 2), " hide-s")}${td(r.flow_vol, r.flow_vol == null ? "–" : `<span class="${cls(r.flow_vol)}">${sg(r.flow_vol, 1)}%</span>`)}<td class="hide-s muted">${esc(r.top || "")}</td></tr>`).join("") || `<tr><td colspan="10" class="empty">沒有符合的股票</td></tr>`;
+  $("c-more").hidden = rows.length <= lim;
+}
+$("c-more").onclick = () => { lim += 100; renderCrowd(); };
+function renderFlow() {
+  const f = J.flow_top.filter(r => pass(r[0]));
+  $("f-hint").textContent = `${J.flow_since} → ${J.date}`;
+  const row = r => `<tr><td>${sname(r[0], r[1])}</td>${td(r[2], `<span class="${cls(r[2])}">${sg(r[2], 0)}</span>`)}${td(r[3], `<span class="${cls(r[3])}">${sg(r[3], 2)}</span>`)}</tr>`;
+  $("f-up").innerHTML = f.filter(r => r[3] > 0).slice(0, 15).map(row).join("") || `<tr><td colspan="3" class="empty">沒有</td></tr>`;
+  $("f-dn").innerHTML = f.filter(r => r[3] < 0).slice(0, 15).map(row).join("") || `<tr><td colspan="3" class="empty">近 5 日沒有被動賣出（贖回）明顯的股票</td></tr>`;
+}
+function renderOverlap() {
+  const o = J.overlap;
+  $("o-head").innerHTML = `<tr><th class="rh"></th>${o.etfs.map(e => `<th title="${esc(e[1])}"><span class="mono">${esc(e[0])}</span></th>`).join("")}</tr>`;
+  $("o-body").innerHTML = o.etfs.map((e, i) => `<tr><th class="rh"><span class="mono">${esc(e[0])}</span> <span class="faint" style="font-weight:400">${esc(e[1])}</span></th>${o.m[i].map((v, k) => `<td class="mono" style="background:rgba(198,161,91,${i === k ? 0 : (v / 100 * 0.6).toFixed(2)})">${i === k ? "–" : v + "%"}</td>`).join("")}</tr>`).join("");
+}
+</script>
+</body>
+</html>

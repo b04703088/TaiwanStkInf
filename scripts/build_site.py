@@ -25,6 +25,7 @@
   data/fin/index.json, s/<代號>.json  財報：月營收與季報（見 scripts/fin_site.py）
   data/market.json                   大盤溫度：恐慌度、市場寬度、散戶台指多空比、誰在推指數（見 scripts/market_site.py）
   data/daytrade.json                 當沖與隔日沖：大盤當沖比重與損益、個股當沖、隔日沖分點買賣（見 scripts/daytrade_site.py）
+  data/etf/crowd.json                ETF 擁擠度：個股被 ETF 合計持有比例、申贖帶動被動買賣、ETF 重疊度（見 scripts/etfcrowd_site.py）
   data/rotation.json                 族群輪動：AI 供應鏈族群／產業鏈產業等權指數、成交值佔比、加權指數（見 scripts/rotation_site.py）
   data/liq.json                      全站共用成交值濾網：各代號近 5 日平均成交值（億，見 scripts/liq_site.py、nav.js TideLiq）
   data/margin/market.json, stocks.json, s/<代號>.json  融資融券、估計維持率（見 scripts/margin_site.py）
@@ -95,6 +96,7 @@ import flow_site  # noqa: E402
 import rotation_site  # noqa: E402
 import market_site  # noqa: E402
 import daytrade_site  # noqa: E402
+import etfcrowd_site  # noqa: E402
 import rebalance_site  # noqa: E402
 import calendar_site  # noqa: E402
 import events_site  # noqa: E402
@@ -183,6 +185,7 @@ def build(out: Path, days: int) -> list[str]:
     rotation_site.write(ROOT / "data", out / "data" / "rotation.json")  # 族群輪動頁
     market_site.write(ROOT / "data", out / "data" / "market.json")  # 大盤溫度頁
     daytrade_site.write(ROOT / "data", out / "data" / "daytrade.json")  # 當沖與隔日沖頁
+    etfcrowd_site.write(ROOT / "data", out / "data" / "etf" / "crowd.json")  # ETF 擁擠度頁
     rebalance_site.write_rebalance(ROOT, out / "data" / "etf" / "rebalance.json")
     calendar_site.write_calendar(ROOT / "data", ROOT, out / "data" / "calendar.json")
     events_site.write_events(ROOT / "data", ROOT, out / "data" / "events.json")
