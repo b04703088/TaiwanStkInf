@@ -26,6 +26,7 @@
   data/liq.json                      全站共用成交值濾網：各代號近 5 日平均成交值（億，見 scripts/liq_site.py、nav.js TideLiq）
   data/margin/market.json, stocks.json, s/<代號>.json  融資融券、估計維持率（見 scripts/margin_site.py）
   data/cost.json                     持股成本：主動式 ETF、融資、不限用途借貸的估計成本與維持率（見 scripts/cost_site.py）
+  data/heavy.json                    權值股槓桿：0050 成分股漲跌、融資、不限用途張數變化與維持率（見 scripts/heavy_site.py）
   data/kline/index.json, s/<代號>.json  K 線：2022 年起每日價量＋還原因子事件（見 scripts/kline_site.py）
   data/chips/chips.json, s/<代號>.json 三大法人、借券賣出、當沖、集保大戶（見 scripts/chips_site.py）
   data/trust/index.json, <日期>.json 投信每日全部買賣超與佔成交量比（見 scripts/trust_site.py）
@@ -112,6 +113,7 @@ import limitup_site  # noqa: E402
 import us_site  # noqa: E402
 import commod_site  # noqa: E402
 import cost_site  # noqa: E402
+import heavy_site  # noqa: E402
 import asof_site  # noqa: E402
 import liq_site  # noqa: E402
 
@@ -184,7 +186,8 @@ def build(out: Path, days: int) -> list[str]:
     mops_site.write_mops(ROOT / "data", out / "data" / "mops" / "mops.json")
     fin_site.write_fin(ROOT / "data", out / "data" / "fin")
     margin_site.write_margin(ROOT / "data", out / "data" / "margin")
-    cost_site.write_cost(ROOT / "data", out / "data" / "cost.json")
+    cost = cost_site.write_cost(ROOT / "data", out / "data" / "cost.json")
+    heavy_site.write_heavy(ROOT / "data", out / "data" / "heavy.json", ROOT, cost)
     prices = kline_site.load_prices(ROOT / "data")
     kline_site.write_kline(ROOT / "data", out / "data" / "kline", prices)
     futures_site.write_futures(ROOT / "data", out / "data" / "futures.json")
