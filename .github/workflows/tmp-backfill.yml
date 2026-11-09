@@ -1,0 +1,21 @@
+name: tmp backfill (delete before merge)
+on:
+  push:
+    branches: [claude/project-thread-x5iz94]
+    paths: [".github/workflows/tmp-backfill.yml"]
+permissions:
+  contents: write
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with: {ref: claude/project-thread-x5iz94}
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: python -u fetch_futures.py --start 2024-01-01
+      - run: |
+          git config user.name "github-actions[bot]"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/futures; git commit -m "data: 回補小台／微台未平倉" || true
+          git pull --rebase origin claude/project-thread-x5iz94 && git push origin HEAD:claude/project-thread-x5iz94

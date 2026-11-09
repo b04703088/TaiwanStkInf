@@ -16,6 +16,7 @@
   large.csv  date, month(all/near), kind(all/inst), top5_long, top5_short, top10_long, top10_short, oi
              kind=all 前五／十大交易人（全部）、inst 其中的特定法人；month=all 全部月份合計、near 近月
   tx.csv     date, contract（近月）, close, change, volume, settle, oi（近月）, oi_all（全部月份）
+  mini.csv   date, product（MTX 小台／TMF 微台）, oi_all（全部月份未沖銷，口）：算散戶多空比的分母
   stk/YYYY.csv  個股／ETF 期貨近月大額交易人（同一份 largeTraderFutDown，不另外查詢）：
              date, product, month, top10_long, top10_short（前十大交易人中的特定法人，口）, oi（全市場未沖銷，口）
              商品代碼是根碼（CD＝台積電、QF＝小型台積電）；除權息等調整型契約（CD1…）已併在根碼口數內
@@ -50,11 +51,12 @@ COLS = {
     "pcr": ["date", "put_vol", "call_vol", "pc_vol", "put_oi", "call_oi", "pc_oi"],
     "large": ["date", "month", "kind", "top5_long", "top5_short", "top10_long", "top10_short", "oi"],
     "tx": ["date", "contract", "close", "change", "volume", "settle", "oi", "oi_all"],
+    "mini": ["date", "product", "oi_all"],
 }
 STK_COLS = ["date", "product", "month", "top10_long", "top10_short", "oi"]
 PX_COLS = ["date", "product", "contract", "close", "settle", "volume", "oi"]
 LIST_COLS = ["product", "name", "code", "size"]
-KEYS = {"inst": ("date", "product", "who"), "pcr": ("date",), "large": ("date", "month", "kind"), "tx": ("date",)}
+KEYS = {"inst": ("date", "product", "who"), "pcr": ("date",), "large": ("date", "month", "kind"), "tx": ("date",), "mini": ("date", "product")}
 
 
 def post_csv(path, form, retries=4):
@@ -224,6 +226,17 @@ def parse_tx(rows):
     return out
 
 
+def parse_mini(rows):
+    """小台、微台：一般時段全部月份（不含價差單）未沖銷口數合計。"""
+    by = {}
+    for r in rows:
+        if len(r) < 18 or r[1] not in ("MTX", "TMF") or "/" in r[2] or r[17] != "一般":
+            continue
+        k = (_d(r[0]), r[1])
+        by[k] = by.get(k, 0) + int(_n(r[11]) or 0)
+    return [{"date": d, "product": p, "oi_all": str(v)} for (d, p), v in sorted(by.items()) if v]
+
+
 def upsert(name, rows, p=None, cols=None, keys=None):
     p = p or OUT_DIR / f"{name}.csv"
     cols, keys = cols or COLS[name], keys or KEYS[name]
@@ -265,6 +278,7 @@ def fetch_range(a, b):
     write_stk(stk, names)
     fut_all = _get("futDataDown", {"down_type": "1", "commodity_id": "all"}, a, b)
     got["tx"] = parse_tx(fut_all)
+    got["mini"] = parse_mini(fut_all)
     px = parse_stk_px(fut_all)
     for y in sorted({r["date"][:4] for r in px}):
         upsert("stk_px", [r for r in px if r["date"][:4] == y], OUT_DIR / "stk_px" / f"{y}.csv", PX_COLS, ("date", "product"))
