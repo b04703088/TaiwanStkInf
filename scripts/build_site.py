@@ -23,6 +23,7 @@
   data/insider/brokers.json          內部人分點比對：月報 × 分點進出、申報期間追蹤（見 scripts/insider_broker.py）
   data/mops/mops.json                重大訊息、股東會／法說會行事曆（見 scripts/mops_site.py）
   data/fin/index.json, s/<代號>.json  財報：月營收與季報（見 scripts/fin_site.py）
+  data/market.json                   大盤溫度：恐慌度、市場寬度、散戶台指多空比、誰在推指數（見 scripts/market_site.py）
   data/rotation.json                 族群輪動：AI 供應鏈族群／產業鏈產業等權指數、成交值佔比、加權指數（見 scripts/rotation_site.py）
   data/liq.json                      全站共用成交值濾網：各代號近 5 日平均成交值（億，見 scripts/liq_site.py、nav.js TideLiq）
   data/margin/market.json, stocks.json, s/<代號>.json  融資融券、估計維持率（見 scripts/margin_site.py）
@@ -91,6 +92,7 @@ import cb_broker_site  # noqa: E402
 import industry_site  # noqa: E402
 import flow_site  # noqa: E402
 import rotation_site  # noqa: E402
+import market_site  # noqa: E402
 import rebalance_site  # noqa: E402
 import calendar_site  # noqa: E402
 import events_site  # noqa: E402
@@ -177,6 +179,7 @@ def build(out: Path, days: int) -> list[str]:
     industry_site.write_industry(ROOT / "data", out / "data" / "industry" / "industry.json")
     flow_site.write_flow(ROOT / "data", out / "data" / "flow.json")
     rotation_site.write(ROOT / "data", out / "data" / "rotation.json")  # 族群輪動頁
+    market_site.write(ROOT / "data", out / "data" / "market.json")  # 大盤溫度頁
     rebalance_site.write_rebalance(ROOT, out / "data" / "etf" / "rebalance.json")
     calendar_site.write_calendar(ROOT / "data", ROOT, out / "data" / "calendar.json")
     events_site.write_events(ROOT / "data", ROOT, out / "data" / "events.json")
