@@ -6,7 +6,7 @@ name: Fetch batch
 #
 #   早上 08:30  MOPS 公告、可轉債、分析師、庫藏股、處置股（盤前補抓）、融資融券（補抓）、國際金融、美股收盤、原物料
 #   傍晚 18:40  處置股＋還原事件、可轉債、MOPS 公告、財報、內部人（每月 18～28 日）、三大法人、期交所籌碼、國際金融、原物料
-#   晚間 19:30  庫藏股＋買回期間分點、CB 進行中案件分點（要等富邦分點出來）、MOPS 公告、分析師
+#   晚間 19:30  法說會簡報、庫藏股＋買回期間分點、CB 進行中案件分點（要等富邦分點出來）、MOPS 公告、分析師
 #               （平日傍晚那次跑完自己帶起來；為了讓資料 21:00 前上網站）
 #   晚上 21:20  融資融券（約 21:00 後才公布，沒出來就每 5 分鐘再查到 22:05）、借券／當沖補齊、期交所籌碼、
 #               MOPS 公告、分析師、國際金融、原物料、盤後數字摘要（22:13 盤後判讀用）
@@ -117,7 +117,7 @@ jobs:
           on() { echo "$1=1" >> "$GITHUB_OUTPUT"; }
           case "$slot" in
             morning)
-              on analyst; on mops; on us
+              on analyst; on mops; on us; on conf
               [ $wk = 0 ] && on tdcc
               [ $wk = 1 ] && on macro
               on commod
@@ -127,10 +127,10 @@ jobs:
               [ "$dom" -ge 18 ] && [ "$dom" -le 28 ] && on insider
               if [ $wk = 1 ]; then on alert; on adjust; on cb; on mops; on chips; on macro; on commod; on dusk_next; fi ;;
             dusk)
-              on analyst; on mops; on treasury; on treasury_broker; on cb_broker; on insider_broker ;;
+              on analyst; on mops; on conf; on treasury; on treasury_broker; on cb_broker; on insider_broker ;;
             night)
               on analyst
-              if [ $wk = 1 ]; then on margin_wait; on mops; on chips; on digest; on macro; on commod; fi ;;
+              if [ $wk = 1 ]; then on margin_wait; on mops; on conf; on chips; on digest; on macro; on commod; fi ;;
           esac
           echo "slot=$slot" >> "$GITHUB_OUTPUT"
           echo "時段 $slot，平日=$wk，日期 $dom"; cat "$GITHUB_OUTPUT"
@@ -149,6 +149,14 @@ jobs:
         if: always() && steps.s.outputs.mops == '1'
         continue-on-error: true
         run: python fetch_mops_news.py --max-minutes 20
+
+      - name: 法說會簡報（給每晚法說 memo 排程）
+        if: always() && steps.s.outputs.conf == '1'
+        continue-on-error: true
+        # 法說會一覽有上傳簡報、近 5 日均成交值 ≥ 5 億的：PDF 轉文字、圖表頁轉圖，存 data/conf/
+        run: |
+          command -v pdftotext >/dev/null || sudo apt-get install -y -qq poppler-utils >/dev/null
+          python -u fetch_conf_pdf.py
 
       - name: 可轉債 董事會／送件
         if: always() && steps.s.outputs.cb == '1'

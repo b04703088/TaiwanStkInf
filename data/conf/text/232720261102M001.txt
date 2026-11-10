@@ -1,0 +1,464 @@
+[p.1]
+公司簡介
+2026年 第三季
+
+[p.2]
+關於國巨集團
+創見未來
+國巨集團的總部位於台灣台北，我們運用專業知識提供創新且可靠的解決方案，提升客戶產品的安全性、效率
+及互聯性，為未來創造更安全、高效能的環境。
+  1977  39,000+  65  $4B  16  1.1T
+  成立  全球員工  生產基地  年度營收  海外研發中心  元件銷量/年
+  主要品牌
+
+[p.3]
+我們的使命與願景
+我們的使命
+運用專業知識與創新，造就最可靠的解決方案以提升客戶產品，
+共築一個更安全、高效能並相互連結的未來。
+我們的願景
+以規模化生產、及全方位的產品矩陣為後盾，攜手全球英才的智
+慧與巧思，與客戶締結牢固、長久的合作關係，即時回應瞬息萬
+變的市場浪潮。
+
+[p.4]
+里程碑
+ 成為電子解決方案領導者的歷程
+  收購飛利浦電容電阻元件  收購德國賀利氏集團旗  收購芝浦電子以擴
+  收購全球電容技術領導者
+  在台灣證券交易所  和磁性元件，擴大在歐洲、  下的溫度感測器事業部，  大熱敏電阻和溫度
+  基美電子，擴展産品組合
+  （TAIEX）上市  中東及非洲地區的布局  拓展感測器業務佈局  感測器產品線
+  幷將全球布局擴大一倍
+1977  1993  1996  2000  2018  2020  2022  2023  2025
+  收購德國最大功率電阻  收購專業磁性元件、無線及  收購電感元件領導者-
+  製造商,並建立歐洲、  網路元件製造商普思電子，  收購施耐德旗下的特勒
+  成立國巨公司，  奇力新，打造完整的
+  中東及非洲地區的布局  擴展汽車及工業應用的產品供應  美科傳感器，擴展傳感
+  總部位於台灣台北  磁性元件產品線
+  器産品線
+
+[p.5]
+與國巨集團共創未來
+我們的產品融入您的日常生活
+  Copyright © 2026
+  Copyright © 2026 YAGEO
+  YAGEO  Corporation. All
+  Corporation.
+  Rights All
+  Reserved.
+  Rights Reserved.
+
+[p.6]
+  車用電子  消費性電子
+  我們服務的産業別
+  運算與企業
+工業  解決方案
+通訊  航空  國防  醫療
+
+[p.7]
+  全球生產製造
+  65 座製造生產基地 (21 座於中國, 8 座於台灣, 36 座於其他地區)
+  Suomussalmi, FI  1
+  Skierniewice, PL
+ 1  Znojmo/Jemnice, CZ
+  Kleinostheim, DE  1
+Vancouver, US  1  2
+  Gournay, FR  1
+  Akita, Aomori, Iwate, JP  4
+  Shiroishi, JP  1
+  Limoges, FR  1
+  1  Fukushima, JP  1
+  1  1
+  Kettering, US  Sasso Marconi, IT  1
+  Nantong, CN
+  Evora, PT  1  Mianyang, CN
+  1
+  1  Simpsonville, US  Cascais, PT  1
+  Deyang, CN
+  1
+  1  2
+  3  Suzhou, CN
+  Skopje, MK  1
+  4
+  Shanghai, CN
+  Suining, CN  1  1
+  Matamoros, MX  Kyustendil, BG
+  Hunan, CN  1  Taoyuan, TWN
+  2
+  1
+  1
+  1  Xiamen, CN
+  1
+  3  Monterrey, MX  1
+  3  3
+  3
+  1
+  1
+  Kaohsiung, TWN
+  Ciudad Victoria, MX
+  Dongguan, CN
+  Sing Buri, TH  1  1
+  Hai Phong, VN
+  Bang Pakong, TH
+  2  1  Bien Hoa, VN
+  Trichy, IN
+  Johor, MY
+  1
+  1 1
+  Batam, ID
+  總部  電容  電阻  傳感器  磁性元件
+
+[p.8]
+全球生產製造 – 以技術 / 產品類別區分
+技術 / 產品類別  中國  台灣  越南  印尼  馬來西亞  泰國  日本  印度  歐洲  北馬其頓  墨西哥  美國
+Antennas, RF & Microwave
+Cable Harnesses
+Capacitors – Aluminum
+Capacitors – Ceramic
+Capacitors – Film
+Capacitors – Supercapacitors
+Capacitors – Tantalum
+Circuit Protection
+Cores, Magnets & Metal Materials
+EMC
+Inductors
+Motor & Ignition Coils
+Power Supplies
+Resistors – Chip
+Resistors – Through Hole
+Sensors – Assemblies
+Sensors – Temperature
+Sensors – Other
+Signal Magnetics & Connectors
+Transformers
+  Note: Resiliency of specific products needs to be reviewed at the PN level
+
+[p.9]
+  産品組合
+  Signal  Discrete  Cores,  Motor &
+  Antenna, RF  Circuit  Magnets &  Piezoelectric  Power  Electro-  Cable
+Capacitors  Resistors  Inductors  EMC  Transformers  Magnetics &  Sensors  &  Protection  Semi-  Metal  Ignition
+  Microwave  Devices  Supplies  mechanical  Harnesses
+  Connectors  conductors  Materials  Coils
+  Common Mode  Automotive  Piezo Ceramic
+  Aluminum  Carbon  Power  Isolation  Current  Antennas  Chip Fuse  MOSFET  Electromagnets  DC to DC  Lifting Magnets  Ignition Coils  Custom
+  Choke - Power  Networks  Actuators
+  Common Mode  Inductive &  Connectors,  Gas Discharge  Piezo Ceramic
+  Memoalloy
+  Ceramic  Jumper  RF Signal  Power  Cages  Capacitive  Cables &  Rectifier Diode  AC to DC  Magnetic Coils  Motor Coils
+  Choke - Signal  Tube  (Ni-Ti Wire)  Transducer
+  Sensors  Mounts
+  Differential  Permanent  Piezo Ceramic
+  Film  Metal  Mode Choke -  Connectors  Limit Switches  RF Filters  NTCs  Zener Diode  Acoustic  Relay Coils
+  Power  Magnets  Modules
+  Metal Oxide  Differential  Ethernet  Photoelectric  Ferrite  Piezo Film
+  Polymer  Mode Choke -  Couplers  PPTCs  Relays
+  Film  Signal  (LAN)  Sensors  Cores  Haptic Modules
+  Dual Mode  Integrated  Spark Gap  Shock Absorber
+Supercapacitors  Platinum  Connector  Temperature  Splitters  Coils
+  Choke  Modules (ICMs)  Protectors
+  Telecom &  Pressure  Thyristor Surge
+  Tantalum  Thick Film  EMI Filters  Solenoid Valves
+  Audio (WAN)  Sensors  Suppressors
+  EMI  Pyroelectric  Trigger
+  Thin Film  TVS Diodes
+  Suppression  Sensors  Magnetics
+  Ground  TVS Diodes –
+  Wirewound  RFID Systems  Low
+  Wire  Capacitance
+  Magnetic  Safety Sensors
+  Varistors
+  Materials  & Switches
+  Thermal Reed
+  Switch
+  Ultrasonic
+  Sensors
+  16  82
+  Vibration
+YAGEO Group Product Roadmaps
+  Sensors
+
+[p.10]
+天線、射頻(RF) 和微波元件
+  線材
+  任何可插電、
+  電容器
+  電路保護元件
+  分立半導體
+  可開關，
+  機電元件
+  90%
+  EMC
+  電感器
+  *覆蓋率  或使用電池的裝置
+  磁性和金屬材料
+  引擎和點火線圈
+  壓電裝置
+  電源供應器
+  電阻器
+  感測器
+ 訊號磁性元件和連接器
+  *根據低電壓 PCB 的典型物料清單 (BOM)
+  變壓器
+
+[p.11]
+ 高階經理人
+  Finance & Accounting
+  Eddie Chen  Sales & Marketing  Gavin Zhong
+  COO  Johnny Boan
+  Human Resources
+  Alison Tung
+  Capacitor PBG
+  Bob Willoughby
+  Information Technology
+  Chris Yang
+  Resistor PBG
+  T.Y. Chang
+  Quality & Compliance
+  Susan Barkal
+  Magnetics PBG
+  Procurement
+  William Malherbe
+  Wilson Wang
+PIERRE CHEN  DAVID WANG  Steven Chien
+  Founder &  CEO  Sensor PBG
+  Chairman  Logistics
+  Claudio Lollini
+  Nick Chen
+  Claudio Lollini
+  COO
+  Technology
+  James Chen
+
+[p.12]
+銷貨收入
+(百萬美元)
+年度  季度
+  $4,262
+  $4,071
+  $3,850  $3,789
+  $3,454
+  $2,900  $1,550
+$2,720
+  $1,407
+  $1,206
+  $1,157
+  $1,059 $1,096
+  $946  $946
+ 2019  2020  2021  2022  2023  2024  2025  CY24Q4 CY25Q1 CY25Q2 CY25Q3 CY25Q4 CY26Q1 CY26Q2 CY26Q3
+
+[p.13]
+2026年第三季營收
+15.5億美元
+各産品占比  各産業占比
+ 22.3%  23.7%  21.5%
+  積層陶
+ 磁性元件  鉭電容
+  瓷電容
+  工業  運算/企業系統  車用電子
+  28.7%  28.3%  14.9%
+ 15.3%  10.6%  6.6%
+  電阻  傳感器  其他
+  產品  消費性電子  通訊  航空/國防/醫療
+  11.7%  12.5%  3.9%
+
+[p.14]
+2026年第三季營收
+15.5億美元
+各區域占比  各通路占比
+  直接OEM
+  32.4%
+  經銷商
+  48.9%
+  直接EMS
+  18.7%
+  美洲  歐洲、中東和非洲  亞太區
+  27.1%  19.5%  53.4%
+
+[p.15]
+2026年第三季 財務總結
+單位：百萬台幣
+  • 營業收入季增 11.4%、年增 49.7%。
+  • 營業收入之季增動能來自產品組合、終端應用、地理區域及銷
+  售通路之全面成長；A.I. 持續為關鍵成長動能，標準品與特殊
+  品亦同步成長。
+  • 毛利率季增 2.5 個百分點、年增 4.8 個百分點，主要受惠於價
+  格調整及 A.I. 產品組合優化，雖然部分為投入成本持續；毛利
+  季增 18.6%、年增 69.6%。
+  • 營業利益季增 24.3%、年增 93.1%。
+  • 淨利季增 27.2%、年增 88.5%。
+  • 每股盈餘季增 27.2%、年增 88.4%。
+
+[p.16]
+2026年第三季 財務彈性總結
+ 自由現金流（單位：新台幣百萬元）
+  • 穩健且持續的現金流來自：
+  1. 強勁且具獲利能力的業務成長。
+  2. 持續優化庫存水位。
+淨金融負債 ／ 過去 12 個月 EBITDA
+  • 持續專注於平衡財務彈性與挹注未來成長機會之資金需
+  求。
+  • 淨金融負債 ／ 過去 12 個月 EBITDA 因去年第四季併
+  購芝浦電子攀升至高點後持續改善。
+
+[p.17]
+磁性産品事業群
+功率及信號磁性元件、馬達線圈、壓電元件及天線
+• 電感器和車規級磁件産品 全球市占率第三
+• 網絡變壓器 全球市占率第一
+• 先進的磁學理論及相關産品
+• EMI 抑波解决方案的市場領導者
+供應的産品
+• 天線與射頻濾波器 • 電流感應磁性元件
+• EMC • 電感器 • 磁性材料
+  車用電子  工業  通訊  運算/企業系統  消費性電子
+• 馬達線圈、點火線圈和螺線管
+• 信號磁性元件和連接器
+• 壓電設備
+• 高功率磁性元件和變壓器
+
+[p.18]
+電容産品事業群
+鉭電容、薄膜電容和鋁電解電容
+• 聚合物鉭電容 全球市占率第一
+• 全球産能占比 超過40%
+聚合物鉭電容
+• 汽車、航空航天與國防解决方案領域的領導者
+• 豐富的聚合技術專利組合 (耐高溫150°C和高溫高濕)
+• 垂直整合的供應鏈
+薄膜電容
+  車用電子  工業  通訊  運算/企業系統  消費性電子  航空/國防/醫療
+• 安規電容、直流支撐和觸覺執行器領域的領導者
+• 85°C/ 85% R.H.車規級小型RFI抑制器和貼片式SMD
+• 功率應用解决方案 (緊凑設計、低ESL和ESR)
+鋁電解電容
+• 48V 輕混直流母線電容和 BEV 車載充電器的全球領先供應商
+• 符合AEC-Q200的 450V 矩形鋁電解電容的市場領導者
+• 滿足極爲苛刻的汽車和工業應用需求
+
+[p.19]
+電容産品事業群
+積層陶瓷電容 (MLCC)
+• MLCC市場 全球市占率第三
+• 全球産能占比 超過15%
+• 提供尺寸範圍從 01005 至 4540 EIA
+• 適用於 Class I 和 Class II 的高容産品
+• 值得信賴的全球汽車供應商  車用電子  工業  通訊  運算/企業系統  消費性電子  航空/國防/醫療
+• Class I 陶瓷介質 (C0G 和 U2J) 的技術領導者
+• 高電壓 (額定電壓 ≥ 500V) 技術的領導者
+
+[p.20]
+電阻産品事業群
+電阻器和電路保護
+• 電阻市場 全球市占率第一
+• 全球産能占比 超過30%
+電阻
+• 01005金屬電流感測電阻的領先者
+• 全系列無鉛芯片電阻器的領導者
+• 車規級厚膜系列, 是防焊點裂紋技術的業界先鋒
+  車用電子  工業  通訊  運算/企業系統  消費性電子
+電路保護
+• 全方位的産品組合
+• 市場領先的過流和過壓保護技術
+• Hyper-fix TVS系列産品具有出色的高電流負載能力
+
+[p.21]
+傳感器産品事業群
+溫度與工業傳感器
+  鉑電阻溫度傳感元件
+• No.1 Market  全球市占率第一
+  Leader in Pt Temperature Sensor Elements
+  限位開關
+• No.1  全球市占率第一
+  Market Leader in Limit Switches
+  熱敏電阻
+• No.1  全球市占率第一
+  Market Leader in Thermistors
+溫度傳感器
+ • 可靠的溫度傳感專家
+ • NTC 熱敏電阻、鉑電阻溫度傳感元件和組件的測溫範圍: -200°C 到1000°C
+ • 車規級認證-從開發到售後階段
+  車用電子  消費性電子  航空/國防/醫療  工業
+ • 技術團隊遍布全球以貼近客戶
+機電式和電子式傳感器
+ • 市占第一的限位開關設計和製造商
+ • 目標客戶 : 機械製造商和經銷商
+ • 限位開關 • 壓力傳感器 • 電感式和電容式接近傳感器 • 光電傳感器
+  • 超聲波傳感器 • 安全檢測類産品 • 無線射頻識別系統
+
+[p.22]
+2050年實現淨零排放
+2025 – 2030  能源效率整合
+2030 – 2035  機械設備優化
+2035 – 2045  再生能源導入
+2045 – 2050  低碳能源替代
+2050  減碳投資策略
+20
+
+[p.23]
+選擇國巨的理由  創新
+  我們不斷提升知識，
+  成爲技術領導者
+  規模
+  我們致力於成長
+  卓越營運
+  我們致力於營運完美達標
+  全球布局
+  我們廣布全球,業務營運
+  涵蓋任何時間,任何地點
+  服務與解决方案
+  我們竭誠爲客戶服務
+  Copyright © 2026
+  Copyright © 2026 YAGEO
+  YAGEO  Corporation. All
+  Corporation.
+  Rights All
+  Reserved.
+  Rights Reserved.
+
+[p.24]
+2026年第三季損益表
+國巨合併 (已檢閱)  單位：百萬台幣
+  2026 第三季  2026 第二季  Q-Q  2025 第三季  Y-Y
+  數值  %  數值  %  變量 %  數值  %  變量 %
+ 營業收入  49,532  100.0  44,456  100.0  11.4  33,087  100.0  49.7
+ 銷貨成本  -29,224  (59.0)  -27,340  (61.5)  6.9  -21,112  (63.8)  38.4
+ 毛利  20,308  41.0  17,116  38.5  2.5 ppts  11,974  36.2  4.8 ppts
+ 營業費用  -5,705  (11.5)  -5,368  (12.1)  0.6 ppts  -4,412  (13.3)  1.8 ppts
+ 營業利益  14,603  29.5  11,749  26.4  3.1 ppts  7,562  22.9  6.6 ppts
+ 營業外項目  616  1.2  474  1.1  0.2 ppts  650  2.0  (0.7 ppts)
+ 稅前淨利  15,219  30.7  12,222  27.5  3.2 ppts  8,212  24.8  5.9 ppts
+ 所得稅費用  -3,196  (6.5)  -2,766  (6.2)  (0.2 ppts)  -1,817  (5.5)  (1.0 ppts)
+ 淨利  12,022  24.3  9,456  21.3  3.0 ppts  6,395  19.3  4.9 ppts
+ 非控制權益  -41  (0.1)  -39  (0.1)  0.0 ppts  -39  (0.1)  0.0 ppts
+ 淨利（歸屬於母公司業主）  11,981  24.2  9,418  21.2  3.0 ppts  6,356  19.2  5.0 ppts
+ 每股盈餘（新台幣）  5.83  4.59  27.2  3.10  88.4
+ EBITDA  17,190  34.7  14,382  32.4  2.4 ppts  9,846  29.8  4.9 ppts
+- Q-Q/Y-Y Change of Net Sales, Cost of Sales , and EPS is in %, the rest of Changes is in percentage point.
+- The financial data is based on T-IFRS
+
+[p.25]
+2026年第三季資產負債表摘要
+國巨合併 (已檢閱)  單位：百萬台幣
+  截至九月三十日 截至六月三十日  Q-Q  截至九月三十日  Y-Y
+  2026  2026  變量 %  2025  變量 %
+  現金及約當現金  125,047  200,718  (37.7)  100,607  24.3
+  應收帳款  37,835  33,621  12.5  25,268  49.7
+  存貨  38,283  35,866  6.7  28,257  35.5
+  總資產  439,094  507,342  (13.5)  361,368  21.5
+  應負帳款  24,479  20,922  17.0  16,377  49.5
+  淨金融負債  12,984  10,611  22.4  14,032  (7.5)
+  總負債  246,871  328,394  (24.8)  201,956  22.2
+  總股東權益  192,224  178,948  7.4  159,412  20.6
+  總負債及股東權益  439,094  507,342  (13.5)  361,368  21.5
+  淨金融負債 / 股東權益比率  6.8%  5.9%  0.8 ppts  8.8%  (2.0 ppts)
+  淨金融負債 / EBITDA 比率  23.7%  22.4%  1.3 ppts  40.7%  (17.0 ppts)
+  股東權益報酬率（單季）  6.5%  5.4%  1.1 ppts  4.1%  2.3 ppts
+  股東權益報酬率（年化）  20.7%  18.8%  13.2%
+  - The financial data is based on T-IFRS
+
+[p.26]
+Thank You
+  感謝您
+YAGEOGroup.com

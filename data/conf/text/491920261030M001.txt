@@ -1,0 +1,110 @@
+[p.1]
+3Q’26 法人說明會
+  2026年10月30號
+  Photo by Jeffery Cheng
+
+[p.2]
+大綱
+  新唐合併財務數字
+  新唐3Q’26營運概況更新
+  Q&A
+
+[p.4]
+新唐合併財務數字
+
+[p.5]
+合併綜合損益表
+  3Q’26  2Q’26  QoQ
+Unit: NT$ M  Amount  %  Amount  %  Amount  %
+Net Revenue  7,856  100  7,941  100  (85)  -
+Gross Profit  2,941  37.4  3,020  38.0  (79)  (0.6)
+Operating Income (Loss)  (507)  (6)  (333)  (4)  (174)  (2)
+Non-Operating Income  10  -  212  3  (202)  (3)
+Loss before Income Tax  (497)  (6)  (121)  (1)  (376)  (5)
+Net Loss  (559)  (7)  (249)  (3)  (310)  (4)
+EPS (NTD)  (1.24)  (0.58)
+
+[p.6]
+合併資產負債表
+  Sep 30 ’26  June 30 ’26  QoQ
+Unit: NT$ M  Amount  %  Amount  %  Amount  %
+  Cash & Cash Equivalents  7,586  24  7,464  24  122  -
+  Accounts Receivable  4,258  13  4,353  14  (95)  (1)
+  Other Receivable  374  1  456  1  (82)  -
+  Inventories  7,703  24  6,869  22  834  2
+  Long-Term Investments  2,841  9  2,793  9  48  -
+  Property, Plant, Equipment and R.O.U  7,342  22  7,262  23  80  (1)
+  Others  2,058  7  2,060  7  (2)  -
+Total Assets  32,162  100  31,257  100  905  -
+  Current Liabilities  11,672  36  10,409  33  1,263  3
+  Non-Current Liabilities  4,180  13  4,126  13  54  -
+Total Liabilities  15,852  49  14,535  46  1,317  3
+Total Equity  16,310  51  16,722  54  (412)  (3)
+Debt/Equity Ratio  0.97  0.87
+
+[p.7]
+合併現金流量表
+  3Q’26  2Q’26  1Q’26
+Unit: NT$ M  Amount  Amount  Amount
+Cash Flows from Operating Activities  (1,057)  238  (688)
+Cash Flows from Investing Activities  (90)  (472)  44
+Cash Flows from Financing Activities  1,194  700  440
+Cash & Cash Equivalents  7,586  7,464  7,069
+
+[p.8]
+新唐3Q’26營運概況更新
+
+[p.9]
+3Q’26銷售分析- 關鍵應用
+  3Q’26
+  2Q’26
+Automotive& Industrial  27%  AI & Computing
+  31%
+  39%
+  37%
+  12%  12%
+  20%
+Communication & Others  Consumer
+  22%
+  Note: Foundry revenue was not included in the numbers .
+
+[p.10]
+新唐3Q’26營運概況更新(1)
+AI & Computing
+ 受惠於 AI 市場需求持續成⾧，以及新唐在 BMC 產品上的競爭優勢，新唐看好 BMC 業務於 2027 年
+ 延續今年的成⾧動能。依目前產品導入進度來看，預期 2027 年將有新客戶加入量產，帶動出貨客戶
+ 數進㇐步增加，整體出貨規模亦可望持續擴大。隨著既有客戶需求成⾧及新客戶貢獻逐步挹注，預期
+ 2027 年 BMC 業務的成⾧幅度將有機會優於今年相較去年的成⾧表現
+ 隨著全球 AI 基礎設施投資持續加速，客戶對於BMC的需求持續增加，為此新唐與 AMI 共同推出整合
+ 新唐Arbel BMC與 AMI開源韌體MegaRAC OneTree 的完整解決方案，協助客戶更有效率地部署安
+ 全且可擴充的AI基礎設施，也有助於進㇐步拓展新唐 BMC 業務的市場機會
+
+[p.11]
+新唐3Q’26營運概況更新(2)
+AI & Computing
+ 因應業界加速導入更高壓電源架構的AI伺服器，新唐於本季發表新㇐代應用於電池備援模組的電池
+ 監控IC，該產品支援菊花鏈通訊架構技術，最多可串接55 顆電池監控 IC，有助於簡化大型電池系統
+ 設計，並整合通訊及故障偵測功能
+ 新唐全面升級 NuDeveloper 軟硬體開發平台，該平台整合了AI 輔助，提供程式碼生成與技術問答等
+ 功能；同時針對 AI MCU 推出專屬工具 NuML Studio，該工具支援裝置端的模型訓練與邊緣部署，打
+ 造AI 賦能的㇐站式開發生態系，協助客戶大幅縮短產品上市時程
+
+[p.12]
+新唐3Q’26營運概況更新(3)
+Automotive & Industrial
+ 隨著車用電池系統容量與輸出功率持續提升，新唐推出第六代電池監控IC，整合新唐獨家開發的電感
+ 式技術，實現電池劣化診斷、壽命預測及電芯異常早期偵測，進㇐步提升車輛與儲能系統的安全性
+ 新唐持續深化車用市場布局，並拓展更多元的客戶範疇。本季，我們可應用於電子後視鏡系統及電子
+ 儀表板的Gerda系列車用感測產品以及車用鋰電池監控用的BMIC，成功導入陸系及日系車用客戶的多
+ 款車型
+ 隨著智慧裝置功能日益多元，新唐推出專為智慧蜂鳴器（Smart Buzzer）應用設計的語音IC，該產品
+ 將語音功能與蜂鳴器驅動整合於單㇐晶片，讓傳統蜂鳴器可支援語音互動及多音效撥放，為安防系統、
+ 醫療設備、工業設備及其他智慧裝置帶來更直覺及辨識度的互動體驗
+
+[p.13]
+Questions & Answers
+  Nuvoton Company Website: www.nuvoton.com
+
+[p.14]
+Thank you
+  Nuvoton Company Website: www.nuvoton.com

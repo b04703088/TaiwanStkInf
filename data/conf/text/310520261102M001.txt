@@ -1,0 +1,506 @@
+[p.1]
+穩懋半導體公司簡介
+  2026年11-12月
+  WIN Semiconductors Confidential
+
+[p.3]
+ESG 領域肯定
+ 連續 6年入選道瓊永續世界指數DJSI World 成分股(2020~2025)
+ 連續 7年入選標普全球永續年鑑S&P Global Sustainability Yearbook
+ (2020~2026)
+ 連續11年獲得公司治理評鑑上櫃公司排名前5% (2015~2025)
+ 連續 3年榮獲ISS ESG評比：優秀(Prime)等級 (2024~2026)
+ 2024年榮獲TCSA(台灣企業永續獎)第17屆企業永續報告：金獎
+ 2024年榮獲MSCI ESG評等：A等級
+ 2025年榮獲第四屆淨零產業競爭力獎: 卓越獎
+  3
+
+[p.4]
+大綱
+ 產業概況
+ 營運結果與展望
+ Q&A
+  WIN Semiconductors Confidential  4
+
+[p.5]
+產業概況
+  WIN Semiconductors Confidential  5
+
+[p.6]
+Annual Revenue Share by Applications
+  2024  2025
+  Optical
+  Optical
+  11%
+  13%
+  Cellular
+  30-35%
+  Wi-Fi  Cellular  Wi-Fi
+  15-20%  35-40%  15-20%
+  Infra.  Infra.
+  25-30%  30-35%
+
+[p.7]
+2025 Review
+  Cellular  Wi-Fi
+  • Refocused on mid-high and  • The Wi-Fi 7 market continues
+  -20%  11%  to penetrate into market.
+  premium models.
+  • Wi-Fi 6 adoption continues to
+  expand, gradually replacing
+  Wi-Fi 5
+  2024  2025  2024  2025
+  Infrastructure  • Propelled by new satellite  OE  • New player took some market
+  launch with new freq.
+  share on SP 3D Sensing
+  5%  spectrum in 2025.
+  • Contribution from GaAs  -15%
+  optical driver IC.
+ 2024  2025  2024  2025
+
+[p.8]
+2026 Market Outlook
+  Cellular  Wi-Fi
+  Infra.  OE
+
+[p.9]
+5G Adoption Rate Keep Rising
+TAM impacted by insufficient memory for smartphone shipment.
+WIN keeps focusing on mid-high and premium models.
+  Cellular Penetration Rate
+  2025  2026  2027  2028
+ M unit
+ 1,400.0  5G  67.9%  72.0%  75.4%  78.3%
+  -5.5%  6G  0.0%  0.0%  0.0%  0.0%
+ 1,200.0
+  Shipment by Tier
+ 1,000.0
+  800.0
+  6G  30.8%  32.5%  34.8%
+  600.0  5G  24.1%  24.2%  25.2%
+  400.0  LTE
+  43.6%  42.6%  39.7%
+  200.0
+  2024  2025  2026
+  0.0
+  2023 2024 2025 2026 2027 2028 2029 2030 2031  Premium  Mid/High end  Low end
+  Source: TSR 2025
+
+[p.10]
+Wi-Fi 7 is the Main Growth Engines
+The market is driven by the adoption of Wi-Fi 6 and the upgrade to Wi-Fi 7.
+The Wi-Fi 7 market continues to grow in 2026 for both cellular and router segments.
+  Wi-Fi Device Market Forecast by Standard, 2024-2031
+  5,000.0
+  4,000.0
+  M Units
+  3,000.0
+  2,000.0
+  1,000.0
+  0.0
+  2024  2025  2026  2027  2028  2029  2030  2031
+  WiFi 6  WiFi 7  WiFi 8
+  Source: TSR 2025
+
+[p.11]
+Base Station Market Forecast
+ Capital expenditures of operator are projected to decline at a CAGR of 2%.
+  Global 5G Base Station Forecast
+  1400
+  1200  -2%
+  Base Station Unit (k unit)
+  1000
+  800
+  600
+  400
+  200
+  0
+  2024  2025F  2026F
+  Source: Yole, TDIA and WIN
+
+[p.12]
+1.6T Optical GaAs Driver in AI Datacenter
+ GaAs driver market growth is driven by AI datacenter booming in 2026.
+  Demand of GaAs Optical Driver for OT Market
+  K unit
+  70,000
+  60,000
+  50,000
+  40,000
+  30,000
+  20,000
+  10,000
+  0
+  2025  2026
+  Source: WIN Semi.
+
+[p.13]
+VCSEL Sensing Market
+ Sensing tech. is driven by human pursue a safe, environmentally friendlier, and
+  more immersive experience lifestyle.
+ Market growth is driven by consumer, and adopted in automotive applications.
+  M unit
+  Total Sensing VCSEL Device Forecast
+  1,200.0
+  1,100.0
+ Face ID  Lawn Mower
+  1,000.0
+  900.0
+  OMS/DMS  800.0
+3D vision by LiDAR
+  2025  2026
+  Source: TrendForce 2026
+
+[p.14]
+-Growth Strategy-
+  AI Networking
+
+[p.15]
+Key Growth Engines for Compound Semi.
+  Satellite  AI
+
+[p.16]
+  LEO Satellite is Booming
+Source: Techinsights Market Data: RF/Analog March,2025
+
+[p.17]
+  Satellite Connectivity is Expanding
+  New Freq. band (E/V) is being adopted in satellites to expand capacity from
+  2025 to 2026.
+  Emerging opportunities for satellite-to-smartphone (direct to cell) services.
+  Ku/Ka-band
+  (17.8-19.3/27.5-30GHz)
+  E-band
+  (71-86GHz)
+  <6GHz
+  Satellite to  V-Band (New)
+  Gateway  UT  Cell phone  (37.5-40, 47.2-50.2GHz)
+  Gateway
+  Ku/Ka-band
+  (17.8-19.3/27.5-30GHz)
+  E-band
+  PtP  (71-86GHz)
+  Gateway to  V-Band (New)
+  (37.5-40, 47.2-50.2GHz)
+Infrastructure  Satellite
+
+[p.18]
+Spectrum Proliferation is the Growth Engine
+  E-Band  V-Band
+  71-86GHz  37.5-40GHz,
+  W-Band
+  75-110GHz
+  47.2-50.2GHz
+  Production  Ramp up  Coming up
+  Time
+
+[p.19]
+WIN’s leading Tech. for Satcom in W-Band
+  GaAs  GaN
+   4V PP10 GaAs pHEMT   NP10
+  • 0.1μm EBL D-pHEMT  • 0.1μm EBL GaN HEMT
+  • Low Parasitic  • 2/4 mil Substrate TSV with COV
+  • 2mil Substrate TSV  • High Power Efficiency
+  • High Linearity
+  • QFN/Flip-Chip
+  100 nm Gate  Cu Pillar
+  BS via for 4 mil
+  Sub
+
+[p.20]
+Key Growth Engines for Compound Semi.
+  Satellite  AI
+
+[p.21]
+  AI Propels Compound Semi. Growth
+  Optical transceivers market forecast
+  140.00
+  120.00
+  100.00
+  80.00
+M Units
+  60.00
+  40.00
+  20.00
+  -
+  2024  2025  2026  2027  2028  2029  2030
+
+[p.22]
+WIN’s Competitive Advantages for Optical in AI
+  Global Customer Partnership
+  Broad and Advanced Technologies
+  Turn-Key for Speeding Development
+  Largest Capacity with Richest Manufacturing
+  Experience in 6’’
+
+[p.23]
+  Optical Device from Datacom to Telecom
+Datacom  Telecom
+  <100m  >10km
+  VCSEL  CW-DFB  EML  InP PIC
+  PD
+  Mass Production
+  Ongoing Qualification
+
+[p.24]
+CW-DFB Development Roadmap
+  400
+  mW
+  200
+  Laser power
+  mW
+  100
+  mW
+  70
+  mW
+  Data rate/lane
+
+[p.25]
+WIN’s Advanced Turn-Key Service
+WIN provides turn-key service to accelerate customers’ development.
+  Wafer
+  Testing
+  Customer Requests
+  • Epi structure  Base Epi Growth  Foundry
+  • Chip layout design  BE Cleave &
+  & Re-growth  Process  Facet Coating
+  • BE service
+  100% Wafer
+  • Testing  AOI
+  • AOI
+
+[p.26]
+WIN’s advantages in 6-inch process capability from GaAs to InP
+  WIN possesses the world’s largest GaAs 6-inch wafer capacity,
+  technology, and expertise.
+  By leveraging the technology and experience from 6-inch GaAs
+  capability, WIN is now developing 6-inch InP capability with the
+  following advantages:
+  • Faster time-to-market
+  • Lower entry barriers (Leveraging deep and extensive production
+  experience of 6-inch compound semiconductors)
+  • Limited capex required (Leveraging existing 6-inch equipments
+  and facilities)
+
+[p.27]
+AI Associated Sensing Applications
+AI-adopted devices/vehicles with 3D sensing technologies for innovative future life
+  Lawn Mower  AR Glass  Autonomous Vehicle
+  2D Addressable VCSEL
+  Delivery  Headset
+
+[p.28]
+Worldwide NO.1
+Compound Semiconductors Foundry Provider
+  AI
+
+[p.29]
+營運結果與展望
+  WIN Semiconductors Confidential  29
+
+[p.30]
+  營收及毛利趨勢
+  第三季受惠於傳統旺季之季節性因素及銷售組合轉變之成效，合併營收為新台幣58.59億元，較前一季上
+  升11%，較去年同期上升31%，符合先前預期。
+  第三季隨著整體產能利用率上升 ，及產品組合優化等有利因素，本季個體營業毛利率上升至40.7%，本季
+  合併毛利率為37.4%，合併營業淨利率為24.2%，分別較前一季上升9.2及10.1個百分點。
+  NT$M
+  Quarterly revenue trend  Quarterly margin trend
+  7,000  50%  40%
+  6,000  40%
+  30%
+  30%
+  5,000
+  20%
+  20%
+  4,000
+  10%  10%
+  3,000
+  0%
+  0%
+  2,000
+  -10%
+  -10%
+  1,000  -20%
+  0  -30%  -20%
+  4Q24  1Q25  2Q25  3Q25  4Q25  1Q26  2Q26  3Q26  4Q24  1Q25  2Q25  3Q25  4Q25  1Q26  2Q26  3Q26
+  Revenue  YoY %  Gross margin  Operating margin  Net margin
+  Source: company.
+  WIN Semiconductors Confidential  30
+
+[p.31]
+獲利趨勢
+ 本季因營業毛利顯著優於預期、營業費用率持平，加諸權益法評價收益大幅增加
+ 之下，總計第三季歸屬於母公司淨利為NT$19.3億元，前一季歸屬於母公司淨利
+ 為NT$9.77億元；第三季EPS為NT$ 4.55元，第二季為NT$ 2.30元。
+  NT$M
+  Earnings & growth trend  NT$  EPS
+  2,500  5.00
+  2,000
+  4.00
+  1,500
+  3.00
+  1,000
+  2.00
+  500
+  0  1.00
+  -500
+  0.00
+  -1,000
+  4Q24  1Q25  2Q25  3Q25  4Q25  1Q26  2Q26  3Q26
+  (1.00)
+  4Q24  1Q25  2Q25  3Q25  4Q25  1Q26  2Q26  3Q26
+  Operating profit  Profit attributable to owners of parent
+  Source: company.
+  WIN Semiconductors Confidential  31
+
+[p.32]
+產品組合
+  3Q25
+  3Q26
+  Others*
+  16%  Others*
+  Cellular
+  30-35%
+  3%
+  Optical
+  10-15%
+  Cellular
+  Wi-Fi
+ 15-20%  25-30%
+  Wi-Fi
+  Infra.
+  30-35%  15-20%
+  2Q26
+  Others*
+  5%
+  Optical
+  10-15%
+  Cellular
+  30-35%
+  Infra.
+  Wi-Fi
+  35-40%
+ 10-15%
+  * Others: 未歸屬於以上主要產品別之營收，以及因應IFRS要求而併入集團
+  Infra.
+  30-35%
+  之合併營收
+  Source: company.
+  WIN Semiconductors Confidential  32
+
+[p.33]
+未來展望
+ 第四季合併營收預計將較前一季成長 low-single digit百分比。
+ 第四季合併毛利率預計約為 high-thirties 的水準。
+  WIN Semiconductors Confidential  33
+
+[p.34]
+財務狀況
+  WIN Semiconductors Confidential  34
+
+[p.35]
+合併綜合損益表 – 第三季
+  3Q'26
+  (新台幣 百萬元)  3Q'25  2Q'26  QoQ  YoY
+  (自結數)
+  營業收入  4,488  5,257  5,859  +11%  +31%
+  營業毛利  1,205  1,485  2,191  +48%  +82%
+  營業毛利率(%)  26.9%  28.2%  37.4%
+  營業費用  (820)  (743)  (775)  +4%  -5%
+  營業費用率(%)  -18%  -14%  -13%
+  營業淨利(損)  385  742  1,416  +91%  +267%
+  營業淨利(損)率(%)  8.6%  14.1%  24.2%
+  營業外收支淨額  511  447  698
+  稅前淨利(損)  897  1,188  2,114  +78%  +136%
+  所得稅(費用)利益  (213)  (284)  (288)
+  本期淨利(損)  683  905  1,826  +102%  +167%
+  淨利(損)率(%)  15.2%  17.2%  31.2%
+  其他綜合損益(稅後淨額)  1,903  1,837  (426)
+  綜合損益總額  2,586  2,742  1,400  -49%  -46%
+  本期淨利(損)歸屬於母公司業主  1,070  977  1,930  +98%  +80%
+  每股純益(元)  2.52  2.30  4.55  +98%  +81%
+  年化ROE(%)  11%  9%  17%
+  約當產能利用率 (%)  60%  65%  75%
+  折舊費用  936  760  706
+  資本支出  933  129  445
+  WIN Semiconductors Confidential  35
+
+[p.36]
+合併綜合損益表 – 前三季
+  2026Q1-Q3
+  (新台幣 百萬元)  2025Q1-3  YoY
+  (自結數)
+  營業收入  11,844  15,706  +33%
+  營業毛利  2,502  4,885  +95%
+  營業毛利率(%)  21.1%  31.1%
+  營業費用  (2,452)  (2,296)  -6%
+  營業費用率(%)  -21%  -15%
+  營業淨利(損)  50  2,589  +5094%
+  營業淨利(損)率(%)  0.4%  16.5%
+  營業外收支淨額  235  1,246
+  稅前淨利(損)  285  3,834  +1246%
+  所得稅(費用)利益  (155)  (655)
+  本期淨利(損)  130  3,180  +2349%
+  淨利(損)率(%)  1.1%  20.2%
+  其他綜合損益(稅後淨額)  1,072  1,109
+  綜合損益總額  1,202  4,289  +257%
+  本期淨利(損)歸屬於母公司業主  665  3,440  +417%
+  每股純益(元)  1.57  8.12  +417%
+  年化ROE(%)  2%  11%
+  約當產能利用率 (%)  50%  70%
+  折舊費用  3,080  2,237
+  資本支出  1,320  1,458
+  WIN Semiconductors Confidential  36
+
+[p.37]
+營業外收支
+  3Q'26  2026Q1-Q3
+  (新台幣 百萬元)  3Q'25  2025Q1-3
+  (自結數)  (自結數)
+外幣兌換損益  189  94  57  419
+處分不動產、廠房及設備損益  1,942  -  1,968  -
+透過損益按公允價值衡量之金融資產及負債淨損益  89  (16)  (36)  (113)
+採用權益法認列之關聯企業及合資損益之份額  51  684  208  998
+財務成本  (181)  (151)  (523)  (434)
+減損損失  (1,642)  -  (1,642)  -
+其他  64  87  204  374
+總計  511  698  235  1,246
+  WIN Semiconductors Confidential  37
+
+[p.38]
+合併資產負債表
+  2026/9/30
+  2025/9/30  2026/6/30
+ (新台幣 百萬元)  重要科目  (自結數)
+  $  %  $  %  $  %
+ 現金及約當現金  5,837  10%  5,320  8%  6,608  10%
+ 透過損益按公允價值衡量之金融資產-流動  214  0.4%  263  0.4%  269  0.4%
+ 應收票據及帳款淨額  1,360  2%  1,887  3%  1,928  3%
+ 存貨  4,794  8%  7,584  12%  8,162  13%
+ 長期投資  20,289  35%  22,631  36%  22,555  35%
+ 不動產、廠房及設備  21,738  38%  21,744  34%  21,671  33%
+ 資產總計  57,828  100%  63,490  100%  65,201  100%
+ 流動負債  4,999  9,750  10,025
+  一年內到期之長期借款  -  3,013  3,017
+ 長期借款  12,335  8,973  8,965
+ 負債總額  17,867  31%  19,243  30%  19,554  30%
+ 普通股股本  4,239  4,239  4,239
+ 歸屬於母公司業主之權益  39,479  43,810  45,308
+ 權益總計  39,961  69%  44,247  70%  45,647  70%
+  1
+ 每股淨值(元)  93.12  103.34  106.87
+ 重要財務指標
+  流動比率  255%  162%  175%
+  負債比率  31%  30%  30%
+ 1
+  每股淨值=歸屬於母公司業主權益/普通股股數
+  WIN Semiconductors Confidential  38
+
+[p.39]
+  Q&A
+  For more information regarding WIN
+  www.winfoudry.com
+For all inquiries, suggestions, and comments
+  ir@winfoundry.com
+  WIN Semiconductors Confidential  39

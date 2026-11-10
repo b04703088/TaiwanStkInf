@@ -1,0 +1,179 @@
+[p.1]
+  達發科技2026年第三季法人說明會
+  Airoha 2026-Q3 Investor Conference
+  Update:  1
+AIROHA Proprietary and Confidential. © 2026 Airoha Technology Corp. All rights reserved.
+
+[p.3]
+  合併營業收入
+  (單位：新台幣佰萬元)
+  YoY  QoQ
+  +23.3%  +10.4%
+  6,942
+  6,289
+  5,630
+  3Q25  2Q26  3Q26  3
+AIROHA Proprietary and Confidential. © 2026 Airoha Technology Corp. All rights reserved.
+
+[p.4]
+  合併營業毛利率
+  (%)
+  YoY  QoQ
+  -2.9pts  -1.9pts
+  52.2%
+  51.2%
+  49.3%
+  3Q25  2Q26  3Q26
+  4
+AIROHA Proprietary and Confidential. © 2026 Airoha Technology Corp. All rights reserved.
+
+[p.5]
+  合併營業費用
+  (單位：新台幣佰萬元)
+  YoY  QoQ
+  +11.0%  +0.6%
+  2,274  2,287
+  2,060
+  244  263
+  199  208  158
+  146
+  銷售費用
+  Sales
+  管理費用
+  Admin
+  1,822  1,866
+  1,715
+  研究費用
+  R&D
+  3Q25  2Q26  3Q26
+  5
+AIROHA Proprietary and Confidential. © 2026 Airoha Technology Corp. All rights reserved.
+
+[p.6]
+  合併營業利益
+  (單位：新台幣佰萬元)
+  YoY  QoQ
+  +29.3%  +20.3%
+  1,134
+  877  943
+  3Q25  2Q26  3Q26
+  6
+AIROHA Proprietary and Confidential. © 2026 Airoha Technology Corp. All rights reserved.
+
+[p.7]
+  合併營業利益率
+  (%)  QoQ
+  YoY
+  +1.3pts
+  +0.7pts
+  16.3%
+  15.6%
+  15.0%
+  3Q25  2Q26  3Q26
+  7
+AIROHA Proprietary and Confidential. © 2026 Airoha Technology Corp. All rights reserved.
+
+[p.8]
+  合併本期淨利
+  (單位：新台幣佰萬元)
+  YoY  QoQ
+  +26.0%  +17.2%
+  1,038
+  886
+  824
+  3Q25  2Q26  3Q26
+  8
+AIROHA Proprietary and Confidential. © 2026 Airoha Technology Corp. All rights reserved.
+
+[p.9]
+  合併本期淨利率
+  (%)
+  YoY  QoQ
+  +0.4pts  +0.9pts
+  15.0%
+  15%  14.6%
+  15%  14.1%
+  14%
+  14%
+  13%
+  13%
+  12%
+  12%
+  11%
+  3Q25  2Q26  3Q26
+  9
+AIROHA Proprietary and Confidential. © 2026 Airoha Technology Corp. All rights reserved.
+
+[p.10]
+  合併每股盈餘
+  (單位：新台幣元)
+  YoY  QoQ
+  +$1.15  +$0.90
+  6.15
+  5.25
+  5.00
+  3Q25  2Q26  3Q26
+  10
+AIROHA Proprietary and Confidential. © 2026 Airoha Technology Corp. All rights reserved.
+
+[p.11]
+  財務報表
+  11
+AIROHA Proprietary and Confidential. © 2026 Airoha Technology Corp. All rights reserved.
+
+[p.12]
+  合併損益表 (自結數)
+  (單位: 新台幣百萬元, 除每股盈餘)  3Q26  2Q26  3Q25  QoQ  YoY
+  營業收入  6,942  6,289  5,630  10.4%  23.3%
+  營業成本  (3,521)  (3,072)  (2,693)
+  營業毛利  3,421  3,217  2,937  6.3%  16.5%
+  推銷費用  (263)  (244)  (199)
+  管理費用  (158)  (208)  (146)
+  研究發展費用  (1,866)  (1,822)  (1,715)
+  營業費用合計  (2,287)  (2,274)  (2,060)
+  營業利益  1,134  943  877  20.3%  29.3%
+  營業外收入及支出  81  84  82
+  稅前淨利  1,215  1,027  959
+  所得稅費用  (177)  (141)  (135)
+  本期淨利  1,038  886  824  17.2%  26.0%
+  歸屬於母公司  1,029  880  838  16.9%  22.8%
+  每股盈餘 (新台幣元)  6.15  5.25  5.00
+  平均匯率(美金/新台幣)  31.99  31.60  29.95  12
+AIROHA Proprietary and Confidential. © 2026 Airoha Technology Corp. All rights reserved.
+
+[p.13]
+  合併資產負債表 (自結數)
+  (單位: 新台幣百萬元)  3Q26  2Q26  3Q25
+  現金及約當現金  11,636  13,577  12,337
+  應收帳款  3,416  3,145  2,755
+  存貨淨額  3,915  3,174  2,222
+  其他流動資產  801  644  495
+  不動產、廠房及設備  3,872  3,934  3,779
+  無形資產  3,167  3,264  3,316
+  其他非流動資產  3,880  2,979  3,076
+  資產總計  30,687  30,717  27,980
+  應付帳款  2,850  2,404  2,137
+  其他應付款  2,370  4,496  1,928
+  其他流動負債  2,228  1,682  2,070
+  非流動負債合計  956  945  811
+  權益總計  22,283  21,190  21,034
+  13
+AIROHA Proprietary and Confidential. © 2026 Airoha Technology Corp. All rights reserved.
+
+[p.14]
+  合併現金流量表 (自結數)
+  (單位: 新台幣百萬元)  3Q26  2Q26  3Q25
+  營業活動之淨現金流入(出)  1,283  1,336  1,484
+  投資活動之淨現金流入(出)  (984)  (228)  (383)
+  籌資活動之淨現金流入(出)  (2,279)  (18)  (2,110)
+  匯率變動對現金及約當現金之影響  39  54  159
+  本期現金及約當現金增加(減少)數  (1,941)  1,144  (850)
+  期末現金及約當現金餘額  11,636  13,577  12,337
+  14
+AIROHA Proprietary and Confidential. © 2026 Airoha Technology Corp. All rights reserved.
+
+[p.15]
+  Thank you
+  Questions and Discussions
+  15
+AIROHA Proprietary and Confidential. © 2026 Airoha Technology Corp. All rights reserved.

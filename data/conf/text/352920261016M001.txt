@@ -1,0 +1,643 @@
+[p.1]
+力旺電子 Briefing .
+
+[p.2]
+  All rights, titles and interests contained in this information, texts, images, figures, tables or other
+IPR  files herein, including, but not limited to, its ownership and the intellectual property rights, are
+Notice .  reserved to eMemory Technology Incorporated and PUFsecurity Corporation. This information
+  may contain privileged and confidential information. Any and all information provided herein
+  shall not be disclosed, copied, distributed, reproduced or used in whole or in part without prior
+  written permission of eMemory Technology Incorporated or PUFsecurity Corporation.
+
+[p.3]
+  eMemory: Embedded NVM with Logic Process .
+  Part 1. The Core Concept  Part 2. eNVM vs. External Memory
+Volatile Memory  Non-Volatile Memory  Embedded Memory (eNVM)  External Memory
+  (e.g., RAM)  (e.g., Flash/Storage)
+  Data
+  Main
+  Integrated
+  Main  External
+  Processor  Processor
+  Power Off  Power Off  SoC  eNVM  SoC  Memory
+  Data LOST  Data STAYS
+  Faster, More Efficient, Saves Space  Slower, Higher Power
+  Part 2. What eMemory Does
+  License IPs to Foundries and Chip Designers
+  Logic-Compatible
+  Key: Enables eNVM in standard logic processes, WITHOUT extra costly steps.
+  eNVM IP
+  (Cost-Effective, Scalable)
+  Part 3. Key Technology Types
+  Multi-Time Programmable (MTP):
+  Key Uses:  NeoFlash  Key Uses:
+  One-Time Programmable (OTP):  • Memory repair for DRAM/SRAM  • Firmware Updates
+  NeoMTP
+  NeoBit (8-inch)
+  NeoFuse (12-inch)
+  • Image sensor recovery  NeoEE  • Data Logging
+  • Analog circuits trimming  Embedded ReRAM  • Flexible Product Configuration
+  ASIC Memory
+  Part 4. Advanced Security
+  Anti-Fuse Technology (OTP)  NeoPUF (Physical Unclonable Function)
+  Permanent, difficult-to-tamper connection  (better  Uses unique microscopic variations to generate
+  than standard fuse). Highest security.  keys ON-DEMAND, not stored. Ultimate root of trust.
+  1
+
+[p.4]
+  Company Overview .
+  ◼  eMemory leads the global market in Logic NVM and PUF-Based Security IPs.
+  Revenue Trend
+  (Unit: NT$ in Million)
+  4,500
+  4,000  Royalty  License/Design Revenue
+  3,500
+  3,000
+  2,500
+  2,000
+  1,500
+  1,000
+  500
+  0
+  2005 2006 2007 2008 2009 2010 2011 2012 2013 2014 2015 2016 2017 2018 2019 2020 2021 2022 2023 2024 2025
+79M+  1370+  16-Year
+Cumulative Wafers Shipped  Patents Issued  Best IP Partner with TSMC
+Spanning 772 production processes  Expanding our IP footprint with 221  Founded in 2000 and IPO in 2011.
+from 0.5µm to 2nm, and 5M wafers  pending patents, driven by a 339-  Recognized as TSMC’s Best IP
+(8″-equivalent) shipped in 2026 H1.  member team with 73% R&D focus.  Partner every year since 2010.
+  2
+
+[p.5]
+  Technology Portfolio .
+  ◼  eMemory’s IP portfolio is built on two pillars: OTP as the foundation and MTP for scalable
+  integration.
+  PUFhsm
+Pioneering PUF-Based Security IP Design  SecureOTP
+  PUFcc
+  PUFrt
+  NeoPUF (PUF)
+Leading NVM and PUF Technology Innovation  Embedded ReRAM
+  NeoFuse (OTP)
+  NeoEE (MTP)
+  NeoFlash
+  NeoMTP (MTP)
+  NeoBit (OTP)
+  2005  2010  2015  2020
+  3
+
+[p.6]
+  One-Time Programmable (OTP) Memory .
+  ◼  eMemory advances silicon security from foundational OTP to next-gen NeoPUF-Based
+  solutions.
+  •  NeoBit (8″ Wafer Processes)
+  OTP
+  •  NeoFuse (12″ Wafer Processes)
+  •  NeoPUF
+  From OTP to PUF  PUF  •  PUFrt
+  •  SecureOTP
+  Crypto  • PUFcc
+  -processors • PUFhsm
+Yield Enhancement  Fundamental Security
+•  Memory repair for DRAM/SRAM  •  Hardware root-of-trust  •  RSA  •  SHA
+•  Image sensor recovery  •  Unalterable key storage
+•  Analog circuits trimming  •  Silicon-level identity protection  Cryptography • ECC  • PQC
+  •  AES  •  etc.
+  4
+
+[p.7]
+  Evolution from OTP to PUF-HSM .
+◼  eMemory evolves from OTP technology into integrated PUF-based security subsystem.
+  5
+
+[p.8]
+  Multiple-Time Programmable (MTP) Memory .
+  •  NeoEE
+  MTP
+  •  NeoMTP
+  Logic-compatible MTP
+  •  NeoFlash
+  Flash  •  Embedded ReRAM
+  •  ASIC Memory
+Density Variety  High Endurance  Process Integration
+•  Scalable storage configurations  •  Optimized write/erase cycles  •  Seamless standard logic embedding
+•  Optimized silicon footprint  •  Enhanced data retention reliability  •  Foundry-ready ASIC integration
+•  Versatile capacity range (Bits to Mb)  •  Extended application operational lifespan  •  Zero-mask overhead implementation
+  6
+
+[p.9]
+  eMemory Enabling AI Memory Systems .
+  High Yield, Low Cost
+  • OTP Repair: Enhances SRAM/HBM/DRAM
+  SRAM  production yield
+  (On-chip Buffer:
+  • MTP  Configuration: Optimizes  updateable
+  Near-compute Acceleration)
+  DDR5/SOCAMM DIMMs
+  • Cost Reduction: Enables cost-effective AI chip
+  mass production
+  HBM  Embedded
+  (On-package Stack:
+  High Bandwidth Access)  Memory Repair  High Reliability
+  • Repair Integration: Ensures HBM stack and
+  DRAM integrity
+  DRAM  • Data Retention: Guarantees long-term stability via
+  (Off-chip DDR: Main System Memory)  OTP redundancy
+  • Workload Stability: Supports operational uptime
+  under extreme AI tasks
+  CXL Memory
+ (System Fabric: Shared & Pooled Memory)
+  PUF-Based  High Security
+  • PUF-Based Root of Trust: Establishes hardware-
+  Solutions  anchored trust foundation
+  Storage  • Secure Transmission: Protects data integrity
+(Non-volatile Flash: Model & Weight Storage)  across CXL memory pools
+  • Storage Protection: Safeguards AI models within
+  NVMe/SSD controllers
+  7
+
+[p.10]
+  Anti-Fuse OTP vs. e-Fuse .
+e-Fuse  Physically Visible: Vulnerable to  Anti-Fuse OTP (NeoFuse)  Physically Invisible: Resistant
+  Reverse Engineering  to Physical Attacks
+  Display Driver
+  Blown Fuse  PMIC
+  Blown
+  Fuse
+  Sensor IC
+  Camera
+  MCU
+  Multi-Media
+  Automotive
+  RFID Tag
+  DRAM
+  Connectivity
+  xxx
+  Arm RSS (Runtime Security Subsystem) Endorsement
+  •  Field-Programmable RSS Support: Enables secure storage of confidential code and data within the
+  Runtime Security Subsystem.
+  •  High-Density Efficiency: Optimizes area for large arrays with seamless, low-overhead PUF integration.
+  8
+
+[p.11]
+  e-Fuse Bottlenecks .
+  Area Overhead
+  Advanced-Node SoCs  Mandatory SRAM buffering doubles
+  the memory footprint due to read
+  limitations.
+  Multiple
+  e-Fuse
+  blocks
+  Design Complexity
+  Scattered multiple e-Fuse block layouts
+  trigger severe routing and power grid
+Diverse functional needs in
+advanced-node SoCs (e.g.,  challenges.
+ROM code, key storage) drive
+the mandatory use of multiple e-
+Fuse blocks.
+  9
+
+[p.12]
+  OTP Area Efficiency .
+◼  eMemory’s OTP outperforms e-Fuse in area efficiency beyond 4K×8 densities.
+Example:  16 × 2K×8 e-Fuse  1 × 32K×8 OTP
+32K x 8 Density
+  Total Area: 1.92 mm2
+  Total Area: 0.33 mm2
+  (excluding SRAM)
+Item  e-Fuse Solution  OTP Solution  OTP Advantages
+Number of Macros  16 Macros  1 Macro  Single-macro simplicity
+Total Area  ~1.92 mm²  0.33 mm²  >80% Area reduction
+Additional SRAM  Required  Not required  Zero buffer SRAM requirement
+Design Effort  High (Scattered)  Low (Centralized)  Simplified layout & routing
+  10
+
+[p.13]
+  Registered IPs at TSMC .
+◼  eMemory integrates widely across TSMC process nodes with over 850 registered IPs to
+  enable broad customer adoption.
+  IP Portfolio Trend
+  (Unit: # of IPs)
+  1000
+  900  3nm
+  800  5 - 4nm
+  7 - 6nm
+  700  16 - 12nm
+  600  28 - 22nm
+  45 - 40nm
+  500
+  65 - 55nm
+  400  90 - 80nm
+  0.13 - 0.11um
+  300
+  0.18 - 0.14um
+  200  0.25 - 0.2um
+  0.35 - 0.3um
+  100
+  > 0.35um
+  0
+  2005 2006 2007 2008 2009 2010 2011 2012 2013 2014 2015 2016 2017 2018 2019 2020 2021 2022 2023 2024 2025
+  11
+
+[p.14]
+  New Tape-Outs at TSMC .
+◼  eMemory secures continuous success with over 2,600 new tape-outs (NTOs) across all
+  leading-edge and mature process nodes.
+  New Tape-out Trend
+  (Unit: # of tape-outs)
+  2,800
+  3nm
+  2,400
+  5 - 4nm
+  7 - 6nm
+  2,000
+  16 - 12nm
+  28 - 22nm
+  1,600
+  45 - 40nm
+  65 - 55nm
+  1,200
+  90 - 80nm
+  0.13 - 0.11um
+  800
+  0.18 - 0.14um
+  0.25 - 0.2um
+  400  0.35 - 0.3um
+  > 0.35um
+  0
+  < 2005 2006 2007 2008 2009 2010 2011 2012 2013 2014 2015 2016 2017 2018 2019 2020 2021 2022 2023 2024 2025
+  2005
+  12
+
+[p.15]
+  Wafer Shipment at TSMC .
+◼  eMemory translates over 25M wafer shipments (8″-equivalent) into recurring royalty
+  revenue with long-term visibility.
+  Wafer Shipment Trend
+  (Unit: M Wafers)
+  35
+  30  7 - 6nm
+  16 - 12nm
+  25  28 - 22nm
+  45 - 40nm
+  20  65 - 55nm
+  90 - 80nm
+  15
+  0.13 - 0.11um
+  0.18 - 0.14um
+  10
+  0.25 - 0.2um
+  0.35 - 0.3um
+  5
+  > 0.35um
+  0
+  < 2005 2006 2007 2008 2009 2010 2011 2012 2013 2014 2015 2016 2017 2018 2019 2020 2021 2022 2023 2024 2025
+  2005
+  13
+
+[p.16]
+  Accumulated Advanced-Node Licensed NTOs .
+◼  eMemory secures future growth with over 150 advanced-node tape-out licenses,
+  building a high-value royalty pipeline driven by increasing adoption.
+  Leading-Edge Nodes (3nm–7nm)  Mainstream Advanced Nodes (12nm/16nm)
+  70 TOTAL TAPE-OUTS  88 TOTAL TAPE-OUTS
+  21  FPGA  16  SoC
+  11  CPU/GPU/DPU  14  Ethernet IC
+  8  SSD Controller  11  SSD Controller
+  4  Retimer  6  DDI
+  3  ADAS  5  ASIC
+  23  Others  36  Others
+  14
+
+[p.17]
+  Tape-outs and Revenue by Technology .
+  NTO  Revenue (USD)
+Year  NeoBit  NeoFuse  PUF-Based  NeoBit  NeoFuse  PUF-Based
+2002  3
+2003  29
+2004  40
+2005  68  $  4,217,380
+2006  133  $  6,202,270
+2007  220  $  9,402,479
+2008  253  $  12,896,211
+2009  268  $  11,695,587
+2010  284  $  15,873,331
+2011  254  $  15,399,098
+2012  270  $  19,620,768
+2013  363  1  $  25,436,669  $  382,084
+2014  371  3  $  31,831,985  $  328,787
+2015  311  11  $  30,943,426  $  1,080,373
+2016  270  28  $  30,247,340  $  3,636,142
+2017  257  61  $  34,619,653  $  5,238,351
+2018  253  86  1  $  31,834,860  $  10,773,223  $  85,000
+2019  226  109  2  $  27,602,332  $  14,466,279  $  195,000
+2020  248  182  3  $  30,378,346  $  26,437,660  $  434,998
+2021  252  259  6  $  32,367,560  $  44,011,223  $  1,160,702
+2022  264  231  33  $  35,327,060  $  63,762,480  $  4,207,348
+2023  226  241  29  $  23,251,721  $  64,276,058  $  4,375,409
+2024  266  270  32  $  25,952,137  $  71,649,123  $  5,279,985
+2025  253  248  54  $  27,312,244  $  78,122,682  $  7,645,293
+Total  5,382  1,730  160  $  482,412,457  $  384,164,465  $  23,383,735
+  *Revenue includes both licensing and royalty
+  17
+
+[p.18]
+  Hardware Root of Trust (HRoT) .
+◼  eMemory provides the foundational Hardware Root of Trust that secures the entire
+  software stack throughout the chip's lifespan.
+  Software Security Stack
+  -  Core Function: Dynamic adaptation to new threats
+  -  Key Attribute: Continuous evolution
+  Hardware Root of Trust
+  -  Core Function: Foundational trust for software
+  -  Key Attribute: Immutable permanence
+  18
+
+[p.19]
+  Next Computing: Confidential Computing .
+  Core 1  Core 2  Core 3  Core N  ◼  Protect data in the Virtual
+CPU  Memory of Multi-Core CPUs
+Cores
+  Tag 1  Tag 2  Tag 3  …  Tag N
+  ◼  CPU Cores and Virtual Memory
+PUFcc
+Generated  have unique corresponding
+Tags  tag numbers
+  Tag 1  Tag 2  Tag 3  Tag N
+Virtual  ◼  Tag numbers are internally
+Memory  randomly generated by
+  Realm 1  Realm 2  Realm 3  …  Realm N  PUFcc (Crypto Coprocessor IP)
+  Virtual Boundaries
+  19
+
+[p.20]
+  Security Business Development .
+ ◼  eMemory drives security IP adoption by collaborating with leading foundry, processor,
+  and cloud service providers.
+Foundry Platforms  CPU Partners  Cloud Service Providers
+  (CSPs)
+  Microsoft, Meta, Google, Amazon,
+TSMC, Intel, UMC, GF, etc.  Arm, RISC-V, Cadence, etc.
+  etc.
+- Technology Licensing:  - System Integration:  - Hardware-to-Cloud Security:
+  Providing security IPs to leading  Addressing SoC customer needs for  Working with CSPs on embedded
+  global foundries.  pre-integrated CPU and security  security requirements at the chip
+- Co-marketing Activities:  subsystems.  level.
+  Reaching diverse customer bases  - Architectural Alignment:  - Root of Trust Solutions:
+  through joint promotional efforts.  Collaborating with major processor  Developing foundational security for
+  providers like Arm and RISC-V.  systems like AWS, Meta, and Azure.
+  20
+
+[p.21]
+  Standards Drive Hardware-Based Security .
+  Using asymmetric public/private key encryption
+Driving an open standard for silicon root of trust.  technology and device ID to achieve fast and
+  secure access to the network.
+  Data Center  IoT
+  21
+
+[p.22]
+  Caliptra Hardware Root of Trust (RoT) .
+◼  eMemory’s RoT IP is fully ready to meet the hardware security requirements of the
+  Caliptra specification.
+  Caliptra-compliant IPs are designed to be integrated into a wide
+  range of high-performance Data Center and Edge components:
+  •  Compute: CPUs, GPUs (Accelerators)
+  Project Start  •  Storage: SSD Controllers
+  •  Networking: NICs (Network Interface Cards), SmartNICs, DPU
+  Sep-21
+  •  Custom Silicon: ASICs, SoCs
+  Caliptra 1.0
+  Mar-24
+  Caliptra
+  CaliptraRoT 1.01.0
+  HRoT  Caliptra RoT 2.0
+  eMemory IP Portfolio
+  Caliptra 2.0 (+PQC)
+  Oct-24
+  OTP  TRNG
+  Core Security Capabilities:
+  Cryptography  • Unique Chip Identity
+  Crypto-  (PQC)  • Secure Attestation
+  PUF
+  processors  • Secure Boot
+  22
+
+[p.23]
+  Caliptra Drives Broader RoT Adoption .
+  ◼  Caliptra is driving broader RoT adoption across data center infrastructure, creating new
+  opportunities for eMemory's RoT IP.
+  Current Caliptra Internal RoT Deployment
+  External RoT Integration Opportunity
+  Firmware update/recovery boundary
+  VRs
+  Debug  RoT for  BMC  CPU
+  Hardware  Attestation
+  (TPM), Update,
+  CPLDs  Recovery
+  Networking
+  (NIC, TPU  Accelerators
+  interconnect)  (GPU, TPU)  BMC/AMC  RoT for  Storage devices
+TPM  Attestation  OCP L.O.C.K
+  (TPM), Storage
+  Source: OCP EMEA Summit 2026 (Composable Security Architecture Episode 4: Bringing Together Platform Ingredients)
+  23
+
+[p.24]
+  True Random Number Generator (TRNG) .
+  ◼  eMemory’s PUFtrng delivers 100x faster performance and superior entropy quality via
+  PUF-based conditioning algorithms.
+  Conventional TRNG  PUFtrng
+ Entropy  Dynamic  ➢ Low throughput  Dynamic  Static  ➢ High throughput
+ Source  Entropy  random bits  Entropy  Entropy  random bits
+  (Ring Oscillator)  ➢ Slower  (Ring Oscillator)  (PUF)  ➢ 100x Faster
+  Data  Post-  Entropy Refine
+Processing  processing  Engine
+ Random  True Random  True Random
+ Output  Numbers  Numbers
+  24
+
+[p.25]
+  Post-Quantum Cryptography (PQC) .
+◼  eMemory provides NIST-compliant hardware foundations to secure data against future
+  quantum computing threats.
+  Quantum Threat: Conventional RSA and ECC
+  encryption are vulnerable to future Shor’s algorithm
+  The Open PQC
+  Standardization Project
+  attacks by quantum computers.
+  Launched
+  Dec-16
+PQC Migration Factsheet
+  Released
+  NIST Standards: Official FIPS 203/204/205 and SP
+  Aug-23
+  800-208 define the mandatory PQC baseline for
+  NIST First Set of  global industries.
+  PQC Algorithms
+  Standardized
+  Major CSP’s  Aug-24
+  2029 Q-Day Timeline  eMemory Achievements: Our PUFPQC attains full
+  Accelerated
+  NIST coverage, securing the chain of trust from
+  Mar-26
+  physical PUF to PQC algorithms.
+  25
+
+[p.26]
+  eMemory for AI Servers and Edge Devices .
+AI Servers
+  +
+ A Memory Repair  B Root of Trust provides:  C OTP needed for  D NeoFlash to replace
+  1. Key storage/generation  trimming  analog  conventional eFlash
+  2. Cryptographic  circuits in Sensors  for a much lower cost
+  processing to protect AI  and Actuators
+  models, input data and
+  output results
+  3. Confidential Computing
+  26
+
+[p.27]
+  eMemory enables High-Yielding SRAM .
+  ◼  eMemory’s OTP enables high-density SRAM Repair, addressing scaling challenges at
+  advanced nodes.
+① Obtains location of bad memory cell
+  Stored in eMemory OTP /  Smaller OTP size
+② Stores location of bad memory cell
+  eFuse  compared to eFuse:
+  ③ Takes redundant memory column
+  to replace column with bad cell  eFuse  NeoFuse
+  Memory Array  Redundant Array
+  4Kb  !
+  <0.1mm2  64Kb
+  X : Bad Cell  64Kb  ~0.1mm2
+  >1mm2  !
+  ④ Replace and “switch”
+  with bad memory cell
+  Repair needs 16~256Kb OTP!
+  27
+
+[p.28]
+  eMemory and Siemens: Partnering for Success .
+Siemens  FuseBox  eMemory provides OTP with interface for Siemens
+Tessent  MBIST:
+  •  Tessent provides memory BISR functions with
+  NeoFuse
+  BIST and BIRA
+  BIST
+  •  NeoFuse OTP provides defect-free OTP using
+  RAM  BIRA, BISR and adapter to Tessent
+  BIRA  •  New MBISR: Tessent MBISR + NeoFuse, scann
+  Main Array
+  ing defective SRAM by word/column and loggin
+  g to the OTP
+  Repair
+  BISR
+  Row/Column
+  1. Compact
+BIST = Built-in Self Test  2. Flexible
+BIRA = Built-In Redundancy Analysis  3. Robust
+BISR = Memory Built-in Self Repair
+  28
+
+[p.29]
+  NeoPUF-based HSM Edge Server .
+◼  eMemory embeds a physical unclonable root to secure hardware security module (HSM)
+  infrastructure against hardware tampering and insider threats.
+  NeoPUF-based
+  HSM Edge Server
+  NeoPUF-based
+  Crypto Engine Accelerator
+  NeoPUF-based
+  Secure Element Chip (PUFse)
+  NeoPUF-based
+  Security IPs
+  29
+
+[p.30]
+  NeoPUF-Based Hardware Security as a Service .
+◼  eMemory extends the physical root of trust to software platforms, enabling automated
+  security provisioning for service workflows.
+  Client-Side Devices
+  SaaS
+Application
+  PUF-based FIDO
+  Layer
+  Bio-MFA
+  Smart Card
+  30
+
+[p.31]
+  NeoPUF Safeguards National Security .
+◼  eMemory establishes a non-replicable hardware identity to protect mission-critical
+  defense supply chains.
+  Create a unique and unclonable hardware identity for
+  every chip
+  Establish a hardware root-of-trust, enabling secure
+  key generation and device authentication
+  Transform drones, radios, and satellites into trusted
+  and traceable elements of the mission system
+  31
+
+[p.32]
+  NeoPUF Authenticates Defense Applications .
+◼  eMemory deploys multi-level hardware security to ensure operational integrity from
+  devices to global supply chains.
+  Supply Chain Level: Enforces Global Traceability
+  Supply  • Anti-Counterfeiting for Military Electronics
+  Chain  • Supply Chain Security
+  Level
+  System Level: Guarantees Operational Integrity
+  System Level  • Secure Boot & Firmware Integrity
+  • IoT & Sensor Network Security
+  Device Level: Establishes Hardware Root-of-Trust
+  Device Level  • Device Authentication & Identification
+  • Secure Key Generation
+  32
+
+[p.33]
+  eMemory Video Insight: Security in Action .
+Click on the image to watch the video.  Click on the image to watch the video.
+  NeoPUF – The Holy  Quantum-Proof Security:
+  Grail of Security  PUF based HSM Edge
+  Server for PQC Migration
+  Establishing an unforgeable
+  Transforming hardware security
+  identity for every chip, creating
+  into a scalable service, protecting
+  the ultimate foundation for zero-
+  critical data and infrastructure
+  trust security.
+  from cloud to edge.
+Click on the image to watch the video.  Click on the image to watch the video.
+  NeoPUF:
+  產
+  繪
+  軟
+  多
+  ,一  媒
+  圖
+  體
+  生含
+  AI 張 軟
+  體
+  的有內體
+  體
+  軟 容
+  的可
+  文 圖能
+  字 片不 正 確 。
+  Chiplet Supply Chain  The Hardware Trust Anchor
+  Secured by NeoPUF  Powering Tomorrow’s Defense
+  Systems
+  Extending trust boundaries to  Powering the trusted core of
+  secure the future of  next-generation defense
+  heterogeneous computing and  security.
+  integration.
+  33
+
+[p.34]
+Thank You for your time .
+For more information, please visit:
+eMemory Website: https://www.ememory.com.tw/
+PUFsecurity Website: https://www.pufsecurity.com/

@@ -1,0 +1,201 @@
+[p.1]
+2026 第三季 營運說明會
+  Haydn Hsieh
+  2026年11月
+  □ General  ■ Confidential  □ Secret  □ Top Secret
+
+[p.3]
+  議程內容
+  ■ 財務資訊
+  ■ 業務發展概況
+  ■ 總結
+  ■ Q&A
+□ General  ■ Confidential  □ Secret  □ Top Secret  3
+
+[p.4]
+  Q3 2026 損益表 QoQ (合併)
+  (新台幣: 百萬)  Q3 2026  Q2 2026  QoQ
+  Amount  %  Amount  %  %
+  營業收入淨額  48,696  100.0  39,438  100.0  23.5
+  營業毛利  5,954  12.2  5,127  13.0  16.1
+  營業費用  3,387  6.9  3,058  7.8  10.8
+  營業利益  2,567  5.3  2,069  5.2  24.1
+  營業外收入/(損失)  86  0.1  (42)  -0.1  -304.8
+  稅前淨利  2,653  5.4  2,027  5.1  30.9
+  稅後淨利  2,090  4.3  1,630  4.1  28.2
+  總發行股數(百萬)  483.44  483.46
+  加權平均流通在外股數(百萬)  480.41  480.41
+  每股盈餘(@NTD/share)  4.35  3.39
+□ General  ■ Confidential  □ Secret  □ Top Secret  4
+
+[p.5]
+  Q1-Q3 2026損益表 YoY (合併)
+  (新台幣: 百萬)  Q1-Q3 2026  Q1-Q3 2025  YoY
+  Amount  %  Amount  %  %
+  營業收入淨額  117,291  100.0  83,235  100.0  40.9
+  營業毛利  15,092  12.9  9,956  12.0  51.6
+  營業費用  9,094  7.8  7,284  8.8  24.8
+  營業利益  5,998  5.1  2,672  3.2  124.5
+  營業外收入/(損失)  109  0.1  (67)  -0.1  -262.7
+  稅前淨利  6,107  5.2  2,605  3.1  134.4
+  稅後淨利  4,852  4.1  2,076  2.5  133.7
+  總發行股數(百萬)  483.44  484.02
+  加權平均流通在外股數(百萬)  480.41  477.60
+  每股盈餘(@NTD/share)
+  10.10  4.35
+□ General  ■ Confidential  □ Secret  □ Top Secret  5
+
+[p.6]
+  2026/9/30 資產負債表 (合併)
+  2026/9/30  2026/6/30  QoQ  2025/9/30  YoY
+  (新台幣: 百萬)  Amount %  Amount %  Amount %  Amount %  Amount  %
+  現金&短期投資  16,263  13  17,822  18  (1,559)  -9  17,764  25  (1,501)  -8
+  應收帳款  38,313  31  32,753  31  5,560  17  18,917  26  19,396 103
+  存貨  47,747  38  34,146  32  13,601  40  18,067  25  29,680 164
+  其他流動資產  3,986  3  2,683  2  1,303  49  920  1  3,066 333
+  流動資產合計  106,309  85  87,404  83  18,905  22  55,668  77  50,641  91
+  長期股權投資  481  0  392  0  89  23  415  1  66  16
+  不動產、廠房及設備  12,871  10  12,289  12  582  5  12,143  17  728  6
+  其他資產  5,295  5  5,153  5  142  3  3,846  5  1,449  38
+  總資產  124,956  100  105,238 100  19,718  19  72,072 100  52,884  73
+  短期借款  27,021  22  21,481  21  5,540  26  9,965  14  17,056 171
+  應付帳款  42,270  34  30,116  29  12,154  40  17,776  25  24,494 138
+  其他流動負債  13,182  10  14,027  12  (845)  -6  8,396  11  4,786  57
+  其他負債  3,718  3  3,813  4  (95)  -2  3,381  5  337  10
+  負債合計  86,191  69  69,437  66  16,754  24  39,518  55  46,673 118
+  股東權益  38,765  31  35,801  34  2,964  8  32,554  45  6,211  19
+□ General  ■ Confidential  □ Secret  □ Top Secret  6
+
+[p.7]
+  議程內容
+  ■ 財務資訊
+  ■ 業務發展概況
+  ■ 總結
+  ■ Q&A
+□ General  ■ Confidential  □ Secret  □ Top Secret  7
+
+[p.8]
+  營收結構
+  2026 Q1-Q3  2026 Q1-Q3
+  依客戶市場別  依地區別
+  營運商  歐洲
+  45%  16%
+  亞洲
+  企業  15%
+  重疊  31%  美洲
+  4%  69%
+  車用  其他
+  24%  4%
+□ General  ■ Confidential  □ Secret  □ Top Secret  8
+
+[p.9]
+  經營策略
+  車用  企業  營運商  AIoT
+  以品質實力建立產業標準  攜手品牌客戶，打造 AI 就  深化直接合作，以軟體創  整合核心技術，拓展垂直
+  緒網路  造附加價值  市場應用
+  Automotive  Automotive  ADAS Cameras  Wi-Fi 7/8  AI-RAN /  SASE, SD-WAN  LEO Satellite  Wi-Fi, 5G Smart Home IoT  AIoT Gateways  Antennas  Smart Meters
+  Connectivity  CPU Modules  & Radar  Enterprise APs  O-RAN  & Switches  Broadband UE  CPE, xPON  & OTT STBs  & Modules
+  Modules
+  核心競爭力  關鍵技術
+   射頻/天線設計  連接技術: LEO, 5G, AI-RAN, O-RAN, Wi-Fi, LPWAN, xPON, DOCSIS
+  網路與運算: High-Speed Ethernet & Optical Networking
+   系統整合  感知技術: Automotive Connectivity, ADAS, RFID & Sensing
+  軟體: Open Software & AI Solutions
+□ General  ■ Confidential  □ Secret  □ Top Secret  9
+
+[p.10]
+  產品類別
+  • 車載資通訊 (4G, 5G, C-V2X Modules/ Wi-Fi and Bluetooth Modules / CPU Modules / TCUs / RSUs)
+  車用  • 衛星廣播／數位廣播
+  • 先進駕駛輔助解決方案 (Radar Sensors / Automotive Camera Modules / Dash Cameras/ HPCs )
+  • 寬頻解決方案 (4G/5G CPE / Repeaters / PON Gateways / Optical Transceivers/ LEO UTs)
+  營運商  • 智慧家庭 (Mesh Routers / Home Gateways / Smart Displays / IP Cameras / Doorbell Cameras)
+  • 聯網電視 (4K OTT STBs / Outdoor Units / LNBFs)
+  • 無線網路 (Wi-Fi 6/6E/7/8 Enterprise Access Points / Mesh Routers)
+  • 網路基礎設施 ( 800G Switches / Optical Switches/ Optical Transceivers / SD-WAN)
+  企業
+  • 邊緣基礎設施 (AI-RAN / 5G RUs / Small Cells)
+  • 資安 (PQC Cards/Modules)
+  • 天線與模組解決方案 (Automotive / AIoT / Mobile / Broadband / Laptop)
+  AIoT  • 物聯網 (Vehicle Trackers / Asset Trackers / IoT Modules / AIoT Gateways / RFID Solutions)
+  • 智慧能源 (Smart Meter Communication Boards)
+□ General  ■ Confidential  □ Secret  □ Top Secret  10
+
+[p.11]
+  產品組合
+  Communications 通訊
+  Computing 運算
+  Wireless 無線  Wireline 有線
+  • Antennas  • xPON/Wi-Fi Gateways  • Auto Computing Modules
+  • Connectivity Modules  • NGPON 2 BOSA  • On-Device AI Modules
+  User  • Camera, Radar, LiDAR  • XGS-PON/Cable Modems  • PQC Modules
+  Devices &  • Wi-Fi 7/8 AP Routers, AIoT
+  Modules  Gateways, 5G Routers
+  終端  • LEO UTs
+  AIoT, 車用, 營運商, 企業
+  Edge  •  5G Small Cells/5G RU  •  Ethernet/Optical Switches  •  CPU/GPU/NPU Modules
+  Infrastructure  •  AI-RAN  •  Optical Transceivers  •  Smart NIC/DPU
+  Equipment  •  6G ISAC  •  SD-WAN/Edge Routers  •  PQC Cards
+  局端  •  Satellite(components)  •  Fiber OLT
+□ General  ■ Confidential  □ Secret  □ Top Secret  11
+
+[p.12]
+  啓碁全球製造廠區總覽
+  (NQX)  (NQJ)
+  啓新通訊（昆山）有限公司  啓佳通訊（昆山）有限公司
+  (NYC)
+  (S1)
+  臺灣新竹  華雷斯城, 墨西哥
+  中國昆山
+  臺灣台南
+  啓基永昌通訊（昆山）有限公司  越南寧平
+  力行廠
+  新廠
+  (VN1)  (S3)
+  墨西哥廠
+  越南廠  南科二廠
+□ General  ■ Confidential  □ Secret  □ Top Secret  12
+
+[p.13]
+  專利
+  2,812 獲證 (截至 2026年10月31日) / 541 申請中( 截至 2026年10月31日)
+  Others  TW
+  4%  13%
+  Others
+  14%
+  CN
+  25%
+  獲證  TW
+  申請中
+  42%
+  2,812
+  541  US
+  28%
+  CN
+  45%
+  US
+  29%
+□ General  ■ Confidential  □ Secret  □ Top Secret  13
+
+[p.14]
+  榮譽肯定
+  TIME  2026 亞洲金融雜誌  2026  2025 CDP  2026年國家企業環
+  2026 全球最佳  最佳CEO 金獎
+  道瓊領先新興市場  氣候變遷 A級  保獎
+  永續成⾧企業  最佳企業管理 金獎
+  最佳中型股企業 金獎  指數成分股  水安全 A級
+  台灣最佳投資人關係 金獎  供應商參與 A級
+  最佳永續承諾 金獎
+  電子通訊服務業最佳企業管理 金獎
+□ General  ■ Confidential  □ Secret  □ Top Secret  14
+
+[p.15]
+  議程內容
+  ■ 財務資訊
+  ■ 業務發展概況
+  ■ 總結
+  ■ Q&A
+□ General  ■ Confidential  □ Secret  □ Top Secret  15
+
+[p.16]
+Q&A
