@@ -1,0 +1,342 @@
+[p.1]
+  信驊科技2026年法人說明會
+  ASPEED Technology Investor Conference
+  October 2026
+© ASPEED Technology. Proprietary and Confidential​
+
+[p.3]
+  Agenda
+ ●  公司簡介
+ ●  2026年第二季財務表現
+ ●  產品組合
+ ●  企業價值提升計畫
+ ●  Q&A
+
+[p.4]
+  公司簡介
+
+[p.5]
+  公司簡介
+  ●  2004 年成立
+  ●  無晶圓廠 IC 設計公司
+  ●  員工人數：103 (2026 年 6 月底資料)
+  ●  產品組合
+  -  企業及雲端業務 (BMC/BIC/PFR)  #1 in BMC
+  -  智慧 AV (Cupola360 & AVoIP SoC)  #1 in AV over IP (1G Ethernet)
+  #1 in Commercial 360° camera
+  ● 營運地點:
+  -  總部： 台灣新竹市
+  -  分公司： 台灣台北市
+  -  美國辦公室： San Jose, CA
+  -  高雄研發中心
+
+[p.6]
+  營收歷史數據
+  2026年 1-9月累計營收： • 營收 新台幣 118.04 億元
+  • 年增率 (YoY growth) 為 77.73%
+  Million NT$
+  12,000  11,804
+  11,000
+  10,000  9,085
+  9,000
+  8,000
+  7,000  6,460
+  6,000  5,210
+  5,000
+  4,000  3,638
+  3,064  3,130
+  3,000  2,484
+  1,894 2,154
+  2,000  1,346
+  856  993
+  1,000  285  338  484  591
+  9  49  113  176  252
+  0
+
+[p.7]
+  每股盈餘 & 現金股利發放率
+  ⚫ 2025年每股盈餘達 103.92，創歷史新高，且該年度之現金股利發放率為 77.0%。
+  EPS  Cash Payout Ratio
+  120  100%
+  103.92
+  90%
+  100
+  80%
+  80
+  68.04  70%
+  60  55.72  60%
+  38.3  50%
+  40
+  29.38  26.66
+  24.39  40%
+  20.2
+  20  14.07  15.7
+  10.72  10.79  30%
+  7.4
+  0  20%
+  2013  2014  2015  2016  2017  2018  2019  2020  2021  2022  2023  2024  2025
+  EPS  Cash Payout Ratio
+
+[p.8]
+  重要里程碑
+信驊科技成立  • 獲得 ISO 9001-2000 認  • 正式於台灣證券櫃檯買  • 與業界平台廠商結盟並  成立高雄研發中心
+  證  賣中心掛牌  提出 OpenBMC 解決方案
+  完成實境遠端管理 (RRM)
+  • 發布第二代遠端伺服器 • 發布第六代遠端伺服器  • 發表 Cupola360 影像拼接  業務分割至酷博樂
+  管理晶片 AST2100/ 管理晶片 AST2500  專用處理晶片
+  2050/ 1100
+  • 獲得 ISO 14001:2015 認證
+  • 發布第三代遠端伺服器
+  • 發表第七代遠端伺服器
+  管理晶片AST2200/2150
+  管理晶片AST2600
+2004.11  2007-2008  2012-2014  2017-2019  2025
+  2005-2006  2009-2011  2015-2016  2020-2024
+  • 發布第一代遠端伺服器  • 推出新產品 PC/AV 影音延  • 拿下BMC市佔率第一  • ISO27001 資訊安全管理系統認證
+  管理晶片AST2000/1000  伸控制晶片 AST1600  • 通過 ISO14064 溫室氣體盤查認證
+  • 併購博通之 Emulex Pilot
+  • 第一批晶片量產交貨  • 英特爾投資信驊科技  伺服器管理晶片事業  • 發布安全晶片 AST1060 及SMC*
+  • 獲得 ISO 9001:2015 認證  AST1030
+  註：Satellite Management Controller (SMC) 又稱輔助管理晶片 (Auxiliary Management Controller, AMC) 或 橋接
+  • 發布第八代遠端伺服器管理晶片
+  晶片 (Bridge IC, BIC)  AST2700 和 I/O 擴充晶片 AST1700
+
+[p.9]
+  獲獎紀錄與其他殊榮
+2014 - 2023  2020  2022  2024  2025
+連續10年榮獲富比士雜誌  榮獲聯想集團所評選  營運長謝承儒先生榮獲  榮獲台灣產業科技推動協  榮獲全球半導體聯盟 (GSA)
+評選為「亞太地區最佳中  Technology Innovation Award  SEMI 產業貢獻獎殊榮  會頒發金根獎  「最佳財務管理半導體公
+小企業 」  榮獲台灣董事學會及企  司獎」
+  董事長林鴻明先生榮獲  獲得金融時報(Financial
+  業發展研究中心評選為  Times) 亞太區高成長公司  榮獲 Extel 評選為「最受
+2009  交大傑出校友殊榮  「外資精選台灣百強」  殊榮  尊崇企業」、半導體領域
+榮獲台北國際電腦展  2023  董事長林鴻明先生榮獲
+  （中小型企業）第一名、
+  台灣企業第三名
+Best Choice Award
+  2021  董事長林鴻明先生榮獲  《機構投資者》評選為
+  董事長林鴻明先生榮獲  《機構投資者》評選為  2024 年度科技半導體領域  董事長兼總經理林鴻明先
+2008  資訊月傑出資訊人才獎  2023年度科技半導體  亞洲最佳 CEO  生榮獲 Extel（原《機構投
+榮獲「2008 年德勤亞太  領域亞洲最佳 CEO  資者》）評選為科技（半
+高科技 Fast 500」營收成  獲得金融時報(Financial  高畫質遠端傳輸晶片獲  導體）領域最佳 CEO
+長類第 37 名  Times) 亞太區高成長公司  頒 InfoComm 2023 Best of  榮獲富比士 (Forbes) 雜誌
+  殊榮  Show  評選為「亞太地區最佳中
+  董事長林鴻明先生榮獲清  榮獲《機構投資者》評選  小企業」
+  華大學傑出校友殊榮  為 2023 年度亞洲最佳管
+  理團隊半導體領域第一名
+  董事長林鴻明先生榮獲潘
+  文淵文教基金會 ERSO
+  Award
+
+[p.10]
+  2026年第二季
+  財務表現
+
+[p.11]
+  2026年第二季損益表
+  QoQ  YoY
+  2Q26  2Q26
+  In NT$ thousands  2Q26  1Q26  2Q25  over  over
+  1Q26  2Q25
+  Operating Revenue  3,871,409  3,146,757  2,246,547  23.03%  72.33%
+  Gross Profit  2,787,502  2,177,017  1,524,869  28.04%  82.80%
+  Gross Margin (%)  72.00%  69.18%  67.88%  +2.82ppts  +4.13ppts
+  Operating Expenses  701,636  517,975  340,785  35.46%  105.89%
+  Operating Profit  2,085,866  1,659,042  1,184,084  25.73%  76.16%
+  Operating Margin (%)  53.88%  52.72%  52.71%  +1.16ppts  +1.17ppts
+  Non-Operating Income and Expenses  179,584  109,083  (397,317)  64.63%  -145.20%
+  Pre-Tax Profit  2,265,450  1,768,125  786,767  28.13%  187.94%
+  Net Income  1,841,750  1,414,275  629,097  30.23%  192.76%
+  Net Profit Margin (%)  47.57%  44.94%  28.00%  +2.63ppts  +19.57ppts
+  EPS (Basic)  44.27  37.41  16.65  18.34%  165.89%
+
+[p.12]
+  合併營業收入
+  Unit : NTD 1,000
+  4,500,000  73%
+  4,000,000  72%
+  3,500,000  71%
+  3,000,000
+  70%
+  2,500,000
+  69%
+  2,000,000
+  68%
+  1,500,000
+  1,000,000  67%
+  500,000  66%
+  -  65%
+  2Q25  3Q25  4Q25  1Q26  2Q26
+  Revenue  Gross Margin
+  2Q25  3Q25  4Q25  1Q26  2Q26  QoQ  YoY
+  Revenue  2,246,547  2,330,084  2,443,126  3,146,757  3,871,409  23.03%  72.33%
+  Gross Margin  67.88%  69.26%  68.45%  69.18%  72.00%  +2.82ppts  +4.13ppts
+
+[p.13]
+  營業利益
+  Unit : NTD 1,000
+  2,500,000  54%
+  2,000,000  53%
+  1,500,000  52%
+  1,000,000  51%
+  500,000  50%
+  -  49%
+  2Q25  3Q25  4Q25  1Q26  2Q26
+  Operating Profit  Operating Margin (%)
+  2Q25  3Q25  4Q25  1Q26  2Q26  QoQ  YoY
+  Operating Profit  1,184,084  1,231,467  1,217,729  1,659,042  2,085,866  25.73%  76.16%
+  Operating Margin (%)  52.71%  52.85%  49.84%  52.72%  53.88%  +1.16ppts  +1.17ppts
+
+[p.14]
+  營業費用
+  Unit : NTD 1,000
+  800,000
+  700,000
+  600,000
+  500,000
+  400,000
+  300,000
+  200,000
+  100,000
+  -
+  2Q25  3Q25  4Q25  1Q26  2Q26
+  R&D  Admin  Sales
+  2Q25  3Q25  4Q25  1Q26  2Q26  QoQ  YoY
+  R&D  223,223  288,906  285,843  350,307  428,156  22.22%  91.81%
+  Admin  85,170  77,395  113,677  118,241  170,724  44.39%  100.45%
+  Sales  32,392  15,953  55,103  49,427  102,756  107.89%  217.23%
+  Operating Expenses  340,785  382,254  454,623  517,975  701,636  35.46%  105.89%
+
+[p.15]
+  本期淨利
+  Unit : NTD 1,000
+  2,000,000  55%
+  1,700,000  50%
+  1,400,000  45%
+  1,100,000  40%
+  800,000  35%
+  500,000  30%
+  200,000  25%
+  2Q25  3Q25  4Q25  1Q26  2Q26
+  Net Income  Net Profit Margin (%)
+  2Q25  3Q25  4Q25  1Q26  2Q26  QoQ  YoY
+  Net Income  629,097  1,214,205  1,197,735  1,414,275  1,841,750  30.23%  192.76%
+  Net Profit Margin (%)  28.00%  52.11%  49.02%  44.94%  47.57%  +2.63ppts +19.57ppts
+  Note：Net Income in 2Q25 is lower due to one-time FX loss, while 3Q25 has FX gain.
+
+[p.16]
+  有效稅率
+  Unit : NTD 1,000
+  450,000  21%
+  350,000  20%
+  250,000  19%
+  150,000  18%
+  50,000  17%
+  2Q25  3Q25  4Q25  1Q26  2Q26
+  Tax  Effective Tax Rate (%)
+  2Q25  3Q25  4Q25  1Q26  2Q26  QoQ  YoY
+  Tax  157,670  292,121  259,491  353,850  423,700  19.74%  168.73%
+  Effective Tax Rate (%)  20.04%  19.39%  17.81%  20.01%  18.70%  -1.31ppts  -1.34ppts
+
+[p.17]
+  每股盈餘
+  Unit : NTD
+  50
+  40
+  30
+  20
+  10
+  -
+  2Q25  3Q25  4Q25  1Q26  2Q26
+  Quarterly  2Q25  3Q25  4Q25  1Q26  2Q26  QoQ  YoY
+  EPS  16.65  32.12  31.69  37.41  44.27  18.34%  165.89%
+
+[p.18]
+  股利政策
+  2013  2014  2015  2016  2017  2018  2019  2020  2021  2022  2023  2024  2025
+現金股利  5.5  7  8  12  15  18  22  26  35  45  20  52  80
+股票股利  0  2  0  0  0  0  0  0  0  0  0  0  0
+由資本公積發放的股利  1  0  0  0  0  0  0  0  1  0  0  0  1
+股利總和  6.5  9  8  12  15  18  22  26  36  45  20  52  81
+每股盈餘  7.4  10.72  10.79  14.07  15.7  20.2  24.39  29.38  38.3  55.72  26.66  68.04 103.92
+盈餘分配說明：
+•  應提撥不低於 8%為員工酬勞，其中不低於1%之獲利應為基層員工分配酬勞。
+•  應提撥董事酬勞不高於 3%。
+•  關於可供分配之盈餘加計前期累積之未分配盈餘，董事會得擬定股利分配案，提請股東常會決議核准。經綜合考量公司
+  正處於企業生命週期之成長階段與未來擴充計畫等營運、財務及稅務因素後，剩餘盈餘得以現金股利及／或股票股利之
+  方式發放，且現金股利之比例不得低於該次擬分配盈餘之 10%。
+
+[p.19]
+  產品組合
+
+[p.20]
+  信驊產品的策略優勢
+  BMC: Setting the Standard  SMC*: Multi-Card Architectures
+  ✓ Co-designed with hyperscalers  ✓ Empowering extreme scalability with
+  and chip makers  efficient 2-level management
+  PRoT: Security for Platform  I/O Expander: Seamless Integration
+  ✓ Protection, detection, recovery  ✓ Bridging decoupled modules
+  We further enhance security by integrating Caliptra into new
+  generation of all chips.
+  Note: Satellite Management Controller (SMC) is also known as Auxiliary Management Controller (AMC) or Bridge IC
+
+[p.21]
+  極致靈活性：將 FPGA 嵌入系統單晶片
+  Partnership: Collaborating with FPGA leader Lattice.
+  Synergy: Embedding FPGA logic directly into AST1840 SoC
+  Flexibility: Delivering instant-on-programmable control for evolving server needs
+
+[p.22]
+  持續演進的伺服器架構 (單節點)
+  Server HPM Board
+  LTPI
+  BMC  FPGA  CPU
+  Server HPM Board
+  LTPI
+  AST2700  AST1700  CPLD*  CPU
+  or
+  Server HPM Board
+  LTPI
+  AST2700  AST1840  CPU
+  eFPGA
+  Note: CPLD = small FPGA
+
+[p.23]
+  多節點架構 (毋須外部FPGA)
+  CPU Card
+  CPU Card
+  AST1840  CPU Card  CPU
+  eFPGA  CPU Card
+  CPU Card
+  AST1840  CPU Card  CPU
+  eFPGA
+  CPU Card
+  BMC  CPU Card
+  AST1840  CPU Card  CPU
+  eFPGA  CPU Card
+  CPU Card
+  AST1840  CPU Card  CPU
+  eFPGA
+
+[p.24]
+  Product Portfolio產品組合
+  BMC  AST2500, AST2600, AST2700, AST2750, AST2755
+  SMC*  AST1030, AST1040
+  SMC + eFPGA  AST1840
+  PRoT  AST1060, AST1080
+  I/O Expander  AST1700
+  註：Satellite Management Controller (SMC) is also known as Auxiliary Management Controller (AMC) or Bridge IC
+
+[p.25]
+  企業價值提升計畫
+
+[p.26]
+  商業策略
+  信驊科技藉由以下方式提升企業價值：
+  ⚫ 營收成長： 極大化每片伺服器主機板之內含價值
+  ⚫ 高毛利： 領先的產品發展路線圖
+
+[p.27]
+  Q&A
+
+[p.28]
