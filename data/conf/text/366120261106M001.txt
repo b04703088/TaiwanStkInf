@@ -1,0 +1,140 @@
+[p.1]
+  (3661 TT)
+  世芯電子
+  3Q26 法人說明會
+  Nov. 6th, 2026
+  1
+
+[p.3]
+  ◼ This meeting will be in English, If you need Chinse presentation slides, please go to
+  MOPS to download the Chinese version
+  ◼ Participants please write down your questions to host through Team’s message function
+  with your and your company name
+  ◼ Please use the “raise hand” function through Team for the Q&A session, the host will
+  unmuted you for your questions
+  ◼ The video and audio content of this meeting will upload to MOPS (Market Observation
+  Post System)
+  3
+
+[p.4]
+  總經理報告
+  ⚫ 第三季財務概況
+  ⚫ 第三季營運亮點與挑戰
+  ⚫ 未來營運展望
+  ⚫ 結論
+  4
+
+[p.5]
+  2026年第三季損益
+  US$'000  2Q26  3Q26  QoQ (%)  YoY (%)
+  Revenue  241,729  819,314  238.9  267.4
+  COGs  157,489  671,846  326.6  316.6
+  Gross Profit  84,240  147,468  75.1  138.9
+  Op. Exp  32,129  33,493  4.2  45.8
+  Op. Income  52,110  113,975  118.7  194.1
+  Non. Op.  12,287  14,159  15.2  -63.5
+  Pre-Tax Profit  64,398  128,134  99.0  141.2
+  Income Tax  -12,563  -26,125  107.9  194.7
+  Net income  51,835  102,009  96.8  131.1
+  EPS (NT$)  20.0  37.7
+  EPS is calculated on concurrent shares outstanding and FX  5
+
+[p.6]
+  營收應用分布
+  季度分布  年度分布
+  100%  100%
+  80%  80%
+  51%  50%
+  67%
+  75%
+  60%  60%  83%
+  87%
+  93%
+  3%  1%
+  40%  10%  16%  40%
+  4%
+  7%  1%
+  20%  20%  8%
+  36%  32%  1%
+  0%  3%
+  22%  5%
+  12%  16%
+  8%  3%
+  3%
+  1%
+  0%  0%
+  4Q25  1Q26  2Q26  3Q26  2024  2025  1-3Q26
+  Consumer  Networking  Niche  HPC  Consumer  Networking  Niche  HPC
+  6
+
+[p.7]
+  營收地區分布
+  季度分布  年度分布
+  100%  100%  2%
+  4%  6%  9%
+  17%
+  22%
+  26%
+  80%  80%
+  23%
+  60%  60%
+  51%  86%  78%  70%
+  84%
+  50%
+  40%  40%
+  47%
+  20%  20%
+  25%
+  18%  8%  18%
+  12%  10%
+  8%  8%
+  6%  7%  0%  2%  3%
+  0%  1%
+  4Q25  1Q26  2Q26  3Q26  2024  2025  1-3Q26
+  Japan  Asia Pacific  N.A.  Others  Japan  Asia Pacific  N.A.  Others
+  Advanced process node means 40nm or better
+  7
+
+[p.8]
+  營收製程分布
+  季度分布  年度分布
+  100%  100%  1%
+  14%
+  21%
+  80%  36%  80%
+  47%
+  67%
+  60%  80%  60%
+  94%
+  73%
+  63%
+  43%
+  40%  40%
+  40%
+  20%  20%  26%
+  11%
+  9%  15%  5%
+  6%
+  10%  7%  7%  2%  7%  6%
+  3%  3%
+  0%  1%  0%  1%
+  4Q25  1Q26  2Q26  3Q26  2024  2025  1-3Q26
+  28nm and lower  16/12nm  7nm/5nm  3nm/2nm  28nm and lower  16/12nm  7nm/5nm  3nm/2nm
+  8
+
+[p.9]
+  3Q26 營運回顧
+  營收與獲利雙雙創下歷史新高
+  – 3Q26 營收達 US$819M，季增 238%、年增 267%，創下單季歷史新高，主要受惠於
+  N3 加速器量產出貨大幅放量。
+  – 因量產業務營收占比較高， 3Q26 毛利率明顯下降，惟營業利益率降幅相對有限。
+  – 稅後淨利與 EPS 雙雙創下歷史新高。
+  N3 加速器出貨動能強勁
+  – N3 加速器目前進入大規模出貨階段，預期 2027 年仍將是公司主要營收貢獻來源。
+  – 下一世代 N2 加速器即將 Tape-out。
+  9
+
+[p.10]
+  謝謝指教
+  www.alchip.com
+  10

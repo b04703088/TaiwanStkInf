@@ -1,0 +1,353 @@
+[p.1]
+Delta Electronics, Inc. 3Q 2026 Results
+• 台達電子2026年第三季財報法人說明會
+29 Oct 2026
+
+[p.2]
+  The financial numbers hereby are based on International
+  Financial Reporting Standards (IFRS)
+  本簡報財務數字係根據國際財務報導準則編製
+  Cumulative consolidated numbers have been reviewed by CPA
+  合併數字經會計師核閱
+
+[p.3]
+  3Q 2026 Financial Results
+  2026年第三季結算數字
+Delta Confidential  3
+
+[p.4]
+  Sales Revenues & Gross Profits
+  合併營收及毛利
+  新台幣十億元
+  Y/Y  Q/Q
+  Sales  年對年  季對季
+  營收
+  3Q25  4Q25  1Q26  2Q26  3Q26
+  Sales  150.3  161.6  159.4  183.2  197.1
+  Sales  +31%  +8%
+  營收
+  GP
+  毛利
+  3Q25  4Q25  1Q26  2Q26  3Q26  GP  +28%  +3%
+  GP  52.4  55.9  58.9  65.3  67.2  毛利
+  GPM  34.9%  34.6%  37.0%  35.6%  34.1%
+Delta Confidential  4
+
+[p.5]
+  Operating Profits & Expenses
+  營業淨利及費用
+  80.0
+  新台幣十億元
+  70.0  Y/Y  Q/Q
+  60.0
+  15.7  16.4  年對年  季對季
+  50.0  13.1  13.7
+  R&D  12.8  18.2
+  40.0
+  16.8  19.0  R&D
+  SG&A 30.0  14.8  16.4  +28%  +4%
+  研發費用
+  OP  20.0
+  10.0  24.8  26.4  28.4  30.6  32.6
+  0.0
+  SG&A  +23%  -4%
+  (% of sales)  3Q25  4Q25  1Q26  2Q26  3Q26  銷管費用
+  R&D  8.5%  8.1%  8.6%  8.6%  8.3%
+  OPEX  +25%  -1%
+  SG&A  9.9%  10.2%  10.6%  10.3%  9.2%  總營業費用
+  OPEX  18.4%  18.3%  19.2%  18.9%  17.5%
+  OP  +31%  +7%
+  營業淨利
+  OPM  16.5%  16.3%  17.8%  16.7%  16.6%
+Delta Confidential  5
+
+[p.6]
+  Performance by Segment
+  主要部門表現
+  Sales%
+  NT$ million  營收佔比
+  新台幣百萬元
+  Sales  Y/Y  Q/Q  Profits  Y/Y  Q/Q
+  Power  35%  34%  33%
+  Electronics  105,930  +40%  +10%  19,920  +22%  -1%
+  電源及零組件  9%  8%  8%
+  6%  5%  5%
+  Mobility  9,071  +7%  +10%  (137)  -657%  +65%
+  交通  50%  53%  54%
+  n.m.  n.m.
+  Automation  15,900  +19%  +2%  769  (turned to (turned
+  3Q25  2Q26  3Q26
+  自動化  Others
+  profit) to profit)
+  Infrastructure
+  Infrastructure  65,880  +25%  +5%  12,068  +40%  +7%
+  Automation
+  基礎設施  Mobility
+  Power Electronics
+Delta Confidential  6
+
+[p.7]
+  Non-operating Profits
+  業外損益
+  NT$ million
+  新台幣百萬元
+  3Q25  2Q26  3Q26
+  新台幣十億元
+  Gains or losses from
+  investment*  876  1,880  265
+  投資損益*
+  Non-OP
+  業外損益  Interest income  321  398  317
+  利息收益
+  3Q25 4Q25 1Q26 2Q26 3Q26
+  non-op  2.2 (0.8) 2.7 4.4 1.1  FX income and
+  valuation of FX forward  374  735  609
+  % of sales 1.4% -0.5% 1.7% 2.4% 0.5%
+  滙兌損益及遠匯評價損益等
+  *包含透過損益按公允價值衡量之有價證券已實現及未實現評價損益、股利收入、
+  採用權益法認列之投資損益及處分損益等  Others  604  1,416  (145)
+  *The item includes realized and unrealized evaluations of gains or losses from  其他
+  financial assets at fair value through profit or loss, dividend income, share of
+  profit(loss) of associates accounted for under the equity, and gain (loss) on
+  Total  2,175  4,429  1,046
+  合計
+  disposal of associates accounted for under the equity, etc.
+Delta Confidential  7
+
+[p.8]
+  Profits before Tax v.s EBITDA
+  稅前淨利及息稅折舊及攤銷前利潤
+  新台幣十億元
+  Profits
+  before tax
+  稅前淨利  Y/Y  Q/Q
+  3Q25  4Q25  1Q26  2Q26  3Q26
+  年對年  季對季
+  PBT  27.0  25.6  31.1  35.0  33.7
+  % of sales 18.0%  15.9%  19.5%  19.1%  17.1%
+  Profits
+  before tax  +25%  -4%
+  稅前淨利
+  EBITDA
+  息稅折舊及
+  攤銷前利潤
+  3Q25  4Q25  1Q26  2Q26  3Q26  EBITDA
+  息稅折舊及  +24%  -1%
+  EBITDA  35.4  32.7  39.4  44.0  43.7  攤銷前利潤
+  % of sales 23.5%  20.2%  24.7%  24.0%  22.2%
+Delta Confidential  8
+
+[p.9]
+  Net Profits after Tax
+  稅後淨利
+ 新台幣十億元
+  NT$ million
+  新台幣百萬元
+  3Q25  2Q26  3Q26
+ Net profits
+  Profit before
+ after tax  income tax  26,983  35,000  33,667
+ 稅後淨利  稅前淨利
+  3Q25  4Q25  1Q26  2Q26  3Q26
+  稅後淨利  18.6  17.3  20.6  25.1  23.5  Income tax  (6,061)  (7,831)  (7,608)
+  所得稅
+  稅後淨利率 12.4%  10.7%  12.9%  13.7%  11.9%
+  Non-controlling
+  interest  (2,316)  (2,033)  (2,564)
+  Y/Y  Q/Q  非控制權益
+  年對年  季對季
+  Net profit after
+  Net profits  tax  18,606  25,136  23,495
+  +26%  -7%
+  after tax  稅後淨利
+Delta Confidential  9
+
+[p.10]
+  EPS
+  每股淨利
+  Unit: NT$
+  新台幣元
+  9.68  9.04
+  7.16  7.92
+  6.67
+  3Q25  4Q25  1Q26  2Q26  3Q26
+  *EPS based on shares outstanding of 2,598 million.
+  每股盈餘之設算基於在外流通股數25.98億股。
+Delta Confidential  10
+
+[p.11]
+  YT3Q 2026 Financial Results
+  2026年前三季結算數字
+Delta Confidential  11
+
+[p.12]
+  Sales Revenues & Gross Profits
+  合併營收及毛利
+  新台幣十億元
+  Sales
+  營收  Y/Y
+  年對年
+  YT3Q25  YT3Q26
+  Sales  393.3  539.7
+  Sales  +37%
+  營收
+  GP  GP
+  毛利  毛利
+  +43%
+  YT3Q25  YT3Q26
+  GP  134.3  191.4
+  GPM  34.1%  35.5%
+Delta Confidential  12
+
+[p.13]
+  Operating Profits & Expenses
+  營業淨利及費用
+  240.0
+  230.0
+  220.0
+  210.0
+  新台幣十億元200.0
+  Y/Y
+  190.0
+  180.0  年對年
+  170.0
+  160.0  45.8
+  150.0
+  R&D 140.0
+  130.0
+  120.0
+  35.7  54.0  R&D  +28%
+  研發費用
+  110.0
+  SG&A 100.0
+  90.0
+  OP
+  80.0
+  70.0  41.1
+  60.0
+  50.0  91.6
+  40.0
+  30.0  57.5
+  20.0  SG&A  +32%
+  (% of sales)  YT3Q25  YT3Q26  銷管費用
+  R&D  9.1%  8.5%
+  OPEX  +30%
+  SG&A  10.4%  10.0%  總營業費用
+  OPEX  19.5%  18.5%
+  OP  +59%
+  營業淨利
+  OPM  14.6%  17.0%
+Delta Confidential  13
+
+[p.14]
+  Performance by Segment
+  主要部門表現
+  NT$ million  Sales%
+  新台幣百萬元
+  Sales  Y/Y  Profits  Y/Y  營收佔比
+  Power
+  Electronics  287,848  +44%  58,928  +48%  31%  33%
+  電源及零組件
+  10%  9%
+  8%  5%
+  Mobility  25,080  -16%  (1,267)  -200%
+  交通
+  51%  53%
+  Automation  45,791  +13%  435  -20%
+  自動化
+  YT3Q25  YT3Q26
+  Others
+  Infrastructure
+  Infrastructure  180,154  +47%  33,512  +92%  Automation
+  基礎設施
+  Mobility
+  Power Electronics
+Delta Confidential  14
+
+[p.15]
+  Non-operating Profits
+  業外損益
+  NT$ million
+  新台幣百萬元  YT3Q25  YT3Q26
+  Gains or losses from
+  新台幣十億元  investment*  306  2,104
+  投資損益*
+  Non-OP  Interest income  1,146  1,143
+  利息收益
+  業外損益
+  YT3Q25  YT3Q26
+  non-op  4.7  8.2  FX income and valuation of
+  FX forward  706  1,708
+  % of sales  1.2%  1.5%  滙兌損益及遠匯評價損益等
+  *包含透過損益按公允價值衡量之有價證券已實現及未實現評價損益、股利收入、
+  採用權益法認列之投資損益及處分損益等  Others  2,546  3,196
+  其他
+  *The item includes realized and unrealized evaluations of gains or losses from
+  financial assets at fair value through profit or loss, dividend income, share of
+  Total  4,704  8,151
+  profit(loss) of associates accounted for under the equity, and gain (loss) on  合計
+  disposal of associates accounted for under the equity, etc.
+Delta Confidential  15
+
+[p.16]
+  Profits before Tax v.s EBITDA
+  稅前淨利及息稅折舊及攤銷前利潤
+  新台幣十億元
+  Profits
+  before tax  Y/Y
+  稅前淨利  年對年
+  YT3Q25  YT3Q26
+  PBT  62.2  99.8
+  % of sales  15.8%  18.5%  Profits
+  before tax  +60%
+  稅前淨利
+  EBITDA
+  息稅折舊及
+  攤銷前利潤
+  EBITDA
+  YT3Q25  YT3Q26  息稅折舊及  +49%
+  攤銷前利潤
+  EBITDA  85.2  127.2
+  % of sales  21.7%  23.6%
+Delta Confidential  16
+
+[p.17]
+  Net Profits after Tax
+  稅後淨利
+  新台幣十億元  NT$ million
+  YT3Q25  YT3Q26
+  新台幣百萬元
+  Net profits  Profit before income tax  62,217  99,759
+  after tax  稅前淨利
+  稅後淨利
+  YT3Q25  YT3Q26  Income tax  (13,918)  (22,697)
+  Net profits  所得稅
+  42.8  69.2
+  after tax
+  % of sales  10.9%  12.8%  Non-controlling interest  (5,514)  (7,876)
+  非控制權益
+  Y/Y
+  年對年
+  Net profits  Net profit after tax  42,785  69,186
+  +62%  稅後淨利
+  after tax
+Delta Confidential  17
+
+[p.18]
+  EPS
+  每股淨利
+  Unit: NT$
+  新台幣元
+  +62%
+  26.64
+  16.47
+  YT3Q25  YT3Q26
+  *EPS based on shares outstanding of 2,598 million.
+  每股盈餘之設算基於在外流通股數25.98億股。
+Delta Confidential  18
+
+[p.19]
+Delta Confidential  19
+
+[p.20]
+Smarter. Greener. Together.

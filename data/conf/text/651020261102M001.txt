@@ -1,0 +1,316 @@
+[p.1]
+  中華精測2026年第三季營運報告
+  CHPT 2026-Q3 Investor Conference
+  【機密】
+Copyright CHPT All rights reserved.
+
+[p.3]
+  2026年第三季營運成果
+  (新台幣佰萬元，每股盈餘為新台幣元)
+  營 收  毛 利  每股盈餘  現金流
+  1,905  57.3%  16.75  (4)
+  晶 圓 測 試 ： 1,287
+  IC測試  ：  539
+  其他  ：  79
+Copyright CHPT All rights reserved.  CHPT 2026-Q3 Investor Conference  3
+
+[p.4]
+  目錄
+  1. 市場趨勢
+  2. 經營實績
+  3. 財務成果
+  4. 展覽資訊
+  5. Q&A
+Copyright CHPT All rights reserved.  CHPT 2026-Q3 Investor Conference  4
+
+[p.5]
+  中華精測2026年第三季營運報告
+  1. 市場趨勢
+  •  全球半導體市場規模
+  •  全球 MEMS 探針卡市場規模
+  •  全球 HPC 市場規模
+Copyright CHPT All rights reserved.  CHPT 2026-Q3 Investor Conference  5
+
+[p.6]
+1.市場趨勢
+  全球半導體市場規模
+  十億美元
+  2,500  2,332
+  2,266
+  2,142
+  2,000  70%
+  1,655
+  1,500  2025-2029年 CAGR
+  1,000
+  796
+  +30.8%
+  30%
+  500
+  0  -10%
+  2025  2026(e)  2027(f)  2028(f)  2029(f)
+  銷售額
+Source: WSTS, TSIA (2026/08)；CHPT整理
+Copyright CHPT All rights reserved.  CHPT 2026-Q3 Investor Conference  6
+
+[p.7]
+1.市場趨勢
+  全球MEMS 探針卡市場規模
+  佰萬美元
+  6000
+  5000
+  1,275
+  1,256
+  4000  1,204
+  2025-2029年 CAGR
+  1,112
+  +16.1%
+  3000
+  933
+  2000  3,924
+  3,692
+  3,350
+  2,785
+  1000  2,159
+  0
+  2025  2026(e)  2027(f)  2028(f)  2029(f)
+  MEMS  Cantilever & Vertical & Other
+Source: Yole 2026/10；CHPT整理
+Copyright CHPT All rights reserved.  CHPT 2026-Q3 Investor Conference  7
+
+[p.8]
+1.市場趨勢
+  全球HPC市場規模
+  十億美元
+  YoY +59.8%
+  1,200
+  1,000
+  864
+  800
+  600  540
+  400
+  359
+  200
+  0
+  2025  2026(e)  2027(f)
+  Processors
+Source: Yole 2026/10；CHPT整理
+Copyright CHPT All rights reserved.  CHPT 2026-Q3 Investor Conference  8
+
+[p.9]
+  中華精測2026年第三季營運報告
+  2. 經營實績
+  •  各產品 營收比重
+  •  各應用 營收占比
+  •  各應用 探針卡營收比重
+Copyright CHPT All rights reserved.  CHPT 2026-Q3 Investor Conference  9
+
+[p.10]
+2.經營實績
+  各產品 營收比重
+  YoY +53%
+  新台幣佰萬元
+  QoQ +16%
+  技術服務與其他
+  1,905
+  8%
+  4%
+  1,640
+  IC測試板  6%  28%
+  21%  18%
+  2026 1Q~3Q  1,242
+  各產品  10%
+  累計占比  25%
+  晶圓測試卡  76%  68%
+  71%  技術服務與其他
+  65%
+  IC測試板
+  晶圓測試卡
+  3Q25  2Q26  3Q26
+Copyright CHPT All rights reserved.  CHPT 2026-Q3 Investor Conference  10
+
+[p.11]
+2.經營實績
+  各應用 營收占比
+  新台幣佰萬元
+  1,905
+  1.5%
+  2.2%
+  Automotive  7.6%
+  Gerber  1,640
+  3%
+  RF  4.7%  9.5%
+  4%  3.1%
+  7%  12.7%
+  13.3%
+  1,242  4.3%
+  Others
+  10.3%
+  11%  1.4%
+  2026 1Q~3Q  HPC
+  18.9%
+  21.3%
+  各應用  57%
+  4.3%
+  累計占比  Gerber
+  65.9%
+  AP  Automotive  31.5%
+  18%  Others  56.3%
+  RF
+  AP  31.2%
+  HPC
+  3Q25  2Q26  3Q26
+Copyright CHPT All rights reserved.  CHPT 2026-Q3 Investor Conference  11
+
+[p.12]
+2.經營實績
+  各應用 探針卡營收比重  YoY +39%
+  新台幣佰萬元
+  QoQ +5%
+  Automotive  399
+  381
+  7%  9.3%
+  RF  3.8%
+  21.4%
+  11%  11.2%
+  HPC
+  288
+  35%  8.3%  13.1%
+  Others
+  2026 1Q~3Q  24.8%
+  各應用  21.5%
+  15%  4.6%
+  累計占比  Automotive  36.1%
+  Others
+  RF  57.9%
+  AP  44.9%
+  AP  30.4%
+  HPC
+  32%
+  12.7%
+  3Q25  2Q26  3Q26
+Copyright CHPT All rights reserved.  CHPT 2026-Q3 Investor Conference  12
+
+[p.13]
+  中華精測2026年第三季營運報告
+  3. 財務成果
+  •  2026年第3季營運績效
+  •  3Q25~3Q26 營收及每股盈餘
+  •  3Q25~3Q26 毛利率及營業費用率
+  •  3Q25~3Q26 營運績效
+  •  3Q25~3Q26 資金情形
+Copyright CHPT All rights reserved.  CHPT 2026-Q3 Investor Conference  13
+
+[p.14]
+3.財務成果
+  2026年第3季營運績效
+  新台幣佰萬元，惟
+  每股盈餘為新台幣元  營收  毛利率  每股盈餘 (元)  自由現金流量(1)
+  3Q25  1,242  56.3%  8.41  234
+  2Q26  1,640  57.5%  15.02  168
+  3Q26  1,905  57.3%  16.75  (4)
+  3Q26 及 2Q26 摘要：
+   3Q26 營收 ▲ 53% YoY 、毛利率 ▲ 1.0ppt YoY 、 EPS ▲ $8.34 YoY
+   3Q26 營收 ▲ 16% QoQ、毛利率 ▼ 0.2ppt QoQ 、EPS ▲ $1.73 QoQ
+  (1) 自由現金流量 = 營運活動之現金流入-資本支出
+Copyright CHPT All rights reserved.  CHPT 2026-Q3 Investor Conference  14
+
+[p.15]
+3.財務成果
+  3Q25~3Q26 營收及每股盈餘
+  新台幣佰萬元  新台幣元
+  營業收入  每股盈餘
+  $16.75
+  $15.02
+  $1,905
+  $1,640
+  $1,357  $10.43
+  $1,242  $1,196  $8.68
+  $8.41
+  3Q25  4Q25  1Q26  2Q26  3Q26  3Q25  4Q25  1Q26  2Q26  3Q26
+  3Q26 營業收入$19.05億 ▲ 53% YoY  3Q26每股盈餘 $16.75 ▲ $8.34 YoY
+Copyright CHPT All rights reserved.  CHPT 2026-Q3 Investor Conference  15
+
+[p.16]
+3.財務成果
+  3Q25~3Q26 毛利率及營業費用率
+  新台幣佰萬元
+  毛利率  營業費用率
+  57.5%  57.3%
+  56.3%  56.8%  32%
+  56.0%
+  29%  28%
+  6%
+  6%  6%  23%  22%
+  6%
+  6%  5%  5%
+  6%
+  6%  5%
+  20%
+  17%  16%
+  12%  12%
+  3Q25  4Q25  1Q26  2Q26  3Q26  3Q25  4Q25  1Q26  2Q26  3Q26
+  研發  管理  銷售
+  3Q26 毛利率 57.3% ▲ 1.0ppt YoY  3Q26營業費用率 22% ▼ 10ppts YoY
+Copyright CHPT All rights reserved.  CHPT 2026-Q3 Investor Conference  16
+
+[p.17]
+3.財務成果
+  3Q25~3Q26 營運績效
+  新台幣佰萬元
+  3Q25  4Q25  1Q26  2Q26  3Q26
+  營業收入  $1,242  $1,196  $1,357  $1,640  $1,905
+  毛利率  56.3%  56.0%  56.8%  57.5%  57.3%
+  營業利益率  24%  27%  29%  35%  35%
+  合併淨利歸屬於
+  $275  $285  $342  $494  $551
+  母公司業主
+  每股盈餘(元)  $8.41  $8.68  $10.43  $15.02  $16.75
+  自由現金流量  $234  $433  $309  $168  ($4)
+Copyright CHPT All rights reserved.  CHPT 2026-Q3 Investor Conference  17
+
+[p.18]
+3.財務成果
+  3Q25~3Q26 資金情形
+  現金及其他金融資產
+  新台幣佰萬元  $7,426
+  $7,236
+  $6,909
+  3Q26 現 金 期 末 餘 額
+  69.1
+  $4,401
+  $3,978
+  新台幣  億元
+  ▼季減新台幣 5.17 億元
+  3Q25  4Q25  1Q26  2Q26  3Q26
+  營運活動現金流入  資本支出  自由現金流量
+  新台幣
+  1.63  億元  新台幣
+  1.67  億元  新台幣
+  (0.04)  億元
+Copyright CHPT All rights reserved.  CHPT 2026-Q3 Investor Conference  18
+
+[p.19]
+  中華精測2026年第三季營運報告
+  4. 展覽資訊
+  •  SWTest Asia 2026 | Semiconductor Wafer Test Conference
+Copyright CHPT All rights reserved.  CHPT 2026-Q3 Investor Conference  19
+
+[p.20]
+4.展覽資訊
+  SWTest Asia 2026 | Semiconductor Wafer Test Conference
+  日期：2026 年 11 月 05 日（四）
+  11 月 06 日（五）
+  地點：新竹喜來登飯店 3F
+  攤位：C03
+  全流程
+  大 電 流/
+  測試介面  高 速  高腳數
+  散熱
+  解決方案
+Copyright CHPT All rights reserved.  CHPT 2026-Q3 Investor Conference  20
+
+[p.21]
+  謝謝您
+  www.chpt.com
+  Investor@chpt.com
+Copyright CHPT All rights reserved.  CHPT 2026-Q3 Investor Conference  21

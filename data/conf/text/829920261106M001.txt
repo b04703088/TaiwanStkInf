@@ -1,0 +1,419 @@
+[p.1]
+營運成果與未來展望  掃描 & 加入 群
+  聯IR發送清單
+2026年 第三季
+潘健成 | 群聯電子 執行長
+November 6, 2026
+
+[p.3]
+簡報大綱
+  群聯的營運轉型
+  財務表現與營運概況更新
+  營運亮點
+  現在與未來的技術領先優勢
+  Q&A
+
+[p.4]
+群聯的營運轉型與新
+成長動能
+
+[p.5]
+The AI-ecosystem solutions are driving Phison’s future growth momentum
+  3Q26 Revenue Contribution
+  88% QoQ  Embedded ODM Module,
+  24%
+  Revenue  0.5%
+  QoQ
+  57%+
+  Others,
+  Industrial  3%
+  Module,  Controller,  Retail
+  AI Ecosystem Module, 57%  9%  5%  Module, 2%
+  AI-Ecosystem Solutions
+  Module  Included Categories
+  AI-Ecosystem  Enterprise Module (eSSD), aiDAPTIV solutions, AI PC,
+  Module/Solution  AI Networking, AI servers, Boot Drive
+  Embedded ODM Module  Mobile ODM, PC ODM, Gaming Module
+  Industrial Module  IPC (Industrial PC), Automotive systems, Space SSD
+
+[p.6]
+3Q26財務表現與營運
+概況更新
+
+[p.7]
+3Q26 合併營收與毛利
+  2026年第三季合併營收  2026年第三季毛利
+ $860.76億  $513.87億
+  營收  毛利
+  QoQ 26.8%  QoQ 15.9%
+  YoY 374.6%  YoY 774.2%
+  單季歷史新高  單季歷史新高
+  *營收單位為新台幣
+
+[p.8]
+合併營收
+  新台幣/百萬元
+  單季歷史新高
+  $86,076
+  $67,888
+  $40,967
+  $22,799
+  $17,890  $18,137
+  $13,839
+  1Q25  2Q25  3Q25  4Q25  1Q26  2Q26  3Q26
+  $1,949.35億新台幣
+  $726.64億新台幣
+  2026年 前三季度累計營收
+  2025年 全年度累計營收
+  歷史新高
+
+[p.9]
+毛利率與營業毛利
+Driving Profitable Growth (Revenue & Gross Profit)
+  Gross Margin %  Gross Profit (NT$/Million)
+70.00%  60,000
+  65.31%  51,387
+60.00%
+  61.31%  50,000
+  59.70%
+50.00%
+  44,335
+  40,000  # 3Q26 備抵存貨
+  跌價損失影響毛利
+40.00%
+  41.67%  率約 -0.34%,主要
+  30,000  是期末在製品
+  (WIP) 按會計準則
+30.00%  32.41%  25,118  評價產生評價損失
+  30.93%  29.93%
+  20,000
+  所致.
+20.00%
+  10,000
+10.00%  9,500
+  5,199  5,878
+  4,281
+0.00%  0
+  1Q25  2Q25  3Q25  4Q25  1Q26  2Q26  3Q26
+  34.21%  61.99%
+  2026年 前三季度毛利率
+  2025年 全年度毛利率
+  歷史新高
+附註:
+存貨評價: 依照會計原則, 群聯按期以成本與市價孰低法 (LCM) 評價本公司存貨, 並提列備抵存貨跌價損失. 但市場價格回升時, 則將備抵存貨跌價損失予以回轉.
+
+[p.10]
+每股盈餘
+ 新台幣/元  單季歷史新高
+  $138.00
+  $118.57
+  ▪ #3Q26 認列權益
+  法投資利益影響
+  EPS約 +$9.70
+  ▪ #3Q26 存貨評價
+  LCM損失，影響
+  $68.80  EPS約 -$1.12
+ $5.53  $3.60  $21.74
+  $10.75
+ 1Q25  2Q25  3Q25  4Q25  1Q26  2Q26  3Q26
+  $325.49 新台幣
+  $41.98 新台幣  2026年前三季度 EPS
+  2025年全年度 EPS  歷史新高
+  與稅後淨利皆超越前10年(105-114年)之合計
+
+[p.11]
+3Q26損益表重點節錄
+金管會認可之國際財務報導準則(TIFRS)
+  單季歷史新高
+  NT$mn  3Q26  2Q26  3Q25  Q/Q (%)  Y/Y (%)
+營業收入(美金百萬元)  2,693  2,150  609  25.3  342.2
+營業收入  86,076  67,888  18,137  26.8  374.6
+營業毛利  51,387  44,335  5,878  15.9  774.2
+ 推銷費用  1,504  1,289  375  ▪ 本季新台幣營收，季成長26.8%
+ 管理費用  1,554  1,581  310  美金計算營收，季成長為25.3%
+ 研究發展費用  15,288  15,099  3,707  ▪ 本季毛利率為59.7%，本季存貨評價損失影響
+  毛利率約 -0.34%。
+ 預期信用減損(損失)利益  143  (4)  62
+  ▪ 3Q26 營業費用較前期及去年同期增加，主要
+營業費用  18,489  17,965  4,453  2.9  315.2  來自於公司持續投入長期技術與產品布局，包
+營業利益  32,898  26,370  1,424  24.8  2,210.3  括先進製程研發、光罩費用、AI儲存與邊緣AI
+  平台開發，以及關鍵人才延攬與員工獎酬提升，
+營業外收益(損失)  3,078  4,705  1,231  是本公司對未來成長動能的積極投資。
+稅前淨利  35,976  31,075  2,655  15.8  1,255.0
+  本公司認為持續的研發投資與人才布局，將有
+ 所得稅費用(利益)  5,428  4,856  428
+  助於提升高價值產品比重、強化群聯競爭優勢，
+稅後淨利  30,548  26,219  2.227  16.5  1,183.7  並支撐未來中長期營收與獲利成長。
+基本每股盈餘 (NT$)  138.00  118.57  10.75  ▪ 3Q26 營業外利益,主要係認列權益法投資淨利
+  益之影響，影響單季EPS約 NT$9.70.
+重要財務比率 (%)
+毛利率  59.7%  65.3%  32.4%
+營利率  38.2%  38.8%  7.9%
+淨利率  35.5%  38.6%  12.3%
+平均匯率(美元/新台幣)  31.74  31.61  31.22
+
+[p.12]
+資產負債表重點節錄
+金管會認可之國際財務報導準則(TIFRS)
+  新台幣/百萬元  3Q26  2Q26  3Q25
+總資產  237,238  193,717  73,727
+ 現金及損益以公允價值衡量之
+  27,707  33,799  13,703
+ 金融資產(流動)
+ 應收帳款  60,772  38,769  11,728
+ 存貨  111,774  91,792  31,527  ▪ 現金: 為營業獲利產生現金與存貨管理、應收
+  應付帳款變動以及發行公司債等之綜合結果。
+ 長期性投資  14,562  12,783  4,512
+  ▪ 存貨：本公司將因應產業變化及營運需求適當
+不動產、廠房及設備  11,336  9,199  8,477  調整庫存水位，本公司庫存以應用於高附加價
+  值市場為大宗。
+總負債  117,719  91,645  23,648
+  ▪ 流動負債：主要包括應付帳款、應付現金股利、
+ 流動負債  90,725  65,117  17,670  應付所得稅、應付薪資及員工酬勞，以及應付
+  營業費用等。
+ 應付公司債  25,646  25,410  5,682
+  ▪ 股東權益：主要為2026年前三季度稅後淨利
+總股東權益  119,519  102,072  50,079  扣除董事會通過2025年下半年度及2026年上
+  半年度盈餘分配案 (每股現金股利分別為17元
+每股淨值(NT$)  540  462  241
+  及60元)及員工執行認股權與CB2轉換為股份
+  重要財務比率  之綜合結果。
+ 應收帳款週轉天數  52  44  54
+ 存貨週轉天數  274  297  224
+ 股東權益報酬率 (%)  106.80  102.09  11.06
+ 資產報酬率(%)  59.86  59.74  7.84
+
+[p.13]
+  ◎免責聲明◎
+財務資訊調節表  本簡報所提供，非以金管會認可之國際財務報導準則
+非金管會認可之國際財務  (Non-TIFRS) 製作之補充財務資訊(簡稱「補充資訊」，
+  係考量未納入股份基礎給付酬勞成本及所得稅影響數等
+報導準則 (Non-TIFRS)  財務影響之調節結果。
+補充資訊
+  此補充資訊僅供參考而非替代依金管會認可之國際財務
+  報導準則 (TIFRS) 製作之財務報告。最終實際盈餘分配
+  將依照金管會認可之國際財務報導準則 (TIFRS) 製作之
+  財務報告為準。
+
+[p.14]
+財務資訊調節表-2026年第三季
+非金管會認可之國際財務報導準則 (Non-TIFRS)
+  新台幣/百萬元  3Q26  2Q26  3Q25  Q/Q (%)  Y/Y (%)
+  營業利益  32,898  26,370  1,424  24.8%  2,210.3%
+TIFRS
+  營利率(%)  38.22%  38.84%  7.85%
+調節項目  股份基礎給付酬勞成本  242  117  39
+  營業利益  33,140  26,487  1,463  25.1%  2,165.2%
+Non-TIFRS
+  營利率(%)  38.50%  39.02%  8.07%
+  稅後淨利  30,548  26,219  2,227  16.5%  1,271.7%
+TIFRS  淨利率(%)  35.49%  38.62%  12.28%
+  基本每股盈餘 (NT$)  138.00  118.57  10.75
+  股份基礎給付酬勞成本  242  117  39
+調節項目  金融負債評價損益- ECB B劵轉換權  (484)  13  0
+  所得稅影響數  (110)  (16)  (6)
+  稅後淨利  30,196  26,333  2,260  14.7%  1,236.1%
+Non-TIFRS  淨利率(%)  35.08%  38.79%  12.46%  Non-TIFRS EPS decreased 3Q26 EPS by
+  approximately NT$1.58, affected by the shares-
+  基本每股盈餘 (NT$)  136.42  119.10  10.92  based payment and USD ECB valuation.
+註1: 請注意:本簡報所提供，非以金管會認可之國際財務報導準則(Non-TIFRS)製作之補充財務資訊(簡稱「補充資訊」，為金管會認可之國際財務報導準則(TIFRS)製作之財務報告之補充而非替代資訊，補充資
+訊之調節項目為股份基礎給付酬勞成本及所得稅影響數等。最終實際盈餘分配將依照金管會認可之國際財務報導準則(TIFRS)製作之財務報告為準。
+註2: 若有數值不等，係因計算取位四捨五入造成。
+
+[p.15]
+2026年 10月合併營收
+  2026年10月合併營收  2026年累計至10月合併營收
+  $315.30億  $2,264.62億
+  營收  毛利
+  2.9% MoM  297.8% YoY
+  346.3% YoY
+  歷史新高
+  單月歷史新高
+  *營收單位為新台幣
+
+[p.16]
+Phison’s Next Evolution
+From NAND Storage to AI Infrastructure and Systems
+
+[p.17]
+Phison’s Role in the 5-Layers AI Cake
+Creating Higher Value in the AI Value Chain
+  Applications/SW/Platform/System:
+  ▪  AI Data Platform
+  ▪  AI Software
+  ▪  aiDAPTIV Solutions
+  Infrastructure
+  ▪  AI PC / AI Workstations
+  ▪  AI Servers
+  ▪  Enterprise SSD
+  ▪  Boot Drives
+  Chips
+  ▪  eMMC
+  ▪  Retimer/Redriver
+  ▪  SSD Controller with AI NPU
+
+[p.18]
+Phison’s New Growth: AI Software
+Our Goal is to Build a Repeatable and Scalable Software Business
+From Product Silos to AI Data Platform (AIDP) Solution View
+  Fulfilling our commitments to our AI clients
+  by building strong AI teams
+  AI
+  Software
+  Business
+  AI  AI  AI
+  Hardware  Software  Software
+  Engineers  Engineers  BD Team
+
+[p.19]
+Phison’s Next Evolution: Phison 3.0
+Edge AI Infrastructure + System-Level Solutions
+  Customized AI storage solutions & edge AI platform/system
+  Full customization
+  Customized NAND Storages & AI Computing Solutions & AI Software
+  High resilience
+  AI Data Platform
+  Flexible collaboration
+  AI software
+  NAND Controller IC Design Capabilities
+  aiDAPTIV
+  Rapid response  eSSD
+  Boot Drive
+  Retimer/Redriver  ASIC / Design
+  Stable supply chain  Firmware  NPU
+  eMMC
+  Service
+  AI PC / Workstation
+  AI Server
+  Strong financials
+
+[p.20]
+Phison
+Business Highlights
+
+[p.21]
+3Q26 Overall Business Highlights
+Redriver IC
+ Phison PS7161 is the world’s first PCIe 6.0 Redriver to receive PCI-SIG
+ certification, passing the rigorous compliance and interoperability testing
+ at the PCI-SIG Compliance Workshop, an important industry validation
+ for the PCIe 6.0 era.
+
+[p.22]
+3Q26 Overall Business Highlights
+aiDAPTIV Solution Showcasing with  at FMS 2026
+ As AI models grow larger, traditional system memory can limit what's
+ possible on local devices. Through Pascari aiDAPTIV , Phison is helping
+ address this challenge by extending effective AI memory using intelligent
+ middleware and purpose-built flash storage.
+ Two demonstrations highlighted:
+ • Running a 120B-parameter AI model on a system with just 32GB of
+  DRAM and more than 1TB of flash storage.
+ • Reducing subsequent AI inference time by 70–80% through KV-cache
+  reuse in the demonstrated workload.
+
+[p.23]
+Phison Receives Micron Global Supplier Awards
+Phison Wins Awards for 3 Years in a Row
+  Micron Supplier Award: Semiconductor
+  A Group Photo
+  with Micron CEO Sanjay Mehrotra
+  Micron Supplier Award: Best in Quality – Assembly and Test
+
+[p.24]
+Phison
+AI Data Platform
+From Taiwan to the World
+
+[p.25]
+Phison AI Data Platform
+  Agent Platform
+  Enterprise  Multimodal
+  AI Customer
+  Build, Govern, and Scale Enterprise Agents  AI Agent  Knowledge
+  Service
+  Document  and more
+  / KM (RAG)  Intelligence
+  AI Data Intelligence Layer
+  Turn Enterprise Data into Trusted  Data Integration  Generative BI  Databases & Data Source  and more
+  Intelligence
+  Model & AIOps
+  Deploy, Operate, and Optimize AI Models  MLOps /  Model  Vision  Voice  Reasoning
+  LLMOps  Management  Module  Module  Module
+  Resource Orchestration Layer
+  Infrastructure  Workspace &  Operations &
+  Orchestrate Heterogeneous Compute and
+  Management  Access  Monitoring
+  Memory
+  Hardware Layer
+  Powered by Pascari aiDAPTIV  GPU Server  Cache Server  Storage Server
+  Extend AI Memory through NAND-based  with aiDAPTIV  aiDAPTIV  SSD-based  PASCARI SSD-based
+  Acceleration
+
+[p.26]
+How the Phison AI Data Platform Helps SMEs Adopt On-Premises AI
+  Cost
+  (USD)  If SMEs (Small-Medium Enterprises) Deploy Sufficient AI Servers，Initial Cost = Millions of Dollars
+  (Extremely High Barrier to Entry for SMEs)
+  SMEs Can Scale AI Servers as Results Grow
+  No Need for Heavy Initial Investment
+  If SMEs Adopt  Pay-as-You-Grow & Cost-Effective
+  Phison AI Data Platform
+  As AI Delivers Continued Results: Scale Up
+  As AI Delivers Results: Scale Up
+  Start Small: Deploy One Server at a Low Cost
+  AI Usage
+
+[p.27]
+Technology
+Leadership
+Update
+
+[p.28]
+Continue to Strengthen Phison Leading Technology Position
+  Category  2020  2021  2022  2023  2024  2025
+  2026
+  9 months
+  2100+
+  R&D Exp. / Revenue
+  14%  13%  14%  22%  21%  19%  20%
+  Global Patents
+  (%)
+  R&D Exp. / Operating
+  81%  81%  77%  82%  81%  83%  84%
+  Exp.
+  5000+
+  Global Employees
+  IN MILLIONS USD
+  70%+
+  Proportion of Engineers
+  2020  2021  2022  2023  2024  2025  26 9mons
+  Note: Global patents including Granted and Pending
+
+[p.29]
+Phison creates high-value solutions for global customers
+Through its strong R&D and customization capabilities.
+  ▪ Taiwan (HQ)
+  Global  ▪ USA, Japan, Europe, Malaysia
+  ▪ China JV, India JV
+  Offices
+  The AI-ecosystem solutions  ▪ Customer Engagement
+  are driving Phison’s future  BD
+  ▪ CSPs, Hyperscalers
+  growth momentum  (Business Development Manager)
+  ▪ AI Ecosystem Partners
+  20+ BDs
+  ▪ ODM Partners
+  ▪  AI Ecosystem
+  ▪  AI Storage Solutions
+  ▪  AI Computing Platforms
+  PM  ▪ Customer Requirement
+  (Project/Product Manager )  ▪ Product Requirement
+  200+ PMs  ▪ Technical Support
+  R&D Investment & Engineering Foundation  ▪ IP, ASIC / Controller
+  3500+ Engineers  ▪ Firmware
+  39B+ NTD @ 9 months of 2026  ▪ System Integration
+  (13B+ NTD @2025)  ▪ Validation
+
+[p.30]
+THANK YOU!

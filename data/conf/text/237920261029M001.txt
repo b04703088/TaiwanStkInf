@@ -1,0 +1,216 @@
+[p.1]
+2026年第三季法人說明會資訊
+開會日期： 115年10月29日(四)  開會時間：4:00PM－5:00PM
+語言: 英文
+開會地點： 網路直播
+參加人員： 國內外法人、記者
+會議主席： 發言人 黃依瑋副總
+主要內容：2026年第三季法人說明會資訊
+(1) 說明2026年第三季損益表主要數字
+  瑞昱半導體2026年第三季損益表主要資訊如下，詳細資料將以公司正式對外公告財報為準：
+  營業收入：約新台幣377.3億元，較上季成長約0.5%。
+  營業毛利率：47.4%
+  稅後淨利：約新台幣41.3億元
+  以加權平均流通在外股數計算，每股盈餘為新台幣8.05元。
+(2) 2026年第四季營運展望
+ 展望第四季，瑞昱對營運維持審慎穩健看法，並將密切關注供應鏈產能調配及上游成本持續上升
+ 等外部因素之變化與影響。
+  Page 1 of 2
+
+[p.2]
+  2026 Q3 Earnings Release and Marketing/Sales Update
+Date:  Thursday, October 29th, 2026
+Time:  4:00 PM – 5:00 PM
+Language:  English
+Place:  Web conference
+Audience:  Domestic as well as international institutional investors and reporters
+Subject:  2026 Q3 Earnings Release and Marketing/Sales Update
+Statement:
+  (1) 2026 Q3 Financial Results
+  Net Sales: about NT$37.73 billion, up 0.5% QoQ.
+  Gross Margin: 47.4%
+  Net Income: about NT$4.13 billion
+  EPS: NT$8.05
+  (3) 2026 Q4 Company Guidance
+  Looking ahead to the fourth quarter, Realtek maintains a prudent and steady outlook for its
+  operations and will closely monitor the impact of external factors, including supply chain capacity
+  allocation and continued increases in upstream costs.
+  Page 2 of 2
+
+[p.3]
+  瑞昱半導體
+  2026年第三季法人說明會
+  Realtek 3Q26 Earnings Release
+  © 2026 Realtek Semiconductor Corp. All rights reserved
+© 2026 Realtek Semiconductor Corp. All rights reserved  1
+
+[p.4]
+Agenda
+  • 3Q26 Financial Results  Ivy Chen, Deputy Spokesperson
+  • Managements’ Remark  Yee-Wei Huang, Spokesperson
+  • Q&A
+© 2026 Realtek Semiconductor Corp. All rights reserved  2
+
+[p.5]
+3Q26 Net Sales (NT$ mn)
+  YoY+27.9%  QoQ+0.5%
+  37,553  37,732
+  29,491
+  3Q25  2Q26  3Q26
+ © 2026 Realtek Semiconductor Corp. All rights reserved  3
+
+[p.6]
+3Q26 Gross Margin (%)
+  YoY -2.2ppt  QoQ +0.4ppt
+  49.7%
+  47.0%  47.4%
+  3Q25  2Q26  3Q26
+© 2026 Realtek Semiconductor Corp. All rights reserved  4
+
+[p.7]
+3Q26 Operating Expenses (NT$ mn)
+  YoY +19.2%  QoQ -1.2%
+  13,926  13,758
+  11,538
+  10,215  10,082  R&D Expenses
+  8,644  Administration Expenses
+  Selling Expenses
+  1,460  2,028  1,973
+  1,435  1,683  1,703
+  3Q25  2Q26  3Q26
+ © 2026 Realtek Semiconductor Corp. All rights reserved  5
+
+[p.8]
+3Q26 Operating Income (NT$ mn) / 3Q26 Operating Margin (%)
+  YoY +0.4ppt  QoQ +1.1ppt
+  10.6%  9.9%  11.0%
+  Operating Income
+  3,725  4,144
+  3,113  Operating Margin
+  3Q25  2Q26  3Q26
+ © 2026 Realtek Semiconductor Corp. All rights reserved  6
+
+[p.9]
+3Q26 Net Income (NT$mn) / 3Q26 Net Profit Margin (%)
+  YoY -0.7ppt  QoQ +0.8ppt
+  11.6%  10.9%
+  10.1%
+  Net Income
+  3,805  4,126  Net Profit Margin
+  3,429
+  3Q25  2Q26  3Q26
+ © 2026 Realtek Semiconductor Corp. All rights reserved  7
+
+[p.10]
+3Q26 EPS (NT$)
+  QoQ +$0.63
+  YoY +$1.36
+  $7.42  $8.05
+  $6.69
+  3Q25  2Q26  3Q26
+ © 2026 Realtek Semiconductor Corp. All rights reserved  8
+
+[p.11]
+3Q26 合併損益表
+  3Q26  2Q26  QoQ  3Q25  YoY
+(單位: 新台幣百萬元)  金額  %  金額  %  %  金額  %  %
+營業收入淨額  37,732  100%  37,553  100%  0.5%  29,491  100%  27.9%
+營業毛利  17,903  47.4%  17,651  47.0%  1.4%  14,652  49.7%  22.2%
+ 推銷費用  (1,703)  (4.5%)  (1,683)  (4.5%)  1.2%  (1,435)  (4.9%)  18.7%
+ 管理及總務費用  (1,973)  (5.2%)  (2,028)  (5.4%)  (2.7%)  (1,460)  (4.9%)  35.2%
+ 研究發展費用  (10,082)  (26.7%)  (10,215)  (27.2%)  (1.3%)  (8,644)  (29.3%)  16.6%
+營業費用合計  (13,758)  (36.5%)  (13,926)  (37.1%)  (1.2%)  (11,538)  (39.1%)  19.2%
+營業利益  4,144  11.0%  3,725  9.9%  11.2%  3,113  10.6%  33.1%
+營業外收入及支出  606  1.6%  645  1.7%  (6.0%)  932  3.2%  (34.9%)
+本期淨利  4,126  10.9%  3,805  10.1%  8.4%  3,429  11.6%  20.3%
+每股盈餘 (元)  $  8.05  $  7.42  $  6.69
+註: 數字加總不等，因四捨五入造成
+ © 2026 Realtek Semiconductor Corp. All rights reserved  9
+
+[p.12]
+3Q26 合併資產負債表
+  3Q26  2Q26  3Q25
+  (單位: 新台幣百萬元)  金額  金額  金額
+  現金及金融資產-流動  70,033  62,788  61,702
+  應收帳款淨額  23,790  22,589  18,322
+  存貨淨額  33,988  24,306  16,871
+  其他流動資產  2,662  1,535  1,513
+  基金與投資  15,203  15,945  13,484
+  固定資產  13,145  11,657  10,101
+  無形資產  3,909  3,967  3,754
+  其他非流動資產  4,567  4,481  4,153
+  資產總計  167,296  147,269  129,901
+  短期借款  9,370  3,273  0
+  應付帳款  23,631  17,204  11,977
+  其他流動負債  76,194  73,069  67,661
+  非流動負債  3,395  3,281  2,811
+  股東權益  54,705  50,442  47,451
+  負債及股東權益總計  167,296  147,269  129,901
+  註: 數字加總不等，因四捨五入造成
+© 2026 Realtek Semiconductor Corp. All rights reserved  10
+
+[p.13]
+3Q26 合併現金流量表
+  3Q26  2Q26  3Q25
+  (單位: 新台幣百萬元)  金額  金額  金額
+  營業活動之淨現金流入(出)  3,214  4,821  6,951
+  投資活動之淨現金流入(出)  (2,934)  (2,369)  2,283
+  籌資活動之淨現金流入(出)  6,101  (6,577)  (2,962)
+  當期淨現金流入(出)  6,381  (4,125)  6,271
+  註: 數字加總不等，因四捨五入造成
+© 2026 Realtek Semiconductor Corp. All rights reserved  11
+
+[p.14]
+3Q26 Consolidated Income Statement
+  3Q26  2Q26  QoQ  3Q25  YoY
+(in NT$ Millions)  Amount  %  Amount  %  %  Amount  %  %
+Net Sales  37,732  100%  37,553  100%  0.5%  29,491  100%  27.9%
+Gross Profit  17,903  47.4%  17,651  47.0%  1.4%  14,652  49.7%  22.2%
+ Selling Expenses  (1,703)  (4.5%)  (1,683)  (4.5%)  1.2%  (1,435)  (4.9%)  18.7%
+ Administration Expenses  (1,973)  (5.2%)  (2,028)  (5.4%)  (2.7%)  (1,460)  (4.9%)  35.2%
+ R&D Expenses  (10,082)  (26.7%)  (10,215)  (27.2%)  (1.3%)  (8,644)  (29.3%)  16.6%
+Operating Expenses  (13,758)  (36.5%)  (13,926)  (37.1%)  (1.2%)  (11,538)  (39.1%)  19.2%
+Operating Income  4,144  11.0%  3,725  9.9%  11.2%  3,113  10.6%  33.1%
+Net Non-Operating Income  606  1.6%  645  1.7%  (6.0%)  932  3.2%  (34.9%)
+Net Income  4,126  10.9%  3,805  10.1%  8.4%  3,429  11.6%  20.3%
+EPS (NT$)  $  8.05  $  7.42  $  6.69
+Note : Sums may not equal totals due to rounding.
+  © 2026 Realtek Semiconductor Corp. All rights reserved  12
+
+[p.15]
+3Q26 Consolidated Balance Sheet
+  3Q26  2Q26  3Q25
+  (in NT$ Millions)  Amount  Amount  Amount
+  Cash and financial Assets-current  70,033  62,788  61,702
+  Accounts Receivable  23,790  22,589  18,322
+  Inventories  33,988  24,306  16,871
+  Other Current Assets  2,662  1,535  1,513
+  Funds and Investments  15,203  15,945  13,484
+  Fixed assets  13,145  11,657  10,101
+  Intangible assets  3,909  3,967  3,754
+  Other non-current assets  4,567  4,481  4,153
+  Total Assets  167,296  147,269  129,901
+  Short-term borrowings  9,370  3,273  0
+  Accounts payable  23,631  17,204  11,977
+  Other current liabilities  76,194  73,069  67,661
+  Non-current liabilities  3,395  3,281  2,811
+  Total Equities  54,705  50,442  47,451
+  Total Liabilities and Equity  167,296  147,269  129,901
+  Note : Sums may not equal totals due to rounding.
+ © 2026 Realtek Semiconductor Corp. All rights reserved  13
+
+[p.16]
+3Q26 Consolidated Cash Flow Statement
+  3Q26  2Q26  3Q25
+  (in NT$ Millions)  Amount  Amount  Amount
+  Cash flows from operating activities  3,214  4,821  6,951
+  Cash flows from investing activities  (2,934)  (2,369)  2,283
+  Cash flows from financing activities  6,101  (6,577)  (2,962)
+  Net increase (decrease) in cash  6,381  (4,125)  6,271
+  Note : Sums may not equal totals due to rounding.
+ © 2026 Realtek Semiconductor Corp. All rights reserved  14
+
+[p.17]
+  Thank You
+  © 2026 Realtek Semiconductor Corp. All rights reserved
+© 2026 Realtek Semiconductor Corp. All rights reserved  15
