@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101419">
+<title>法說memo｜潮汐</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#101419; --panel:#171C22; --panel-2:#1E242B;
+    --line:rgba(232,237,242,0.09); --line-strong:rgba(232,237,242,0.16);
+    --text:#E8EDF2; --text-muted:#A9B2BC; --text-faint:#8B95A0;
+    --brass:#C6A15B; --brass-soft:rgba(198,161,91,0.14); --rise:#E1594F; --fall:#3FAE72;
+    --radius-s:3px; --radius-m:6px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--ink); color:var(--text);
+    font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
+  h1,h2{font-family:'Noto Sans TC',sans-serif; margin:0; font-weight:700;}
+  h2{font-size:20px;}
+  .mono{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+  a{color:inherit;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
+  header.site{position:sticky; top:0; z-index:40; background:#101419; border-bottom:1px solid var(--line);}
+  .nav-row{display:flex; align-items:center; justify-content:space-between; padding:16px 28px;}
+  .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
+  .brand-mark{font-family:'Noto Sans TC',sans-serif; font-size:22px; font-weight:700;}
+  .brand-sub{font-size:12px; color:var(--text-faint);}
+  .page-head{padding:56px 0 8px;}
+  .eyebrow{font-size:13px; color:var(--brass); margin-bottom:10px;}
+  h1{font-size:32px;}
+  .desc{color:var(--text-muted); font-size:14.5px; margin:12px 0 0; max-width:52em;}
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden; margin-top:28px;}
+  .stat{background:var(--panel); padding:16px 20px;}
+  .stat .k{font-size:12.5px; color:var(--text-muted);}
+  .stat .v{font-size:26px; margin-top:2px;}
+  .stat .s{font-size:12px; color:var(--text-faint);}
+  section.block{margin-top:48px;}
+  .block-head{display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin-bottom:14px; flex-wrap:wrap;}
+  .hint{font-size:12.5px; color:var(--text-faint);}
+  .up{color:var(--rise);} .down{color:var(--fall);} .flat{color:var(--text-muted);}
+  .faint{color:var(--text-faint);}
+  .muted{color:var(--text-muted);}
+
+  /* 查個股 */
+  .search{position:relative; max-width:460px;}
+  .search input{width:100%; background:var(--panel); border:1px solid var(--line-strong); color:var(--text); padding:11px 14px; border-radius:var(--radius-m); font:inherit; font-size:15px;}
+  .search input:focus{outline:none; border-color:var(--text-faint);}
+  .sugg{position:absolute; left:0; right:0; top:calc(100% + 4px); background:var(--panel-2); border:1px solid var(--line-strong); border-radius:var(--radius-m); z-index:10; overflow:hidden;}
+  .sugg div{padding:8px 14px; cursor:pointer; font-size:14px;}
+  .sugg div:hover, .sugg div.on{background:var(--brass-soft);}
+  .stock{margin-top:16px; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-m); padding:18px 20px;}
+  .stock .top{display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap;}
+  .stock .nm{font-size:20px; font-weight:700;}
+  .stock .nm .mono{font-size:14px; color:var(--text-muted); margin-left:8px; font-weight:500;}
+  .stock .px{font-size:15px;}
+  .kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-top:16px; padding-top:14px; border-top:1px solid var(--line);}
+  .kpi .k{font-size:12px; color:var(--text-muted);}
+  .kpi .v{font-size:20px; margin-top:2px;}
+  .kpi .s{font-size:12px; color:var(--text-faint); margin-top:2px;}
+  .views{display:flex; height:8px; border-radius:2px; overflow:hidden; margin-top:8px; background:var(--line);}
+  .views i{display:block; height:100%;}
+  .views .b{background:var(--rise);} .views .n{background:var(--text-faint);} .views .r{background:var(--fall);}
+
+  /* 表格 */
+  .tbl-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius-m);}
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  th, td{padding:9px 12px; border-bottom:1px solid var(--line); text-align:left; white-space:nowrap;}
+  th{font-size:12px; color:var(--text-muted); font-weight:500; background:var(--panel); position:sticky; top:0;}
+  td.n, th.n{text-align:right;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr.click{cursor:pointer;}
+  tbody tr.click:hover td{background:var(--panel);}
+  td.wrap-cell{white-space:normal; min-width:18em;}
+  .sname{font-weight:500;}
+  .sname .mono{font-size:11.5px; color:var(--text-faint); margin-left:6px; font-weight:500;}
+  .toolbar{display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin-bottom:12px;}
+  .chips{display:flex; flex-wrap:wrap; gap:6px;}
+  .chips button{background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:5px 11px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .chips button[aria-pressed="true"]{border-color:var(--text-faint); color:var(--text);}
+  .more{display:block; margin:14px auto 0; background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:7px 18px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .more:hover{color:var(--text); border-color:var(--text-faint);}
+  .empty{padding:20px 0; color:var(--text-faint); font-size:13.5px;}
+  .note{font-size:12.5px; color:var(--text-faint); margin-top:18px; line-height:1.8;}
+  footer.site{padding:48px 0; margin-top:64px; border-top:1px solid var(--line);}
+  @media (max-width:860px){
+    .nav-row{padding:14px 16px; flex-wrap:wrap; row-gap:10px;}
+    .wrap{padding:0 16px;}
+    .stats, .kpis{grid-template-columns:repeat(2,1fr);} h1{font-size:26px;}
+    .hide-s{display:none;}
+    td.wrap-cell{min-width:14em;}
+  }
+  .chart{border:1px solid var(--line); border-radius:var(--radius-m); background:var(--panel); padding:10px 8px 4px; position:relative;}
+  .chart svg{display:block; width:100%; height:auto; overflow:visible;}
+  .chart text{fill:var(--text-faint); font-size:11px; font-family:'IBM Plex Mono',monospace;}
+  .legend{display:flex; gap:16px; flex-wrap:wrap; font-size:12px; color:var(--text-muted); margin:0 0 8px 8px;}
+  .legend i{display:inline-block; width:14px; height:3px; vertical-align:middle; margin-right:6px; border-radius:1px;}
+  .tip{position:absolute; pointer-events:none; background:var(--ink); border:1px solid var(--line-strong); border-radius:var(--radius-s); padding:7px 10px; font-size:12px; line-height:1.7; white-space:nowrap; display:none; z-index:5;}
+  .why{font-size:13px; color:var(--text-muted); margin:-4px 0 14px; max-width:60em;}
+  .gauge{position:relative; height:10px; border-radius:5px; overflow:hidden; display:flex; margin-top:10px;}
+  .gauge i{flex:1; display:block;}
+  .gauge-wrap{position:relative; margin-top:6px;}
+  .gauge-pin{position:absolute; top:-4px; width:3px; height:18px; background:var(--text); border-radius:1px; transform:translateX(-1px);}
+  .gauge-lab{display:flex; justify-content:space-between; font-size:11px; color:var(--text-faint); margin-top:4px;}
+  .pbar{display:inline-block; width:64px; height:6px; border-radius:2px; background:var(--line); vertical-align:middle; margin-right:6px; overflow:hidden;}
+  .pbar i{display:block; height:100%;}
+  .split{display:flex; height:22px; border-radius:var(--radius-s); overflow:hidden; margin:6px 0 4px; font-size:11.5px;}
+  .split div{display:flex; align-items:center; justify-content:center; color:#fff; white-space:nowrap; overflow:hidden;}
+  .two{display:grid; grid-template-columns:1fr 1fr; gap:20px;}
+  .two h3{font-size:14px; margin:0 0 8px; font-weight:500; color:var(--text-muted);}
+  @media (max-width:860px){ .two{grid-template-columns:1fr;} }
+  .wrap{max-width:1360px;}
+  .tone{display:inline-block; font-size:12px; padding:1px 8px; border-radius:var(--radius-s); border:1px solid var(--line-strong); color:var(--text-muted); white-space:nowrap;}
+  .tone.t0{border-color:var(--rise); color:var(--rise); font-weight:700;} .tone.t1{border-color:rgba(225,89,79,.55); color:var(--rise);}
+  .tone.t3{border-color:rgba(63,174,114,.55); color:var(--fall);} .tone.t4{border-color:var(--fall); color:var(--fall); font-weight:700;}
+  .filter{background:var(--panel); border:1px solid var(--line-strong); color:var(--text); padding:6px 11px; border-radius:var(--radius-s); font:inherit; font-size:13.5px; width:13em;}
+  .filter:focus{outline:none; border-color:var(--text-faint);}
+  td.hl{white-space:normal; min-width:22em; max-width:40em;}
+  tr.click .arr{display:inline-block; width:1em; color:var(--text-faint); transition:transform .15s;}
+  tr.click.open .arr{transform:rotate(90deg);}
+  tr.detail td{white-space:normal; background:var(--panel); padding:14px 22px 18px;}
+  .memo{max-width:56em; font-size:14px; line-height:1.75;}
+  .memo h2{font-size:15px; margin:14px 0 4px; color:var(--brass); font-weight:500;}
+  .memo h2:first-child{margin-top:0;}
+  .memo ul{margin:4px 0; padding-left:1.3em;} .memo li{margin:2px 0;}
+  .memo p{margin:6px 0; color:var(--text-muted); font-size:13px;}
+  .memo a{color:var(--brass);}
+  .memo .meta{font-size:12.5px; color:var(--text-faint); margin-bottom:8px;}
+  .memo .meta a{color:var(--text-muted);}
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="nav-row">
+    <a href="index.html" class="brand"><span class="brand-mark">潮汐</span><span class="brand-sub">籌碼觀測站</span></a>
+    <nav class="gnav"></nav>
+  </div>
+</header>
+<script src="nav.js"></script>
+<main class="wrap">
+  <section class="page-head">
+    <div class="eyebrow">公司事件</div>
+    <h1>法說會 memo：講了什麼、語氣如何、市場怎麼反應</h1>
+    <p class="desc" id="sub">載入中…</p>
+    <div class="stats" id="stats"></div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>memo</h2><span class="hint" id="m-hint"></span></div>
+    <div class="toolbar">
+      <input class="filter" id="q" type="search" placeholder="代號或名稱" autocomplete="off">
+      <div class="chips" id="tone"><button data-v="" aria-pressed="true">全部語氣</button></div>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>法說日</th><th>股票</th><th>語氣</th><th>一句話重點</th><th class="n">首日漲跌</th><th class="n">首日超額</th><th class="n">5 日超額</th></tr></thead>
+      <tbody id="m-body"></tbody>
+    </table></div>
+    <button class="more" id="more" hidden>顯示更多</button>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>語氣和法說後超額</h2><span class="hint" id="s-hint"></span></div>
+    <p class="why">每份 memo 標一個語氣，再看法說後的超額報酬。份數還少，先累積；過幾季份數夠了才看得出語氣有沒有用。</p>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>語氣</th><th class="n">份數</th><th class="n">首日平均超額</th><th class="n">首日贏大盤</th><th class="n">5 日平均超額</th><th class="n">5 日贏大盤</th></tr></thead>
+      <tbody id="s-body"></tbody>
+    </table></div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>簡報已抓、memo 還沒寫</h2><span class="hint" id="p-hint"></span></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>法說日</th><th>股票</th><th class="n">近 5 日均成交值（億）</th><th>狀態</th></tr></thead>
+      <tbody id="p-body"></tbody>
+    </table></div>
+    <div class="note">
+      <p>每天從公開資訊觀測站的法說會一覽，挑近 5 日平均成交值 ≥ 5 億、有上傳簡報的場次，把簡報轉成文字（圖表頁轉成圖片），每晚由 AI 讀完寫成 memo。同一份簡報在不同券商論壇重複使用時只寫一次。memo 只根據簡報、同時段的重大訊息和當晚的新聞，沒有電話會議逐字稿；簡報沒寫展望時會註明。</p>
+      <p>語氣分五級：樂觀、偏樂觀、中性、偏保守、保守，看的是指引和管理層用詞，不是數字本身的好壞。首日漲跌、超額從法說後第一個交易日算（13:30 以後開的算隔天）；超額＝減同市場普通股平均；5 日超額是前 5 個交易日的超額相加。</p>
+      <p>資料來源：公開資訊觀測站法說會一覽與簡報、重大訊息；證交所、櫃買中心每日收盤行情。memo 由 AI 摘要，數字以原始簡報為準。</p>
+    </div>
+  </section>
+</main>
+<footer class="site"><div class="wrap"><p class="note" style="margin:0">資料僅供參考，不構成投資建議。</p></div></footer>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fx = (v, d = 0) => v == null || !isFinite(v) ? "–" : (+v).toLocaleString("zh-TW", {minimumFractionDigits: d, maximumFractionDigits: d});
+const cls = v => v == null ? "faint" : v > 0 ? "up" : v < 0 ? "down" : "flat";
+const sg = (v, d = 1) => v == null ? "–" : (v > 0 ? "+" : "") + fx(v, d);
+const pc = (v, d = 1) => v == null ? "–" : `<span class="${cls(v)}">${sg(v, d)}%</span>`;
+const td = (v, html, x = "") => `<td class="n mono${x}" data-v="${v ?? ""}">${html}</td>`;
+const md2 = d => d ? d.slice(5).replace("-", "/") : "–";
+const sname = (c, n) => `<a href="stock.html#s=${esc(c)}" class="sname" style="text-decoration:none" onclick="event.stopPropagation()">${esc(n)}<span class="mono">${esc(c)}</span></a>`;
+const inl = s => esc(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+function md(src) {
+  const L = src.split("\n"), out = []; let i = 0;
+  while (i < L.length) {
+    const l = L[i];
+    if (/^#{1,4} /.test(l)) { out.push(`<h2>${inl(l.replace(/^#+ /, ""))}</h2>`); i++; continue; }
+    if (/^\s*([-*]|\d+\.) /.test(l)) {
+      const it = []; while (i < L.length && /^\s*([-*]|\d+\.) /.test(L[i])) it.push(L[i++].replace(/^\s*([-*]|\d+\.) /, ""));
+      out.push("<ul>" + it.map(x => `<li>${inl(x)}</li>`).join("") + "</ul>"); continue;
+    }
+    if (!l.trim()) { i++; continue; }
+    const p = []; while (i < L.length && L[i].trim() && !/^(#|\s*([-*]|\d+\.) )/.test(L[i])) p.push(L[i++]);
+    out.push(`<p>${inl(p.join(" "))}</p>`);
+  }
+  return out.join("");
+}
+let J = null, LIMIT = 60, tone = "";
+const tIdx = t => J.tones.indexOf(t);
+const badge = t => t ? `<span class="tone t${tIdx(t)}">${esc(t)}</span>` : '<span class="faint">–</span>';
+const pend = m => J.px_date && (m.date > J.px_date || (m.date === J.px_date && (m.time || "") >= "13:30"));
+const mopsUrl = k => `https://mopsov.twse.com.tw/nas/STR/${k}.pdf`;
+fetch("data/memo.json").then(r => r.ok ? r.json() : null).catch(() => null).then(j => {
+  if (!j) { $("sub").textContent = "還沒有資料。"; return; }
+  J = j;
+  $("sub").textContent = `股價資料到 ${j.px_date}。近 5 日平均成交值 ≥ 5 億的公司開完法說會，當晚把簡報整理成 memo：一句話重點、數字、展望、要追的點，再標語氣，對照法說後的股價反應。點一列展開全文。`;
+  const wk = new Date(Date.parse(j.px_date) - 7 * 864e5).toISOString().slice(0, 10);
+  const last = j.memos[0];
+  const st = [["memo", `${j.memos.length}<small>份</small>`, last ? `最新 ${md2(last.date)} ${esc(last.name)}` : ""],
+    ["近 7 天", `${j.memos.filter(m => m.date > wk).length}<small>份</small>`, ""],
+    ["偏樂觀以上／偏保守以下", `${j.memos.filter(m => tIdx(m.tone) >= 0 && tIdx(m.tone) <= 1).length}／${j.memos.filter(m => tIdx(m.tone) >= 3).length}`, "份"],
+    ["等著寫", `${j.pending.filter(p => p.status === "ok").length}<small>份</small>`, "簡報已抓，今晚或之後寫"]];
+  $("stats").innerHTML = st.map(([k, v, s]) => `<div class="stat"><div class="k">${k}</div><div class="v mono">${v}</div><div class="s">${s}</div></div>`).join("");
+  const tc = $("tone");
+  tc.innerHTML += j.tones.map(t => `<button data-v="${t}" aria-pressed="false">${t}</button>`).join("");
+  tc.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return;
+    tc.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); tone = b.dataset.v; LIMIT = 60; render(); });
+  const h = decodeURIComponent(location.hash || "").match(/s=([^&]+)/);
+  if (h) $("q").value = h[1];
+  $("q").addEventListener("input", () => { LIMIT = 60; render(); });
+  $("more").addEventListener("click", () => { LIMIT += 60; render(); });
+  $("m-body").addEventListener("click", e => {
+    const tr = e.target.closest("tr.click"); if (!tr) return;
+    const nx = tr.nextElementSibling;
+    if (nx && nx.classList.contains("detail")) { nx.remove(); tr.classList.remove("open"); return; }
+    const m = J.memos.find(x => x.key === tr.dataset.k); if (!m) return;
+    tr.classList.add("open");
+    tr.insertAdjacentHTML("afterend", `<tr class="detail"><td colspan="7"><div class="memo"><div class="meta">${esc(m.date)} ${esc(m.time)}｜${esc(m.place)}｜<a href="${mopsUrl(m.key)}" target="_blank" rel="noopener">原始簡報 PDF</a></div>${md(m.body)}</div></td></tr>`);
+  });
+  render(); renderStats(); renderPending();
+});
+function render() {
+  const q = $("q").value.trim().toLowerCase();
+  const rows = J.memos.filter(m => (!tone || m.tone === tone) && (!q || m.code.includes(q) || m.name.toLowerCase().includes(q)));
+  $("m-hint").textContent = `${rows.length} 份・依法說日排序`;
+  $("m-body").innerHTML = rows.slice(0, LIMIT).map(m => `<tr class="click" data-k="${esc(m.key)}">${td(m.date, `<span class="arr">›</span>${md2(m.date)}`)}<td>${sname(m.code, m.name)}</td><td data-v="${tIdx(m.tone) < 0 ? "" : tIdx(m.tone)}">${badge(m.tone)}</td><td class="hl">${esc(m.headline)}</td>${pend(m) ? '<td class="n faint" colspan="3">待開盤</td>' : td(m.r1, pc(m.r1, 2)) + td(m.ex1, pc(m.ex1, 2)) + td(m.ex5, pc(m.ex5, 2))}</tr>`).join("") || `<tr><td colspan="7" class="empty">沒有符合的 memo</td></tr>`;
+  $("more").hidden = rows.length <= LIMIT;
+}
+function renderStats() {
+  $("s-hint").textContent = `共 ${J.memos.length} 份`;
+  $("s-body").innerHTML = J.stats.map(s => `<tr><td>${badge(s.tone)}</td>${td(s.n, fx(s.n))}${td(s.ex1, pc(s.ex1, 2))}${td(s.win1, s.win1 == null ? "–" : s.win1 + "%")}${td(s.ex5, pc(s.ex5, 2))}${td(s.win5, s.win5 == null ? "–" : s.win5 + "%")}</tr>`).join("");
+}
+function renderPending() {
+  const rows = J.pending;
+  $("p-hint").textContent = `${rows.filter(p => p.status === "ok").length} 份`;
+  $("p-body").innerHTML = rows.map(p => `<tr>${td(p.date, md2(p.date))}<td>${sname(p.code, p.name)}</td>${td(p.liq, fx(p.liq, 1))}<td class="${p.status === "ok" ? "muted" : "faint"}">${p.status === "ok" ? "等今晚寫" : "簡報下載失敗，會再試"}</td></tr>`).join("") || `<tr><td colspan="4" class="empty">都寫完了</td></tr>`;
+}
+</script>
+</body>
+</html>
