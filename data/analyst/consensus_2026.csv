@@ -1,4 +1,5 @@
 date,time,news_id,code,name,kind,year,analysts,prev,value,chg_pct,high,low,target,bull,neutral,bear,close,url
+2026-11-10,20:10,6656725,6488,環球晶,tp,,13,810,865,6.79,1800,580,865,9,4,1,612,https://news.cnyes.com/news/id/6656725
 2026-11-10,08:10,6654982,1560,中砂,eps,2026,8,14.83,14.65,-1.21,16.28,14.23,1000,,,,,https://news.cnyes.com/news/id/6654982
 2026-11-10,08:10,6654981,9921,巨大,eps,2026,9,3.46,3.44,-0.58,4.3,2.6,118,,,,,https://news.cnyes.com/news/id/6654981
 2026-11-10,08:10,6654980,8210,勤誠,tp,,9,1400,950,-32.14,1600,625,950,5,5,0,574,https://news.cnyes.com/news/id/6654980
