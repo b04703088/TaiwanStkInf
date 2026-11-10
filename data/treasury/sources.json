@@ -1,9 +1,6 @@
 {
- "generated": "2026-11-10 08:42",
+ "generated": "2026-11-10 19:34",
  "since": "2024-01-01",
- "programs": 575,
- "errors": [
-  "ajax_t35sb01 sii 5469: URLError(TimeoutError('timed out'))",
-  "ajax_t35sb01 sii 1558: URLError(TimeoutError('timed out'))"
- ]
+ "programs": 579,
+ "errors": []
 }
