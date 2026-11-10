@@ -17,7 +17,7 @@ jobs:
       - run: |
           command -v pdftotext >/dev/null || sudo apt-get install -y -qq poppler-utils >/dev/null
           python -u fetch_conf_pdf.py --max 70 --max-minutes 240
-          du -sh data/conf data/conf/img data/conf/text; du -s data/conf/img/* | sort -n | tail -5; echo rerun2
+          du -sh data/conf data/conf/img data/conf/text; du -s data/conf/img/* | sort -n | tail -5; echo rerun3
           cp -r data/conf /tmp/conf
           git fetch -q origin claude/project-thread-x5iz94 && git reset -q --hard origin/claude/project-thread-x5iz94
           cp -r /tmp/conf/. data/conf/

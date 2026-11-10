@@ -9,7 +9,8 @@
   - 近 5 日平均成交值 ≥ MIN_LIQ（預設 5 億），控制每天要寫的份數
 輸出：
   data/conf/index.csv          key, code, name, market, date, time, place, pages, chars, imgs, liq, status, tries
-                               status：ok（可以寫 memo）、fail（下載或轉檔失敗，下次再試，最多 3 次）
+                               status：ok（可以寫 memo）、dup（跟同公司 30 天內另一份幾乎一樣，不另寫）、
+                                       fail（下載或轉檔失敗，下次再試，最多 3 次）
   data/conf/text/<key>.txt     pdftotext -layout 的文字，每頁開頭標 [p.N]；去掉每頁重複的頁首頁尾、免責聲明頁
   data/conf/img/<key>/pNN.jpg  文字很少的頁（多半是圖表、截圖）轉成圖片，最多 MAX_IMG 頁
   data/conf/memo/<key>.md      memo 本身，由每晚的排程（Claude）寫；這支只負責把寫好的那份圖片刪掉
@@ -91,6 +92,11 @@ def pick(calls, done, today, liq, days=DAYS, min_liq=MIN_LIQ):
     return out
 
 
+def is_disclaimer(i, page):
+    """前 3 頁裡的免責聲明頁（沒什麼數字）。"""
+    return i <= 3 and bool(DISCLAIMER.search(page)) and len(re.findall(r"\d", page)) < 60
+
+
 def clean_pages(pages):
     """去掉每頁都出現的頁首頁尾、前 3 頁裡的免責聲明頁、壓縮空白。回傳 [(頁碼, 文字)]。"""
     n = len(pages)
@@ -100,7 +106,7 @@ def clean_pages(pages):
     rep = {ln for ln, c in cnt.items() if n >= 4 and c >= max(3, n * 0.5) and len(ln) < 80}
     out = []
     for i, p in enumerate(pages, 1):
-        if i <= 3 and DISCLAIMER.search(p) and len(re.sub(r"\s", "", p)) < 1500:
+        if is_disclaimer(i, p):
             continue
         lines = [re.sub(r" {3,}", "  ", ln.rstrip()) for ln in p.splitlines() if ln.strip() and ln.strip() not in rep]
         out.append((i, "\n".join(lines)))
@@ -114,8 +120,8 @@ def image_pages(pages, n_pages):
     return cand[:MAX_IMG_SCAN if sum(lens.values()) < 1000 else MAX_IMG]
 
 
-def download(url, limit=40 * 1024 * 1024, deadline=90):
-    """分段讀，整份超過 deadline 秒就放棄（mopsov 偶爾會很慢地吐資料）。"""
+def download(url, limit=40 * 1024 * 1024, deadline=420):
+    """分段讀，整份超過 deadline 秒就放棄（mopsov 很慢，約 25 KB/s，3 MB 的簡報要 2 分鐘）。"""
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
     t0, buf = time.time(), bytearray()
     with urllib.request.urlopen(req, timeout=30) as resp:
@@ -153,6 +159,43 @@ def process(key, pdf_bytes):
         return len(raw), len(re.sub(r"\s", "", body)), len(imgs)
 
 
+def _lines(key):
+    p = OUT / "text" / f"{key}.txt"
+    if not p.exists():
+        return set()
+    return {re.sub(r"\s+", "", ln) for ln in p.read_text(encoding="utf-8").splitlines() if not ln.startswith("[p.")} - {""}
+
+
+def dedupe(idx):
+    """同一家公司 30 天內內容幾乎一樣的簡報（不同券商論壇各上傳一次）只留最早那份，其餘標 dup、刪掉文字和圖片。"""
+    memo = {p.stem for p in (OUT / "memo").glob("*.md")}
+    by = {}
+    for r in sorted(idx.values(), key=lambda r: (r["date"], r["key"])):
+        if r["status"] == "ok":
+            by.setdefault(r["code"], []).append(r)
+    for rows in by.values():
+        kept = []
+        for r in rows:
+            a = _lines(r["key"])
+            dup = None
+            for k in kept:
+                b = _lines(k["key"])
+                if a and b and (date.fromisoformat(r["date"]) - date.fromisoformat(k["date"])).days <= 30 and len(a & b) / len(a | b) >= 0.8:
+                    dup = k
+                    break
+            if dup is None or r["key"] in memo:
+                kept.append(r)
+                continue
+            r["status"] = "dup"
+            print(f"  {r['key']} {r['code']} {r['name']} 跟 {dup['key']} 幾乎一樣，不另寫")
+            (OUT / "text" / f"{r['key']}.txt").unlink(missing_ok=True)
+            d = OUT / "img" / r["key"]
+            if d.is_dir():
+                for f in d.iterdir():
+                    f.unlink()
+                d.rmdir()
+
+
 def cleanup():
     """memo 寫好的就把圖片刪掉（文字留著，日後重寫可用）。"""
     memo = {p.stem for p in (OUT / "memo").glob("*.md")}
@@ -168,11 +211,11 @@ def main():
     ap.add_argument("--days", type=int, default=DAYS)
     ap.add_argument("--min-liq", type=float, default=MIN_LIQ)
     ap.add_argument("--max", type=int, default=40, help="一次最多抓幾份")
-    ap.add_argument("--max-minutes", type=float, default=15)
+    ap.add_argument("--max-minutes", type=float, default=25)
     args = ap.parse_args()
     today = date.fromisoformat(subprocess.run(["date", "+%F"], capture_output=True, text=True, env={"TZ": "Asia/Taipei"}).stdout.strip())
     idx = {r["key"]: r for r in _read(OUT / "index.csv")}
-    done = {k for k, r in idx.items() if r["status"] == "ok" or int(r.get("tries") or 0) >= 3}
+    done = {k for k, r in idx.items() if r["status"] in ("ok", "dup") or int(r.get("tries") or 0) >= 3}
     liq = liquidity()
     todo = pick(_read(DATA / "mops" / "calls.csv"), done, today, liq, args.days, args.min_liq)[:args.max]
     print(f"{today} 待抓簡報 {len(todo)} 份", flush=True)
@@ -196,6 +239,7 @@ def main():
             print(f"  {key} {r['code']} 失敗：{e}")
         idx[key] = row
         time.sleep(2)
+    dedupe(idx)
     cleanup()
     _write(OUT / "index.csv", sorted(idx.values(), key=lambda r: (r["date"], r["time"], r["code"]), reverse=True))
 
