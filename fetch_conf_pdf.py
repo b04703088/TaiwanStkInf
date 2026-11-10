@@ -33,11 +33,12 @@ URL = "https://mopsov.twse.com.tw/nas/STR/{}"
 COLS = ["key", "code", "name", "market", "date", "time", "place", "pages", "chars", "imgs", "liq", "status", "tries"]
 DAYS = 14
 MIN_LIQ = 5e8
-MAX_IMG = 8
+MAX_IMG = 8             # 一般簡報最多轉幾頁圖
+MAX_IMG_SCAN = 14       # 整份幾乎沒有文字（全是圖）的簡報
 STALE = 30
 FILE = re.compile(r"^\d{4}(\d{8})M\d+\.pdf$", re.I)
 IMG_CHARS = 150          # 一頁非空白字元少於這個數就當圖片頁
-MAX_TEXT = 60000
+MAX_TEXT = 25000        # 金控簡報動輒 100 頁，截斷控制每份 memo 的 token
 DISCLAIMER = re.compile(r"免責聲明|Safe\s*Harbor|Forward[- ]Looking\s+Statements?|前瞻性(陳述|聲明)|Disclaimer", re.I)
 
 
@@ -107,10 +108,25 @@ def clean_pages(pages):
 
 
 def image_pages(pages, n_pages):
-    """文字很少的頁（第 1 頁封面、最後 1 頁致謝不算），最多 MAX_IMG 頁。"""
+    """文字很少的頁（第 1 頁封面、最後 1 頁致謝不算）；整份幾乎沒字時多轉幾頁。"""
     lens = {i: len(re.sub(r"\s", "", t)) for i, t in pages}
     cand = [i for i in range(2, n_pages) if lens.get(i, 0) < IMG_CHARS and i in lens]
-    return cand[:MAX_IMG]
+    return cand[:MAX_IMG_SCAN if sum(lens.values()) < 1000 else MAX_IMG]
+
+
+def download(url, limit=40 * 1024 * 1024, deadline=90):
+    """分段讀，整份超過 deadline 秒就放棄（mopsov 偶爾會很慢地吐資料）。"""
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    t0, buf = time.time(), bytearray()
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        while True:
+            chunk = resp.read(256 * 1024)
+            if not chunk:
+                break
+            buf += chunk
+            if len(buf) > limit or time.time() - t0 > deadline:
+                raise TimeoutError(f"{time.time() - t0:.0f} 秒只下載 {len(buf) // 1024} KB")
+    return bytes(buf)
 
 
 def process(key, pdf_bytes):
@@ -121,6 +137,8 @@ def process(key, pdf_bytes):
         raw = txt.split("\f")
         if raw and not raw[-1].strip():
             raw = raw[:-1]
+        if not raw:
+            raise ValueError("pdftotext 讀不出頁面（可能加密或格式壞掉）")
         pages = clean_pages(raw)
         body = "\n\n".join(f"[p.{i}]\n{t}" for i, t in pages)[:MAX_TEXT]
         (OUT / "text").mkdir(parents=True, exist_ok=True)
@@ -150,20 +168,24 @@ def main():
     ap.add_argument("--days", type=int, default=DAYS)
     ap.add_argument("--min-liq", type=float, default=MIN_LIQ)
     ap.add_argument("--max", type=int, default=40, help="一次最多抓幾份")
+    ap.add_argument("--max-minutes", type=float, default=15)
     args = ap.parse_args()
     today = date.fromisoformat(subprocess.run(["date", "+%F"], capture_output=True, text=True, env={"TZ": "Asia/Taipei"}).stdout.strip())
     idx = {r["key"]: r for r in _read(OUT / "index.csv")}
     done = {k for k, r in idx.items() if r["status"] == "ok" or int(r.get("tries") or 0) >= 3}
     liq = liquidity()
     todo = pick(_read(DATA / "mops" / "calls.csv"), done, today, liq, args.days, args.min_liq)[:args.max]
-    print(f"{today} 待抓簡報 {len(todo)} 份")
+    print(f"{today} 待抓簡報 {len(todo)} 份", flush=True)
+    t0 = time.time()
     for key, r in todo:
+        if time.time() - t0 > args.max_minutes * 60:
+            print("時間到，剩下的下次再抓")
+            break
+        print(f"  抓 {key} {r['code']} {r['name']} …", flush=True)
         row = {k: r.get(k, "") for k in ("code", "name", "market", "date", "time", "place")}
         row.update(key=key, liq=round(liq.get(r["code"], 0) / 1e8, 1), tries=int((idx.get(key) or {}).get("tries") or 0) + 1)
         try:
-            req = urllib.request.Request(URL.format(key + ".pdf"), headers={"User-Agent": "Mozilla/5.0"})
-            with urllib.request.urlopen(req, timeout=60) as resp:
-                b = resp.read(40 * 1024 * 1024)
+            b = download(URL.format(key + ".pdf"))
             if not b.startswith(b"%PDF"):
                 raise ValueError("不是 PDF")
             pages, chars, imgs = process(key, b)

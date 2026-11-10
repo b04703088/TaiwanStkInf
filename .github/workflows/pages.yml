@@ -24,6 +24,7 @@ on:
       - "config/**"
       - "site/**"
       - "scripts/build_site.py"
+      - "scripts/*_site.py"
       - "scripts/etf_site.py"
       - "scripts/health.py"
       - "scripts/broker_site.py"

@@ -130,6 +130,7 @@
   .memo a{color:var(--brass);}
   .memo .meta{font-size:12.5px; color:var(--text-faint); margin-bottom:8px;}
   .memo .meta a{color:var(--text-muted);}
+  .more[hidden]{display:none;}
 </style>
 </head>
 <body>
@@ -240,7 +241,7 @@ fetch("data/memo.json").then(r => r.ok ? r.json() : null).catch(() => null).then
     if (nx && nx.classList.contains("detail")) { nx.remove(); tr.classList.remove("open"); return; }
     const m = J.memos.find(x => x.key === tr.dataset.k); if (!m) return;
     tr.classList.add("open");
-    tr.insertAdjacentHTML("afterend", `<tr class="detail"><td colspan="7"><div class="memo"><div class="meta">${esc(m.date)} ${esc(m.time)}｜${esc(m.place)}｜<a href="${mopsUrl(m.key)}" target="_blank" rel="noopener">原始簡報 PDF</a></div>${md(m.body)}</div></td></tr>`);
+    tr.insertAdjacentHTML("afterend", `<tr class="detail"><td colspan="7"><div class="memo"><div class="meta">${[esc(m.date + " " + m.time), esc(m.place), `<a href="${mopsUrl(m.key)}" target="_blank" rel="noopener">原始簡報 PDF</a>`].filter(x => x.trim()).join("｜")}</div>${md(m.body)}</div></td></tr>`);
   });
   render(); renderStats(); renderPending();
 });
