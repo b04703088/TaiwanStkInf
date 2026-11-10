@@ -70,7 +70,7 @@ def build(data_dir):
     memos.sort(key=lambda m: (m["date"], m["time"], m["code"]), reverse=True)
     have = {m["key"] for m in memos}
     pending = [{"key": k, "code": r["code"], "name": r["name"], "date": r["date"], "liq": float(r["liq"] or 0), "status": r["status"]}
-               for k, r in idx.items() if k not in have]
+               for k, r in idx.items() if k not in have and r["status"] != "dup"]
     pending.sort(key=lambda r: (r["date"], r["liq"]), reverse=True)
     stats = []
     for t in TONES:

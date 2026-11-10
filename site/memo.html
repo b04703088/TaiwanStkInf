@@ -131,6 +131,7 @@
   .memo .meta{font-size:12.5px; color:var(--text-faint); margin-bottom:8px;}
   .memo .meta a{color:var(--text-muted);}
   .more[hidden]{display:none;}
+  @media (max-width:860px){ td.hl{min-width:13em; font-size:13px;} tr.detail td{padding:12px 14px;} .filter{width:100%;} }
 </style>
 </head>
 <body>
@@ -156,7 +157,7 @@
       <div class="chips" id="tone"><button data-v="" aria-pressed="true">全部語氣</button></div>
     </div>
     <div class="tbl-wrap"><table>
-      <thead><tr><th>法說日</th><th>股票</th><th>語氣</th><th>一句話重點</th><th class="n">首日漲跌</th><th class="n">首日超額</th><th class="n">5 日超額</th></tr></thead>
+      <thead><tr><th>法說日</th><th>股票</th><th>語氣</th><th>一句話重點</th><th class="n hide-s">首日漲跌</th><th class="n">首日超額</th><th class="n">5 日超額</th></tr></thead>
       <tbody id="m-body"></tbody>
     </table></div>
     <button class="more" id="more" hidden>顯示更多</button>
@@ -249,7 +250,7 @@ function render() {
   const q = $("q").value.trim().toLowerCase();
   const rows = J.memos.filter(m => (!tone || m.tone === tone) && (!q || m.code.includes(q) || m.name.toLowerCase().includes(q)));
   $("m-hint").textContent = `${rows.length} 份・依法說日排序`;
-  $("m-body").innerHTML = rows.slice(0, LIMIT).map(m => `<tr class="click" data-k="${esc(m.key)}">${td(m.date, `<span class="arr">›</span>${md2(m.date)}`)}<td>${sname(m.code, m.name)}</td><td data-v="${tIdx(m.tone) < 0 ? "" : tIdx(m.tone)}">${badge(m.tone)}</td><td class="hl">${esc(m.headline)}</td>${pend(m) ? '<td class="n faint" colspan="3">待開盤</td>' : td(m.r1, pc(m.r1, 2)) + td(m.ex1, pc(m.ex1, 2)) + td(m.ex5, pc(m.ex5, 2))}</tr>`).join("") || `<tr><td colspan="7" class="empty">沒有符合的 memo</td></tr>`;
+  $("m-body").innerHTML = rows.slice(0, LIMIT).map(m => `<tr class="click" data-k="${esc(m.key)}">${td(m.date, `<span class="arr">›</span>${md2(m.date)}`)}<td>${sname(m.code, m.name)}</td><td data-v="${tIdx(m.tone) < 0 ? "" : tIdx(m.tone)}">${badge(m.tone)}</td><td class="hl">${esc(m.headline)}</td>${pend(m) ? '<td class="n faint hide-s"></td><td class="n faint" colspan="2">待開盤</td>' : td(m.r1, pc(m.r1, 2), " hide-s") + td(m.ex1, pc(m.ex1, 2)) + td(m.ex5, pc(m.ex5, 2))}</tr>`).join("") || `<tr><td colspan="7" class="empty">沒有符合的 memo</td></tr>`;
   $("more").hidden = rows.length <= LIMIT;
 }
 function renderStats() {
@@ -258,8 +259,8 @@ function renderStats() {
 }
 function renderPending() {
   const rows = J.pending;
-  $("p-hint").textContent = `${rows.filter(p => p.status === "ok").length} 份`;
-  $("p-body").innerHTML = rows.map(p => `<tr>${td(p.date, md2(p.date))}<td>${sname(p.code, p.name)}</td>${td(p.liq, fx(p.liq, 1))}<td class="${p.status === "ok" ? "muted" : "faint"}">${p.status === "ok" ? "等今晚寫" : "簡報下載失敗，會再試"}</td></tr>`).join("") || `<tr><td colspan="4" class="empty">都寫完了</td></tr>`;
+  $("p-hint").textContent = `${rows.filter(p => p.status === "ok").length} 份${rows.length > 30 ? "・列最新 30 份" : ""}`;
+  $("p-body").innerHTML = rows.slice(0, 30).map(p => `<tr>${td(p.date, md2(p.date))}<td>${sname(p.code, p.name)}</td>${td(p.liq, fx(p.liq, 1))}<td class="${p.status === "ok" ? "muted" : "faint"}">${p.status === "ok" ? "等今晚寫" : "簡報下載失敗，會再試"}</td></tr>`).join("") || `<tr><td colspan="4" class="empty">都寫完了</td></tr>`;
 }
 </script>
 </body>
