@@ -1,0 +1,24 @@
+name: tmp conf backfill (delete before merge)
+on:
+  push:
+    branches: [claude/project-thread-x5iz94]
+    paths: [".github/workflows/tmp-conf.yml"]
+permissions:
+  contents: write
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {ref: claude/project-thread-x5iz94}
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: |
+          command -v pdftotext >/dev/null || sudo apt-get install -y -qq poppler-utils >/dev/null
+          python -u fetch_conf_pdf.py --max 70
+          du -sh data/conf data/conf/img data/conf/text; ls data/conf/img | head -60
+          cp -r data/conf /tmp/conf
+          git fetch -q origin claude/project-thread-x5iz94 && git reset -q --hard origin/claude/project-thread-x5iz94
+          cp -r /tmp/conf/. data/conf/
+          git config user.name "github-actions[bot]"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/conf; git commit -qm "data: 法說簡報回補" && git push origin HEAD:claude/project-thread-x5iz94
