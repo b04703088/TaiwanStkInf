@@ -28,7 +28,8 @@ from fetch_broker import MIN_VALUE as BROKER_MIN_VALUE  # noqa: E402  分點全�
 TPE = timezone(timedelta(hours=8))
 
 # 門檻
-ETF_LAG_ERROR = 2      # 持股落後 ≥ 2 個交易日 → error（T+1 公告的投信早上本來就落後 1 天）
+ETF_UNTRACKED_OK = {"00996A"}  # 兆豐官網擋雲端主機，刻意不抓（見 fetch_etf.py）
+ETF_LAG_ERROR = 2     # 持股落後 ≥ 2 個交易日 → error（T+1 公告的投信早上本來就落後 1 天）
 AUM_LAG_WARN = 2
 BROKER_LAG_ERROR = 2   # 分點落後 ≥ 2 個交易日 → error
 WEIGHT_LOW_ERROR, WEIGHT_LOW_WARN, WEIGHT_HIGH_ERROR = 70.0, 80.0, 105.0
@@ -196,6 +197,15 @@ def check(data_dir=ROOT / "data", now=None):
             msg = ""
         level = "error" if errs else ("warn" if warns else "ok")
         add("etf", code, name, level, d, "；".join(errs + warns) or msg, **who, **stats)
+
+    # 新上市的主動式 ETF（代號 A 結尾）還沒加進 fetch_etf.py ETF_LIST → 提醒補上
+    if lst.exists() and price_files:
+        tracked = {r["etf"] for r in _read(lst)} | ETF_UNTRACKED_OK
+        new = [(r["code"], r["name"]) for r in _read(price_files[-1])
+               if r.get("code", "").startswith("00") and r["code"].endswith("A") and r["code"] not in tracked]
+        if new:
+            add("etf", "untracked", "未追蹤的主動式 ETF", "warn", latest_price,
+                "已上市但沒在追蹤清單（fetch_etf.py ETF_LIST）：" + "、".join(f"{c} {n}" for c, n in new))
 
     # ---------- 券商分點 ----------
     bfiles = sorted((f for f in (data_dir / "broker").glob("[0-9][0-9][0-9][0-9]/[0-9]*.csv")
