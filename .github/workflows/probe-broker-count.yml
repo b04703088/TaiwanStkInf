@@ -1,0 +1,37 @@
+name: Probe broker count (temporary)
+on:
+  push:
+    branches: [claude/project-thread-jazs3o]
+    paths: [".github/workflows/probe-broker-count.yml"]
+permissions:
+  contents: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Alt sources
+        continue-on-error: true
+        run: |
+          mkdir -p research/probe
+          UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36"
+          curl -sS -m 30 -A "$UA" "https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockTradingDailyReport&data_id=2330&start_date=2026-11-10&end_date=2026-11-10" | head -c 600 > research/probe/finmind.txt || true
+          curl -sS -m 30 -A "$UA" "https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zco.djhtm?a=2330&e=2026-11-10&f=2026-11-10" | iconv -f cp950 -t utf-8 -c | grep -o "家數[^<]*" | head > research/probe/zco_jiashu.txt || true
+          curl -sS -m 30 -A "$UA" "https://histock.tw/stock/branch.aspx?no=2330" | grep -o ".\{0,80\}家數.\{0,80\}" | head > research/probe/histock.txt || true
+          curl -sS -m 30 -A "$UA" "https://tw.stock.yahoo.com/quote/2330.TW/broker-trading" | grep -o ".\{0,80\}家數.\{0,80\}" | head > research/probe/yahoo.txt || true
+          wc -c research/probe/*
+      - name: Fetch all branches
+        run: time python -u fetch_broker_count.py --date 2026-11-10 --keep-raw --max-minutes 70
+      - name: Check
+        run: python research/broker_count_check.py 2026-11-10 | tee research/probe/check.txt
+      - name: Commit
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f data/broker/count research/probe
+          git commit -m "probe: broker count 2026-11-10" || exit 0
+          git pull --rebase -q && git push
