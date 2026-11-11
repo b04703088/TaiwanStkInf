@@ -243,11 +243,75 @@ def save_source_ids():
         p.write_text(json.dumps(A.SOURCE_IDS, ensure_ascii=False, indent=1, sort_keys=True), encoding="utf-8")
 
 
+# 新上市 ETF 自動加入（2026-11-11 Leo：「有新上市要幫我抓」，主動式、被動式都要）：
+# - 主動式：最新股價檔裡代號 A 結尾、名稱「主動＋投信簡稱」開頭。
+# - 被動式：最新規模檔（data/etf/aum）分類「國內股票」、名稱沒有海外市場字樣（這個分類會混進日本、美國等）。
+# 不在 ETF_LIST、有該投信 adapter 就自動抓；沒有 adapter 的新投信由資料健檢頁警告，要手動寫 adapter。
+AUTO_SKIP_ISSUERS = {"mega"}  # 兆豐官網擋雲端主機（見上方 00996A 註解）
+FOREIGN_WORDS = ("美", "日本", "日經", "東證", "中國", "滬深", "上証", "上證", "深証", "恒生", "香港", "標普", "S&P",
+                 "納斯達克", "NASDAQ", "費城", "全球", "國際", "亞洲", "亞太", "印度", "越南", "韓", "歐", "德國", "英國",
+                 "新興", "MAG7", "債")
+
+
+ISSUER_ALIASES = {"FT": "franklin"}  # 交易所簡稱的投信寫法跟 ISSUER_NAMES 不同的
+
+
+def _issuer_of(name, by_name):
+    return next((k for k, v in by_name if name.startswith(v)), None) or \
+        next((k for a, k in ISSUER_ALIASES.items() if name.startswith(a)), None)
+
+
+AUTO_SKIP_FILE = ETF_DIR / "auto_skip.json"  # 自動加入後發現持股不是台股的被動式 ETF，之後不再自動加
+
+
+def _auto_skip():
+    try:
+        return set(json.loads(AUTO_SKIP_FILE.read_text(encoding="utf-8")))
+    except (OSError, ValueError):
+        return set()
+
+
+def _latest_csv(pattern):
+    files = sorted(ROOT.glob(pattern), key=lambda p: p.name)
+    if not files:
+        return []
+    with files[-1].open(encoding="utf-8") as fp:
+        return list(csv.DictReader(fp))
+
+
+def discover_new():
+    known = {t[0] for t in ETF_LIST} | _auto_skip()
+    by_name = sorted(ISSUER_NAMES.items(), key=lambda kv: -len(kv[1]))
+    cands = []
+    for r in _latest_csv("data/[0-9][0-9][0-9][0-9]/[0-9]*.csv"):
+        code, name = (r.get("code") or "").strip(), (r.get("name") or "").strip()
+        if code.startswith("00") and code.endswith("A") and name.startswith("主動"):
+            cands.append((code, name, _issuer_of(name[2:], by_name), "active"))
+    for r in _latest_csv("data/etf/aum/[0-9]*.csv"):
+        code, name = (r.get("etf") or "").strip(), (r.get("name") or "").strip()
+        if r.get("category") == "國內股票" and code[-1:].isdigit() and not any(w in name for w in FOREIGN_WORDS):
+            cands.append((code, name, _issuer_of(name, by_name), "passive"))
+    found = []
+    for code, name, issuer, kind in cands:
+        if code in known or issuer in AUTO_SKIP_ISSUERS:
+            continue
+        known.add(code)
+        if issuer and issuer in A.ADAPTERS:
+            found.append((code, name, issuer, kind))
+        else:
+            print(f"新上市 {code} {name}：沒有對應的投信 adapter，未自動加入", file=sys.stderr)
+    return found
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("etfs", nargs="*", help="只抓這些 ETF 代號")
     ap.add_argument("--issuer", help="只抓某家投信（adapter 名稱，如 ctbc）")
     args = ap.parse_args(argv)
+    new = discover_new()
+    if new:
+        ETF_LIST.extend(new)
+        print("自動加入新上市 ETF：" + "、".join(f"{c} {n}" for c, n, _i, _k in new))
 
     targets = [t for t in ETF_LIST
                if (not args.etfs or t[0] in args.etfs) and (not args.issuer or t[2] == args.issuer)]
@@ -264,6 +328,13 @@ def main(argv=None):
             d, rows, meta = A.ADAPTERS[issuer](code, name)
             market = load_market(d)
             normalize_names(rows, market)
+            if (code, name, issuer, _kind) in new and _kind == "passive" and \
+                    sum(r["code"] in market for r in rows) < 0.5 * len(rows):
+                AUTO_SKIP_FILE.write_text(json.dumps(sorted(_auto_skip() | {code})), encoding="utf-8")
+                print(f"{code} {name}: 持股大多不是台股，不追蹤（記進 {AUTO_SKIP_FILE.relative_to(ROOT)}）")
+                ETF_LIST.remove((code, name, issuer, _kind))
+                write_etf_list()
+                continue
             derived = fill_weights(rows, market)
             validate(code, rows)
             out = write_day(code, d, rows)
