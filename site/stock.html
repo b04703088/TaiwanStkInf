@@ -300,7 +300,7 @@ const renderKpis = (code, K, C, M, Fn, CC) => {
   }
   $("kpis").innerHTML = out.join("");
   $("kpis").hidden = !out.length;
-  $("kpis").style.gridTemplateColumns = out.length && out.length < 6 && innerWidth > 980 ? `repeat(${out.length},1fr)` : "";
+  $("kpis").style.gridTemplateColumns = out.length && out.length <= 7 && innerWidth > 980 ? `repeat(${out.length},1fr)` : "";
 };
 
 /* ---------- 時間軸 ---------- */

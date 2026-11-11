@@ -232,7 +232,7 @@ let D = null, ROWS = [];
 
 let COLS = [];
 const setCols = () => {
-  COLS = [["name", "股票", 0], ["close", "收盤", 1], ["r", "區間漲跌", 1], ["t", "前15大買賣超(張)", 1], ["c", "集中度", 1]]
+  COLS = [["name", "股票", 0], ["close", "收盤", 1, 1], ["r", "區間漲跌", 1], ["c", "集中度", 1], ["t", "前15大買賣超(張)", 1]]
     .concat(D.has_count ? [["b", "買超家數", 1], ["s", "賣超家數", 1], ["d", "家數差", 1]] : [])
     .concat([[null, "每日集中度", 0], [null, "", 0]]);
 };
@@ -281,16 +281,16 @@ function render(){
   const nd = D.win[[1, 5, 20].indexOf(S.win)];
   const rows = sorted(filtered());
   const sk = S.k || "c", sd = S.k ? S.dir : S.view === "cin" ? -1 : 1;
-  $("head").innerHTML = "<tr>" + COLS.map(([k, t, n]) => {
-    const c = [n ? "n" : "", k === sk ? "sorted" : ""].filter(Boolean).join(" ");
+  $("head").innerHTML = "<tr>" + COLS.map(([k, t, n, hs]) => {
+    const c = [n ? "n" : "", k === sk ? "sorted" : "", hs ? "hide-s" : ""].filter(Boolean).join(" ");
     return `<th${c ? ` class="${c}"` : ""}${k ? ` data-k="${k}"` : ""}>${t}${k === sk ? (sd > 0 ? " ▲" : " ▼") : ""}</th>`;
   }).join("") + "</tr>";
   $("body").innerHTML = rows.slice(0, S.n).map(r => `<tr>
     <td class="sname"><a href="stock.html#s=${r.code}">${esc(r.name)}<span class="mono">${r.code}</span></a></td>
-    <td class="n mono">${fx(r.close, r.close < 50 ? 2 : 1)}</td>
+    <td class="n mono hide-s">${fx(r.close, r.close < 50 ? 2 : 1)}</td>
     <td class="n mono">${sgn(r.r, 1)}%</td>
-    <td class="n mono">${sgn(r.t)}</td>
-    ${ratio(r.c)}${D.has_count ? `
+    ${ratio(r.c)}
+    <td class="n mono">${sgn(r.t)}</td>${D.has_count ? `
     <td class="n mono">${fx(r.b)}</td>
     <td class="n mono">${fx(r.s)}</td>
     <td class="n mono">${sgn(r.d)}</td>` : ""}
