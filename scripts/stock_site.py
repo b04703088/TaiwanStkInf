@@ -220,6 +220,8 @@ def collect(data: Path, today: date):
         etfs = ac["etfs"]
         byday = defaultdict(list)
         for r in _objs(ac):
+            if etfs[r["e"]].get("kind") == "fund":  # 投信非ETF 推估值不是 ETF 公布的持股
+                continue
             v = r["da"] if r["da"] is not None else r["d"]
             if v is not None and abs(v) >= ACTIVE_MIN_LOTS * 1000:
                 byday[(r["code"], r["date"])].append((etfs[r["e"]], v))
