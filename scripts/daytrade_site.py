@@ -94,15 +94,16 @@ def stocks(data_dir, chips_file, hist_files):
         hi, lo, cl, ch = _f(p["high"]), _f(p["low"]), _f(p["close"]), _f(p["change"])
         bavg, savg = b_amt / b, s_amt / s
         rate = b / vol * 100
-        a20 = avg.get(c, [])
-        a20 = sum(a20) / len(a20) if a20 else None
+        h = avg.get(c, [])
+        a20 = sum(h) / len(h) if h else None
+        r5 = (sum(h[-4:]) + rate) / (len(h[-4:]) + 1)  # 近 5 日平均當沖率（含今天）
         pnl = _pnl(b_amt, s_amt)
         out.append([c, p["name"], p["market"], cl, round(ch / (cl - ch) * 100, 2) if cl and ch is not None and cl - ch else None,
                     round(b_amt / 1e8, 2), round(rate, 1), round(rate / a20, 2) if a20 else None,
                     round(bavg, 2), round(savg, 2),
                     round((bavg - lo) / (hi - lo) * 100) if hi and lo and hi > lo else None,
                     round((cl / bavg - 1) * 100, 2), round(pnl / 1e4), round(pnl / b_amt * 100, 2),
-                    round((hi / lo - 1) * 100, 1) if hi and lo else None])
+                    round((hi / lo - 1) * 100, 1) if hi and lo else None, round(r5, 1)])
     out.sort(key=lambda x: -x[5])
     return out
 
@@ -188,7 +189,7 @@ def build(data_dir):
     pr = round(sum(1 for x in w if x <= m[-1][1]) / len(w) * 100) if m else None
     return {"date": f"{last.stem[:4]}-{last.stem[4:6]}-{last.stem[6:]}", "p_ratio": pr,
             "m_cols": ["date", "ratio", "pnl", "gross", "amt"], "market": m,
-            "s_cols": ["code", "name", "market", "close", "ret", "amt", "rate", "x20", "bavg", "savg", "pos", "cvb", "pnl", "pnlr", "amp"],
+            "s_cols": ["code", "name", "market", "close", "ret", "amt", "rate", "x20", "bavg", "savg", "pos", "cvb", "pnl", "pnlr", "amp", "r5"],
             "stocks": st, "stocks_pnl": tot, "flip": flip(data_dir)}
 
 

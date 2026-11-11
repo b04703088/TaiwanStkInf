@@ -146,12 +146,13 @@
         <button data-v="win" aria-pressed="false">當沖客賺最多</button>
         <button data-v="lose" aria-pressed="false">賠最多</button>
         <button data-v="rate" aria-pressed="false">當沖率最高</button>
+        <button data-v="rate5" aria-pressed="false">5 日平均當沖率最高</button>
         <button data-v="surge" aria-pressed="false">當沖率暴增</button>
       </div>
       <div id="liq"></div>
     </div>
     <div class="tbl-wrap"><table>
-      <thead><tr><th>股票</th><th class="n">收盤</th><th class="n">漲跌</th><th class="n">當沖金額（億）</th><th class="n">當沖率</th><th class="n">比 20 日均</th><th class="n hide-s">當沖買均</th><th class="n hide-s">當沖賣均</th><th class="n">買在全天</th><th class="n hide-s">收盤比買均</th><th class="n">當沖客損益（萬）</th><th class="n">損益率</th></tr></thead>
+      <thead><tr><th>股票</th><th class="n">收盤</th><th class="n">漲跌</th><th class="n">當沖金額（億）</th><th class="n">當沖率</th><th class="n">5 日均</th><th class="n">比 20 日均</th><th class="n hide-s">當沖買均</th><th class="n hide-s">當沖賣均</th><th class="n">買在全天</th><th class="n hide-s">收盤比買均</th><th class="n">當沖客損益（萬）</th><th class="n">損益率</th></tr></thead>
       <tbody id="s-body"></tbody>
     </table></div>
     <button class="more" id="s-more" hidden>顯示更多</button>
@@ -218,6 +219,8 @@ const ticks = (a, b, Y, f, x, an, L, W, R, grid = true) => [0, 1, 2, 3].map(j =>
 
 let J = null;
 const lim = {s: 30, t: 20, y: 20};
+{ const h = location.hash.slice(1), b = h && $("s-tab").querySelector(`[data-v="${CSS.escape(h)}"]`);
+  if (b) $("s-tab").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); }
 const getTab = chips("s-tab", () => { lim.s = 30; renderStocks(); });
 const obj = (cols, rows) => rows.map(r => Object.fromEntries(cols.map((c, i) => [c, r[i]])));
 fetch("data/daytrade.json").then(r => r.ok ? r.json() : null).catch(() => null).then(j => {
@@ -270,9 +273,10 @@ function renderStocks() {
   if (tab === "win") rows = rows.filter(r => r.pnl > 0).sort((a, b) => b.pnl - a.pnl);
   else if (tab === "lose") rows = rows.filter(r => r.pnl < 0).sort((a, b) => a.pnl - b.pnl);
   else if (tab === "rate") rows = rows.slice().sort((a, b) => b.rate - a.rate);
+  else if (tab === "rate5") rows = rows.filter(r => r.r5 != null).sort((a, b) => b.r5 - a.r5);
   else if (tab === "surge") rows = rows.filter(r => r.amt >= 5 && r.x20).sort((a, b) => b.x20 - a.x20);
   $("s-hint").textContent = `${J.date}・${rows.length} 檔（當沖金額 ≥ 1,000 萬）`;
-  $("s-body").innerHTML = rows.slice(0, lim.s).map(r => `<tr><td>${sname(r.code, r.name)}</td>${td(r.close, fx(r.close, 2))}${td(r.ret, pc(r.ret))}${td(r.amt, fx(r.amt, 2))}${td(r.rate, fx(r.rate, 1) + "%")}${td(r.x20, r.x20 == null ? "–" : `<span class="${r.x20 >= 1.5 ? "warn" : ""}">${fx(r.x20, 1)} 倍</span>`)}${td(r.bavg, fx(r.bavg, 2), " hide-s")}${td(r.savg, fx(r.savg, 2), " hide-s")}${td(r.pos, r.pos == null ? "–" : r.pos + "%")}${td(r.cvb, pc(r.cvb), " hide-s")}${td(r.pnl, `<span class="${cls(r.pnl)}">${sg(r.pnl, 0)}</span>`)}${td(r.pnlr, pc(r.pnlr))}</tr>`).join("") || `<tr><td colspan="12" class="empty">沒有符合的股票</td></tr>`;
+  $("s-body").innerHTML = rows.slice(0, lim.s).map(r => `<tr><td>${sname(r.code, r.name)}</td>${td(r.close, fx(r.close, 2))}${td(r.ret, pc(r.ret))}${td(r.amt, fx(r.amt, 2))}${td(r.rate, fx(r.rate, 1) + "%")}${td(r.r5, r.r5 == null ? "–" : fx(r.r5, 1) + "%")}${td(r.x20, r.x20 == null ? "–" : `<span class="${r.x20 >= 1.5 ? "warn" : ""}">${fx(r.x20, 1)} 倍</span>`)}${td(r.bavg, fx(r.bavg, 2), " hide-s")}${td(r.savg, fx(r.savg, 2), " hide-s")}${td(r.pos, r.pos == null ? "–" : r.pos + "%")}${td(r.cvb, pc(r.cvb), " hide-s")}${td(r.pnl, `<span class="${cls(r.pnl)}">${sg(r.pnl, 0)}</span>`)}${td(r.pnlr, pc(r.pnlr))}</tr>`).join("") || `<tr><td colspan="13" class="empty">沒有符合的股票</td></tr>`;
   $("s-more").hidden = rows.length <= lim.s;
 }
 $("s-more").onclick = () => { lim.s += 50; renderStocks(); };
