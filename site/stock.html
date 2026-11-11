@@ -263,7 +263,8 @@ const sum = a => a.reduce((s, x) => s + (x || 0), 0);
 const streak = a => { let n = 0, s = 0; for (let i = a.length - 1; i >= 0; i--){ const v = Math.sign(a[i] || 0); if (!v || (s && v !== s)) break; s = v; n++; } return [s, n]; };
 const kpi = (href, k, v, s, sp) => `<a class="kpi" href="${href}"><div class="k">${k}</div><div class="v mono">${v}</div><div class="s">${s}</div>${sp || ""}</a>`;
 
-const renderKpis = (code, K, C, M, Fn) => {
+let CONC = null;
+const renderKpis = (code, K, C, M, Fn, CC) => {
   const out = [];
   if (K && K.c.length){
     const c = K.c, n = c.length, last = c[n - 1];
@@ -275,6 +276,13 @@ const renderKpis = (code, K, C, M, Fn) => {
     const st = (s, n) => n >= 2 ? `連${s > 0 ? "買" : "賣"} ${n} 天` : "";
     out.push(kpi(`chips.html`, "外資 近 5 日", `<span class="${cls(f5)}">${sfmt(f5)}</span><small class="faint" style="font-size:12px"> 張</small>`, st(fs, fn) || "近 20 日 " + sfmt(sum(C.f.slice(-20))) + " 張", spark(C.f.slice(-20), true)));
     out.push(kpi(`chips.html`, "投信 近 5 日", `<span class="${cls(t5)}">${sfmt(t5)}</span><small class="faint" style="font-size:12px"> 張</small>`, st(ts, tn) || "近 20 日 " + sfmt(sum(C.t.slice(-20))) + " 張", spark(C.t.slice(-20), true)));
+  }
+  const cr = CC && CC.rows.find(x => x[0] === code);
+  if (cr){
+    const g = k => cr[CC.cols.indexOf(k)], h = (CC.hist[code] || [[]])[0];
+    const cnt = g("d5") != null ? `・家數差 ${sfmt(g("d5"))}` : "";
+    out.push(kpi(`conc.html#s=${code}`, "分點集中度 近 5 日", `<span class="${cls(g("c5"))}">${sfmt(g("c5"), 1)}%</span>`,
+      `當日 <span class="${cls(g("c1"))}">${sfmt(g("c1"), 1)}%</span>・20 日 <span class="${cls(g("c20"))}">${sfmt(g("c20"), 1)}%</span>${cnt}`, spark(h.slice(-20), true)));
   }
   if (M && M.rows.length){
     const r = M.rows, n = r.length, fi = M.cols.indexOf("fin"), ri = M.cols.indexOf("ratio");
@@ -377,9 +385,9 @@ async function pick(code, keepScroll){
   $("title").innerHTML = `${esc(x[1])}<span class="code">${esc(code)}</span><span class="mkt">${MKT[x[2]] || esc(x[2] || "")}</span>`;
   $("pxrow").innerHTML = `<div class="px-row"><span class="skel" style="width:8em"></span></div>`;
   $("sub").textContent = "載入中…";
-  const [S, K, C, M, Fn] = await Promise.all([
+  const [S, K, C, M, Fn, CC] = await Promise.all([
     getJSON(`data/stock/s/${code}.json`), getJSON(`data/kline/s/${code}.json`), getJSON(`data/chips/s/${code}.json`),
-    getJSON(`data/margin/s/${code}.json`), getJSON(`data/fin/s/${code}.json`),
+    getJSON(`data/margin/s/${code}.json`), getJSON(`data/fin/s/${code}.json`), CONC || (CONC = getJSON("data/broker/conc.json")),
   ]);
   if (my !== seq) return;
   EV = S ? S.ev : [];
@@ -395,7 +403,7 @@ async function pick(code, keepScroll){
   const past = EV.filter(e => e[0] <= TODAY), last30 = past.filter(e => e[0] >= addDays(TODAY, -30)).length;
   $("sub").textContent = `${ind}近 30 天有 ${last30} 筆動作` + (EV.length > past.length ? `，接下來還有 ${EV.length - past.length} 件已排定的事` : "") + "。";
   $("links").innerHTML = `<div class="links">${LINKS(code).map(([t, h]) => `<a href="${h}">${t}</a>`).join("")}</div>`;
-  renderKpis(code, K, C, M, Fn);
+  renderKpis(code, K, C, M, Fn, CC);
   renderSoon();
   F.kind = "all"; F.n = 60;
   F.days = past.some(e => e[0] >= addDays(TODAY, -30)) ? 30 : 120;
