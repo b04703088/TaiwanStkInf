@@ -324,7 +324,7 @@ def write_tip(data_dir, root, out_path):
 
 
 # ---------------- ETF 買賣超（主動式＋現金申贖的被動式） ----------------
-ACTIVE_COLS = ["e", "n", "date", "code", "d", "da", "px"]
+ACTIVE_COLS = ["e", "n", "date", "code", "d", "da", "px", "u"]  # u：只有「投信非ETF」列有，當天未公布 ETF 對該股的持股
 
 
 def _units_book(data_dir):
@@ -354,7 +354,7 @@ def inkind_etfs(root):
         return {r["etf"].strip() for r in csv.DictReader(fp) if (r.get("etf") or "").strip()}
 
 
-def build_active(data_dir, max_n=20, exclude=()):
+def build_active(data_dir, max_n=20, exclude=(), fund=True):
     """每檔主動式 ETF、以及現金申贖的被動式 ETF（exclude 列的實物申贖除外）最近 max_n 次持股變化（台股）→ 網頁 JSON。
     d：原始股數增減；da：扣除申購贖回後的增減 = 本次股數 − 前次股數 × (本次單位數 ÷ 前次單位數)，單位數缺漏時為 null。
     n：該 ETF 由新到舊第幾次變化（0 = 最新一次），網頁用來取「近 N 次」。"""
@@ -365,13 +365,16 @@ def build_active(data_dir, max_n=20, exclude=()):
     prices, units = PriceBook(data_dir), _units_book(data_dir)
     first = None
     tw = re.compile(r"^\d{4,6}[A-Z]?$")
-    etfs, rows, names, days = [], [], {}, set()
+    etfs, rows, names, days, held = [], [], {}, set(), {}
     for info in actives:
         files = sorted((etf_dir / info["etf"]).glob("[0-9]*.csv"))[-(max_n + 1):]
         if len(files) < 2:
+            if files:  # 新上市只有一份持股：還不能算增減，但「投信非ETF」推估要知道它持有什麼
+                held[("new", info["etf"])] = [(date_of(files[0]), read_holdings(files[0]))]
             continue
         e = len(etfs)
         snaps = [(date_of(f), read_holdings(f)) for f in files]
+        held[len(etfs)] = snaps
         etfs.append({"code": info["etf"], "name": info["name"], "issuer": info["issuer_name"],
                      "kind": info["kind"], "date": date_of(files[-1]), "n": len(files) - 1, "dates": [d for d, _ in snaps]})
         first = min(first or snaps[0][0], snaps[0][0])
@@ -395,10 +398,82 @@ def build_active(data_dir, max_n=20, exclude=()):
                     continue
                 names[c] = (h1.get(c) or h0.get(c))["name"]
                 rows.append([e, n, d1, c, round(d), None if da is None else round(da), px.get(c) or prices.get(d0).get(c)])
+    if days and fund:
+        _add_fund(data_dir, etfs, rows, names, held, prices, max(days), max_n)
+        if etfs[-1]["kind"] == "fund":
+            first = min(first, etfs[-1]["dates"][0])
     vdays, vol, dt = active_volumes(data_dir, names, first, max(days) if days else None)
     return {"etfs": etfs, "names": names, "cols": ACTIVE_COLS, "rows": rows, "latest": max(days) if days else None,
             "days": vdays, "vol": vol, "dt": dt, "dt_days": [d for d, ok in zip(vdays, dt.pop("_ok", [])) if ok],
             "inkind": sorted(exclude)}
+
+
+FUND_CODE = "非ETF"
+
+
+def _chips_days(data_dir, until, n):
+    """data/chips 最近 n 個 ≤ until 的交易日（有法人買賣超檔的日子）。"""
+    hi = until.replace("-", "") + ".csv"
+    fs = sorted((f for f in (Path(data_dir) / "chips").glob("[0-9][0-9][0-9][0-9]/[0-9]*.csv") if f.name <= hi),
+                key=lambda f: f.name)
+    return fs[-(n + 1):]
+
+
+def _add_fund(data_dir, etfs, rows, names, held, prices, until, max_n):
+    """投信非 ETF 部分（Leo：封閉型基金等）＝ 投信買賣超 − 當天各 ETF 持股增減，當成一檔虛擬 ETF 加進 rows。
+    只扣「前一交易日 → 當天」一天期的 ETF 增減；ETF 當天沒公布（或跨多天才公布）時，
+    它在那天的買賣會混進推估值，把該 ETF 對這檔股票的持股記在 u（股數），網頁標「部分 ETF 未公布」。
+    實物申贖 ETF 不扣（申購買回不經市場、不在投信買賣超裡）。"""
+    files = _chips_days(data_dir, until, max_n)
+    if len(files) < 2:
+        return
+    tdays = [date_of(f) for f in files]
+    prev = dict(zip(tdays[1:], tdays[:-1]))
+    one_day = {}  # (e, 日期) → 該 ETF 有乾淨的一天期增減
+    for e, snaps in held.items():
+        for (d0, _), (d1, _) in zip(snaps, snaps[1:]):
+            if prev.get(d1) == d0:
+                one_day[(e, d1)] = True
+    etf_sum = {}
+    for x in rows:
+        if one_day.get((x[0], x[2])):
+            etf_sum[(x[2], x[3])] = etf_sum.get((x[2], x[3]), 0) + x[4]
+    tw = re.compile(r"^[1-9]\d{3}$")
+    fe = len(etfs)
+    out_days = []
+    for f in files[1:]:
+        d = date_of(f)
+        with f.open(encoding="utf-8") as fp:
+            tnet = {r["code"]: (_num(r.get("t_net")), r.get("name") or "") for r in csv.DictReader(fp) if tw.match(r["code"])}
+        if not tnet:
+            continue
+        unk = {}
+        for e, snaps in held.items():
+            if one_day.get((e, d)) or snaps[0][0] >= d:
+                continue
+            h = next((h for dd, h in reversed(snaps) if dd <= d), snaps[0][1])
+            for c, v in h.items():
+                if v.get("sh"):
+                    unk[c] = unk.get(c, 0) + v["sh"]
+        out_days.append(d)
+        px = prices.get(d)
+        for c, (t, nm) in tnet.items():
+            if t is None:
+                continue
+            r = t - etf_sum.get((d, c), 0)
+            if abs(r) < 1000:
+                continue
+            names.setdefault(c, nm or c)
+            rows.append([fe, d, d, c, round(r), round(r), px.get(c), round(unk.get(c, 0))])
+    if not out_days:
+        return
+    order = {d: len(out_days) - 1 - i for i, d in enumerate(out_days)}
+    for x in rows[::-1]:
+        if x[0] != fe:
+            break
+        x[1] = order[x[1]]
+    etfs.append({"code": FUND_CODE, "name": "投信非ETF（封閉型等）", "issuer": "投信", "kind": "fund",
+                 "date": out_days[-1], "n": len(out_days), "dates": [prev[out_days[0]]] + out_days})
 
 
 def active_volumes(data_dir, codes, after, until):
