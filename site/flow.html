@@ -33,10 +33,6 @@
   .eyebrow{font-size:13px; color:var(--brass); margin-bottom:10px;}
   h1{font-size:32px;}
   .desc{color:var(--text-muted); font-size:14.5px; margin:0;}
-  .subtabs{display:flex; gap:6px; margin-top:28px; border-bottom:1px solid var(--line);}
-  .subtabs a{padding:10px 16px; font-size:14px; color:var(--text-muted); text-decoration:none; border-bottom:2px solid transparent; margin-bottom:-1px;}
-  .subtabs a:hover{color:var(--text);}
-  .subtabs a[aria-current="page"]{color:var(--text); border-bottom-color:var(--text);}
   .date-bar{margin-top:24px; display:flex; align-items:center; gap:14px; flex-wrap:wrap; font-size:13px; color:var(--text-muted);}
   .date-nav{display:flex; align-items:center; border:1px solid var(--line-strong); border-radius:var(--radius-s);}
   .date-nav button{background:none; border:none; color:var(--text); font:inherit; padding:7px 12px; cursor:pointer;}
@@ -167,11 +163,7 @@
       </div>
       <p class="desc">把個股成交金額加總到族群，看今天各族群佔大盤成交的比重，跟自己近期平均相比是變多還是變少。佔比上升代表市場資金往這個族群集中。</p>
     </div>
-    <nav class="subtabs" aria-label="成交排行子頁">
-      <a href="ranking.html">個股排行</a>
-      <a href="flow.html" aria-current="page">族群資金流向</a>
-        <a href="rotation.html">族群輪動</a>
-    </nav>
+    <nav class="ptabs"></nav>
     <div class="date-bar">
       <div class="date-nav">
         <button id="prev" type="button" aria-label="前一交易日">‹</button>

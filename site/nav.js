@@ -15,30 +15,26 @@
   /* 單獨一個頁簽、不放下拉選單的頁面（接在「首頁」後面） */
   var TOP = [
     ["digest.html", "盤後摘要", "每晚的新聞、盤面現象、資金流向與 CB／ETF／內部人重點"],
-    ["events.html", "行事曆", "CPI、非農、FOMC、台灣央行、輝達財報、法說會、台指期結算、指數審核、處置出關排成一條時間軸"],
+    ["events.html", "行事曆", "CPI、非農、FOMC、台灣央行、輝達財報、法說會、台指期結算、指數審核、處置出關排成一條時間軸；指數調整明細在「指數調整」分頁", ["calendar"]],
     ["stock.html", "個股查詢", "輸入一檔股票，把重訊、處置、內部人、庫藏股、CB、ETF 換股、外資報告、分點大單集中成一條時間軸"],
   ];
 
   var GROUPS = [
     ["市場總覽", [
       ["market.html", "大盤溫度", "恐慌度・散戶多空・誰在推指數", null, "六個指標合成的恐慌度、站上均線比例、散戶台指多空比、今天指數漲跌是誰推的"],
-      ["ranking.html", "成交排行", "含族群資金流向", ["flow"]],
-      ["rotation.html", "族群輪動", "輪動圖・資金流向", null, "AI 供應鏈細分族群對加權指數的相對強弱與動能（領先／轉弱／落後／改善），加上成交值佔比流向"],
-      ["industry.html", "產業分類"],
+      ["ranking.html", "成交排行", "上市・上櫃・ETF"],
+      ["rotation.html", "族群輪動", "輪動圖・資金流向・細產業", ["flow", "industry"], "AI 供應鏈細分族群對加權指數的相對強弱與動能（領先／轉弱／落後／改善），成交值佔比流向熱力圖，細產業今日強弱與個股歸屬查詢"],
       ["screen.html", "選股", "技術・財報・籌碼條件", null, "技術面掃描、營收財報、籌碼條件混搭篩選；除權息與填息紀錄"],
-      ["newhigh.html", "創新高", "個股・族群", null, "最近哪些股票、哪些族群在創 52 週新高或 2022 年以來新高"],
-      ["limitup.html", "漲停", "連板・族群", null, "每天收漲停、觸及漲停打開的股票，連板天數、族群分布與隔日表現"],
+      ["newhigh.html", "強勢股", "創新高・漲停", ["limitup"], "最近哪些股票、族群在創新高；每天收漲停、觸及漲停打開的股票，連板天數與隔日表現"],
       ["us.html", "美股連動", "供應鏈・隔日反應", null, "美股大廠的台灣供應鏈、昨夜美股大漲大跌後台股怎麼走、誰跟得最緊"],
       ["commod.html", "原物料", "運價・記憶體", null, "原油、銅、鋼、農產品、BDI／SCFI 運價、DRAM 現貨的漲跌與一年位置，對照受惠或吃成本的台股族群"],
-      ["chips.html#dt", "當沖比率"],
     ]],
     ["籌碼動向", [
       ["broker.html", "分點籌碼", "前15大・重點・地方", ["watch", "local"], "全市場前 15 大分點、重點分點、地方主力"],
-      ["chips.html", "法人籌碼", "法人・借券・集保", null, "三大法人買賣超、借券賣出、集保千張大戶"],
-      ["daytrade.html", "當沖與隔日沖", "當沖客損益・隔日沖分點", null, "大盤與個股當沖比重、當沖客扣稅費損益，隔日沖分點今天買了什麼、昨天買的今天倒了幾成"],
-      ["trust.html", "投信買賣超", "全部個股・佔成交量", null, "當天投信買賣的全部個股，買賣超佔當日／近 5 日成交量多少、連買天數、族群合計"],
-      ["futures.html", "期權籌碼", "台指期・選擇權", null, "外資台指期與選擇權未平倉、P/C Ratio、大額交易人"],
-      ["settle.html", "結算日套利", "股期十大特法・價差", null, "股票期貨十大特法部位對現貨量的倍數、正逆價差、自營商累積，找結算日尾盤被套利平倉影響的個股"],
+      ["chips.html", "法人籌碼", "法人・投信明細・借券・集保", ["trust"], "三大法人買賣超、投信全部個股與佔成交量、借券賣出、集保千張大戶"],
+      ["etf.html#active", "主動式ETF買賣超", "佔當日・近5日成交量", null, "主動式 ETF 每天公布持股換算的買賣超，佔當日／近 5 日成交量（扣當沖）"],
+      ["daytrade.html", "當沖與隔日沖", "當沖率・當沖客損益・隔日沖", null, "大盤與個股當沖比重、當日／5 日平均當沖率、當沖客扣稅費損益，隔日沖分點今天買了什麼、昨天買的今天倒了幾成"],
+      ["futures.html", "期權籌碼", "台指期・選擇權・結算日套利", ["settle"], "外資台指期與選擇權未平倉、P/C Ratio、大額交易人；股期十大特法對現貨量倍數、正逆價差，找結算日被套利平倉影響的個股"],
       ["margin.html", "融資融券"],
       ["heavy.html", "權值股槓桿", "漲跌・融資・質借", null, "0050 成分股近 5／20／60 日漲跌，融資與不限用途借貸張數變化、合併維持率，依族群彙總"],
       ["cost.html", "持股成本", "主動ETF・融資・質借", null, "推估主動式 ETF、融資、不限用途借貸的平均成本、維持率與追繳價"],
@@ -56,14 +52,21 @@
       ["kline.html", "K線"],
       ["fin.html", "財報"],
       ["analyst.html", "外資報告"],
-      ["index.html#quant", "量化策略"],
     ]],
     ["ETF", [
-      ["etf.html", "ETF持股"],
-      ["etf.html#aum", "ETF規模", "折溢價・受益人數", null, "全體 ETF 規模排行、資金流入、5 日均折溢價、受益人數"],
+      ["etf.html", "ETF持股", "持股變化・買賣超・規模", null, "個股被哪些 ETF 持有、每日持股變化、主動式／被動式買賣超、主動調倉、全體 ETF 規模與折溢價"],
       ["etfcrowd.html", "ETF擁擠度", "占股本・申贖帶動・重疊", null, "個股被 ETF 合計持有多少股本、幾天量才消化得完，近 5 日申購贖回帶動的被動買賣，大型 ETF 持股重疊度"],
-      ["calendar.html", "指數行事曆"],
     ]],
+  ];
+
+  /* 同一個導覽項目底下的分頁（2026-11-11 精簡頁面：合併成一個入口、頁面上方用分頁切換）。
+     頁面放 <nav class="ptabs"></nav>，本檔自動填入；第一個是主頁，其餘要在 GROUPS／TOP 的 also 裡。 */
+  var PTABS = [
+    [["chips.html", "法人・借券・集保"], ["trust.html", "投信明細"]],
+    [["newhigh.html", "創新高"], ["limitup.html", "漲停"]],
+    [["rotation.html", "族群輪動"], ["flow.html", "資金流向熱力圖"], ["industry.html", "細產業強弱・查詢"]],
+    [["futures.html", "台指期・選擇權"], ["settle.html", "結算日套利"]],
+    [["events.html", "市場行事曆"], ["calendar.html", "指數調整"]],
   ];
 
   /* 各頁資料來源（附在頁尾） */
@@ -246,7 +249,7 @@
   var mobileNow = window.matchMedia("(max-width:860px)").matches;
   var html = '<a class="home" href="index.html"' + cur(path === "index") + ">首頁</a>";
   TOP.forEach(function (t) {
-    html += '<a class="home" href="' + t[0] + '" title="' + t[2] + '"' + cur(hit(t[0])) + ">" + t[1] + "</a>";
+    html += '<a class="home" href="' + t[0] + '" title="' + t[2] + '"' + cur(hit(t[0], t[3])) + ">" + t[1] + "</a>";
   });
   GROUPS.forEach(function (g) {
     var on = false, items = g[1].map(function (it) {
@@ -305,6 +308,30 @@
       ".liq button[aria-pressed=true]{border-color:var(--text-faint);color:var(--text)}";
     document.head.appendChild(st);
     return api;
+  })();
+
+  window.TideNav = { TOP: TOP, GROUPS: GROUPS, PTABS: PTABS };
+
+  /* 頁面分頁列 */
+  (function () {
+    var set = PTABS.filter(function (g) { return g.some(function (t) { return t[0].replace(/\.html$/, "") === path; }); })[0];
+    var fill = function () {
+      document.querySelectorAll("nav.ptabs").forEach(function (el) {
+        if (!set) { el.remove(); return; }
+        el.setAttribute("aria-label", "分頁");
+        el.innerHTML = set.map(function (t) {
+          return '<a href="' + t[0] + '"' + cur(t[0].replace(/\.html$/, "") === path) + ">" + t[1] + "</a>";
+        }).join("");
+      });
+    };
+    var st = document.createElement("style");
+    st.textContent = "nav.ptabs{display:flex;gap:6px;margin-top:24px;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}" +
+      "nav.ptabs::-webkit-scrollbar{display:none}" +
+      "nav.ptabs a{padding:10px 16px;font-size:14px;color:var(--text-muted);text-decoration:none;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}" +
+      "nav.ptabs a:hover{color:var(--text)}nav.ptabs a[aria-current=page]{color:var(--text);border-bottom-color:var(--text);font-weight:500}" +
+      "@media (max-width:860px){nav.ptabs a{padding:10px 12px}}";
+    document.head.appendChild(st);
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", fill); else fill();
   })();
 
   var nav = document.querySelector("nav.gnav");

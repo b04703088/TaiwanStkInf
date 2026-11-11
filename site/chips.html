@@ -148,8 +148,9 @@
 <script src="nav.js"></script>
 <main class="wrap">
   <section class="page-head">
-    <h1>三大法人、借券與當沖</h1>
+    <h1>三大法人、借券與集保</h1>
     <p class="desc" id="sub">載入中…</p>
+    <nav class="ptabs"></nav>
     <div class="stats" id="stats"></div>
   </section>
 
@@ -175,7 +176,6 @@
   <nav class="tabs" role="tablist">
     <a href="#inst" data-t="inst" role="tab" aria-selected="true">三大法人排行</a>
     <a href="#sbl" data-t="sbl" role="tab" aria-selected="false">借券賣出</a>
-    <a href="#dt" data-t="dt" role="tab" aria-selected="false">當沖比率</a>
     <a href="#big" data-t="big" role="tab" aria-selected="false">集保大戶</a>
   </nav>
 
@@ -201,6 +201,7 @@
 </main>
 <footer class="site"><div class="wrap"><p class="note" style="margin:0">資料僅供參考。</p></div></footer>
 <script>
+if (location.hash === "#dt") location.replace("daytrade.html#rate");  /* 當沖率排行已搬到當沖與隔日沖 */
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const fx = (v, d = 0) => v == null ? "–" : (+v).toLocaleString("zh-TW", {minimumFractionDigits: d, maximumFractionDigits: d});
@@ -219,13 +220,11 @@ const OPTS = {
          ["per", [["1", "今日"], ["5", "近 5 日"], ["20", "近 20 日"], ["s", "連續天數"]]],
          ["dir", [["buy", "買超"], ["sell", "賣超"]]]],
   sbl: [["sbl", [["up", "5 日增加最多"], ["down", "5 日回補最多"], ["bal", "餘額最大"], ["days", "回補天數最多"]]]],
-  dt: [["dt", [["dt", "今日當沖率"], ["dt5", "5 日平均當沖率"]]]],
   big: [["big", [["big_d", "千張大戶週增"], ["big_dn", "千張大戶週減"], ["hold_d", "股東人數減少"], ["p1000", "大戶持股最高"]]]],
 };
 const NOTES = {
   inst: "三大法人買賣超單位為張；「外資」含外資自營商。金額以每天買賣超張數 × 當天收盤估算（交易所只公布股數）。連續天數＝從最新一天往回同方向（買或賣）連續幾天。資料來源：證交所 T86、櫃買中心三大法人買賣明細。",
   sbl: "借券賣出＝向出借人借股票來賣（多為法人放空或避險），和融券不同。餘額單位為張；回補天數＝借券賣出餘額 ÷ 近 20 日平均成交量。餘額快速增加代表空方加碼，持續回補可能有軋空。資料來源：證交所、櫃買中心信用額度總量管制餘額表。",
-  dt: "當沖率＝現股當沖成交股數 ÷ 當天成交股數。比率高代表短線資金多、籌碼不穩，股價容易大漲大跌。交易所的當沖數字 T+2 日才定案，最近兩天每天重抓。資料來源：證交所、櫃買中心當日沖銷交易標的及成交量值。",
   big: "集保結算所每週股權分散表（每週五更新）。千張大戶＝持股 1,000 張以上的人合計持股比例，週增減單位為百分點；股東人數減少、大戶比例增加，通常代表籌碼往大戶集中。資料從本站開始抓的那週起累積。",
 };
 
@@ -235,8 +234,6 @@ function cols(){
             [w + "20", "20 日", r => sgn(r[w + "20"]), 1], [w + "s", "連續", r => streak(r[w + "s"])], [w + "v5", "5 日金額（億）", r => sgn(r[w + "v5"], 2), 1]]; }
   if (S.t === "sbl") return [["close", "收盤", r => plain(r.close, 2)], ["sbl", "借券賣出餘額", r => plain(r.sbl)], ["sbl1", "今日增減", r => sgn(r.sbl1)],
             ["sbl5", "5 日增減", r => sgn(r.sbl5)], ["sbl_days", "回補天數", r => plain(r.sbl_days, 1)], ["value", "成交（億）", r => plain(r.value, 1), 1]];
-  if (S.t === "dt") return [["close", "收盤", r => plain(r.close, 2)], ["value", "成交（億）", r => plain(r.value, 1)], ["dt", "今日當沖率", r => plain(r.dt, 1, "%")],
-            ["dt5", "5 日平均", r => plain(r.dt5, 1, "%")], ["i1", "法人今日", r => sgn(r.i1), 1]];
   return [["close", "收盤", r => plain(r.close, 2)], ["p1000", "千張大戶", r => plain(r.p1000, 2, "%")], ["big_d", "週增減", r => sgn(r.big_d, 2)],
           ["p400", "400 張以上", r => plain(r.p400, 2, "%"), 1], ["holders", "股東人數", r => plain(r.holders)], ["hold_d", "人數週增減", r => sgn(r.hold_d, 2) + "%"]];
 }
@@ -246,7 +243,6 @@ function sorted(){
   let key, desc = true;
   if (S.t === "inst") { key = S.who + (S.per === "s" ? "s" : S.per); desc = S.dir === "buy"; }
   if (S.t === "sbl") { key = {up: "sbl5", down: "sbl5", bal: "sbl", days: "sbl_days"}[S.sbl]; desc = S.sbl !== "down"; }
-  if (S.t === "dt") key = S.dt;
   if (S.t === "big") { key = S.big === "big_dn" ? "big_d" : S.big; desc = !["big_dn", "hold_d"].includes(S.big); }
   rows = rows.filter(r => r[key] != null && (S.t !== "inst" || (desc ? r[key] > 0 : r[key] < 0)));
   if (S.t === "sbl" && S.sbl !== "bal" && S.sbl !== "days") rows = rows.filter(r => desc ? r.sbl5 > 0 : r.sbl5 < 0);

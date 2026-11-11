@@ -187,28 +187,6 @@
     <div id="s-panel"></div>
   </section>
 
-  <section class="block" id="cal">
-    <div class="block-head"><h2>股東會・法說會・除權息行事曆</h2><span class="hint" id="cal-hint"></span></div>
-    <div class="toolbar">
-      <div class="chips" id="c-kind">
-        <button data-v="" aria-pressed="true">全部</button>
-        <button data-v="shm" aria-pressed="false">股東會</button>
-        <button data-v="臨時會" aria-pressed="false">股東臨時會</button>
-        <button data-v="法說會" aria-pressed="false">法說會</button>
-        <button data-v="div" aria-pressed="false">除權息</button>
-      </div>
-      <label class="tog"><input type="checkbox" id="c-w">只看關注</label>
-      <label class="tog"><input type="checkbox" id="c-etf">含 ETF 配息</label>
-      <div class="chips" id="c-when">
-        <button data-v="up" aria-pressed="true">即將舉行</button>
-        <button data-v="past" aria-pressed="false">近 30 天已舉行</button>
-      </div>
-      <input class="find" id="c-q" type="search" placeholder="篩選代號或名稱" autocomplete="off" aria-label="篩選股票">
-    </div>
-    <div class="agenda" id="agenda"></div>
-    <button class="more" id="cal-more" hidden>顯示更多日期</button>
-  </section>
-
   <section class="block" id="feed">
     <div class="block-head"><h2>重大訊息</h2><span class="hint" id="feed-hint"></span></div>
     <div class="toolbar">
@@ -278,6 +256,7 @@ function calItems(){
   return out;
 }
 function renderCal(){
+  if (!document.getElementById("agenda")) return;  /* 2026-11-11 行事曆區塊已拿掉（改看 events.html／screen.html#div） */
   const q = C.q.trim().toLowerCase();
   const rows = calItems().filter(m => (C.when === "up" ? m.d >= TODAY : m.d < TODAY && m.d >= addDays(TODAY, -30))
     && (!C.kind || (C.kind === "shm" ? m.kind === "shm" : C.kind === "div" ? m.kind === "div" : m.ev === C.kind))
@@ -449,18 +428,12 @@ fetch("data/mops/mops.json", {cache: "no-cache"}).then(r => { if (!r.ok) throw n
   for (const r of [...DIVS, ...MEETS, ...NEWS]) if (r.name) NAMES[r.code] = r.name;  // 新的蓋舊的
   Object.assign(NAMES, D.names || {});
   DATES = [...new Set(NEWS.map(r => r.date))].sort().reverse();
-  document.getElementById("sub").textContent = `上市櫃公司每天在公開資訊觀測站發布的重大訊息，自動分類；股東會、法說會、除權息整理成行事曆，也可以查單一股票的時間軸。重訊列表保留最近 30 天，資料 ${D.first} 起，最新 ${D.generated}。`;
+  document.getElementById("sub").textContent = `上市櫃公司每天在公開資訊觀測站發布的重大訊息，自動分類；可以查單一股票的時間軸（含股東會、法說會、除權息）；即將舉行的法說會看「行事曆」、除權息看「選股」。重訊列表保留最近 30 天，資料 ${D.first} 起，最新 ${D.generated}。`;
   renderStats(); renderWatch(); setupSearch(); renderCal(); renderFeed();
-  chips("c-kind", C, "kind", renderCal);
-  chips("c-when", C, "when", renderCal);
   chips("f-days", F, "days", renderFeed, Number);
-  document.getElementById("c-q").oninput = e => { C.q = e.target.value; C.n = 21; renderCal(); };
   document.getElementById("f-q").oninput = e => { F.q = e.target.value; F.n = 100; renderFeed(); };
   document.getElementById("f-sub").onchange = e => { F.sub = e.target.checked; F.n = 100; renderFeed(); };
-  document.getElementById("c-w").onchange = e => { C.w = e.target.checked; C.n = 21; renderCal(); };
-  document.getElementById("c-etf").onchange = e => { C.etf = e.target.checked; C.n = 21; renderCal(); };
   document.getElementById("f-w").onchange = e => { F.w = e.target.checked; F.n = 100; renderFeed(); };
-  document.getElementById("cal-more").onclick = () => { C.n += 21; renderCal(); };
   document.getElementById("feed-more").onclick = () => { F.n += 100; renderFeed(); };
   const fromHash = scroll => { const s = new URLSearchParams(location.hash.slice(1)).get("s"); if (s && s !== CUR) pickStock(s, scroll); };
   fromHash(false);
