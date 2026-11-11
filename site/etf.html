@@ -498,7 +498,7 @@
         「扣除申購贖回」：先把前一次持股依受益單位數變化等比例放大縮小，再算增減，剩下的才是經理人主動調整。只計台股。
         「佔成交量」：每檔 ETF 最新 1 次（當日）／最近 5 次（近 5 日）公布的增減股數，除以同一段期間該股的成交股數，再把各 ETF 加總；不受上方期間按鈕影響。
         「扣除當沖」：分母改用成交股數減掉現股當沖股數，比較接近真正換手的量。達 5% 粗體、10% 以上加底色。
-        「含非ETF投信」：每天的投信買賣超（證交所三大法人）扣掉當天各 ETF 公布的持股增減，剩下的當成封閉型等非 ETF 基金，算成一檔「非ETF」加進來（實物申贖 ETF 不扣）；ETF 當天還沒公布的話，它的買賣會混在裡面，標 ＊。</p>
+        「含非ETF投信」／「只看非ETF」：每天的投信買賣超（證交所三大法人）扣掉當天各 ETF 公布的持股增減，剩下的當成封閉型等非 ETF 基金，算成一檔「非ETF」加進來（實物申贖 ETF 不扣）；ETF 當天還沒公布的話，它的買賣會混在裡面，標 ＊。</p>
       <div class="stats" id="actStats"></div>
       <div class="toolbar">
         <div class="seg-group" style="display:flex;gap:18px;flex-wrap:wrap">
@@ -527,6 +527,7 @@
           </div>
           <div class="seg" id="actFund" role="group" aria-label="投信非ETF">
             <button type="button" data-v="on" aria-pressed="true" title="投信買賣超扣掉當天各 ETF 持股增減，剩下的當成封閉型等非 ETF 基金">含非ETF投信</button>
+            <button type="button" data-v="only" aria-pressed="false">只看非ETF</button>
             <button type="button" data-v="off" aria-pressed="false">只看 ETF</button>
           </div>
         </div>
@@ -1148,9 +1149,10 @@ function volRatio(code, perEtf) {
 const fmtPct = v => v == null ? "—" : (v > 0 ? "+" : "") + v.toFixed(Math.abs(v) >= 10 ? 1 : 2) + "%";
 const vrCls = v => v == null ? "" : Math.abs(v) >= 10 ? "hot2" : Math.abs(v) >= 5 ? "hot" : "";
 const isFund = i => act.etfs[i].kind === "fund";
-const actOn = i => isFund(i) ? act.fund === "on" : act.on.has(i) && (act.kind === "all" || act.etfs[i].kind === act.kind);
+const actOn = i => isFund(i) ? act.fund !== "off" : act.fund !== "only" && act.on.has(i) && (act.kind === "all" || act.etfs[i].kind === act.kind);
 function renderActive() {
   if (!act.loaded) return;
+  $("actChips").hidden = act.fund === "only";
   $("actChips").innerHTML = `<button type="button" class="all" data-all="1">全選</button>` +
     act.etfs.map((e, i) => e.kind === "fund" || act.kind !== "all" && e.kind !== act.kind ? "" : `<button type="button" data-i="${i}" aria-pressed="${act.on.has(i)}" title="${esc(e.name)}・最新 ${fmtDate(e.date)}">${esc(e.code)} ${esc(e.name.replace(/^主動/, ""))}</button>`).join("");
   $("actInkind").textContent = act.inkind.length ? `實物申贖的 ${act.inkind.join("、")} 申購買回直接收付股票，持股增減不是市場買賣，已排除。` : "";
@@ -1191,13 +1193,13 @@ function renderActive() {
   }
   const buy = all.filter(s => s.amt > 0), sell = all.filter(s => s.amt < 0);
   const tb = buy.reduce((t, s) => t + s.amt, 0), ts = sell.reduce((t, s) => t + s.amt, 0);
-  const crowd = [...all].sort((a, b) => b.nb - a.nb || b.amt - a.amt)[0];
+  const crowd = [...all].filter(s => s.nb > 0).sort((a, b) => b.nb - a.nb || b.amt - a.amt)[0];
   const sg = act.side === "buy" ? 1 : -1;
   const kindIdx = act.etfs.map((e, i) => i).filter(i => !isFund(i) && (act.kind === "all" || act.etfs[i].kind === act.kind));
   const nKind = kindIdx.length, nOn = kindIdx.filter(actOn).length;
   const heavy = all.filter(s => s.r1 != null && s.r1 * sg > 0).sort((a, b) => (b.r1 - a.r1) * sg)[0];
   $("actStats").innerHTML = `
-    <div class="stat"><span>${{ active: "主動式", passive: "被動式", all: "" }[act.kind]} ETF</span><b class="mono">${nOn}</b><small>/ ${nKind} 檔 · 最新 ${fmtDate(act.latest)}</small></div>
+    ${act.fund === "only" ? `<div class="stat"><span>只看</span><b>非ETF投信</b><small>投信買賣超 − ETF 增減 · 最新 ${fmtDate(act.latest)}</small></div>` : `<div class="stat"><span>${{ active: "主動式", passive: "被動式", all: "" }[act.kind]} ETF</span><b class="mono">${nOn}</b><small>/ ${nKind} 檔 · 最新 ${fmtDate(act.latest)}</small></div>`}
     <div class="stat"><span>合計買超金額</span><b class="mono up">${fmtYiSigned(tb)}</b><small>億 · ${buy.length} 檔</small></div>
     <div class="stat"><span>合計賣超金額</span><b class="mono down">${fmtYiSigned(ts)}</b><small>億 · ${sell.length} 檔</small></div>
     <div class="stat"><span>最多 ETF 同時買進</span><b>${crowd ? esc(crowd.name) : "—"}</b><small class="mono">${crowd ? crowd.nb + " 檔 ETF" : ""}</small></div>
@@ -1216,7 +1218,7 @@ function renderActive() {
       <td class="mono col-hide">${s.px == null ? "—" : fmtN(s.px, 2)}</td>
       <td class="mono ${cls(s.amt)}">${fmtYiSigned(s.amt)}</td>
       <td class="mono ${cls(s.sh)}">${(s.sh > 0 ? "+" : "") + fmtN(s.sh / 1000, 0)}</td>
-      <td class="mono vr ${cls(s.r1)} ${vrCls(s.r1)}"${s.u && act.fund === "on" ? ` title="當天有 ETF 還沒公布持股（共持有 ${fmtN(s.u / 1000, 0)} 張），它們的買賣混在非ETF推估裡"` : ""}><span>${fmtPct(s.r1)}${s.u && act.fund === "on" ? "＊" : ""}</span></td>
+      <td class="mono vr ${cls(s.r1)} ${vrCls(s.r1)}"${s.u && act.fund !== "off" ? ` title="當天有 ETF 還沒公布持股（共持有 ${fmtN(s.u / 1000, 0)} 張），它們的買賣混在非ETF推估裡"` : ""}><span>${fmtPct(s.r1)}${s.u && act.fund !== "off" ? "＊" : ""}</span></td>
       <td class="mono vr ${cls(s.r5)} ${vrCls(s.r5)}"><span>${fmtPct(s.r5)}</span></td>
       <td class="mono"><span class="up">${s.nb}</span> / <span class="down">${s.ns}</span></td>
       <td class="l col-hide who">${top.map(([e, p]) => `<span><b>${esc(act.etfs[e].code)}</b>${fmtYiSigned(p.amt)}</span>`).join("")}</td></tr>`;
@@ -1226,7 +1228,7 @@ function renderActive() {
   const noDt = act.days.slice(-5).filter(t => !act.dtDays.has(t));
   $("actFoot").textContent = (act.mode === "adj" && miss.length ? `扣除申購贖回需要受益單位數，${miss.join("、")} 部分日期缺少，這些以原始增減計。` : "") +
     (act.vol === "net" && noDt.length ? `${noDt.map(fmtDate).join("、")} 還沒有當沖資料，這幾天以全部成交量計。` : "") +
-    (act.fund === "on" ? "「非ETF」＝投信買賣超 − 各 ETF 持股增減（推估，封閉型基金等）；＊表示當天有 ETF 未公布，滑過看張數。" : "") +
+    (act.fund !== "off" ? "「非ETF」＝投信買賣超 − 各 ETF 持股增減（推估，封閉型基金等）；＊表示當天有 ETF 未公布，滑過看張數。" : "") +
     "各 ETF 公布時間不同（部分為隔日公布），「最新一次」是各 ETF 自己最新一次公布與前一次的比較。點股票可看是哪些 ETF 在買賣。";
 }
 for (const [id, key] of [["actN", "n"], ["actMode", "mode"], ["actSide", "side"], ["actKind", "kind"], ["actVol", "vol"], ["actFund", "fund"]]) {
