@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101419">
+<title>分點集中度｜潮汐</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#101419; --panel:#171C22; --panel-2:#1E242B;
+    --line:rgba(232,237,242,0.09); --line-strong:rgba(232,237,242,0.16);
+    --text:#E8EDF2; --text-muted:#A9B2BC; --text-faint:#8B95A0;
+    --brass:#C6A15B; --brass-soft:rgba(198,161,91,0.14); --rise:#E1594F; --fall:#3FAE72;
+    --radius-s:3px; --radius-m:6px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--ink); color:var(--text);
+    font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
+  h1,h2{font-family:'Noto Sans TC',sans-serif; margin:0; font-weight:700;}
+  h2{font-size:20px;}
+  .mono{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+  a{color:inherit;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
+  header.site{position:sticky; top:0; z-index:40; background:#101419; border-bottom:1px solid var(--line);}
+  .nav-row{display:flex; align-items:center; justify-content:space-between; padding:16px 28px;}
+  .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
+  .brand-mark{font-family:'Noto Sans TC',sans-serif; font-size:22px; font-weight:700;}
+  .brand-sub{font-size:12px; color:var(--text-faint);}
+  .page-head{padding:56px 0 8px;}
+  .eyebrow{font-size:13px; color:var(--brass); margin-bottom:10px;}
+  h1{font-size:32px;}
+  .desc{color:var(--text-muted); font-size:14.5px; margin:12px 0 0; max-width:52em;}
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden; margin-top:28px;}
+  .stat{background:var(--panel); padding:16px 20px;}
+  .stat .k{font-size:12.5px; color:var(--text-muted);}
+  .stat .v{font-size:26px; margin-top:2px;}
+  .stat .s{font-size:12px; color:var(--text-faint);}
+  section.block{margin-top:48px;}
+  .block-head{display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin-bottom:14px; flex-wrap:wrap;}
+  .hint{font-size:12.5px; color:var(--text-faint);}
+  .up{color:var(--rise);} .down{color:var(--fall);} .flat{color:var(--text-muted);}
+  .faint{color:var(--text-faint);}
+  .muted{color:var(--text-muted);}
+
+  /* 查個股 */
+  .search{position:relative; max-width:460px;}
+  .search input{width:100%; background:var(--panel); border:1px solid var(--line-strong); color:var(--text); padding:11px 14px; border-radius:var(--radius-m); font:inherit; font-size:15px;}
+  .search input:focus{outline:none; border-color:var(--text-faint);}
+  .sugg{position:absolute; left:0; right:0; top:calc(100% + 4px); background:var(--panel-2); border:1px solid var(--line-strong); border-radius:var(--radius-m); z-index:10; overflow:hidden;}
+  .sugg div{padding:8px 14px; cursor:pointer; font-size:14px;}
+  .sugg div:hover, .sugg div.on{background:var(--brass-soft);}
+  .stock{margin-top:16px; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-m); padding:18px 20px;}
+  .stock .top{display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap;}
+  .stock .nm{font-size:20px; font-weight:700;}
+  .stock .nm .mono{font-size:14px; color:var(--text-muted); margin-left:8px; font-weight:500;}
+  .stock .px{font-size:15px;}
+  .kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-top:16px; padding-top:14px; border-top:1px solid var(--line);}
+  .kpi .k{font-size:12px; color:var(--text-muted);}
+  .kpi .v{font-size:20px; margin-top:2px;}
+  .kpi .s{font-size:12px; color:var(--text-faint); margin-top:2px;}
+  .views{display:flex; height:8px; border-radius:2px; overflow:hidden; margin-top:8px; background:var(--line);}
+  .views i{display:block; height:100%;}
+  .views .b{background:var(--rise);} .views .n{background:var(--text-faint);} .views .r{background:var(--fall);}
+
+  /* 表格 */
+  .tbl-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius-m);}
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  th, td{padding:9px 12px; border-bottom:1px solid var(--line); text-align:left; white-space:nowrap;}
+  th{font-size:12px; color:var(--text-muted); font-weight:500; background:var(--panel); position:sticky; top:0;}
+  td.n, th.n{text-align:right;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr.click{cursor:pointer;}
+  tbody tr.click:hover td{background:var(--panel);}
+  td.wrap-cell{white-space:normal; min-width:18em;}
+  .sname{font-weight:500;}
+  .sname .mono{font-size:11.5px; color:var(--text-faint); margin-left:6px; font-weight:500;}
+  .mini{display:inline-flex; width:72px; height:6px; border-radius:2px; overflow:hidden; background:var(--line); vertical-align:middle; margin-right:6px;}
+  .mini i{display:block; height:100%;}
+  .mini .b{background:var(--rise);} .mini .n{background:var(--text-faint);} .mini .r{background:var(--fall);}
+  .tag{display:inline-block; font-size:11.5px; padding:1px 7px; border-radius:var(--radius-s); border:1px solid var(--line-strong); color:var(--text-muted); margin-right:8px;}
+  .tag.rep{border-color:var(--brass); color:var(--brass);}
+  .ttl{display:block; font-size:12px; color:var(--text-faint); margin-top:2px; text-decoration:none; overflow:hidden; text-overflow:ellipsis; max-width:46em;}
+  .ttl:hover{color:var(--text);}
+
+  .toolbar{display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin-bottom:12px;}
+  .chips{display:flex; flex-wrap:wrap; gap:6px;}
+  .chips button{background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:5px 11px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .chips button[aria-pressed="true"]{border-color:var(--text-faint); color:var(--text);}
+  .more{display:block; margin:14px auto 0; background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:7px 18px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .more:hover{color:var(--text); border-color:var(--text-faint);}
+  .empty{padding:20px 0; color:var(--text-faint); font-size:13.5px;}
+  .note{font-size:12.5px; color:var(--text-faint); margin-top:18px; line-height:1.8;}
+  footer.site{padding:48px 0; margin-top:64px; border-top:1px solid var(--line);}
+  @media (max-width:860px){
+    .nav-row{padding:14px 16px; flex-wrap:wrap; row-gap:10px;}
+    .wrap{padding:0 16px;}
+    .stats, .kpis{grid-template-columns:repeat(2,1fr);} h1{font-size:26px;}
+    .hide-s{display:none;}
+    td.wrap-cell{min-width:14em;}
+  }
+
+  .sub-h{font-size:14px; color:var(--text-muted); margin:22px 0 8px; font-weight:500; display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap;}
+  .tag.mk{font-size:11px; padding:0 5px; margin:0 0 0 6px;}
+  .tag.hi{border-color:var(--rise); color:var(--rise); margin:0;}
+  .chart{position:relative;}
+  .chart svg{display:block; width:100%; height:auto; overflow:visible;}
+  .chart .axis{font-size:10.5px; fill:var(--text-faint); font-family:'IBM Plex Mono',monospace;}
+  .tip{position:absolute; pointer-events:none; background:var(--ink); border:1px solid var(--line-strong); border-radius:var(--radius-s); padding:8px 10px; font-size:12px; min-width:140px; box-shadow:0 4px 16px rgba(0,0,0,.4); display:none; z-index:5;}
+  .tip .d{color:var(--text-muted); margin-bottom:4px;}
+  .tip .r{display:flex; gap:12px; justify-content:space-between; white-space:nowrap;}
+  .tip .r b{font-weight:500; font-family:'IBM Plex Mono',monospace;}
+  .charts{display:grid; grid-template-columns:1fr 1fr; gap:24px;}
+  .note-cell{white-space:normal; min-width:16em; max-width:28em; font-size:12.5px; color:var(--text-muted);}
+  .toggle{background:none; border:none; color:var(--brass); cursor:pointer; font:inherit; font-size:13px; padding:0;}
+  @media (max-width:860px){ .charts{grid-template-columns:1fr;} }
+  .tabs{display:flex; gap:28px; border-bottom:1px solid var(--line-strong); margin-top:36px; overflow-x:auto; scrollbar-width:none;}
+  .tabs a{white-space:nowrap; text-decoration:none; color:var(--text-muted); padding:10px 0; border-bottom:2px solid transparent; margin-bottom:-1px; font-size:15px;}
+  .tabs a:hover{color:var(--text);}
+  .tabs a[aria-selected="true"]{color:var(--text); border-bottom-color:var(--text); font-weight:500;}
+  .grp{display:flex; gap:12px; align-items:flex-start; margin-bottom:10px;}
+  .grp .lbl{flex:none; width:4.5em; font-size:12.5px; color:var(--text-faint); padding-top:6px;}
+  .chips button[disabled]{opacity:.35; cursor:not-allowed;}
+  .filter{background:var(--panel); border:1px solid var(--line-strong); color:var(--text); padding:6px 11px; border-radius:var(--radius-s); font:inherit; font-size:13px; width:12em;}
+  .filter:focus{outline:none; border-color:var(--text-faint);}
+  select.filter{width:auto;}
+  .chk-in{font-size:13px; color:var(--text-muted); display:flex; align-items:center; gap:6px;}
+  th[data-k]{cursor:pointer; user-select:none;} th[data-k]:hover{color:var(--text);} th.sorted{color:var(--text);}
+  .tag.mk{font-size:11px; padding:0 5px; margin:0 0 0 6px;}
+  .tag.hit{border-color:var(--rise); color:var(--rise); margin:0 4px 0 0; font-size:11px; padding:0 5px;}
+  .sname a{text-decoration:none;} .sname a:hover{color:var(--text);}
+  .why{font-size:12.5px; color:var(--text-faint); margin:-4px 0 12px;}
+  @media (max-width:860px){ .grp{flex-direction:column; gap:4px;} .grp .lbl{padding-top:0;} .tabs{gap:20px;} }
+  .chart{border:1px solid var(--line); border-radius:var(--radius-m); background:var(--panel); padding:10px 8px 4px;}
+  .chart text{fill:var(--text-faint); font-size:11px; font-family:'IBM Plex Mono',monospace;}
+  tbody tr.click{cursor:pointer;} tbody tr.click:hover td{background:var(--panel);}
+
+  .daynav{display:flex; align-items:center; gap:8px; margin-top:18px;}
+  .daynav button{background:none; border:1px solid var(--line-strong); color:var(--text-muted); width:32px; height:32px; border-radius:var(--radius-s); cursor:pointer; font:inherit;}
+  .daynav button:disabled{opacity:.35; cursor:default;}
+  .daynav select{background:var(--panel); border:1px solid var(--line-strong); color:var(--text); padding:5px 10px; border-radius:var(--radius-s); font:inherit; font-size:14px;}
+  .stat .v small{font-size:13px; color:var(--text-faint); margin-left:4px;}
+  td.hl{background:var(--brass-soft);}
+  td b{font-weight:600;}
+  .gpath{display:block; font-size:11.5px; color:var(--text-faint);}
+  .pick{display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--brass); border:1px solid var(--brass); border-radius:var(--radius-s); padding:3px 4px 3px 10px;}
+  .pick button{background:none; border:0; color:inherit; cursor:pointer; font:inherit;}
+  tbody tr.on td{background:var(--brass-soft);}
+  .bar2{display:inline-block; width:56px; height:6px; border-radius:2px; background:var(--line); vertical-align:middle; margin-right:6px; position:relative; overflow:hidden;}
+  .bar2 i{position:absolute; top:0; bottom:0;}
+
+  .spark{display:inline-block; vertical-align:middle;}
+  .spark rect.p{fill:var(--rise); opacity:.8;} .spark rect.n{fill:var(--fall); opacity:.8;}
+  .def{display:grid; grid-template-columns:repeat(2,1fr); gap:12px 28px; margin-top:22px; font-size:13px; color:var(--text-muted);}
+  .def b{color:var(--text); font-weight:500;}
+  @media (max-width:860px){ .def{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="nav-row">
+    <a href="index.html" class="brand"><span class="brand-mark">潮汐</span><span class="brand-sub">籌碼觀測站</span></a>
+    <nav class="gnav"></nav>
+  </div>
+</header>
+<script src="nav.js"></script>
+<main class="wrap">
+  <section class="page-head">
+    <div class="eyebrow">籌碼動向</div>
+    <h1>分點集中度</h1>
+    <p class="desc">每檔股票前 15 大分點買賣超佔成交量多少，看當日、近 5 日、近 20 日。集中度越高，代表買進集中在少數分點、賣出的是零散分點；越負代表大分點在出貨、籌碼往散戶分散。</p>
+    <nav class="ptabs"></nav>
+    <div class="stats" id="stats"></div>
+    <div class="def">
+      <div><b>集中度</b>＝（區間淨買超前 15 名分點合計 − 淨賣超前 15 名合計）÷ 區間成交張數。5、20 日是每個分點區間內的淨張數加總後重新排前 15 名，不是每天前 15 名直接相加。</div>
+      <div><b>家數差</b>＝買超家數 − 賣超家數，要全部分點的資料，免費來源拿不到（見頁尾），有資料後會自動多出這幾欄。</div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>全市場排名</h2><span class="hint" id="hint"></span></div>
+    <div class="toolbar">
+      <div class="chips" id="win">
+        <button data-v="1" aria-pressed="false">當日</button>
+        <button data-v="5" aria-pressed="true">近 5 日</button>
+        <button data-v="20" aria-pressed="false">近 20 日</button>
+      </div>
+      <div class="chips" id="view">
+        <button data-v="cin" aria-pressed="true">籌碼集中</button>
+        <button data-v="cout" aria-pressed="false">籌碼分散</button>
+      </div>
+    </div>
+    <div class="toolbar">
+      <div class="chips" id="mk">
+        <button data-v="" aria-pressed="true">上市＋上櫃</button>
+        <button data-v="上市" aria-pressed="false">上市</button>
+        <button data-v="上櫃" aria-pressed="false">上櫃</button>
+      </div>
+      <div id="liq"></div>
+      <label class="chk-in"><input type="checkbox" id="noetf" checked> 排除 ETF</label>
+      <input class="filter" id="q" type="search" placeholder="搜尋代號或名稱" autocomplete="off" aria-label="搜尋個股">
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead id="head"></thead>
+      <tbody id="body"></tbody>
+    </table></div>
+    <button class="more" id="more" hidden>顯示更多</button>
+    <p class="note" id="note">
+      「籌碼集中」先依集中度由高到低排，「籌碼分散」由低到高；點欄位標題可改排序。走勢小圖是近 20 個交易日每天的集中度（紅＝正、綠＝負）。
+      點股票名稱看個股綜合查詢，點「分點 →」看當天前 15 大分點明細。成交值濾網以近 5 日平均成交金額計（全站共用）；搜尋時不套用濾網。<br>
+      資料限制：分點資料來自富邦證券「券商分點進出」，每天只公布每檔前 15 大買超與前 15 大賣超分點，只抓當天成交金額 3,000 萬以上的股票（約 900 檔）。
+      5、20 日集中度把每個分點每天上榜的張數加總，某天沒上榜就當 0，所以是近似值；分點資料從 2026/09/30 開始。
+      買賣家數需要全部分點：證交所、櫃買的全部分點查詢有驗證碼，富邦的分點明細每個分點只列前 50 檔（試掃 888 個分點有 809 個滿 50 檔，家數嚴重低估），
+      目前只有付費的 FinMind 分點資料能算。
+    </p>
+  </section>
+</main>
+<footer class="site"><div class="wrap"><p class="note" style="margin:0">資料僅供參考。</p></div></footer>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fx = (v, d = 0) => v == null ? "–" : (+v).toLocaleString("zh-TW", {minimumFractionDigits: d, maximumFractionDigits: d});
+const cls = v => v == null ? "faint" : v > 0 ? "up" : v < 0 ? "down" : "flat";
+const sgn = (v, d = 0) => v == null ? `<span class="faint">–</span>` : `<span class="${cls(v)}">${v > 0 ? "+" : ""}${fx(v, d)}</span>`;
+const isEtf = c => /^0/.test(c);
+const dTxt = d => { const w = "日一二三四五六"[new Date(d + "T00:00:00Z").getUTCDay()]; return `${d.replaceAll("-", "/")}（${w}）`; };
+
+const S = {win: 5, view: "cin", mk: "", noetf: true, q: "", k: null, dir: -1, n: 100};
+let D = null, ROWS = [];
+
+let COLS = [];
+const setCols = () => {
+  COLS = [["name", "股票", 0], ["close", "收盤", 1, 1], ["r", "區間漲跌", 1], ["c", "集中度", 1], ["t", "前15大買賣超(張)", 1]]
+    .concat(D.has_count ? [["b", "買超家數", 1], ["s", "賣超家數", 1], ["d", "家數差", 1]] : [])
+    .concat([[null, "每日集中度", 0], [null, "", 0]]);
+};
+
+const spark = h => {
+  const v = (h || []).slice(-20), m = Math.max(1, ...v.map(x => Math.abs(x || 0)));
+  const w = 4, gap = 1, H = 22, mid = H / 2;
+  return `<svg class="spark" width="${v.length * (w + gap)}" height="${H}" aria-hidden="true">` + v.map((x, i) => {
+    if (x == null || !x) return "";
+    const h = Math.max(1, Math.abs(x) / m * (mid - 1));
+    return `<rect class="${x > 0 ? "p" : "n"}" x="${i * (w + gap)}" y="${x > 0 ? mid - h : mid}" width="${w}" height="${h}"/>`;
+  }).join("") + "</svg>";
+};
+
+const ratio = v => {
+  if (v == null) return `<td class="n mono" data-v=""><span class="faint">–</span></td>`;
+  const a = Math.abs(v), t = `<span class="${cls(v)}">${v > 0 ? "+" : ""}${fx(v, 1)}%</span>`;
+  return `<td class="n mono${a >= 20 ? " hl" : ""}">${a >= 10 ? `<b>${t}</b>` : t}</td>`;
+};
+
+function rowsFor(){
+  const k = S.win, i = n => D.cols.indexOf(n);
+  return D.rows.map(r => ({
+    code: r[0], name: r[1], market: r[2], close: r[3], chg: r[4],
+    b: r[i("b" + k)], s: r[i("s" + k)], d: r[i("d" + k)], c: r[i("c" + k)], t: r[i("t" + k)], r: r[i("r" + k)],
+    h: (D.hist[r[0]] || [[]])[0],
+  }));
+}
+
+function filtered(){
+  const q = S.q.trim().toLowerCase();
+  return ROWS.filter(r => (!S.mk || r.market === S.mk) && (!S.noetf || !isEtf(r.code)) &&
+    (q ? (r.code.toLowerCase().startsWith(q) || r.name.toLowerCase().includes(q)) : TideLiq.pass(r.code)));
+}
+
+function sorted(rows){
+  const k = S.k || "c", dir = S.k ? S.dir : (S.view === "cin" ? -1 : 1);
+  return rows.slice().sort((a, b) => {
+    const x = a[k], y = b[k];
+    if (x == null || y == null) return x == null && y == null ? 0 : x == null ? 1 : -1;
+    return (typeof x === "string" ? x.localeCompare(y, "zh-Hant") : x - y) * dir;
+  });
+}
+
+function render(){
+  const nd = D.win[[1, 5, 20].indexOf(S.win)];
+  const rows = sorted(filtered());
+  const sk = S.k || "c", sd = S.k ? S.dir : S.view === "cin" ? -1 : 1;
+  $("head").innerHTML = "<tr>" + COLS.map(([k, t, n, hs]) => {
+    const c = [n ? "n" : "", k === sk ? "sorted" : "", hs ? "hide-s" : ""].filter(Boolean).join(" ");
+    return `<th${c ? ` class="${c}"` : ""}${k ? ` data-k="${k}"` : ""}>${t}${k === sk ? (sd > 0 ? " ▲" : " ▼") : ""}</th>`;
+  }).join("") + "</tr>";
+  $("body").innerHTML = rows.slice(0, S.n).map(r => `<tr>
+    <td class="sname"><a href="stock.html#s=${r.code}">${esc(r.name)}<span class="mono">${r.code}</span></a></td>
+    <td class="n mono hide-s">${fx(r.close, r.close < 50 ? 2 : 1)}</td>
+    <td class="n mono">${sgn(r.r, 1)}%</td>
+    ${ratio(r.c)}
+    <td class="n mono">${sgn(r.t)}</td>${D.has_count ? `
+    <td class="n mono">${fx(r.b)}</td>
+    <td class="n mono">${fx(r.s)}</td>
+    <td class="n mono">${sgn(r.d)}</td>` : ""}
+    <td>${spark(r.h)}</td>
+    <td><a class="toggle" href="broker.html?s=${r.code}&date=${D.date}">分點 →</a></td>
+  </tr>`).join("") || `<tr><td colspan="${COLS.length}" class="empty">沒有符合條件的股票</td></tr>`;
+  $("more").hidden = rows.length <= S.n;
+  $("hint").textContent = `${dTxt(D.date)}・${nd < S.win ? `資料只有 ${nd} 天・` : ""}共 ${rows.length} 檔`;
+}
+
+function stats(){
+  const base = ROWS.filter(r => !isEtf(r.code) && TideLiq.pass(r.code) && r.c != null);
+  const top = base.slice().sort((a, b) => b.c - a.c)[0], low = base.slice().sort((a, b) => a.c - b.c)[0];
+  const big = base.slice().sort((a, b) => b.t - a.t)[0];
+  const pos = base.filter(r => r.c >= 10).length;
+  const lbl = S.win === 1 ? "當日" : `近 ${S.win} 日`;
+  $("stats").innerHTML = [
+    [`${lbl}集中度最高`, top ? `${esc(top.name)} <small class="up">+${fx(top.c, 1)}%</small>` : "–", top ? `前15大淨買 ${fx(top.t)} 張・區間 ${top.r > 0 ? "+" : ""}${fx(top.r, 1)}%` : ""],
+    [`${lbl}集中度最低`, low ? `${esc(low.name)} <small class="down">${fx(low.c, 1)}%</small>` : "–", low ? `前15大淨賣 ${fx(-low.t)} 張・區間 ${low.r > 0 ? "+" : ""}${fx(low.r, 1)}%` : ""],
+    [`${lbl}前15大淨買最多`, big ? `${esc(big.name)} <small class="up">+${fx(big.t)}</small>` : "–", big ? `集中度 ${big.c > 0 ? "+" : ""}${fx(big.c, 1)}%` : ""],
+    ["集中度 ≥ 10% 的股票", `${fx(pos)}<small>／${fx(base.length)} 檔</small>`, "符合成交值濾網、不含 ETF"],
+  ].map(([k, v, s]) => `<div class="stat"><div class="k">${k}</div><div class="v mono" style="font-size:20px">${v}</div><div class="s">${s}</div></div>`).join("");
+}
+
+const chips = (id, key, num) => $(id).addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  S[key] = num ? +b.dataset.v : b.dataset.v; S.n = 100;
+  if (key === "view") S.k = null;
+  $(id).querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  if (key === "win") { ROWS = rowsFor(); stats(); }
+  render();
+});
+chips("win", "win", true); chips("view", "view"); chips("mk", "mk");
+$("noetf").onchange = e => { S.noetf = e.target.checked; render(); };
+$("q").oninput = e => { S.q = e.target.value; S.n = 100; render(); };
+$("more").onclick = () => { S.n += 200; render(); };
+$("head").addEventListener("click", e => {
+  const th = e.target.closest("th[data-k]"); if (!th) return;
+  const k = th.dataset.k, cur = S.k || "c";
+  S.dir = k === cur ? -(S.k ? S.dir : S.view === "cin" ? -1 : 1) : (k === "name" ? 1 : -1);
+  S.k = k; render();
+});
+TideLiq.mount("liq", () => { if (D) { stats(); render(); } });
+
+fetch("data/broker/conc.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
+  D = d; setCols(); ROWS = rowsFor();
+  const s = new URLSearchParams(location.hash.slice(1)).get("s");
+  if (s) { S.q = s; $("q").value = s; }
+  stats(); render();
+}).catch(() => { $("body").innerHTML = `<tr><td class="empty">資料載入失敗</td></tr>`; });
+</script>
+</body>
+</html>

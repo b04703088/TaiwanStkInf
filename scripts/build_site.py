@@ -13,6 +13,7 @@
   data/events.json                   市場行事曆：美台經濟數據、央行、財報法說、結算、指數、出關、除權息（見 scripts/events_site.py）
   data/health.json                   資料健檢結果（見 scripts/health.py）
   data/broker/days.json, <日期>.json  券商分點前 15 大（見 scripts/broker_site.py）
+  data/broker/conc.json              每檔前 15 大分點集中度 1／5／20 日（有全分點資料時加買賣家數）（見 scripts/conc_site.py）
   data/broker/watch.json             重點分點（config/broker_watch.csv）近 60 個交易日
   data/broker/local.json             地方分點（排除外資、凱基-台北、總公司）買賣超金額排行，近 1／5／10／20 日
   data/analyst/analyst.json          FactSet 共識與外資報告（見 scripts/analyst_site.py）
@@ -91,6 +92,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import etf_site  # noqa: E402
 import health  # noqa: E402
 import broker_site  # noqa: E402
+import conc_site  # noqa: E402
 import cb_site  # noqa: E402
 import cb_broker_site  # noqa: E402
 import industry_site  # noqa: E402
@@ -182,6 +184,7 @@ def build(out: Path, days: int) -> list[str]:
     broker_site.write_site(ROOT / "data", out, days=20)
     broker_site.write_watch(ROOT / "data", ROOT, out, days=60)
     broker_site.write_local(ROOT / "data", out, days=20)
+    conc_site.write(ROOT / "data", out / "data" / "broker" / "conc.json")
     cb_site.write_cb(ROOT / "data", out / "data" / "cb" / "cb.json")
     cb_broker_site.write_cb_broker(ROOT / "data", ROOT, out / "data" / "cb" / "broker.json")
     industry_site.write_industry(ROOT / "data", out / "data" / "industry" / "industry.json")
