@@ -1,0 +1,416 @@
+[p.1]
+  愛普科技股份有限公司
+2026年第三季法人說明會
+  2026/11/10
+
+[p.3]
+  公司基本資料
+  ⚫  專注提供全球客戶客製化記憶體設計及解決方案之IC設計公司
+  ⚫  總部位於台灣新竹台元科技園區
+  ⚫  美/中/台三地合作研發 ; 台灣營運
+  ⚫  集團人數: ~307人
+  ⚫  2016年於台灣證交所上市
+  ⚫  已發行且流通在外股數: 1.78億股 (每股面額5元)
+  3
+
+[p.4]
+  重要里程碑
+  AP Memory  • Acquired Zentel  Exited specialty  GDR issuance  S-SiCap  • ApSRAM MP
+  founded  Electronics  DRAM business  of US$190M  Interposer (IPC)  • IPD MP
+  • Started S-SiCap  enters  • GDR issuance
+  development  production  of US$416M
+  2011  2017  2020  2022  2024  2026
+  2016  2018  2021  2023  2025
+  Listed on TWSE Started VHM  • VHM enters Kick-off on AI  S-SiCap (IPD)
+  (6531)  3D integration  production  mainstream  qualified for
+  pilot project  • 2-for-1 Stock POC project  substrate
+  split  embedding
+  Note:
+  VHM - Very High-bandwidth Memory; VHMStack - Very High-bandwidth Memory with Multiple Stacked Layers
+  S-SiCap - AP Memory’s Silicon Capacitor technology; IPC - Capacitor in Silicon Interposer; IPD – Discrete Silicon Capacitor
+  4
+
+[p.5]
+  Agenda
+  1  2026Q3 財務報告
+  2  營運狀況 及 未來展望
+  3  Q&A
+  5
+
+[p.6]
+  01
+  2026Q3 財務報告
+
+[p.7]
+  2026 Q3 合併損益表
+  (新臺幣仟元)  3Q26  2Q26  3Q25  QoQ  YoY
+  營業收入(美金仟元)  103,611  74,617  49,770  39%  108%
+  平均匯率(美元/新臺幣)  31.97  31.67  30.03  1%  6%
+  營業收入  3,312,138  100%  2,362,877  100%  1,494,731  100%  40%  122%
+  營業毛利  1,854,800  56%  1,159,329  49%  687,678  46%  60%  170%
+  銷管費用  153,548  5%  117,341  5%  103,870  7%  31%  48%
+  研發費用  346,120  10%  316,316  13%  202,751  14%  9%  71%
+  營業費用  499,668  15%  433,657  18%  306,621  21%  15%  63%
+  營業利益  1,355,132  41%  725,672  31%  381,057  25%  87%  256%
+  外幣兌換利益(損失)  20,392  -  (  24,203 ) (  1% )  263,975  18%  184% (  92% )
+  其他業外收入  91,656  3%  133,424  5%  214,775  14% (  31% ) (  57% )
+  營業外收入  112,048  3%  109,221  4%  478,750  32%  3% (  77% )
+  稅前淨利  1,467,180  44%  834,893  35%  859,807  57%  76%  71%
+  所得稅費用  310,328  9%  167,714  7%  165,537  11%  85%  87%
+  本期淨利  1,156,852  35%  667,179  28%  694,270  46%  73%  67%
+  淨利歸屬於:
+  本公司業主  1,175,789  36%  681,172  29%  706,268  47%  73%  66%
+  非控制權益  ( 18,937 ) ( 1% )  (  13,993 ) (  1% )  (  11,998 ) (  1% ) (  35% ) (  58% )
+  基本每股盈餘(新臺幣元)  7.21  4.18  $4.34  72%  66%
+  加權平均股數(仟股)  163,176  162,978  162,641  0.12%  0.33%
+  7
+
+[p.8]
+  2026 Q3 擬制設算合併損益表: 排除GDR未支用數之相關兌換影響
+  (新臺幣仟元)  3Q26  2Q26  3Q25  QoQ  YoY
+  營業收入(美金仟元)  103,611  74,617  49,770  39%  108%
+  平均匯率(美元/新臺幣)  31.97  31.67  30.03  1%  6%
+  營業收入  3,312,138  100%  2,362,877  100%  1,494,731  100%  40%  122%
+  營業毛利  1,854,800  56%  1,159,329  49%  687,678  46%  60%  170%
+  銷管費用  153,548  5%  117,341  5%  103,870  7%  31%  48%
+  研發費用  346,120  10%  316,316  13%  202,751  14%  9%  71%
+  營業費用  499,668  15%  433,657  18%  306,621  21%  15%  63%
+  營業利益  1,355,132  41%  725,672  31%  381,057  25%  87%  256%
+  外幣兌換利益(損失)  20,392  -  (  2,532 )  -  56,728  4%  905% (  64% )
+  其他業外收入  91,656  3%  133,424  5%  214,775  14% (  31% ) (  57% )
+  營業外收入  112,048  3%  130,892  5%  271,503  18% (  14% ) (  59% )
+  稅前淨利  1,467,180  44%  856,564  36%  652,560  43%  71%  125%
+  所得稅費用  310,328  9%  172,048  7%  124,088  8%  80%  150%
+  本期淨利  1,156,852  35%  684,516  29%  528,472  35%  69%  119%
+  淨利歸屬於:
+  本公司業主  1,175,789  36%  698,509  30%  540,470  36%  68%  118%
+  非控制權益  ( 18,937 ) ( 1% )  (  13,993 ) (  1% )  (  11,998 ) (  1% ) (  35% ) (  58% )
+  基本每股盈餘(新臺幣元)  7.21  $4.29  $3.32  68%  117%
+  加權平均股數(仟股)  163,176  162,978  162,641  0.12%  0.33%
+  8
+COPYRIGHT © 2026 AP MEMORY. All rights reserved.  Note : 所呈現的數據是擬制推估而得，並不反映實際的財務報表資料。
+
+[p.9]
+ 2026.09.30 合併資產負債表
+  2026.09.30  2026.06.30  2025.09.30
+  (新臺幣仟元)  金額  %  金額  %  金額  %
+  資產總計  16,716,074  100%  16,883,261  100%  13,383,314  100%
+  現金及約當現金  8,852,586  53%  9,708,479  58%  5,436,019  41%
+  按攤銷後成本衡量之金融資產  1,536,152  9%  2,559,917  15%  3,835,413  29%
+  應收帳款  1,248,990  8%  792,717  5%  584,186  4%
+  存貨  1,893,717  11%  1,575,622  9%  1,006,189  7%
+  按公允價值衡量之金融資產  371,538  2%  277,867  2%  854,817  6%
+  採用權益法之投資  955,152  6%  950,103  5%  967,306  7%
+  其他資產  1,857,939  11%  1,018,556  6%  699,384  6%
+  負債總計  2,721,325  16%  4,131,371  24%  1,838,905  14%
+  短期借款  -  -  50,000  0%  250,000  2%
+  合約負債  846,967  5%  1,320,592  8%  617,493  5%
+  應付帳款  793,093  5%  717,473  4%  371,334  3%
+  本期所得稅負債  401,958  2%  345,046  2%  154,245  1%
+  應付現金股利  -  -  1,139,671  7%  -  -
+  其他負債  679,307  4%  558,589  3%  445,833  3%
+  權益總計  13,994,749  84%  12,751,890  76%  11,544,409  86%
+  歸屬於本公司業主之權益  13,830,039  83%  12,569,099  75%  11,409,198  85%
+  非控制權益  164,710  1%  182,791  1%  135,211  1%
+  每股淨值(新臺幣元)  84.75  77.04  70.14
+  9
+
+[p.10]
+  季度營收及毛利率趨勢
+  (NT$M)  IoTRAM  VHM  S-SiCap  Gross Margin%
+  4,000  56%  60%
+  52%  53%
+  51%  50%
+  3,500  49%
+  46%  46%  46%  46%  50%
+  44%
+  3,000  42%  573
+  24  40%
+  2,500
+  2,000  638  30%
+  572
+  558  37
+  1,500  54
+  314  2,715  20%
+  103  171  173
+  1,000  24  323  243  66  66  77
+  54  54  1,688
+  1,474  10%
+  1,125  84  1,092  1,104  1,137
+  500  836  907  879  855
+  624
+  -  0%
+  4Q23  1Q24  2Q24  3Q24  4Q24  1Q25  2Q25  3Q25  4Q25  1Q26  2Q26  3Q26
+  10
+
+[p.11]
+  毛利率關鍵影響因素
+  -2.5ppts
+  Inventory
+  +9.5ppts  Write-down
+  Sales
+  Gross
+  Margin
+  Increase
+  56%
+  49%
+  11
+
+[p.12]
+  營業費用
+  R&D Expense  SG&A Expense  Operating Expense Ratio
+  (NT$M)
+  600  35%
+  32%
+  29%  30%
+  500  27%
+  25%
+  154  25%
+  400  22%  22%
+  21%  117
+  19%  19%
+  18%  20%
+  85  111
+  300  18%
+  75  104  15% 15%
+  77  84  84
+  76  69
+  200  80
+  316  346  10%
+  273  271
+  100  205  229  208  203
+  180  188  195  5%
+  158
+  0  0%
+  4Q23  1Q24  2Q24  3Q24  4Q24  1Q25  2Q25  3Q25  4Q25  1Q26  2Q26  3Q26
+  12
+
+[p.13]
+  營業利益及業外收支
+(NT$M)  (NT$M)
+  1500  70%
+  1500
+  Operating Profit  % Operating Margin  Non Operating Profit or Loss  % Non Operating Profit or loss
+  60%  70%
+  49%
+  41%
+  50%
+  1000  1000  50%
+  40%
+  30%  32%
+  30% 28%  31% 28% 31%  26%
+  24%  25%  1,355  23%  30%
+  24%  30%
+  18%
+  500  18% 20%  572  588
+  726
+  500  9%  11%
+  14%  20%
+  2%  4%  3%  10%
+  479
+  381  348  381  364
+  284  271
+  10%
+  366  336
+  228  175  214  259  237
+  0  106  0%
+  0  99  26  109  112  -10
+  4Q23 1Q24 2Q24 3Q24 4Q24 1Q25 2Q25 3Q25 4Q25 1Q26 2Q26 3Q26  4Q23 1Q24 2Q24 3Q24 4Q24 1Q25 2Q25 3Q25 4Q25 1Q26 2Q26 3Q26
+  -30
+  -500  -50
+  (956)  -70
+  -1000  -72%
+  -90
+  -1500  13-11
+
+[p.14]
+  歸屬於母公司之稅後淨利
+  (NT$M)  Net Income attributable to shareholders of the parent  % Net Margin
+  1500  60%
+  49%  47%
+  39%  41%  41%
+  34%  36%
+  32%  32%
+  40%
+  1000  29%
+  26%
+  1,176  20%
+  500
+  706  766  676  681
+  502  0%
+  370  368  370  337  331
+  0
+  4Q23  1Q24  2Q24  3Q24  4Q24  1Q25  2Q25  3Q25  4Q25  1Q26  2Q26  3Q26  -20%
+  -548
+  -500  -40%
+  -41%
+  -1000  -60%
+  14
+
+[p.15]
+ 2026年GDR進度更新
+  ⚫ 訂價日期: 10月12日
+  ⚫ 發行日期: 10月15日
+  ⚫ 發行單位: 7,400,000單位 (14,800,000股普通股), 股權稀釋比例約8.32%
+  ⚫ 發行價格: 每單位GDR價格56.15美元 (每股新臺幣897.61元)
+  ⚫ 發行總金額: 415,510,000美元
+  ⚫ 資金用途: 未來兩年的營運資金需求
+  15
+
+[p.16]
+  02
+  營運狀況 及 未來展望
+
+[p.17]
+  產品線說明
+  IoT + AI = IoTRAM  + S-SiCap +VHM
+  Integrated Passive Devices (“IPD”)
+  InterPosers with S-SiCap (“IPC”)  S-SiCap
+  IPD + IPC
+  VHM
+  (Including  Best memory solutions
+  Best memory for IoT,  VHMStack  )
+  for AI/HPC
+  IoTRAM
+  Second to none.
+  Note:
+  VHM - Very High-bandwidth Memory; VHMStack - Very High-bandwidth Memory with multiple stacked layers
+  S-SiCap - AP Memory’s Silicon Capacitor technology; IPC - Capacitor in silicon interposer ; IPD - Discrete silicon capacitor
+  17
+
+[p.18]
+  IoTRAM  季營收-應用別
+  (NT$M)  Connectivity  Wearable  Video/Audio/Others
+  3,000
+  2,715
+  2,500
+  35%
+  2,000
+  1,688
+  1,474
+  1,500
+  38%  27%
+  1,125  1,092  1,104  1,137  31%
+  1,000  22%  836  907  879  855  24%  24%  27%
+  23%  624  29%  23%  22%  27%  26%
+  28%  29%  31%  33%
+  500  27%  30%  31%  40%  26%  38%
+  55%  36%  42%  36%
+  42%  40%  52%  47%  45%  40%
+  37%  37%
+  -
+  4Q23  1Q24  2Q24  3Q24  4Q24  1Q25  2Q25  3Q25  4Q25  1Q26  2Q26  3Q26
+  18
+
+[p.19]
+  IoTRAM  產品線近況更新
+  ⚫ Customer Forecast Remains Strong, Exceeding Supply Capacity
+  ⚫  IoTRAM supply constraint persists due to limited legacy DRAM capacity.
+  ⚫  Revenue is expected to grow through at least 2027.
+  ⚫ ApSRAM  Applications Broaden Amid Edge-AI Megatrend
+  ⚫  Wearables are leading the way, followed by smart MCUs.
+  ⚫ Stronger Ecosystem Builds Long-term Moat
+  ⚫  Continuing to expand IoTRAM  controller partnership network.
+  19
+
+[p.20]
+  先進封裝領域之IPC/IPD產品布局
+  1. IPCer- Silicon Interposer (“-S”) : ≤ 4 reticles
+  MP volume impacted by fab move during Q3,
+  VHMStackTM  VHMTM  Other
+  Chiplets
+  expected to recover in Q4.
+  SoC  SoC
+  Interposer
+  2. IPD in Substrate (IPD)—
+  (For all varieties of 2.5D/3D HPC packages)
+  Package
+  MP started in 2Q’26, rapid ramp-up started in 3Q’26
+  Substrate  (pulled in from earlier schedule)
+  3. Landside Capacitor (LSC/ IPD)—
+  Capacitor placed on landside of package substrate
+  MP started in 2Q’26 for flagship mobile SoC, AI
+  wearables to follow
+  Note:
+  VHM - Very High-bandwidth Memory; VHMStack - Very High-bandwidth Memory with multiple stacked layers
+  S-SiCap - AP Memory’s Silicon Capacitor technology; IPC - Capacitor in silicon interposer ; IPD - Discrete silicon capacitor
+  20
+
+[p.21]
+  S-SiCap  季營收
+  3Q’26 IPC shipment impacted by fab move,
+  (NT$M)
+  partially offset by IPD shipment increase
+  700
+  638
+  600  558  572  573
+  500
+  400
+  314
+  300
+  200  171
+  103
+  100  55  66
+  40  44
+  14
+  -
+  4Q23  1Q24  2Q24  3Q24  4Q24  1Q25  2Q25  3Q25  4Q25  1Q26  2Q26  3Q26
+  21
+
+[p.22]
+  VHM  季營收
+  (NT$M)  NRE/Licensing/Royalty  Wafer Sales
+  350  323
+  300
+  243
+  250
+  200  173
+  296  150  6
+  150
+  100  84  77
+  66  167
+  54  54  54
+  52  4  37
+  50  24  19  93  23  13  24
+  62  77  5
+  4  32  35  27  31  41  32  5
+  -  20  19
+  4Q23  1Q24  2Q24  3Q24  4Q24  1Q25  2Q25  3Q25  4Q25  1Q26  2Q26  3Q26
+  22
+COPYRIGHT © 2026 AP MEMORY. All rights reserved.  Update:
+
+[p.23]
+  VHM  與 VHMStack  導入時間軸
+  3Q’26
+ 4Q’18  4Q’21  4Q’24  4Q’27
+  ETH/ETC MP/
+  Early Adopter/ETH  AI/HPC Product
+  AI/HPC POC  AI/HPC Product MP
+  Miner Developing  Developing
+  Developing
+  ⚫ VHM introduction  ⚫ ETH/ETC MP  ⚫ Completed VHM
+  ⚫ ETH as an early  >20Kpcs wafers  design for low-latency
+  adopter  shipped  LLM inference
+  ⚫ VHM (1+1)  ⚫ AI/HPC POC projects  accelerator customer
+  supply chain  development  product.
+  development  (VHM / VHMStack )  ⚫ 3D Logic-DRAM
+  manufacturing
+  ecosystem expanding.
+  Note: Ethereum (ETH) and Ethereum Classic (ETC) are crypto currencies with Proof-of-Work consensus mechanism.
+  23
+
+[p.24]
+  未來展望
+  ⚫ Strong Business Growth Expected Through 2027
+  ⚫  IoTRAM  growth continuing, higher density and bandwidth required for wearables and smart MCUs
+  ⚫  IPD revenue growing rapidly; IPC shipment expected to recover by 4Q’26
+  ⚫  VHM  projects execution on track, with MP expected in 2028
+  ⚫ Securing Capacity for 2027 and beyond
+  ⚫  More “Customer Advance Payment” expected to reserve more manufacturing capacity
+  ⚫  Completed GDR issuance to support working capital and future growth
+  24
+
+[p.25]
+  問與答
+IR mail：ir@apmemory.com
+IR Tel：+886-3-5601651

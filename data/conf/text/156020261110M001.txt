@@ -1,0 +1,343 @@
+[p.1]
+2026Q3 中砂公司法人說明會
+  1
+
+[p.3]
+  報告事項
+• Welcome  William Lee 李偉彰, 執行長 / 發言人
+  Tony Pai  白景中, 副總經理 / 代理發言人
+• 公司簡介
+• 2026 第三季營運概況
+• 近期重要事件摘要
+• 近期展望
+• Q&A
+• 附件: 中砂願景, 核心技術及產品, 廠區資訊
+  3
+
+[p.4]
+  1560 KINIK 中砂公司簡介
+ ⚫  成立於1953年; 2005股票上市, TWSE 股票代號 1560
+ ⚫  實收資本額 (2026/11/10): 新台幣 15.2億
+ ⚫  員工人數： 全球 ~2500人. 台灣 ~2000人. 工廠: 台灣*5, 泰國*2, 日本*1
+ ⚫  2025合併營收 81.5億 TWD, EPS=9.28
+ ⚫  2025年三大事業部與子公司主要產品及佔總營收比率.
+  傳統及鑽石砂輪  CMP 鑽石碟  測試及再生矽晶圓
+  營收佔比 23%  31%  46%
+  ABU 砂輪事業部 & 子公司鴻記  DBU 鑽石事業部  SBU 晶圓事業部
+/KTC/MKS/MGT(機械與工具機業..)  (半導體產業)  (半導體產業)
+  4
+
+[p.5]
+  2026 第三季營運概況 (合併財報)
+⚫ 3Q26營收NT$26.9億, QoQ +8.1%, 毛利率42.2%(+2.2 ppt), EPS=3.91
+⚫ 1~3Q26營收NT$74.8億, YoY +25.1%, 毛利率39.3%(+7.4 ppt), EPS=10.35
+⚫ 第三季業外收入(支出) +5.5佰萬, 其中匯兌利益增加 5.2佰萬
+  5
+
+[p.6]
+  3Q’26 各事業部及子公司營收
+ABU: 砂輪事業部  DBU: 鑽石事業部  SBU: 晶圓事業部
+砂輪子公司: 鴻記、KTC、MKS、MGT
+⚫ 全公司: 第三季營收26.9億, QoQ +8.1%. 較2025第三季增加 28.8%.
+⚫ ABU+砂輪子公司: 台灣工具機客戶需求回溫，ABF客戶之鑽石精密模具用量持續增加，
+  泰國廠3Q季營收減少17%，合併季營收-1.9%。
+⚫ DBU: CMP鑽石碟於2/1.6奈米與先進封裝出貨持續上升， 3Q營收季增 11.3%。
+⚫ SBU: 12吋產能40萬片滿載，測試晶圓出貨增加，3Q營收季增 11.6%。
+  Business Unit  3Q25  2Q26  3Q26  wt%  QoQ  YoY
+ ABU+subsidiaries
+  509,168  632,340  620,121  23%  -1.9% 21.8%
+  (Grind Wheel)
+  DBU
+  638,589  782,669  871,111  32%  11.3% 36.4%
+(CMP Diamond Disk)
+  SBU
+  943,521  1,077,658  1,202,441  45%  11.6% 27.4%
+(Test/Reclaim Wafer)
+  Total  2,091,277  2,492,667  2,693,673  100%  8.1% 28.8%
+  Total QoQ %  -1.1%  8.7%  8.1%
+  6
+
+[p.7]
+  1Q–3Q’26 各事業部及子公司營收
+  ABU: 砂輪事業部  DBU: 鑽石事業部  SBU: 晶圓事業部
+  砂輪子公司: 鴻記、KTC、MKS、MGT (MKS/MGT 2025年4月起併入)
+ ⚫ 全公司: 2026 1Q~3Q 營收 74.8億元，YoY +25.1%.
+  Business Unit  1Q~3Q 2025  1Q~3Q 2026  YoY
+ ABU+subsidiaries
+  1,362,162  1,796,016  24%  31.9%
+  (Grind Wheel)
+  DBU
+  1,820,791  2,370,968  32%  30.2%
+(CMP Diamond Disk)
+  SBU
+  2,794,715  3,312,585  44%  18.5%
+(Test/Reclaim Wafer)
+  Total  5,977,668  7,479,569  100%  25.1%
+  7
+
+[p.8]
+3Q26 鑽石碟營收表現(1/2)
+  國內外客戶鑽石碟營收百分比
+  100%
+  80%
+  60%
+  40%
+  20%
+  0%
+  2026 Q2  2026 Q3
+台灣最大單一客戶  62.98%  61.95%
+台灣其他客戶  11.64%  10.85%
+外國客戶  25.38%  27.19%
+  8
+
+[p.9]
+  3Q26 鑽石碟營收表現(2/2)
+• 3Q26 DBU 營收8.7億, QoQ +11.3%。
+• 單一最大客戶先進製程產品 (5奈米以下及先進封裝) 營收比重62%，
+  2nm鑽石碟營收增加 13.5%，先進封裝營收增加 57.3%。
+備註：資料對象為單一最大客戶.
+  9
+
+[p.10]
+  3Q26 晶圓事業部產品別分析
+⚫ SBU第三季營收12.0億元， 12吋產能增加至40萬片滿載，12吋測試晶圓出
+  貨增加，部分產品ASP第三季開始調漲~10%，營收季增 11.6%。
+  10
+
+[p.11]
+  產能規劃與資本支出
+⚫ 2026 資本支出預算增加至 22.6億
+⚫ 擴增鑽石碟月產能至2026年底每月
+  8萬顆/月，2027年底每月11萬顆。
+⚫ 擴增SBU 12吋晶圓月產能至每月40
+  萬片，2027Q3至每月43萬片。
+  鑽石碟產能 (千顆/月)  110 (E)
+  120.0
+  100.0
+  80.0
+  80.0  65.0
+  55.5
+  60.0  45.0  45.5
+  38.0  41.5
+  32.5
+  40.0
+  20.0
+  0.0
+  1Q'25 2Q'25 3Q'25 4Q'25 1Q'26 2Q'26 3Q'26 4Q'26E 4Q'27E
+  鶯歌廠 Yingge  樹林廠 Shulin  Total
+  11
+
+[p.12]
+  近期重要事件摘要
+⚫ 本公司訂定2026年11月10日為2026年第三季員工認股權憑證及可轉債轉換
+  發行新股之增資基準日。第三季執行與轉換合計 1,695,464 股，共募得約新
+  台幣 1.74 億元。實收資本額：增資後總資本額達新台幣 15.20 億元。
+⚫ 本公司於115年9月發行國內第二次無擔保轉換公司債(CB2)，每張新台幣壹
+  拾萬元整共壹萬張，總發行面額新台幣壹拾億元整，全數會用於支應營運周
+  轉，節省利息之支出並強化財務結構提高償債能力。
+⚫ 本公司於2026年11月10日經董事會通過，將購買一新北市之土地廠房標的，
+  以擴增鑽石碟產能及開發先進封裝之鑽石砂輪新產品。
+  12
+
+[p.13]
+  近期展望
+◆ ABU 砂輪事業部與子公司：
+  – 高階砂輪與ABF鑽石精密模具需求將持續成長，營收與毛利穩健上升。
+◆ DBU 鑽石事業部：
+  – 先進製程及先進封裝之鑽石碟需求將逐季持續增加。
+  – 於美系記憶體及IDM客戶將持續增加市占率與逐季放量。
+  – 2026第四季產能目標提高至8萬顆/月，2027年底產能目標達11萬顆。
+◆ SBU 晶圓事業部：
+  – 12吋wafer產能40萬片/月持續滿載，2027Q3將增加至43萬片/月。
+  – 2026Q4起，部分產品價格調漲~10%，加上高階產品組合比重提高，將貢獻
+  營收成長及提高毛利率。
+  13
+
+[p.14]
+  Q & A
+  報告完畢
+  敬請指教
+  中砂投資人服務信箱
+  ir@kinik.com.tw
+  14
+
+[p.15]
+  附件
+◆中砂經營理念
+◆中砂產品介紹
+◆各廠區資訊
+◆榮耀記事
+  15
+
+[p.16]
+企業經營理念使命與願景
+  16
+
+[p.17]
+  從磨石頭到磨半導體
+中砂的70年成長之路與未來展望
+  17
+
+[p.18]
+18
+
+[p.19]
+  Major Product and Business Diagram
+Customer  Semiconductor/Electronics/Optical…  Machinery/Mechanical…
+Industries
+  • CMP Disk  • Grinding Wheel
+ Major  • Test Wafer  • Resin Wheel
+  • Diamond Tool  • Diamond Wheel
+ Products  • Reclaim wafer  • Si/SiC Wheel  • CBN Wheel  • Plating Wheel
+  SBU  DBU  ABU  KTC  Hongia
+  (Semicon.)  (Diamond)  (Abrasive)  (Thailand)  (Taiwan)
+Business
+Unit &
+Subsidiary
+  KINIK Group
+  19
+
+[p.20]
+  中砂產品介紹
+Products Introduction
+  20
+
+[p.21]
+  中砂研磨產品在半導體製程的角色
+  2025年營收新台幣
+  38億  25億
+  測試&  CMP  減薄  晶粒  3D封裝  ABF
+晶棒外  倒角
+  再生晶圓  鑽石碟  切割  磨刀板  研磨砂輪  載板
+圓磨砂輪  砂輪  砂輪
+  刀輪  壓頭
+  晶圓材料  IC元件製造  IC封裝
+  研磨技術 (Grinding Technology by Diamond Abrasive)
+2025年中砂在半導體相關產業的營收約66億元，佔KINIK合併營收約80%，
+  21
+
+[p.22]
+測 試 & 再 生 晶 圓 Te s t / R e c l a i m Wa f e r
+  What is test and reclaim wafer?
+  22
+
+[p.23]
+  測 試 / 再 生 晶 圓 Te s t / R e c l a i m Wa f e r
+  中砂的測試與再生晶圓之製程特色以延性輪磨(Ductile Mode Grinding)加工取
+代傳統研磨(Lapping)加工，目的是降低加工之變質層，減少化學藥品污染，且可提
+高加工精度，為最先進之再生晶圓製程。
+  The features of the KINIK’s test and reclaimed wafers are processed by ductile mode
+grinding used to replace traditional lapping to lower the damaged thickness on the surface
+and for less chemical contamination. The ductile mode grinding is the leading-edge process
+for the high precision reclaimed wafers.
+  23
+
+[p.24]
+  CMP鑽石碟 Diamond Disk
+  CMP (Chemical Mechanical Polish) 化學機械拋光，主要用於先進IC製程中，透過拋光墊與拋
+光液同時透過機械與化學反應加工晶圓表面，達到表面晶圓材料的移除及整體的平坦化，才能接續後
+續製程以及提高良率，進而能循摩爾定律持續微縮IC線寬面積，推展出N5/N3/N2先進製程。而鑽石
+碟的功用就是在拋光晶圓的同時去加工拋光墊，以移除拋光時的副產物及穩定拋光速率並提升良率
+及延長拋光墊使用壽命，是先進IC拋光製程中提升良率及控制成本中非常重要的一環。
+  CMP (Chemical Mechanical Polish) is widely used for advanced IC manufacturing processes
+for surface material removal, smoothing surfaces, and planarization by the polish pad (mechanical)
+and the abrasive slurry (chemical reaction). And the diamond disk (aka pad conditioner)’s
+function is to in-situ dress the polish pad during the process to remove the polish byproduct, to
+maintain a stable pad roughness and remove rate, to improve yield, and to prolong the lifetime of
+the pad.
+  晶圓 wafer
+  Slurry  Diamond Disk
+  拋光液  鑽石碟
+  Polish Pad
+  拋光墊
+  Source: VLSI-Expert
+  23
+
+[p.25]
+  CMP鑽石碟 Diamond Disk
+  中砂鑽石碟用於半導體化學機械研磨製程中修整研磨墊以達到理想移除率及平坦度。
+  KINIK diamond disk is used on semi-conductor CMP process in order to make the pad reach the
+desirable removal rate and uniformity.
+  Conventional Disk
+  DiaGrid®  I-DiaGrid®  S-DiaGrid®
+  Advanced Disk：High Performance / Long Life Time
+  Pyradia®  EDP Disk  CVD -WAVE®  equaDia®
+  (Metal Free)  25
+
+[p.26]
+Increasing Trend of Logic IC CMP Layer Numbers
+  & KINIK’s Diamond Disk Market Share
+  Global CMP Diamond Disk Market Size and Kinik’s Market Share Trends (2020-2026)
+  Source: SEMI, QY Research, and Kinik internal financial data and estimates; compiled by Kinik.
+  26
+
+[p.27]
+  KINIK CMP Module Lab
+  Co-creation Platform (Now)
+As Is
+  27
+
+[p.28]
+  EDP Disk for Metal Free Solution
+⚫ Diamond disk protected with EDP film for metal-free requested in
+  advanced IC technologies.
+  28
+
+[p.29]
+  equaDia Disk® 鑽石碟
+⚫ Advanced disk “equaDia” for excellence tip height leveling and longer lifetime.
+  29
+
+[p.30]
+  Metal-free O-Pyradia® 鑽石碟
+  ⚫ O-Pyradia CMP pad conditioner for advanced customer’s tightened metal
+  contamination control.
+  Pyradia Type  O-Pyradia  Pyradia
+  Tip
+  Height
+  Control  Photo
+  Material of Substrate  Polymer  Metal
+ Strong  Metal
+  O-Pyradia
+Diamond  Free  LM(Ni ; Cr
+  Bonding Material  Polymer
+  powder)
+  Bonding Strength  +  ++
+  Process Temp  <100 degree  ~1000 degree
+  UPDST /
+  Laser  Diamond Strength  ++  +
+  Stick  Acid and alkali
+  Metal Free  Ni ; Cr
+  resistant
+  30
+
+[p.31]
+  Wafer Grinding Wheel
+⚫ 中砂的晶圓研磨砂輪可用於矽晶圓加工、IC封裝(WLP/PLP/2.5D/3D)、碳化矽、藍寶石及
+  再生晶圓等硬脆材料的直立式進給研磨加工應用。晶圓研磨砂輪的鑽石粒度一般為#325～
+  #1000及#2000～#8000~#30000。其特色為有穩定的高材料移除率、長效使用壽命及低
+  研磨阻抗電流等優點。
+⚫ The Wafer grinding wheels are used in the in-feed grinding process of
+  semiconductor wafers such as Si, SiC, and advanced 2.5D/3D package
+  (Cu/compound…etc.). The diamond size for rough and finish grinding processes are
+  #325～#1000 and #2000～#8000 respectively. The features of these wafer grinding
+  wheels are stable high removal rate, long lifetime and lower grinding resistance.
+  Wafer Grinding Wheels  Porous microstructure  31
+
+[p.32]
+  精密模具鑽石鍍膜
+  Precision mold with Diamond-Like Carbon (ADLC) Coating
+⚫ ADLC film thickness: 1~3um.
+⚫ High wear resistant, anti-sticking, super hard, low friction
+  coefficient.
+⚫ Application: ABF solder bonding tool.
+  32
+
+[p.33]
+  廠區 Plant Information
+• Manufacturing Plants: Taiwan x5; Thailand x2. Japan x1
+• Grind Wheel: ABU(Yingge), Hongia(Hsinchu), KTC Thailand,
+  MGT Thailand, MKS Japan
+• Diamond Disk: DBU (Yingge & Shulin, Taiwan)
+• Reclaim Wafer: SBU (Zhubei & Hsinchu Science Park, Taiwan)
+  33
