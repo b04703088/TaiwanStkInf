@@ -1,0 +1,329 @@
+[p.1]
+  Stock Symbol: 3167
+Ta Liang Technology Co., Ltd.
+  2026, Nov.
+  1
+
+[p.3]
+Company
+  Profile
+  3
+
+[p.4]
+Company Overview
+Stock Symbol  3167
+Capital  NTD 914,453,950
+Chairman  Laurie Wang
+General manager  Eric Yu
+  No. 68, Fengtian Rd., Bade Dist. Taoyuan City,
+Headquarter
+  Taiwan (R.O.C.)
+Factories  Bade、Nanjing、Lianshui
+  4
+
+[p.5]
+Vertically integrate intelligence, control logic & motion
+  Fully control of the roadmap
+  Intelligence is invented
+  Pre-tuned to our machine's exact mechanics
+  Independent of supplier release cycles
+  1980  2012  2018
+  Founded
+  Hardware is sourced  Vision alignment  Semiconductor BU
+  Z
+  XY table  Chassis  Depth  Dust & cooling  CCD  Sensors
+  High-speed
+  control
+  spindle  5
+
+[p.6]
+  Group Structure & Accountability
+  Board of Directors
+  Audit Committee
+  Remuneration Committee
+  Sustainability Committee
+  Chairman
+  Laurie Wang
+  Ta Liang Advanced
+Intek Technology  Nanjing Taliang  Ta Liang Technology  Ta Liang Medtech
+  Smart Technology
+  Co., Ltd.  Technology Co., Ltd.  Co., Ltd.  Co., Ltd.
+  Co., Ltd.
+GM: Jackie Chien  GM: Jackie Chien  GM: Eric Yu  GM: Eric Yu
+  GM: Gary Lee
+  6
+
+[p.7]
+  Production & Service Base
+  Plant  Plant  Service  Agent
+  Nanjing  Lianshui  Kunshan/Wuxi  Korea
+  Service  Agent
+ Dongguan  Japan
+Service/Agent  Agent
+  India  China
+  Service  H.Q.
+  Thailand  R＆D Center
+Service/Agent  Service/Agent  Plant
+  Malaysia  Vietnam  Bade
+  7
+
+[p.8]
+ PCB Drilling/Routing
+Products & Technology
+  8
+
+[p.9]
+  PCB product line
+  Commodity  Premium  Metrology
+  High-throughput baseline  Precision alignment  Specialty / depth-control
+ PCB
+Drilling
+  Standard  CCD Series  StubMapper
+  Back-drilling <±2 mil
+  Binary – pass or fail
+ PCB
+Routing
+  Standard  CCD Series  Trace
+  Trace
+ Edge
+Coater  —  Stub
+  Single Station  Multi Station
+
+[p.10]
+  Scalable expansion
+  Early Production Adoption  Pipeline -> Production  In Production
+  Glass Edge Coater  Multi-probe LayerMapper  Precision router
+  Quadruple TM speed  1.6T optical module
+  <25 µm
+  StubMapper
+  Die  Die  TIA
+  Glass Interposer  AR Glasses
+  WAVEGUIDE
+  1.6T OPTICAL MODULE
+  BONDING PAD PRECISION <25 µm
+Stress suppression  Blocks ambient light
+  10
+
+[p.11]
+Machine revenue Breakdown(2026Q1-Q3)
+  100%
+100%
+  90%
+90%
+80%  80%
+70%  68%  70%
+  62%
+60%  60%
+  High  50%
+50%
+  -end
+40%  40%
+  32%
+  30%
+30%  30%
+20%  20%
+10%  10%  8%
+ 0%  0%
+  standard  High-end  Drilling  Routing  TM
+  11
+
+[p.12]
+Machine Shipment Breakdown (2026Q1-Q3)
+100%  100%
+90%  90%
+80%  80%
+  72%
+70%  70%
+60%  60%
+  53%
+  High
+50%  50%
+  -end
+40%  40%
+  35%
+30%  28%  30%
+20%  20%
+  12%
+10%  10%
+ 0%  0%
+  standard  High-end  Back Drilling  Routing  TM 12
+
+[p.13]
+High-end Machine with CCD
+2000
+1800
+1600
+1400
+  299
+1200
+1000
+ 800
+ 600  1189
+ 400
+ 200  501
+  0
+  2025  2026  2027
+  Shipped  Confirmed  on going
+  13
+
+[p.14]
+PCB Inner Layer Measurement Machine
+ 100
+  90
+  80
+  70
+  60
+  50
+  40  10
+  30
+  51
+  20
+  10  19
+  35
+  0
+  TM2/3  TM2/3  TM4  TM4
+  2025  2026  2026  2027
+  Shipped  Confirmed  on going
+  14
+
+[p.15]
+Semiconductor
+ Products & technology
+  大量先進智能
+  (TLSmart)
+
+[p.16]
+Core Competence
+  Intelligent System  High-Speed Precision
+  Integration  Mechanical Design
+  Core
+  Competence
+  High-Precision  Advanced Motion
+  Metrology & AI  Control Technology
+  Vision
+  16
+
+[p.17]
+Product Line-up
+  Metrology Machine Series
+  AOI Machine Series
+  Automation Machine Series  17
+
+[p.18]
+Product Line-up(by Advance Package application)
+  CPO
+  FOPLP/CoPoS
+  SoIC  • CPO Inspection
+  • Bond Shift_Edge
+  CoW  • CMP Pad Metrology Profile Metrology  Sorting Machine
+  • HBM Incoming AOI
+  • Wafer Trim-gap  • FOPLP Warpage
+  Metrology  Metrology
+  OS  • FORDL Cosmetic AOI
+  • Wafer Flux Jetting AOI • Wafer Bond Shift • FOPLP AOI
+  • Flux Jetting AOI • Wafer Die Bond AOI  Edge Profile
+  • Die Bond AOI  • Wafer Underfill AOI  Metrology
+  • Underfill AOI  • Wafer Edge Die AOI
+  18
+  • Wafer Molding AOI
+  • R2R AOI(FVI)
+
+[p.19]
+CoWoS(2.5D Fabric)
+  19
+
+[p.20]
+  CoW Solution
+  HBM  :Provided By TLSmart
+  Incoming AOI
+ HBM
+ SoC
+ASIC/IPD
+  Wafer Saw  Wafer Die Bond  EFEM + Buffer  Wafer Reflow  Wafer Die Bond AOI
+  Wafer
+FORDL
+  Wafer Underfill
+  Wafer Cosmetic AOI/DUC/
+  Warpage Metrology  Wafer Flux  Wafer Flux Jetting AOI
+  Jetting
+  Wafer Molding AOI/  Wafer Molding  Wafer Underfill AOI
+  Thickness Metrology  Wafer Edge Die AOI  EFEM + Buffer  Wafer Edge Die Bond  Fillet-height Metrology
+
+[p.21]
+CoWoS(3D Fabric)
+  21
+
+[p.22]
+3D IC Solution-SoIC
+  Wafer Bond Shift Edge
+CMP Pad Metrology  Wafer Trim-gap Metrology  Profile Metrology
+  22
+
+[p.23]
+3D IC Solution-FOPLP/CoPoS
+CoPoS Bond Shift_Edge Profile Metrology  FOPLP Warpage Metrology
+  23
+
+[p.24]
+Automation Series
+  EFEM System  Auto Clamp/De-clamp
+  24
+
+[p.25]
+Automation Series
+Carrier Auto-transfer Machine  Auto Lane Changer
+
+[p.26]
+Automation Series
+Auto Loader/Unloader
+  26
+
+[p.27]
+Market Positioning
+  掌握先進封裝與矽光子話語權
+技術與市場切入路徑
+  01  02  03  04
+  CoWoS  SoIC  CoPoS/FOPLP  CPO
+  2.5D  3D  Panel  共同封裝光學
+推出量測與 AOI 設備  提前卡位 3D 封裝量  設備導入Foudry及 OSAT  與㇐線客戶共同開
+獲㇐線大廠驗證放量  測  量測與 AOI 延伸至面板  發㇐體化設備
+  緊隨客戶技術節點  級  佈局矽光子
+  從「檢測設備供應商」升級為「先進封裝製程量測與診斷夥伴」
+  27
+
+[p.28]
+TLSmart Machine classification (2026Q1-Q3)
+ Product Group  Customer segments
+  9%
+  19%
+  18%
+  63%
+  91%
+  AOI  AUTOMATION  METROLOGY  OSAT  Foundry
+  28
+
+[p.29]
+Customer List
+  29
+
+[p.30]
+  30
+ Operational
+Performance
+
+[p.31]
+  Income Statement
+  2026Q3  2026Q1-Q3
+NTD Thousand  YOY  YOY
+  Amount  %  Amount  %
+OPERATING REVENUE  3,671,311  100.00  159.50 8,476,738  100.00  140.20
+GROSS PROFIT  1,841,804  50.17  232.60 3,929,686  46.36  193.99
+OPERATING PROFIT (LOSSES)  1,314,703  35.81  352.13 2,491,032  29.39  292.93
+PROFIT BEFORE INCOME TAX  1,306,010  35.57  341.47 2,507,460  29.58  281.40
+NET PROFIT FOR THE PERIOD  904,728  24.64  320.77 1,729,933  20.41  260.36
+BASIC EARNINGS PER SHARE(NTD)  9.94  309.84  19.24  253.03
+  31
+
+[p.32]
+Thanks for your attention
+  32

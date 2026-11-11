@@ -1,4 +1,6 @@
 date,time,news_id,code,name,kind,year,analysts,prev,value,chg_pct,high,low,target,bull,neutral,bear,close,url
+2026-11-11,12:10,6658336,2049,上銀,eps,2026,16,9.87,10.36,4.96,11,8.82,431,,,,,https://news.cnyes.com/news/id/6658336
+2026-11-11,12:10,6658335,3443,創意,eps,2026,14,59.45,60.42,1.63,63.94,48,9000,,,,,https://news.cnyes.com/news/id/6658335
 2026-11-11,08:10,6657965,2049,上銀,eps,2026,16,9.75,10.18,4.41,11,8.82,430,,,,,https://news.cnyes.com/news/id/6657965
 2026-11-11,08:10,6657964,2891,中信金,eps,2026,9,4.28,4.24,-0.93,4.45,3.78,74,,,,,https://news.cnyes.com/news/id/6657964
 2026-11-11,08:10,6657963,2356,英業達,eps,2026,7,3.72,3.43,-7.8,4.02,3.3,63,,,,,https://news.cnyes.com/news/id/6657963
