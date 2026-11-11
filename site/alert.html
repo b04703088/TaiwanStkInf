@@ -130,6 +130,7 @@
     <div class="block-head"><h2>即將出關</h2><span class="hint" id="exit-hint"></span></div>
     <div class="toolbar">
       <div class="chips" id="exit-n">
+        <button data-v="0" aria-pressed="false">今天出關</button>
         <button data-v="1" aria-pressed="false">明天出關</button>
         <button data-v="3" aria-pressed="true">3 個交易日內</button>
         <button data-v="5" aria-pressed="false">5 個交易日內</button>
@@ -300,7 +301,7 @@ function renderStats(){
   const c30 = new Set(DISP.filter(r => r.ann_date >= addDays(D.generated, -30)).map(r => r.code)).size;
   document.getElementById("stats").innerHTML = [
     ["處置中", live.length, `上市 ${live.filter(r => r.market === "上市").length}・上櫃 ${live.filter(r => r.market === "上櫃").length}`],
-    ["3 日內出關", live.filter(r => !continued(r) && weekdays(TODAY, r.end) <= 3).length, `明天出關 ${live.filter(r => !continued(r) && weekdays(TODAY, r.end) <= 1).length} 檔`],
+    ["3 日內出關", live.filter(r => !continued(r) && weekdays(TODAY, r.end) <= 3).length, `今天出關 ${exitToday().length} 檔・明天出關 ${live.filter(r => !continued(r) && weekdays(TODAY, r.end) <= 1).length} 檔`],
     ["明天可能處置", CAND.length, `差一次注意就處置・${md(D.cand?.date)}`],
     ["最新注意股", today.length, `${md(last)}・近 30 天處置 ${c30} 檔`],
   ].map(([k, v, s]) => `<div class="stat"><div class="k">${k}</div><div class="v mono">${v}</div><div class="s">${s}</div></div>`).join("");
@@ -315,6 +316,8 @@ const pct = (v, d = 1) => v == null ? "–" : (v > 0 ? "+" : "") + v.toFixed(d) 
 const sgn = v => v > 0 ? "up" : v < 0 ? "down" : "flat";
 /* 出關日前（含）又開始新處置的，算接續處置，不列入即將出關 */
 const continued = r => DISP.some(o => o.code === r.code && o.start > r.start && o.start <= r.exit);
+/* 今天出關：處置迄日已過、出關日（迄日後第一個開盤日）就是今天 */
+const exitToday = () => DISP.filter(r => r.exit === TODAY && r.end < TODAY && !continued(r));
 function renderExitStat(){
   const s = D.exitstat, wrap = document.getElementById("xs-wrap");
   if (!s?.groups?.length){ wrap.hidden = true; return; }
@@ -329,17 +332,20 @@ function renderExit(){
   const xg = XG();
   const live = DISP.filter(r => r.start <= TODAY && TODAY <= r.end && !continued(r)).map(r => ({...r, left: weekdays(TODAY, r.end),
     chg: r.close && r.pre_close ? (r.close / r.pre_close - 1) * 100 : null}));
-  const rows = live.filter(r => r.left <= X.k).sort((a, b) => a.end.localeCompare(b.end) || (b.chg ?? -1e9) - (a.chg ?? -1e9));
-  document.getElementById("exit-hint").textContent = `${rows.length} 檔・今天 ${md(TODAY)}`;
+  const rows = X.k === 0
+    ? exitToday().map(r => ({...r, left: 0, chg: r.close && r.pre_close ? (r.close / r.pre_close - 1) * 100 : null})).sort((a, b) => (b.chg ?? -1e9) - (a.chg ?? -1e9))
+    : live.filter(r => r.left <= X.k).sort((a, b) => a.end.localeCompare(b.end) || (b.chg ?? -1e9) - (a.chg ?? -1e9));
+  const closed = X.k === 0 && (HOL.has(TODAY) || [0, 6].includes(new Date(TODAY + "T00:00:00Z").getUTCDay()));
+  document.getElementById("exit-hint").textContent = `${rows.length} 檔・今天 ${md(TODAY)}` + (X.k === 0 ? "・最新收盤＝處置最後一天收盤" : "");
   document.getElementById("exit-body").innerHTML = rows.map(r => `<tr class="click" data-c="${r.code}">
     <td>${stockCell(r.code, r.market)}</td><td class="mono">${md(r.exit)}</td>
-    <td class="n">${r.left <= 1 ? `<span class="tag soon" style="margin:0">今天最後一天</span>` : `<span class="mono">${r.left} 天</span>`}</td>
+    <td class="n">${r.left === 0 ? `<span class="tag" style="margin:0">今天出關</span>` : r.left <= 1 ? `<span class="tag soon" style="margin:0">今天最後一天</span>` : `<span class="mono">${r.left} 天</span>`}</td>
     <td class="mono">${md(r.start)}–${md(r.end)}</td>
     <td class="n mono">${num(r.pre_close)}</td><td class="n mono">${num(r.close)}</td>
     <td class="n mono ${r.chg == null ? "faint" : r.chg > 0 ? "up" : r.chg < 0 ? "down" : "flat"}">${r.chg == null ? "–" : (r.chg > 0 ? "+" : "") + r.chg.toFixed(1) + "%"}</td>
     <td class="n mono hide-s">${ivCell(r.interval)}</td><td class="hide-s">${esc(r.measure)}</td>
     <td class="n">${(g => g ? `<span class="mono ${g.black >= 60 ? "down" : "faint"}">${g.black.toFixed(0)}%</span> <span class="faint">${esc(g.label)}</span>` : "–")(xg[xgroup(r)])}</td></tr>`).join("")
-    || `<tr><td colspan="10" class="empty">這段期間沒有要出關的處置股</td></tr>`;
+    || `<tr><td colspan="10" class="empty">${closed ? "今天休市" : X.k === 0 ? "今天沒有出關的處置股" : "這段期間沒有要出關的處置股"}</td></tr>`;
   bindRows("#exit-body");
 }
 
