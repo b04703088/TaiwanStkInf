@@ -198,14 +198,14 @@ def check(data_dir=ROOT / "data", now=None):
         level = "error" if errs else ("warn" if warns else "ok")
         add("etf", code, name, level, d, "；".join(errs + warns) or msg, **who, **stats)
 
-    # 新上市的主動式 ETF（代號 A 結尾）還沒加進 fetch_etf.py ETF_LIST → 提醒補上
+    # 新上市的主動式 ETF 由 fetch_etf.discover_new_active 自動加入；投信沒有 adapter 的才會留在這裡 → 提醒補上
     if lst.exists() and price_files:
         tracked = {r["etf"] for r in _read(lst)} | ETF_UNTRACKED_OK
         new = [(r["code"], r["name"]) for r in _read(price_files[-1])
                if r.get("code", "").startswith("00") and r["code"].endswith("A") and r["code"] not in tracked]
         if new:
             add("etf", "untracked", "未追蹤的主動式 ETF", "warn", latest_price,
-                "已上市但沒在追蹤清單（fetch_etf.py ETF_LIST）：" + "、".join(f"{c} {n}" for c, n in new))
+                "已上市但沒有抓（新投信要在 etf_adapters.py 寫 adapter）：" + "、".join(f"{c} {n}" for c, n in new))
 
     # ---------- 券商分點 ----------
     bfiles = sorted((f for f in (data_dir / "broker").glob("[0-9][0-9][0-9][0-9]/[0-9]*.csv")
