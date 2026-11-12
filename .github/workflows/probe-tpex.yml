@@ -2,19 +2,11 @@ name: probe tpex intraday
 on:
   push:
     branches: [claude/project-thread-fhjetb]
-    paths: ['.github/workflows/probe-tpex.yml','research/probe_tpex_intraday.py','functions/**']
+    paths: ['.github/workflows/probe-tpex.yml','research/probe_tpex_intraday.py']
 jobs:
-  p:
+  log:
     runs-on: ubuntu-latest
+    timeout-minutes: 240
     steps:
       - uses: actions/checkout@v4
       - run: python -u research/probe_tpex_intraday.py
-      - run: mkdir -p _t && echo '<p>rtbrk test</p>' > _t/index.html
-      - uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy _t --project-name=${{ vars.CF_PAGES_PROJECT || 'tide-stk-infs' }} --branch=rtbrk-test --commit-dirty=true
-      - run: |
-          sleep 20
-          for i in 1 2; do curl -sS -D - "https://rtbrk-test.${{ vars.CF_PAGES_PROJECT || 'tide-stk-infs' }}.pages.dev/api/rtbrk" | head -c 1500; echo; sleep 3; done
