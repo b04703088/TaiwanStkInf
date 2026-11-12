@@ -1,11 +1,9 @@
 {
- "generated": "2026-11-12 09:09",
+ "generated": "2026-11-12 20:10",
  "since": "2024-01-01",
- "programs": 588,
+ "programs": 590,
  "errors": [
-  "ajax_t35sb01 otc 8299: URLError(TimeoutError('timed out'))",
-  "ajax_t35sb01 sii 7769: URLError(TimeoutError('timed out'))",
-  "ajax_t35sb01 sii 6919: URLError(TimeoutError('timed out'))",
-  "達標申報：超過時間上限，剩下的下次再抓"
+  "ajax_t35sb01 otc 6703: URLError(TimeoutError('timed out'))",
+  "ajax_t35sb01 otc 6612: URLError(ConnectionResetError(104, 'Connection reset by peer'))"
  ]
 }

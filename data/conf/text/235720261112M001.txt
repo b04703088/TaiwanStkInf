@@ -1,0 +1,233 @@
+[p.1]
+華碩電腦
+2026年第3季投資人說明會
+
+[p.2]
+  聲明
+  本簡報及同時發佈之相關訊息內含有從公司內部與外部來源所取得的預測
+  性資訊。
+  本公司未來實際所發生的營運結果、財務狀況以及業務展望，可能與這些
+  預測性資訊所明示或暗示的預估有所差異，其原因可能來自於各種本公司
+  所不能掌控的風險。
+  本簡報中對未來的展望，反應本公司截至目前為止對於未來的看法。對於
+  這些看法，未來若有任何變更或調整時，本公司並不負責隨時提醒或更新。
+2
+
+[p.3]
+議程
+• 2026年第3季財務結果
+• 策略與展望
+• 問與答
+
+[p.4]
+2026年第3季財務結果
+
+[p.5]
+  2026年第3季自結品牌損益
+  in NT$ Mn  2026 3Q  2026 2Q  QoQ  2025 3Q  YoY
+  Net Revenue  258,788  241,056  7%  189,907  36%
+  COGS  (217,583)  (201,199)  8%  (165,381)  32%
+  Gross Profit  41,205  39,857  3%  24,527  68%
+  Operating Expenses  (19,241)  (20,219)  -5%  (16,098)  20%
+  Operating Profit  21,964  19,638  12%  8,429  161%
+  Non-OP Items  3,594  5,036  -29%  3,744  -4%
+  Pre-Tax Profit  25,558  24,674  4%  12,173  110%
+  Tax  (3,927)  (5,626)  -30%  (1,617)  143%
+  Net Profit  21,631  19,048  14%  10,556  105%
+  EPS  29.1  25.6  14.2
+  Gross Margin %  15.9%  16.5%  12.9%
+  Operating Margin %  8.5%  8.1%  4.4%
+5
+  (unaudited brand consolidated financials)
+
+[p.6]
+  2026年第3季自結品牌業外損益
+  in NT$ Mn  2026 3Q  2026 2Q  QoQ  2025 3Q  YoY
+  Interest Income (net)  (782)  463  -269%  611  -228%
+  Investment Income  1,732  1,472  18%  1,066  63%
+  Askey  76  156  -51%  (3)  3064%
+  Others  1,656  1,316  26%  1,068  55%
+  Exchange Gain/(Loss)  2,007  1,221  64%  1,245  61%
+  Dividend Income  1,049  1,803  -42%  963  9%
+  FV Change of CB  (300)
+  Other Income (net)  (112)  77  -246%  (141)  20%
+  Total Non-OP items  3,594  5,036  -29%  3,744  -4%
+  6
+(unaudited brand consolidated financials)
+
+[p.7]
+  2026年第3季自結品牌資產負債表
+  in NT$ Mn  Sep 30, 2026  Jun 30, 2026  QoQ  Sep 30, 2025  YoY
+  Cash & equivalents  113,882  70,948  61%  61,972  84%
+  Accounts receivable  161,457  165,363  -2%  122,743  32%
+  Inventories  463,886  339,906  36%  154,544  200%
+  Current Assets  768,359  604,652  27%  381,446  101%
+  Long-term investments  174,612  146,694  19%  112,514  55%
+  Fixed assets  15,449  15,294  1%  14,841  4%
+  Total Assets  1,000,900  803,354  25%  536,955  86%
+  Accounts payable  218,377  194,515  12%  94,130  132%
+  Bank loan & bonds  220,513  88,110  150%  29,500  648%
+  Current Liabilities  624,139  477,637  31%  254,890  145%
+  Total Liabilities  649,430  501,996  29%  279,507  132%
+  Paid-in capital  7,428  7,428  7,428
+  Stockholders' equity  351,470  301,357  17%  257,448  37%
+  Avg. Days of Inventory  196  154  98
+  Avg. Days of AR  67  66  68
+  Avg. Days of AP  105  87  64
+  Avg. CCC Days  159  132  102
+  7
+(unaudited brand consolidated financials)
+
+[p.8]
+  2026年第3季營收組合
+  Business Group  Region
+  8
+(unaudited brand consolidated financials)
+
+[p.9]
+  2026年第4季營運展望
+  • PC QoQ -15%, YoY +15%
+  • Component QoQ -10%, YoY -15%
+  • Server QoQ +100%, YoY +280%
+9
+
+[p.10]
+策略與展望
+
+[p.11]
+  Exceptional Growth x Record-High Revenue
+  +  36%  + 100%  + 25%
+  3Q Revenue YoY  Server 3Q Revenue YoY  PC 3Q Revenue YoY
+  • Hyper-growth in Server and robust order pipeline
+  • PC consistently outperforming the broader industry
+  • Proven execution and operational resilience
+11
+  (unaudited brand consolidated financials)
+
+[p.12]
+  Ubiquitous AI. Incredible Possibilities
+  ASUS AI Ecosystem
+  Cloud & Edge  Local  Client  Physical
+  AI Infrastructure  AI Accelerators  AI PC / Devices  AI Applications
+  Server  NUC  Workstation  AI PC  RTX Spark
+  +100%  +20%  +50%  +100%  No.1  2026/9
+  Repositioned
+  3Q Revenue YoY  3Q Revenue YoY  3Q Revenue YoY  3Q Revenue YoY  Market Share
+  Infrastructure Solutions BG  Open Platform BG  System BG  Physical AI Solutions BG
+12
+  CONFIDENTIAL AND PROPRIETARY INFORMATION
+
+[p.13]
+  Infrastructure Solutions Growth Strategy
+  End-to-End Infrastructure Solutions Provider
+  First-to-Market  Expand Key  Solution-Based
+  on New Platforms  Accounts  Deployment
+  • Next-generation  • Dedicated team to  • Storage solution &
+  platform readiness  support customer  infrastructure solution
+  • New platforms  • Deep engagement  • Customized design &
+  diversification  with key accounts  technical support as a
+  • Develop new accounts  service
+13  CONFIDENTIAL AND PROPRIETARY INFORMATION
+
+[p.14]
+  Driving Next-Gen PC Leadership Through Innovation
+  Empowering Ultimate User Experiences with NVIDIA RTX Spark & DGX Station
+  ASUS ProArt P16/P14
+  Your AI workstation travels with you
+  LAPTOP · ON THE ROAD
+  ASUS ProArt GR1X
+  Agents that keep running after you log off  ExpertCenter Pro ET900N G3
+  MINI PC · AT THE DESK, 24/7  Data-center AI at the desk
+  WORKSTATION ·PRO PERFORMANCE
+14  CONFIDENTIAL AND PROPRIETARY INFORMATION
+
+[p.15]
+  Leading PC Innovation:
+  Premium Dual-Screen Breakthroughs and Enterprise Mobility
+  ASUS ExpertBook A7  Zenbook DUO
+  Ultraslim all-metal Copilot+ PC  TIME Best Inventions of 2026
+  for the modern workday  (Consumer Electronics)
+15
+  CONFIDENTIAL AND PROPRIETARY INFORMATION
+
+[p.16]
+  ROG
+  Boldly building the future, with our fans.
+  Innovation  Community
+  ROG Portfolio  ROG XBOX Ally X20  Gamescom 2026  Spider-Man
+  Fresh ROG gear,  Our 20th anniversary handheld,  Alan Walker and fans  Where blockbuster fandom
+  revealed at Gamescom.  built to dare.  made the booth roar.  meets ROG power.
+16
+  FOR THOSE WHO DARE
+
+[p.17]
+  System Business Group
+  PC Revenue  High-Value Product  Commercial PC Shipments
+  > 25% YoY  Revenue Share > 65%  > 30% YoY
+  2026 Q3
+  Performance
+  Premium
+  •  Solid PC revenue outperformed the industry and expanded market share, driven by operational strength.
+  Business
+  •  Majority of revenue from high-value products, supporting profit resilience.
+  Highlights
+  • Sustained expansion in Commercial PC shipments with over 30% growth.
+17
+  (Source: market research and internal data)
+
+[p.18]
+  Open Platform Business Group
+  OP Revenue  ROG Gaming Ecosystem  Edge AI Systems
+  5% ~ 10% YoY  Revenue YoY  Revenue YoY
+  > 60%
+  2026 Q3  > 50%
+  Performance
+  ~ 20%  ~ 20%
+  •  ROG gaming ecosystem: Display, Gaming and Workspace Gear(GWG) strengthen gaming leadership.
+  Business
+  •  Edge AI momentum: Workstation(WS) segment acceleration and Ascent GX10-driven NUC growth.
+  Highlights
+  •  MB and VGA business has recovered from industry headwinds.
+18
+ (Source: market research and internal data)
+
+[p.19]
+  Infrastructure Solutions Business Group
+  Server Revenue  General Server  ASUS Unveiled XA P2N-E2
+  > 100% YoY  Revenue > 80% YoY  Powered by NVIDIA Vera CPU at
+  OCP 2026
+  Deferred
+  2026 Q3  General
+  Server
+  Performance
+  •  Server sales doubled while Q3 revenue was deferred. Full-year outlook remains unchanged.
+  Business  •  Strong momentum in AI servers drove rapid growth in general servers.
+  Highlights
+  •  At OCP 2026, ASUS launched the XA P2N-E2, a 2U NVIDIA MGX-based server powered by NVIDIA
+  Vera CPUs, designed to accelerate agentic AI.
+19
+  (Source: market research and internal data)
+
+[p.20]
+  Physical AI Solutions Business Group
+  2026 Taipei Automation
+  Ubiquitous AI: Driving the Physical AI Era
+  2026 Q3
+  Performance
+  •  ASUS strengthened Physical AI ecosystem through cross-industry collaborations at Taipei Automation
+  2026 (August 19–22), showcasing real-world smart manufacturing applications.
+  Business
+  Highlights
+20
+  (Source: market research and internal data)
+
+[p.21]
+  Awards and Achievements
+  ASUS Makes TIME’s World’s Best  ASUS Recognized Among  ASUS Named as One of the
+  Companies List for the Third Time,  Newsweek’s World’s Most  Forbes World’s Best Employers
+  Ranked 48th Globally  Trustworthy Companies for the  for the Tenth Consecutive Year
+  Third Consecutive Year
+21
+
+[p.22]
+問與答
