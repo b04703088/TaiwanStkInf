@@ -14,7 +14,8 @@
 
 時間一律換成台灣時間（美東 08:30 數據＝台灣 21:30 或 20:30，盤後 amc 財報＝台灣隔天清晨），
 所以 date 是「台灣日曆上的那一天」。
-輸出 {today, cats, events: [[date, time, cat, region, title, detail, imp(1–3), est, code]]}
+輸出 {today, px_date, cats, events: [[date, time, cat, region, title, detail, imp(0–3), est, code, ret]]}
+  ret 只有台股法說有：[近 1, 5, 20 日漲跌幅 %]（還原權息，算到 px_date 收盤），其他事件是 null
   imp 3＝會動到大盤的（CPI、非農、FOMC、PCE、台灣央行、NVDA 財報、MSCI 審核、季結算），盤後摘要只撈 ≥2
 """
 import csv
@@ -131,6 +132,39 @@ def _liq(data_dir):
     return liq_site.build(files)["v"] if files else {}
 
 
+def recent_returns(data_dir, codes, spans=(1, 5, 20)):
+    """{code: [近 1/5/20 日漲跌幅 %]}（還原權息，同 screen_site），以及最後一個價格日 YYYY-MM-DD。"""
+    import kline_site
+    import screen_site
+    files = sorted((f for f in Path(data_dir).glob("[0-9][0-9][0-9][0-9]/[0-9]*.csv") if len(f.stem) == 8), key=lambda p: p.name)
+    files = files[-(max(spans) + 1):]
+    if not files:
+        return {}, None
+    close = {c: {} for c in codes}
+    for f in files:
+        for r in _read(f):
+            c = r.get("code")
+            if c in close:
+                try:
+                    v = float(r["close"].replace(",", ""))
+                except (KeyError, ValueError, AttributeError):
+                    continue
+                if v > 0:
+                    close[c][int(f.stem)] = v
+    ev = kline_site.load_events(data_dir)
+    days = [int(f.stem) for f in files]
+    out = {}
+    for c, px in close.items():
+        if days[-1] not in px:
+            continue
+        ds = sorted(px)
+        adj = dict(zip(ds, (px[d] * k for d, k in zip(ds, screen_site.factors(ev.get(c), ds)))))
+        last = adj[days[-1]]
+        out[c] = [screen_site._pct(last, adj.get(days[-1 - n])) if len(days) > n else None for n in spans]
+    d = str(days[-1])
+    return out, f"{d[:4]}-{d[4:6]}-{d[6:]}"
+
+
 def tw_calls(data_dir, liq, start, end):
     out, seen = [], set()
     for r in _read(Path(data_dir) / "mops" / "calls.csv"):
@@ -142,6 +176,9 @@ def tw_calls(data_dir, liq, start, end):
         imp = 3 if c == "2330" else 2 if v >= 100 else 1 if v >= CALL_LIQ else 0
         place = (r.get("place") or "").strip()
         out.append([d, (r.get("time") or "")[:5], "earn", "TW", f"{c} {r['name']} 法說會", place, imp, False, c])
+    rets, _ = recent_returns(data_dir, {e[8] for e in out})
+    for e in out:
+        e.append(rets.get(e[8]))
     return out
 
 
@@ -224,9 +261,11 @@ def build(data_dir, root, today=None):
         dd = date.fromisoformat(d)
         if start <= dd <= end and dd.weekday() < 5:
             ev.append([d, "", "hol", "TW", f"台股休市（{nm}）", "", 2, False, ""])
-    ev = [e for e in ev if start.isoformat() <= e[0] <= end.isoformat()]
+    ev = [e + [None] * (10 - len(e)) for e in ev if start.isoformat() <= e[0] <= end.isoformat()]
     ev.sort(key=lambda e: (e[0], e[1] or "99", -e[6], e[4]))
-    return {"today": today.isoformat(), "cats": CATS, "events": ev}
+    files = sorted(f.stem for f in Path(data_dir).glob("[0-9][0-9][0-9][0-9]/[0-9]*.csv") if len(f.stem) == 8)
+    px = f"{files[-1][:4]}-{files[-1][4:6]}-{files[-1][6:]}" if files else None
+    return {"today": today.isoformat(), "px_date": px, "cats": CATS, "events": ev}
 
 
 def upcoming(payload, days=7, min_imp=2):
