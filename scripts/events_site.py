@@ -4,7 +4,8 @@
   macro   美國／台灣經濟數據（config/macro_events.csv，官方年度發布時間表手動維護；est=1 是依往例推估）
   cb      央行：FOMC、台灣央行理監事會（同上 csv）
   rev     上市櫃月營收公布截止（每月 10 日，遇休市順延）
-  earn    美股大廠財報（data/us/earnings.csv，Nasdaq 行事曆）、台股法說會（data/mops/calls.csv，只列大型股）
+  earn    美股大廠財報（data/us/earnings.csv，Nasdaq 行事曆）、台股法說會（data/mops/calls.csv，全部場次；
+          近 5 日均成交值 ≥ CALL_LIQ 的 imp 1，以下 imp 0，頁面預設不顯示，但自選股照樣列）
   settle  台指期月結算（每月第三個週三，遇休市順延；3/6/9/12 月是季結算）
   index   指數審核公告與生效（scripts/calendar_site.py，只列有 300 億以上 ETF 追蹤的、或 MSCI／富時全球指數）
   disp    處置股出關（data/alert/disposal.csv，同一天合併成一列）
@@ -27,7 +28,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 ET, TW = ZoneInfo("America/New_York"), ZoneInfo("Asia/Taipei")
 BACK, AHEAD = 7, 120          # 往前留幾天、往後放幾天
-BIG_LIQ = 30                  # 法說會／除權息只列近 5 日均成交值 ≥ 這個（億）的股票
+BIG_LIQ = 30                  # 除權息只列近 5 日均成交值 ≥ 這個（億）的股票
+CALL_LIQ = 5                  # 法說會：近 5 日均成交值 ≥ 這個（億）＝imp 1（跟法說 memo 門檻一樣），以下 imp 0
 CATS = {"macro": "經濟數據", "cb": "央行", "rev": "月營收", "earn": "財報法說", "settle": "期貨結算",
         "index": "指數調整", "disp": "處置出關", "div": "除權息", "hol": "休市選舉"}
 WD = "一二三四五六日"
@@ -136,10 +138,8 @@ def tw_calls(data_dir, liq, start, end):
         if not (start.isoformat() <= d <= end.isoformat()) or (d, c) in seen:
             continue
         v = liq.get(c, 0)
-        if v < BIG_LIQ and c != "2330":
-            continue
         seen.add((d, c))
-        imp = 3 if c == "2330" else 2 if v >= 100 else 1
+        imp = 3 if c == "2330" else 2 if v >= 100 else 1 if v >= CALL_LIQ else 0
         place = (r.get("place") or "").strip()
         out.append([d, (r.get("time") or "")[:5], "earn", "TW", f"{c} {r['name']} 法說會", place, imp, False, c])
     return out
