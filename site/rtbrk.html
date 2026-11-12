@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101419">
+<title>盤中券商買超｜潮汐</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#101419; --panel:#171C22; --panel-2:#1E242B;
+    --line:rgba(232,237,242,0.09); --line-strong:rgba(232,237,242,0.16);
+    --text:#E8EDF2; --text-muted:#A9B2BC; --text-faint:#8B95A0;
+    --brass:#C6A15B; --brass-soft:rgba(198,161,91,0.14); --rise:#E1594F; --fall:#3FAE72;
+    --radius-s:3px; --radius-m:6px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--ink); color:var(--text);
+    font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
+  h1,h2{font-family:'Noto Sans TC',sans-serif; margin:0; font-weight:700;}
+  h2{font-size:20px;}
+  .mono{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+  a{color:inherit;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
+  header.site{position:sticky; top:0; z-index:40; background:#101419; border-bottom:1px solid var(--line);}
+  .nav-row{display:flex; align-items:center; justify-content:space-between; padding:16px 28px;}
+  .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
+  .brand-mark{font-family:'Noto Sans TC',sans-serif; font-size:22px; font-weight:700;}
+  .brand-sub{font-size:12px; color:var(--text-faint);}
+  .page-head{padding:56px 0 8px;}
+  .eyebrow{font-size:13px; color:var(--brass); margin-bottom:10px;}
+  h1{font-size:32px;}
+  .desc{color:var(--text-muted); font-size:14.5px; margin:12px 0 0; max-width:52em;}
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden; margin-top:28px;}
+  .stat{background:var(--panel); padding:16px 20px;}
+  .stat .k{font-size:12.5px; color:var(--text-muted);}
+  .stat .v{font-size:26px; margin-top:2px;}
+  .stat .v small{font-size:13px; color:var(--text-faint); margin-left:4px;}
+  .stat .s{font-size:12px; color:var(--text-faint);}
+  section.block{margin-top:48px;}
+  .block-head{display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin-bottom:14px; flex-wrap:wrap;}
+  .hint{font-size:12.5px; color:var(--text-faint);}
+  .up{color:var(--rise);} .down{color:var(--fall);} .flat{color:var(--text-muted);}
+  .faint{color:var(--text-faint);}
+  .tbl-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius-m);}
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  th, td{padding:9px 12px; border-bottom:1px solid var(--line); text-align:left; white-space:nowrap;}
+  th{font-size:12px; color:var(--text-muted); font-weight:500; background:var(--panel); position:sticky; top:0;}
+  td.n, th.n{text-align:right;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr.click{cursor:pointer;}
+  tbody tr.click:hover td{background:var(--panel);}
+  tbody tr.sub td{background:var(--panel); font-size:12.5px; padding:6px 12px;}
+  .sname{font-weight:500;}
+  .sname a{text-decoration:none;} .sname a:hover{color:var(--brass);}
+  .sname .mono{font-size:11.5px; color:var(--text-faint); margin-left:6px; font-weight:500;}
+  .tag{display:inline-block; font-size:11px; padding:0 5px; border-radius:var(--radius-s); border:1px solid var(--line-strong); color:var(--text-muted); margin-left:6px;}
+  .tag.fx{border-color:var(--brass); color:var(--brass);}
+  .toolbar{display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin-bottom:12px;}
+  .chips{display:flex; flex-wrap:wrap; gap:6px;}
+  .chips button{background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:5px 11px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .chips button[aria-pressed="true"]{border-color:var(--text-faint); color:var(--text);}
+  .chk-in{font-size:13px; color:var(--text-muted); display:flex; align-items:center; gap:6px;}
+  .refresh{background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:5px 11px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .refresh:hover{color:var(--text);}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:24px;}
+  .sub-h{font-size:14px; color:var(--text-muted); margin:0 0 8px; font-weight:500;}
+  .empty{padding:20px 0; color:var(--text-faint); font-size:13.5px;}
+  .err{margin-top:20px; padding:14px 18px; border:1px solid var(--rise); border-radius:var(--radius-m); color:var(--text-muted); font-size:13.5px;}
+  .note{font-size:12.5px; color:var(--text-faint); margin-top:18px; line-height:1.8;}
+  .caret{display:inline-block; width:1em; color:var(--text-faint);}
+  footer.site{padding:48px 0; margin-top:64px; border-top:1px solid var(--line);}
+  @media (max-width:860px){
+    .nav-row{padding:14px 16px; flex-wrap:wrap; row-gap:10px;}
+    .wrap{padding:0 16px;}
+    .stats{grid-template-columns:repeat(2,1fr);} h1{font-size:26px;}
+    .grid2{grid-template-columns:1fr;}
+    .hide-s{display:none;}
+  }
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="nav-row">
+    <a href="index.html" class="brand"><span class="brand-mark">潮汐</span><span class="brand-sub">籌碼觀測站</span></a>
+    <nav class="gnav"></nav>
+  </div>
+</header>
+<script src="nav.js"></script>
+<main class="wrap">
+  <section class="page-head">
+    <div class="eyebrow">籌碼動向・盤中</div>
+    <h1>盤中上櫃券商買超</h1>
+    <p class="desc">櫃買中心盤中公布的「熱門股證券商進出排行」：上櫃成交最熱的 30 檔股票，每檔前 10 大券商（總公司合計，不分分點）到目前為止的買進、賣出。這裡把它換算成買超，排出前十大，並把外資券商挑出來合計。櫃買大約每個整點更新一次（13:00 不更新，收盤後約 13:45 出全天版），我們每分鐘檢查，有新的就會出現。</p>
+    <nav class="ptabs"></nav>
+    <div class="stats" id="stats"></div>
+  </section>
+
+  <div id="err" class="err" hidden></div>
+
+  <section class="block">
+    <div class="toolbar">
+      <div class="chips" id="unit">
+        <button data-v="vol" aria-pressed="true">張數</button>
+        <button data-v="amt" aria-pressed="false">金額</button>
+      </div>
+      <label class="chk-in"><input type="checkbox" id="auto" checked> 盤中每分鐘自動更新</label>
+      <button class="refresh" id="reload">立即更新</button>
+      <span class="hint" id="upd"></span>
+    </div>
+  </section>
+
+  <section class="block" style="margin-top:20px">
+    <div class="block-head"><h2>買超前十大（個股 × 券商）</h2><span class="hint">30 檔熱門股裡，單一券商在單一股票的買超</span></div>
+    <div class="grid2">
+      <div><div class="sub-h">買超前十大</div><div class="tbl-wrap"><table><thead id="h-buy"></thead><tbody id="b-buy"></tbody></table></div></div>
+      <div><div class="sub-h">賣超前十大</div><div class="tbl-wrap"><table><thead id="h-sell"></thead><tbody id="b-sell"></tbody></table></div></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>外資券商買超前十大</h2><span class="hint">每檔前 10 大券商中外資券商的合計</span></div>
+    <div class="grid2">
+      <div><div class="sub-h">外資券商買超</div><div class="tbl-wrap"><table><thead id="h-fbuy"></thead><tbody id="b-fbuy"></tbody></table></div></div>
+      <div><div class="sub-h">外資券商賣超</div><div class="tbl-wrap"><table><thead id="h-fsell"></thead><tbody id="b-fsell"></tbody></table></div></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>券商合計</h2><span class="hint">各券商在 30 檔熱門股的買超加總</span></div>
+    <div class="grid2">
+      <div><div class="sub-h">合計買超前十大</div><div class="tbl-wrap"><table><thead id="h-bbuy"></thead><tbody id="b-bbuy"></tbody></table></div></div>
+      <div><div class="sub-h">合計賣超前十大</div><div class="tbl-wrap"><table><thead id="h-bsell"></thead><tbody id="b-bsell"></tbody></table></div></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>30 檔熱門股明細</h2><span class="hint">點一列展開前 10 大券商</span></div>
+    <div class="tbl-wrap"><table><thead id="h-all"></thead><tbody id="b-all"></tbody></table></div>
+    <p class="note">
+      資料來源：櫃買中心「盤中指數及熱門資料・熱門股證券商進出排行」（依成交量／依成交金額兩張表），只含等價整股交易。櫃買中心大約整點後 1–2 分鐘更新一次（截至 10:00、11:00、12:00），13:00 沒有更新，收盤後約 13:45 出全天的最後一版；頁首「資料截至」是櫃買公布的統計時間。我們在盤中每分鐘問櫃買一次，有新統計就發布，本頁每分鐘讀一次；櫃買沒更新時數字不會變。<br>
+      限制：只有熱門前 30 檔，每檔只有前 10 大券商，而且是券商總公司合計（例如「元大」是所有元大分點加總），看不到分點；外資券商合計只算有進前 10 大的外資券商，所以是低估值。
+      熱門股家數只有 30 檔，所以沒有套用全站成交值濾網。盤中沒有官方的三大法人即時買賣超，法人資料要等收盤後（見「法人籌碼」）。<br>
+      外資券商：名稱含摩根、高盛、美林、花旗、野村、瑞銀、麥格理、匯立、大和、德意志、匯豐、法銀、瑞信、渣打、興業、里昂、巴克萊、富瑞，或以美商／港商／新加坡商／星洲開頭者。
+    </p>
+  </section>
+</main>
+<footer class="site"><div class="wrap"><p class="note" style="margin:0">資料僅供參考。</p></div></footer>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fx = (v, d = 0) => v == null ? "–" : (+v).toLocaleString("zh-TW", {minimumFractionDigits: d, maximumFractionDigits: d});
+const cls = v => v == null ? "faint" : v > 0 ? "up" : v < 0 ? "down" : "flat";
+const sgn = (v, d = 0) => v == null ? `<span class="faint">–</span>` : `<span class="${cls(v)}">${v > 0 ? "+" : ""}${fx(v, d)}</span>`;
+const FOREIGN = /摩根|高盛|美林|花旗|野村|瑞銀|麥格理|匯立|大和|德意志|匯豐|法銀|瑞信|瑞士信貸|渣打|興業|里昂|巴克萊|富瑞|^美商|^港商|^新加坡商|^星洲/;
+const isF = b => FOREIGN.test(b);
+
+const S = {unit: "vol", open: new Set()};
+let RAW = null, D = null, timer = null, lastFetch = null;
+
+/* 櫃買原始表 → [{rank, code, name, brokers:[{b, buy, sell, net}]}]；金額表單位仟元 → 換成億元 */
+function parseTable(t, scale) {
+  const m = new Map();
+  for (const r of t.data || []) {
+    const mm = /^(\d+)\s*-\s*(.*)\((\w+)\)\s*$/.exec(r[0]);
+    if (!mm) continue;
+    const code = mm[3];
+    if (!m.has(code)) m.set(code, {rank: +mm[1], name: mm[2].replace(/\*$/, ""), code, brokers: []});
+    const buy = +String(r[3]).replace(/,/g, "") * scale, sell = +String(r[4]).replace(/,/g, "") * scale;
+    m.get(code).brokers.push({b: r[2], buy, sell, net: buy - sell});
+  }
+  return [...m.values()].sort((a, b) => a.rank - b.rank);
+}
+function asof(t) {
+  const m = /(\d+)年(\d+)月(\d+)日\s*截至\s*(\d+:\d+)/.exec(t.subtitle || "");
+  return m ? {date: `${+m[1] + 1911}/${m[2].padStart(2, "0")}/${m[3].padStart(2, "0")}`, time: m[4]} : null;
+}
+
+function build() {
+  if (!RAW) return;
+  const t = S.unit === "vol" ? RAW.vol : RAW.amt;
+  const stocks = parseTable(t, S.unit === "vol" ? 1 : 1 / 1e5);
+  const pairs = [], byBroker = new Map();
+  for (const s of stocks) {
+    s.fnet = 0; s.fin = 0;
+    for (const x of s.brokers) {
+      pairs.push({...x, s});
+      if (isF(x.b)) { s.fnet += x.net; s.fin++; }
+      const g = byBroker.get(x.b) || {b: x.b, buy: 0, sell: 0, net: 0, n: 0};
+      g.buy += x.buy; g.sell += x.sell; g.net += x.net; g.n++;
+      byBroker.set(x.b, g);
+    }
+    s.top = s.brokers.reduce((a, x) => x.net > (a ? a.net : -Infinity) ? x : a, null);
+    s.bot = s.brokers.reduce((a, x) => x.net < (a ? a.net : Infinity) ? x : a, null);
+  }
+  D = {stocks, pairs, brokers: [...byBroker.values()], at: asof(t)};
+  render();
+}
+
+const U = () => S.unit === "vol" ? {lbl: "張", d: 0} : {lbl: "億", d: 2};
+const stockCell = s => `<span class="sname"><a href="stock.html#s=${encodeURIComponent(s.code)}" onclick="event.stopPropagation()">${esc(s.name)}</a><span class="mono">${esc(s.code)}</span></span>`;
+const brokerCell = b => `${esc(b)}${isF(b) ? '<span class="tag fx">外資</span>' : ""}`;
+
+function render() {
+  const u = U();
+  const at = D.at;
+  const fTot = D.stocks.reduce((a, s) => a + s.fnet, 0);
+  const fPos = D.stocks.filter(s => s.fnet > 0).length, fNeg = D.stocks.filter(s => s.fnet < 0).length;
+  $("stats").innerHTML = `
+    <div class="stat"><div class="k">資料截至</div><div class="v mono">${at ? at.time : "–"}</div><div class="s">${at ? at.date : ""}${at && at.date !== tpeNow().toISOString().slice(0,10).replaceAll("-","/") ? "・<span class=\"up\">不是今天</span>" : "・櫃買統計時間"}</div></div>
+    <div class="stat"><div class="k">熱門股</div><div class="v mono">${D.stocks.length}<small>檔</small></div><div class="s">每檔前 10 大券商</div></div>
+    <div class="stat"><div class="k">外資券商合計買超</div><div class="v mono">${sgn(fTot, u.d)}<small>${u.lbl}</small></div><div class="s">只算進前 10 大的外資券商</div></div>
+    <div class="stat"><div class="k">外資券商買超／賣超</div><div class="v mono"><span class="up">${fPos}</span> / <span class="down">${fNeg}</span><small>檔</small></div><div class="s">30 檔中的家數</div></div>`;
+
+  const hPair = `<tr><th>#</th><th>股票</th><th>券商</th><th class="n">買超(${u.lbl})</th><th class="n hide-s">買</th><th class="n hide-s">賣</th></tr>`;
+  const rowPair = (x, i) => `<tr><td class="mono faint">${i + 1}</td><td>${stockCell(x.s)}</td><td>${brokerCell(x.b)}</td><td class="n mono">${sgn(x.net, u.d)}</td><td class="n mono hide-s">${fx(x.buy, u.d)}</td><td class="n mono hide-s">${fx(x.sell, u.d)}</td></tr>`;
+  const pb = [...D.pairs].sort((a, b) => b.net - a.net).filter(x => x.net > 0).slice(0, 10);
+  const ps = [...D.pairs].sort((a, b) => a.net - b.net).filter(x => x.net < 0).slice(0, 10);
+  $("h-buy").innerHTML = hPair; $("b-buy").innerHTML = pb.map(rowPair).join("") || empty(6);
+  $("h-sell").innerHTML = hPair; $("b-sell").innerHTML = ps.map(rowPair).join("") || empty(6);
+
+  const hF = `<tr><th>#</th><th>股票</th><th class="n">外資券商買超(${u.lbl})</th><th class="hide-s">外資券商</th></tr>`;
+  const rowF = (s, i) => {
+    const list = s.brokers.filter(x => isF(x.b) && x.net !== 0).sort((a, b) => Math.abs(b.net) - Math.abs(a.net))
+      .map(x => `${esc(x.b)} ${sgn(x.net, u.d)}`).join("、");
+    return `<tr><td class="mono faint">${i + 1}</td><td>${stockCell(s)}</td><td class="n mono">${sgn(s.fnet, u.d)}</td><td class="hide-s" style="white-space:normal;font-size:12.5px">${list}</td></tr>`;
+  };
+  const fb = D.stocks.filter(s => s.fnet > 0).sort((a, b) => b.fnet - a.fnet).slice(0, 10);
+  const fs = D.stocks.filter(s => s.fnet < 0).sort((a, b) => a.fnet - b.fnet).slice(0, 10);
+  $("h-fbuy").innerHTML = hF; $("b-fbuy").innerHTML = fb.map(rowF).join("") || empty(4);
+  $("h-fsell").innerHTML = hF; $("b-fsell").innerHTML = fs.map(rowF).join("") || empty(4);
+
+  const hB = `<tr><th>#</th><th>券商</th><th class="n">合計買超(${u.lbl})</th><th class="n">上榜檔數</th></tr>`;
+  const rowB = (g, i) => `<tr><td class="mono faint">${i + 1}</td><td>${brokerCell(g.b)}</td><td class="n mono">${sgn(g.net, u.d)}</td><td class="n mono">${g.n}</td></tr>`;
+  const bb = D.brokers.filter(g => g.net > 0).sort((a, b) => b.net - a.net).slice(0, 10);
+  const bs = D.brokers.filter(g => g.net < 0).sort((a, b) => a.net - b.net).slice(0, 10);
+  $("h-bbuy").innerHTML = hB; $("b-bbuy").innerHTML = bb.map(rowB).join("") || empty(4);
+  $("h-bsell").innerHTML = hB; $("b-bsell").innerHTML = bs.map(rowB).join("") || empty(4);
+
+  $("h-all").innerHTML = `<tr><th>熱門</th><th>股票</th><th class="n">前10大總買(${u.lbl})</th><th class="n">外資券商買超</th><th>最大買超券商</th><th>最大賣超券商</th></tr>`;
+  $("b-all").innerHTML = D.stocks.map(s => {
+    const on = S.open.has(s.code);
+    const tb = s.brokers.reduce((a, x) => a + x.buy, 0);
+    let h = `<tr class="click" data-c="${esc(s.code)}"><td class="mono faint"><span class="caret">${on ? "▾" : "▸"}</span>${s.rank}</td><td>${stockCell(s)}</td>
+      <td class="n mono">${fx(tb, u.d)}</td><td class="n mono">${s.fin ? sgn(s.fnet, u.d) : '<span class="faint">–</span>'}</td>
+      <td>${s.top && s.top.net > 0 ? `${brokerCell(s.top.b)} <span class="mono">${sgn(s.top.net, u.d)}</span>` : '<span class="faint">–</span>'}</td>
+      <td>${s.bot && s.bot.net < 0 ? `${brokerCell(s.bot.b)} <span class="mono">${sgn(s.bot.net, u.d)}</span>` : '<span class="faint">–</span>'}</td></tr>`;
+    if (on) h += [...s.brokers].sort((a, b) => b.net - a.net).map(x =>
+      `<tr class="sub"><td></td><td>${brokerCell(x.b)}</td><td class="n mono">${fx(x.buy, u.d)}</td><td class="n mono faint">賣 ${fx(x.sell, u.d)}</td><td colspan="2" class="mono">買超 ${sgn(x.net, u.d)}</td></tr>`).join("");
+    return h;
+  }).join("");
+}
+const empty = n => `<tr><td colspan="${n}" class="empty">目前沒有</td></tr>`;
+
+$("b-all").addEventListener("click", e => {
+  const tr = e.target.closest("tr.click"); if (!tr) return;
+  const c = tr.dataset.c; S.open.has(c) ? S.open.delete(c) : S.open.add(c); render();
+});
+$("unit").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  S.unit = b.dataset.v;
+  for (const x of $("unit").children) x.setAttribute("aria-pressed", x === b);
+  build();
+});
+
+/* 台北時間是否在盤中（平日 08:55–13:50，多抓幾分鐘收尾） */
+function tpeNow() { return new Date(Date.now() + 8 * 3600e3); }
+function inSession() {
+  const t = tpeNow(), d = t.getUTCDay(), m = t.getUTCHours() * 60 + t.getUTCMinutes();
+  return d >= 1 && d <= 5 && m >= 8 * 60 + 55 && m <= 14 * 60 + 15;
+}
+/* 資料由 GitHub Actions 盤中每分鐘問櫃買、有更新就推到 live 分支；這裡直接讀那個檔。
+   先用 GitHub API（帶 ETag，沒變時回 304 不算額度），被限流再改讀 raw（CDN 可能慢幾分鐘）。 */
+const API = "https://api.github.com/repos/b04703088/TaiwanStkInf/contents/rtbrk.json?ref=live";
+const RAWURL = "https://raw.githubusercontent.com/b04703088/TaiwanStkInf/live/rtbrk.json";
+async function getData() {
+  try {
+    const r = await fetch(API, {headers: {Accept: "application/vnd.github.raw+json"}, cache: "no-cache"});
+    if (r.ok) return await r.json();
+  } catch (e) {}
+  const r = await fetch(RAWURL + "?t=" + Math.floor(Date.now() / 60000), {cache: "no-cache"});
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  return await r.json();
+}
+async function load() {
+  try {
+    const j = await getData();
+    if (!j || !j.vol) throw new Error("格式不符");
+    RAW = j; lastFetch = new Date();
+    $("err").hidden = true;
+    build();
+  } catch (e) {
+    $("err").hidden = false;
+    $("err").textContent = "讀不到盤中資料（" + e.message + "）。稍後會再試。";
+  }
+  showUpd();
+}
+function showUpd() {
+  const t = lastFetch ? lastFetch.toLocaleTimeString("zh-TW", {hour12: false}) : "–";
+  $("upd").textContent = `上次抓取 ${t}` + ($("auto").checked ? (inSession() ? "・盤中每 60 秒更新" : "・目前非盤中，不自動更新") : "");
+}
+function schedule() {
+  clearInterval(timer);
+  timer = setInterval(() => { if ($("auto").checked && inSession() && !document.hidden) load(); else showUpd(); }, 60000);
+}
+$("auto").addEventListener("change", showUpd);
+$("reload").addEventListener("click", load);
+document.addEventListener("visibilitychange", () => { if (!document.hidden && $("auto").checked && inSession()) load(); });
+load(); schedule();
+</script>
+</body>
+</html>

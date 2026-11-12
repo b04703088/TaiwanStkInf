@@ -1,0 +1,54 @@
+name: Intraday TPEx broker ranking
+
+# 盤中上櫃熱門股券商進出（櫃買「熱門股證券商進出排行」）。
+# 櫃買整點後 1–2 分鐘更新（10:00、11:00、12:00），13:00 不更新，約 13:45 出收盤後全天版。
+# 一個 job 從開盤前跑到拿到全天版（最晚 14:15），每分鐘問櫃買一次，統計時間變了就把 rtbrk.json 強推到 live 分支，
+# 網頁 rtbrk.html 直接讀 live 分支（不經過 Cloudflare 部署）。收盤後把最後一筆存到 data/rtbrk/ 留作回測。
+# GitHub 排程常延遲，所以排了好幾個時間點；同一時間只會有一個在跑，後面排到的會在前一個結束後自己發現已收盤而結束。
+on:
+  schedule:
+    # 台北 08:45、09:05、09:35、10:15、11:15、12:15（UTC 前一格）
+    - cron: "45 0 * * 1-5"
+    - cron: "5 1 * * 1-5"
+    - cron: "35 1 * * 1-5"
+    - cron: "15 2 * * 1-5"
+    - cron: "15 3 * * 1-5"
+    - cron: "15 4 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: intraday-rtbrk
+  cancel-in-progress: false
+
+jobs:
+  rtbrk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Poll TPEx until close
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python -u fetch_rtbrk.py --loop --until 14:15
+
+      - name: Save closing snapshot to main
+        run: |
+          if [ -z "$(git status --porcelain data/rtbrk)" ]; then echo "沒有新的收盤資料"; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/rtbrk
+          # [skip ci]：只是留存，不需要重新部署網站
+          git commit -m "盤中熱門股券商進出 收盤留存 [skip ci]"
+          for i in 1 2 3 4; do
+            git pull --rebase -q origin "${GITHUB_REF_NAME}" && git push -q origin "HEAD:${GITHUB_REF_NAME}" && exit 0
+            sleep $((i * 5))
+          done
+          exit 1
