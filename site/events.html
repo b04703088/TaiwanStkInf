@@ -93,20 +93,20 @@
 <main class="wrap">
   <section class="page-head">
     <h1>市場行事曆</h1>
-    <p class="desc">未來會動到盤的事排成一條時間軸：美國 CPI、非農、PCE、FOMC，台灣央行與出口、外銷訂單，月營收截止，輝達等美股大廠財報與台股大型股法說，台指期結算，指數審核，處置出關與大型股除權息。時間都換成台灣時間。</p>
+    <p class="desc">未來會動到盤的事排成一條時間軸：美國 CPI、非農、PCE、FOMC，台灣央行與出口、外銷訂單，月營收截止，輝達等美股大廠財報與台股法說（自選股一定列），台指期結算，指數審核，處置出關與大型股除權息。時間都換成台灣時間。</p>
     <nav class="ptabs"></nav>
   </section>
   <p class="sec-t">未來 7 天最重要的事</p>
   <div class="hi" id="hi"><span class="faint">載入中…</span></div>
   <div class="bar">
     <span class="seg" id="rng"><button data-v="14" class="on">2 週</button><button data-v="31">1 個月</button><button data-v="120">4 個月</button></span>
-    <span class="seg" id="imp"><button data-v="1">全部</button><button data-v="2" class="on">重要以上</button><button data-v="3">只看大事</button></span>
+    <span class="seg" id="imp"><button data-v="0">全部</button><button data-v="1">一般以上</button><button data-v="2" class="on">重要以上</button><button data-v="3">只看大事</button></span>
     <span class="seg" id="reg"><button data-v="" class="on">美台</button><button data-v="US">美國</button><button data-v="TW">台灣</button></span>
     <label class="lbl"><input type="checkbox" id="past"> 顯示過去 7 天</label>
   </div>
   <div class="bar chips" id="cats"></div>
   <div id="list"></div>
-  <p class="note">● 標記＝會動到大盤的大事（CPI、非農、PCE、FOMC、台灣央行、輝達財報、MSCI 審核、季結算）。「估」＝官方還沒公布確切日期，依往例推估（例如財政部出口通常在月初第 7–9 日、外銷訂單約 20 日）。美國數據依 BLS／BEA／Census／Fed 年度時程表，美股財報依 Nasdaq 行事曆，法說會、除權息只列近 5 日均成交值 30 億以上的股票（除權息另含規模 1000 億以上的 ETF）。指數調整細節看 <a href="calendar.html">指數行事曆</a>，處置出關統計看 <a href="alert.html">處置注意</a>，結算日部位看 <a href="settle.html">結算日套利</a>。</p>
+  <p class="note">● 標記＝會動到大盤的大事（CPI、非農、PCE、FOMC、台灣央行、輝達財報、MSCI 審核、季結算）。「估」＝官方還沒公布確切日期，依往例推估（例如財政部出口通常在月初第 7–9 日、外銷訂單約 20 日）。美國數據依 BLS／BEA／Census／Fed 年度時程表，美股財報依 Nasdaq 行事曆，法說會列出觀測站法說會一覽的全部場次：近 5 日均成交值 100 億以上算「重要」，5 億以上算「一般」，其餘只在「全部」顯示；自選股的法說不管重要度都會列出並標「自選」。除權息只列近 5 日均成交值 30 億以上的股票與規模 1000 億以上的 ETF。指數調整細節看 <a href="calendar.html">指數行事曆</a>，處置出關統計看 <a href="alert.html">處置注意</a>，結算日部位看 <a href="settle.html">結算日套利</a>。</p>
 </main>
 <footer class="site"><div class="wrap"><p class="note" style="margin:0">本頁於每次網站重建時產生。</p></div></footer>
 <script>
@@ -114,19 +114,22 @@ const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;
 const WD = "日一二三四五六";
 const LINK = {index: "calendar.html", disp: "alert.html", settle: "settle.html", rev: "fin.html", div: "screen.html#div"};
 let D = null, st = {rng: 14, imp: 2, reg: "", cats: new Set(), past: false};
-try { const s = JSON.parse(localStorage.getItem("tide.events") || "{}"); if (s.imp) st.imp = s.imp; if (s.rng) st.rng = s.rng; } catch (e) {}
+try { const s = JSON.parse(localStorage.getItem("tide.events") || "{}"); if (s.imp != null) st.imp = s.imp; if (s.rng) st.rng = s.rng; } catch (e) {}
 const save = () => { try { localStorage.setItem("tide.events", JSON.stringify({imp: st.imp, rng: st.rng})); } catch (e) {} };
 const addDays = (iso, n) => { const d = new Date(iso + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
 const md = iso => `${+iso.slice(5, 7)}/${+iso.slice(8, 10)}`;
 const wd = iso => WD[new Date(iso + "T00:00:00Z").getUTCDay()];
+const one = e => e[8] && !e[8].includes(",") && /^\d{4,6}[A-Z]?$/.test(e[8]) ? e[8] : "";
+// 自選股的法說、除權息不管重要度都列
+const mine = e => { const c = one(e); try { return !!c && !!window.TideWatch && TideWatch.has(c); } catch (x) { return false; } };
 function title(e){
-  const c = e[8] && !e[8].includes(",") && /^\d{4,6}[A-Z]?$/.test(e[8]) ? e[8] : "";
+  const c = one(e);
   const t = c ? `<a href="stock.html#s=${esc(c)}">${esc(e[4])}</a>` : LINK[e[2]] ? `<a href="${LINK[e[2]]}">${esc(e[4])}</a>` : esc(e[4]);
-  return t + (e[7] ? '<span class="est">估</span>' : "");
+  return t + (mine(e) ? '<span class="est">自選</span>' : "") + (e[7] ? '<span class="est">估</span>' : "");
 }
 function render(){
   const t = D.today, lo = st.past ? addDays(t, -7) : t, hi = addDays(t, st.rng);
-  const base = D.events.filter(e => e[0] >= lo && e[0] <= hi && e[6] >= st.imp && (!st.reg || e[3] === st.reg));
+  const base = D.events.filter(e => e[0] >= lo && e[0] <= hi && (e[6] >= st.imp || mine(e)) && (!st.reg || e[3] === st.reg));
   const cnt = {}; base.forEach(e => cnt[e[2]] = (cnt[e[2]] || 0) + 1);
   document.getElementById("cats").innerHTML = Object.entries(D.cats).map(([k, v]) =>
     `<button class="chip${st.cats.has(k) ? " on" : ""}" data-k="${k}">${v}<span class="n">${cnt[k] || 0}</span></button>`).join("");
@@ -159,6 +162,7 @@ fetch("data/events.json", {cache: "no-cache"}).then(r => r.json()).then(j => {
     : '<span class="faint">未來 7 天沒有大事。</span>';
   seg("rng", "rng", true); seg("imp", "imp", true); seg("reg", "reg", false);
   render();
+  document.addEventListener("tide:watch", render);
 }).catch(() => { document.getElementById("list").innerHTML = '<p class="faint">行事曆載入失敗</p>'; });
 </script>
 </body>
