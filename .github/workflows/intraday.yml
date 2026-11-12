@@ -14,10 +14,6 @@ on:
     - cron: "15 3 * * 1-5"
     - cron: "15 4 * * 1-5"
   workflow_dispatch:
-  # TEMP：PR 前移除（在工作分支上實測）
-  push:
-    branches: [claude/project-thread-fhjetb]
-    paths: ['.github/workflows/intraday.yml', 'fetch_rtbrk.py']
 
 permissions:
   contents: write
