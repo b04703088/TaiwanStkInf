@@ -1,0 +1,778 @@
+[p.1]
+  © COPYRIGHT INNODISK CORPORATION
+宜鼎國際 (TPEx: 5289) 海外法說會
+董事長 簡川勝 2026.11.12-13
+
+[p.2]
+  © COPYRIGHT INNODISK CORPORATION  P1
+  免責說明
+本簡報及同時發佈之財務業務訊息及預測性資訊，乃是建立在本公司從內部
+及外部來源所取得之資訊基礎。本公司未來實際所發生之營運結果及財務狀
+況可能與這些明示或暗示之預測性資訊有所差異，其原因可能來自於本公司
+無法掌握之各種風險因素。
+本簡報中對未來的展望反映本公司截至目前為止對於未來的看法，對於這些
+看法，未來若有任何變動或調整時，本公司並不負責隨時提醒或更新。
+
+[p.3]
+  © COPYRIGHT INNODISK CORPORATION  P2
+  ▪ 公司簡介與概況
+  ▪ 市場趨勢與產品策略
+議程  ▪ 全球 AI IN ACTION 商務拓展
+  ▪ ESG 永續承諾
+  ▪ 財務資訊
+  ▪ 提問與說明
+
+[p.4]
+  © COPYRIGHT INNODISK CORPORATION  P3
+公司簡介與概況
+
+[p.5]
+公司概況  © COPYRIGHT INNODISK CORPORATION  P4
+營業額  資本額  EPS
+NT$ 615.14億元  NT$9.83億  NT$256.23
+  (~2026 Q3)
+  (~2026 Q3)
+  專利數  客戶數
+  211  4,000+
+
+[p.6]
+  © COPYRIGHT INNODISK CORPORATION  P5
+全球營運佈局
+  東京
+ 加州  北京
+  荷蘭
+  紐澤西
+  濟南 / 杭州 /
+  法國  德國  蘇州 / 上海
+  波士頓
+  韓國
+  成都
+  廣州
+  德州
+  越南  臺灣
+  深圳
+  全球營運總部
+  / 研發製造中心 / 韌體研發中心
+營業地區  全球員工
+25  1,259  台灣：1,111 / 海外：148
+
+[p.7]
+  © COPYRIGHT INNODISK CORPORATION  P6
+ 基地面積  建築面積：一廠  建築面積：二廠  2026 產能  最大產能
+ （平方米）  （平方米）  （平方米）  (SMT x 6)  (SMT x 8)
+  Edge AI 系統與解決方案
+ 27,000  12,000 15,000  Edge AI 嵌入式周邊模組
+  Edge AI 嵌入式相機模組  1,080K 1,440K
+宜蘭科學園區
+研發製造中心
+
+[p.8]
+  © COPYRIGHT INNODISK CORPORATION  P7
+  廠辦空間
+  合計 5,900 坪
+  17F 500 坪 / 安提
+  16F 1,000 坪 / 研發中心、運動活動中心、訓練教室
+  7F 1,000 坪 / 安提 200 坪
+  5F 1,000 坪
+  4F 1,000 坪
+汐止  3F 1,000 坪
+  2F 400 坪 / 安提 200 坪
+全球營運總部
+
+[p.9]
+  © COPYRIGHT INNODISK CORPORATION  P8
+  產能  1,440K / 最大產能 (SMT x 8)
+  ISO9001 / ISO14001 / ISO45001 /
+  認證  QC080000 / ISO14064-1 /
+  ISO27001 / IEC62443-4-1
+  廠區  新北市 / 宜蘭縣
+核心生產製造理念：品質、永續
+
+[p.10]
+  © COPYRIGHT INNODISK CORPORATION  P9
+市場趨勢與產品策略
+
+[p.11]
+  © COPYRIGHT INNODISK CORPORATION  P10
+全面推進高價值 AI 應用市場
+  全球領先記憶體與儲存供應商
+  ▪  HBM, DRAM, NAND Flash
+  大型雲端與 AI 算力
+  基礎建設
+  共同推動全球
+  AI 基礎建設與應用
+  Tier -1 工控與垂直
+  宜鼎的策略目標市場
+  應用市場  高價值 AI 與工控應用
+  ▪  記憶體模組: DDR5, DDR4, CXL
+  ▪  SSDs: Enterprise Boot Drive, Local Storage
+  ▪  邊緣 AI 系統 & 邊緣 AI 伺服器
+  高附加價值
+  工控解決方案市場
+  消費性市場  其他供應商的主要經營範疇
+
+[p.12]
+  © COPYRIGHT INNODISK CORPORATION  P11
+深化 AI 市場布局，擴大產業影響力
+  宜鼎集團全面布局 AI 核心架構
+  ▪  運 算：CPU / GPU / NPU / AI ASIC
+  ▪  記憶體：記憶體模組 (DRAM Module)
+  ▪  儲 存：嵌入式儲存 (Flash Storage)
+  ▪  功耗：熱能源管理
+  ▪  傳輸：光通訊
+
+[p.13]
+  © COPYRIGHT INNODISK CORPORATION  P12
+以堅強實力為後盾，驅動事業持續成長
+扎實產品技術基礎  擴大應用市場滲透率
+◼ 高階記憶體與儲存解決方案  ◼ 資料中心
+◼ 邊緣 AI 系統/應用 整合落地實力  ◼ 智慧網卡 & 網路通訊
+◼ 深度工控市場經驗  ◼ 人形機器人 & 機器人應用
+  ◼ 企業級 AI
+
+[p.14]
+  © COPYRIGHT INNODISK CORPORATION  P13
+以品質與研發實力，奠定高附加價值 AI 成長基礎
+  Tier-1  國際原廠  100% Good Die
+  頂尖供應鏈  技術支援  高品質原物料
+  工控等級  >50%  20+年
+  高穩定性  邊緣 AI 研發團隊  工控領域深耕基礎
+
+[p.15]
+  © COPYRIGHT INNODISK CORPORATION  P14
+宜鼎集團 市場與產品技術佈局 三大核心價值
+  01  02  03
+  市場與應用產生的價值  產品技術與人才的價值  Edge AI 快速整合落地的價值
+AI 加速新一波全球產業變革，重新定義產  專注產品技術與人才發展，宜鼎建構完善  填補技術缺口，憑藉研發實力與全球夥伴
+品、服務與營運的價值創造模式，將產業  的五層 AI 產品技術架構，並在專業人才的  關係，建構多元異質核心算力平台及週邊
+推向代理式與自主化，全面拓展應用邊界、  實踐下，打造高度相容且協同運作的 AI 解  基礎，並結合自主研發的韌體與中介軟體，
+  創造前所未有的產業價值躍升。  決方案，滿足全球客戶多元的應用需求。  串聯終端應用，加速邊緣 AI 快速落地。
+
+[p.16]
+  © COPYRIGHT INNODISK CORPORATION  P15
+宜鼎集團 市場與產品技術佈局 三大核心價值
+  01  02  03
+  市場與應用產生的價值  產品技術與人才的價值  Edge AI 快速整合落地的價值
+AI 加速新一波全球產業變革，重新定義產  專注產品技術與人才發展，宜鼎建構完善  憑藉堅強的技術研發實力與全球夥伴關係，
+品、服務與營運的價值創造模式，將產業  的五層 AI 產品技術架構，並在專業人才的  宜鼎建構多元的異質核心算力平台及週邊
+推向代理式與自主化，全面拓展應用邊界、  實踐下，打造高度相容且協同運作的 AI 解  基礎，並結合自主研發的韌體與中介軟體，
+  創造前所未有的產業價值躍升。  決方案，滿足全球客戶多元的應用需求  串聯終端應用，加速邊緣 AI 快速落地
+
+[p.17]
+  © COPYRIGHT INNODISK CORPORATION  P16
+01 市場與應用產生的價值
+大型雲端
+與 AI 算力基礎建設
+◼ GPU 伺服器 / 網路交換器 / 路由器
+◼ 人形機器人 / 無人自動化
+Tier -1 工控
+與垂直應用市場
+◼ 醫療保健 / 5G / 安防監控 / 媒體娛樂 / 自動化
+◼ Tier-1 市場領導品牌
+高附加價值
+工控解決方案市場
+◼ 製造產業 / 零售物流 / 智慧能源 / 醫療保健 /
+  網路通訊 / 媒體娛樂 / 企業級應用
+
+[p.18]
+  © COPYRIGHT INNODISK CORPORATION  P17
+01 市場與應用產生的價值
+ 大型雲端
+ 與 AI 算力基礎建設
+AI 基礎運算、資料與智慧儲存、高速傳輸與規模化部署的核心架構
+CSP / 資料中心 / AI 加速運算  光通訊 / 網路通訊  機器人 / Physical AI  企業型 AI
+AI 訓練與推論規模持續擴張，推升  AI 資料的傳輸流量高速成長，帶動  AI 技術發展，從網路世界走向實體  企業加速導入生成式 AI 與智慧應用，
+高效能運算、高頻寬傳輸與大容量  低延遲、高頻寬與高可靠傳輸需求；  場域，透過感知、運算與自主決策，  將資料轉化為營運洞察與商業成果，
+儲存需求，帶動相關產品技術呈現  藉由光通訊與網路通訊建設，將能  推動機器人與物理 AI 融入人類決策  同時兼顧資料隱私、內部治理與營
+  指數型成長  支撐 AI 運算需求  與日常運作  運效能優化需求
+
+[p.19]
+  © COPYRIGHT INNODISK CORPORATION  P18
+01 市場與應用產生的價值
+ Tier -1 工控
+ 與垂直應用市場
+定義市場規格，引領產業應用創新、推動 AI 終端應用走向規模化部署
+  健康醫療  網通與電信  安防監控  智慧製造
+AI 加速診斷、治療與照護智慧化，  AI 驅動網路即時分析、智慧調度與  AI 視覺強化即時辨識、事件預警與  從自動化走向 AI 製造，不論 AI 影
+提升醫療精準度與效率，推動先進  自動化維運，提升連線效能與服務  決策，讓安防從被動影像紀錄，走  像辨識或機器人搬運與組裝，AI 正
+ 醫療設備與服務規模化應用  品質，推動各式即時應用決策  向主動預防，提升公共場域安全性  大規模提升整體生產製造效能
+
+[p.20]
+  © COPYRIGHT INNODISK CORPORATION  P19
+01 市場與應用產生的價值
+高附加價值
+工控解決方案市場
+深耕多元工控場域，為全球 4,000+客戶提供客製整合服務，加速高附加價值 AI 應用落地
+  深度場域 Know-how  高度客製整合  高附加價值  長生命週期
+工控應用多元且環境複雜，設備、  設備規格、介面與系統架構高度分  產品差異化與智慧化需求持續提升，  工控設備具有長時間驗證測試與長
+流程與場域條件大相逕庭，高度仰  散，軟硬體整合彈性與客製能力成  AI 與創新技術成為設備升級、強化  使用週期特性，對產品可靠度、供
+ 賴深度產業理解與應用經驗  為專案落地關鍵  終端應用競爭力的重要驅動力  貨穩定性具有高度要求
+
+[p.21]
+  © COPYRIGHT INNODISK CORPORATION  P20
+宜鼎集團 市場與產品技術佈局 三大核心價值
+  01  02  03
+  市場與應用產生的價值  產品技術與人才的價值  Edge AI 快速整合落地的價值
+AI 加速新一波全球產業變革，重新定義產  專注產品技術與人才發展，宜鼎建構完善  憑藉堅強的技術研發實力與全球夥伴關係，
+品、服務與營運的價值創造模式，將產業  的五層 AI 產品技術架構，並在專業人才的  宜鼎建構多元的異質核心算力平台及週邊
+推向代理式與自主化，全面拓展應用邊界、  實踐下，打造高度相容且協同運作的 AI 解  基礎，並結合自主研發的韌體與中介軟體，
+  創造前所未有的產業價值躍升  決方案，滿足全球客戶多元的應用需求  串聯終端應用，加速邊緣 AI 快速落地
+
+[p.22]
+  © COPYRIGHT INNODISK CORPORATION  P21
+02 產品技術與人才的價值
+ Stack 5: 軟體層 (Software)
+  Stack 4: 感測與傳輸層 (Sensing & Comm.)
+ Stack 3: 儲存層 (Storage)
+  Stack 2: 記憶體層 (Memory)
+ Stack 1: 算力層 (Compute)
+
+[p.23]
+  © COPYRIGHT INNODISK CORPORATION  P22
+02 產品技術與人才的價值
+五層技術堆疊 × 深耕各層自研產品技術
+ Stack 5: 軟體層 (Software)
+ Stack 4: 感測與傳輸層 (Sensing & Comm.)
+ Stack 3: 儲存層 (Storage)
+  快速
+ Stack 2: 記憶體層 (Memory)  自研  場域落地
+  客製  韌體加值
+  依場域需求落地，交付完整解決方案
+  工控  系統設計
+  BIOS / BMC / MCU 系統級軟硬體優化與客製服務
+  異質  模組整合
+  工業級結構與散熱設計，加速客戶 Time-to-Market
+  核心算力
+  整合 AI 加速卡、網路卡與影像擷取卡，彈性配置 I/O
+ Stack 1: 算力層 (Compute)
+  高可靠嵌入式平台、工業級記憶體與高階儲存裝置
+
+[p.24]
+  © COPYRIGHT INNODISK CORPORATION  P23
+02 產品技術與人才的價值
+五層技術堆疊 × 深耕各層自研產品技術
+ Stack 5: 軟體層 (Software)
+ Stack 4: 感測與傳輸層 (Sensing & Comm.)
+  全球
+ Stack 3: 儲存層 (Storage)  嚴苛  在地支援
+  領先市場  驗證測試
+  全球在地化技術支援，提供長效
+  工控  研發上市  生命週期保障
+  嚴選工規關鍵零組件，打造最佳相容性
+  韌性  高規選料
+  前瞻性產品研發與高階技術，領先業界推出
+  原廠供應鏈
+ Stack 2: 記憶體層 (Memory)
+  智慧自動化生產，通過嚴苛環境品質驗證
+  多元IC供應鏈，嚴選原廠顆粒打造高品質
+ Stack 1: 算力層 (Compute)
+
+[p.25]
+  © COPYRIGHT INNODISK CORPORATION  P24
+02 產品技術與人才的價值
+五層技術堆疊 × 深耕各層自研產品技術
+ Stack 5: 軟體層 (Software)
+  全生命週期
+ Stack 4: 感測與傳輸層 (Sensing & Comm.)  跨域  保障
+  工控  HW/FW整合
+  提供貫穿產品全生命週期的敏捷、客
+  100%  研發團隊  製化工程支援
+  導入嚴謹的跨領域軟硬體 (HW/FW) 聯合驗證標準
+  戰略  自研開發
+  20年產業經驗，專業研發工程師提供強大技術後盾
+  原廠生態伙伴
+  採用自主開發的高精度測試平台，落實檢驗品質
+ Stack 3: 儲存層 (Storage)  穩定且永續的供應鏈，原廠 Tier-1 核心料源
+ Stack 2: 記憶體層 (Memory)
+ Stack 1: 算力層 (Compute)
+
+[p.26]
+  © COPYRIGHT INNODISK CORPORATION  P25
+02 產品技術與人才的價值
+五層技術堆疊 × 深耕各層自研產品技術
+  多介面
+ Stack 5: 軟體層 (Software)  Sensor  多外型
+  高速傳輸  感測客製
+  涵蓋LAN、Optical、Serial、CAN與
+  自研  智能連接  EtherCAT，並可延伸PCIe、M.2等規格
+  客製化研發及整合能力
+  跨平台  Driver / FW
+  延伸至AI基礎設施的高速連接與資料傳輸市場
+  設計
+ Stack 4: 感測與傳輸層 (Sensing & Comm.)  自主研發易於軟硬體整合導入的產品方案
+  橫跨 x86、NVIDIA、Qualcomm 平台整合經驗
+ Stack 3: 儲存層 (Storage)
+ Stack 2: 記憶體層 (Memory)
+ Stack 1: 算力層 (Compute)
+
+[p.27]
+  © COPYRIGHT INNODISK CORPORATION  P26
+02 產品技術與人才的價值  AI
+  模型推論與  Engine
+五層技術堆疊 × 深耕各層自研產品技術  BIOS / BSP /  訓練工具
+  API / SDK  Driver 客製  透過MCP 串連Agentic AI
+  iVIT-T & iVIT-I工具套件
+  雲端  技術支援
+  設備管理  底層驅動自研客製
+ Stack 5: 軟體層 (Software)  API & SDK & Utility 開發與工具套件
+  iCAP, OTA, OOB遠端管理
+ Stack 4: 感測與傳輸層 (Sensing & Comm.)
+ Stack 3: 儲存層 (Storage)
+ Stack 2: 記憶體層 (Memory)
+ Stack 1: 算力層 (Compute)
+
+[p.28]
+  © COPYRIGHT INNODISK CORPORATION  P27
+02 產品技術與人才的價值  AI
+  模型推論與  Engine
+五層技術堆疊 × 深耕各層自研產品技術  BIOS / BSP /  訓練工具
+  API / SDK  Driver 客製  透過MCP 串連Agentic AI
+  iVIT-T & iVIT-I工具套件
+  雲端  技術支援
+  設備管理  底層驅動自研客製  多介面
+ Stack 5: 軟體層 (Software)  API & SDK & Utility 開發與工具套件  Sensor  多外型
+  iCAP, OTA, OOB遠端管理  高速傳輸  感測客製
+  涵蓋LAN、Optical、Serial、CAN與
+  自研  智能連接  EtherCAT，並可延伸PCIe、M.2等規格
+  客製化研發及整合能力
+  跨平台  Driver / FW
+  延伸至AI基礎設施的高速連接與資料傳輸市場
+  設計  全生命週期
+ Stack 4: 感測與傳輸層 (Sensing & Comm.)  自主研發易於軟硬體整合導入的產品方案  跨域  保障
+  橫跨 x86、NVIDIA、Qualcomm 平台整合經驗
+  工控  HW/FW整合
+  提供貫穿產品全生命週期的敏捷、客
+  100%  研發團隊  製化工程支援
+  導入嚴謹的跨領域軟硬體 (HW/FW) 聯合驗證標準
+  戰略  自研開發
+  20年產業經驗，專業研發工程師提供強大技術後盾
+  原廠生態伙伴  全球
+  採用自主開發的高精度測試平台，落實檢驗品質
+ Stack 3: 儲存層 (Storage)  穩定且永續的供應鏈，原廠 Tier-1 核心料源
+  嚴苛  在地支援
+  領先市場  驗證測試
+  全球在地化技術支援，提供長效
+  工控  研發上市  生命週期保障
+  嚴選工規關鍵零組件，打造最佳相容性
+  韌性  高規選料
+  前瞻性產品研發與高階技術，領先業界推出
+  原廠供應鏈  快速
+ Stack 2: 記憶體層 (Memory)
+  智慧自動化生產，通過嚴苛環境品質驗證
+  自研  場域落地
+  多元IC供應鏈，嚴選原廠顆粒打造高品質  客製  韌體加值
+  依場域需求落地，交付完整解決方案
+  工控  系統設計
+  BIOS / BMC / MCU 系統級軟硬體優化與客製服務
+  異質  模組整合
+  工業級結構與散熱設計，加速客戶 Time-to-Market
+  核心算力
+  整合 AI 加速卡、網路卡與影像擷取卡，彈性配置 I/O
+ Stack 1: 算力層 (Compute)
+  高可靠嵌入式平台、工業級記憶體與高階儲存裝置
+
+[p.29]
+  © COPYRIGHT INNODISK CORPORATION  P28
+ Stack 1: 算力層 (Compute)
+Powered by  NVIDIA  Qualcomm  Intel
+  10,000 TOPS
+  APEX-S100
+  企業級 AI 運算
+  APEX-X100
+  ◼  企業級 AI 平台  ◼  Fine-Tuning（模型微調）
+  ◼  AI 多代理協作  ◼  70B+ LLM 部署
+  APEX-P100
+  ◼  RAG（檢索增強生成）
+  AIB-AT78/68  1,000 TOPS
+  進階 AI 推論
+  APEX-X200
+  ◼  多相機 AOI  ◼  醫學影像
+  APEX-X100-Q  ◼  瑕疵分類與檢測  ◼  代理式 AI
+  ◼  機器視覺
+  APEX-P300  AIE-PX11/12/21/22
+  邊緣視覺分析
+  APEX-P200  ◼  監控影像分析  ◼  人流分析
+  ◼  智慧零售  ◼  自主移動機器人（AMR）
+  APEX-E300  ◼  自動光學檢測（AOI）
+  APEX-A100  100 TOPS
+  基礎邊緣 AI 推論
+  ◼  影像分類  ◼  車牌辨識
+  ◼  人臉辨識  ◼  單一物件偵測
+  APEX-E100  ◼  光學字元辨識（OCR）
+  (TOPS @ INT8)
+
+[p.30]
+  © COPYRIGHT INNODISK CORPORATION  P29
+  Stack 2 & 3: 記憶體與儲存層 (Memory & Storage)
+  企業型邊緣 AI
+  企業型邊緣 AI
+  產業型邊緣 AI  AI 伺服器 / 雲端服務應用
+  企業私有 AI 伺服器
+  工控垂直應用市場
+On-device SSD  On-prem Edge AI /  Central Cloud
+  KV Cache SSD  Data Center SSD
+DDR5 ECC SODIMM /  DDR5 RDIMM /  CXL Memory Module /
+DDR5 ECC UDIMM / DDR5 RDIMM  DDR5 MRDIMM  CXL AIC / DDR5 MRDIMM
+  AI Inference  AI Training
+
+[p.31]
+  © COPYRIGHT INNODISK CORPORATION  P30
+  Stack 2: 記憶體層 (Memory)
+ BREAKING AI ARCHITECTURE BOTTLENECKS  EMPOWERING EDGE AI COMPUTING
+CXL AIC (ADD-IN-CARD) 打破 AI 記憶體牆瓶頸  DDR5 8000MT/s RDIMM 邊緣 AI 超高速運算引擎
+◼ 目標市場：為 AI 次世代極大化記憶體容量  ◼ 目標市場：邊緣 AI 和高速網通頻寬需求
+◼ 關鍵特點：無縫、大規模記憶體擴充  ◼ 效能展現：超低延遲和卓越的穩定性
+◼ 技術優勢：優化超大規模資料中心和 AI 訓練的整體擁有成本  ◼ 應用領域：即時邊緣推理和海量資料處理
+ DRAM Module Portfolio
+AI Memory  Embedded Memory
+  ◼ 規格尺寸：
+  CAMM2 / CUDIMM / CSODIMM / SODIMM / RDIMM / VLP / ......
+Server Memory  Wide Temp. Memory  Customized Memory  ◼ 技術與世代：
+  CXL / DDR5 / DDR4 / DDR3 / DDR2
+
+[p.32]
+  © COPYRIGHT INNODISK CORPORATION  P31
+  Stack 3: 儲存層 (Storage)
+ PCIe Gen5 & 218-layer 3D NAND Flash
+ MAXIMIZING SYSTEM BOOT RELIABILITY  ACCELERATING LARGE-SCALE DATA THROUGHPUT
+資料中心 SSD | 開機碟  資料中心 SSD | 資料碟
+PCIe Gen5, 5TS4-P Series: E1.S and U.2  PCIe Gen5, 5TS-P Serries: U.2, EDSFF (E3.S, E3.L and E1.S)
+◼ 優化啟動：高速啟動和高速作業系統載入  ◼ 高吞吐量：專為大規模資料處理設計，展現高效能與穩定性
+◼ 可靠性：高耐久性，可承受頻繁的資料寫入  ◼ 低延遲：高擴展性，滿足繁重的資料處理和儲存需求
+ Flash Storage (SSD) Portfolio
+PCIe  SD  SATA
+  ◼ 規格尺寸與技術：
+  M.2 / U.2 / CFexpress / EDSFF / 2.5” / 1.8” / SATA Slim /
+  SATADOM / mSATA / CFast / nanoSSD /CompactFlash Card /
+USB  PATA  SD Card & MicroSD Card / USB / USB EDC
+
+[p.33]
+  © COPYRIGHT INNODISK CORPORATION  P32
+  Stack 4: 感測與傳輸層 (Sensing & Comm.)
+ REVOLUTIONIZING COMPACT SYSTEM BOOTING  ENHANCING HIGH-EFFICIENCY DATA EXCHANGE
+10GbE / 25GbE 光纖網路擴充卡  10GbE RJ45 LAN 網路擴充卡
+◼ 節省空間：全球首款適用於小型機殼的 M.2 SFP+ 網路模組  ◼ 支援寬溫：全球首款寬溫 10GbE 網路模組
+◼ 高速傳輸：高速穩定的資料傳輸，提升資料交換效率  ◼ 優化啟動：即時資料傳輸，滿足高效能應用
+Intelligent Peripheral Solution Portfolio
+LAN  CAN Bus & CAN FD  Serial  Wi-Fi
+
+[p.34]
+  © COPYRIGHT INNODISK CORPORATION  P33
+  Stack 4: 感測與傳輸層 (Sensing & Comm.)
+ RUGGEDIZED LONG-RANGE VISION & CLARITY  REDEFINING THE EDGE AI VISION STANDARD
+GMSL2 相機模組系列  Innodisk 影像解決方案：Bundle Package
+高頻寬、長距離、低延遲  無縫整合、快速部署、效能實證
+◼ IP67/IP69K 防護等級：達到最高防水防塵標準  ◼ 整合硬體套件：GMSL2 攝影機與擷取卡完美搭配，方便快速驗證評估
+◼ 15 公尺超長傳輸距離：長距離傳輸依然穩定可靠  ◼ 無縫整合：預先驗證的設計，消除相容性問題
+◼ 內建 ISP：卓越畫質，專業影像控制  ◼ 加速開發：專注於視覺軟體開發，快速完成部署
+◼ 支援 NVIDIA Jetson 和 Raspberry Pi：相容主流 AI 運算平台  ◼ 卓越效能：提供清晰畫質與穩定的 GMSL2 訊號品質
+ Camera Module Portfolio
+USB 2.0  MIPI CSI-2  GMSL2  MIPI over Type-C  Capture Card
+
+[p.35]
+  © COPYRIGHT INNODISK CORPORATION  P34
+  Stack 5: 軟體層 (Software)
+  堅強軟體研發實力，創造邊緣 AI 附加價值
+  Enterprise & Building  Industrial Automation
+  Retail Intelligence  Surveillance Intelligence
+  Intelligence  Intelligence
+商務邏輯層  iCAP  iVIT  innoPPE  AccelBrain
+服務通訊層  HTTP  MQTT  CoAP  MCP
+Host
+  Device  AI  Multi-
+ 服務 API 端點層  Management  Engine  Streaming
+  代理式AI層  MCP Server
+ 平台賦能層  OS Building  BSP  Driver
+ 硬體模組轉接層  eAPI  CANBus Utility  SSD SMART Utility  SPD Code R/W
+
+[p.36]
+  © COPYRIGHT INNODISK CORPORATION  P35
+宜鼎集團 市場與產品技術佈局 三大核心價值
+  01  02  03
+  市場與應用產生的價值  產品技術與人才的價值  Edge AI 快速整合落地的價值
+AI 加速新一波全球產業變革，重新定義產  專注產品技術與人才發展，宜鼎建構完善  憑藉堅強的技術研發實力與全球夥伴關係，
+品、服務與營運的價值創造模式，將產業  的五層 AI 產品技術架構，並在專業人才的  宜鼎建構多元的異質核心算力平台及週邊
+推向代理式與自主化，全面拓展應用邊界、  實踐下，打造高度相容且協同運作的 AI 解  基礎，並結合自主研發的韌體與中介軟體，
+  創造前所未有的產業價值躍升  決方案，滿足全球客戶多元的應用需求  串聯終端應用，加速邊緣 AI 快速落地
+
+[p.37]
+  © COPYRIGHT INNODISK CORPORATION  P36
+03 Edge AI 快速整合落地的價值
+從核心運算到 AI 應用，打造驗證測試與落地部署整合架構
+  iCAP
+  跨層軟體架構
+  iVIT  AccelBrain  自主研發跨層架構，整合 OS、BSP、Driver、BIOS、Middleware、
+  Utility 至上層 AI 模型與軟體應用，實現免移植、高整合、快速部署
+  Innodisk Middleware SDK (AVL Modules)
+  BSP  Driver  BIOS  原廠晶片支援與完整產品組合
+  與全球一線儲存與記憶體原廠合作，提供從資料感測、儲存、運算、
+  傳輸到應用的完整產品線
+  OS — Ubuntu / Yocto / Android / Windows
+  Storage, Memory, Communication, Sensing & Peripherals
+  世界級設計與製造能力
+  ▪  Intel：Reference Kit／Customer Reference Design
+  Edge Computing Platform and AI Accelerator  ▪  NVIDIA：Elite Partner／MGX Partner (Aetina)
+  ▪  Qualcomm：IoT 合作夥伴／On-premise 合作夥伙
+  ▪  全球 AI ASIC：設計與製造服務
+
+[p.38]
+  © COPYRIGHT INNODISK CORPORATION  P37
+03 Edge AI 快速整合落地的價值
+模組化填補技術缺口，分擔客戶端的試錯與技術整合工作
+  AI 系統  AI 應用  AI 解決方案  終端場域應用
+  IHV  ISV  系統整合商  終端客戶
+  核心算力  AI 模型  代理商  設備穩定性
+  相容性  落地  信任與
+  適應性  賦能  價值
+  週邊模組  缺口  應用 APP  缺口  場域技術對接  缺口  長期供貨保障
+  運算平台  作業系統  終端需求整合  即時技術支援
+
+[p.39]
+  © COPYRIGHT INNODISK CORPORATION  P38
+03 Edge AI 快速整合落地的價值
+模組化填補技術缺口，分擔客戶端的試錯與技術整合工作
+  AI 系統  AI 應用  AI 解決方案  終端場域應用
+  IHV  ISV  系統整合商  終端客戶
+  核心算力  填補  AI 模型  填補  代理商  填補  設備穩定性
+  相容性  落地  信任與
+  週邊模組  適應性  應用 APP  賦能  場域技術對接  價值  長期供貨保障
+  缺口  缺口  缺口
+  運算平台  作業系統  終端需求整合  即時技術支援
+  ◼  異質算力與硬體適配  ◼  提供高整合度方案  ◼  ROI／TCO 與量產驗證
+  ◼  模型移植與軟體相容  ◼  建立 Reference Design  ◼  生命週期保障與持續供貨
+  ◼  HAL／API 標準化整合  ◼  建立標準化驗證機制  ◼  設備穩定度與在地技術支援
+
+[p.40]
+INNODISK 邊緣 AI 解決方案架構  © COPYRIGHT INNODISK CORPORATION  P39
+  裝置管理
+  雲端 AI 平台  iCAP  監測 / OTA / 診斷
+  推論 & 調教
+  AI-Stack SDK  AccelBrain, AccelTune, IQ Studio, iVIT
+  軟體 /  模型部署 / 訓練 / 優化
+  韌體  軟體工具  iSeries Software  執行 & 系統支援
+  OS & 中介軟體  Windows, Linux, BSP, eAPI, Drivers
+  NVIDIA  Intel  Qualcomm  AI ASIC
+  AI
+  OS 移植 /
+ 加速運算  執行環境支援 /
+  預先配置系統 /
+  eAPI 硬體控制 /
+  x86  ARM  軟體設定
+  AI  Intel  Intel  Intel  Intel  NVIDIA  Qualcomm  NXP
+  Atom x6000 / 7000  12 / 13 / 14th Gen Core-i  Core Ultra Series1 / 2 / 3  Xeon 6  Jetson Orin / Thor  Dragonwing IQ 9 / 8 / X  i.MX 8M Plus / 95
+  平台
+  資料管理
+  Flash
+  AI  韌體客製化 /
+儲存 / 記憶體  健康狀態監控 /
+  加密 & RAID
+  DRAM
+  Camera  LAN  感測 & 傳輸
+  Air Sensor /
+AI 周邊模組  Display
+  Gas Sensor
+  Wireless  視覺輸入 /
+  資料傳輸 /
+  即時控制
+  CAN Bus /
+  Storage  Serial
+  CAN FD
+
+[p.41]
+  © COPYRIGHT INNODISK CORPORATION  P40
+市場與應用產生的價值
+大型雲端
+與 AI 算力基礎建設  市場指數成長
+◼ GPU 伺服器 / 網路交換器 / 路由器
+◼ 人形機器人 / 無人自動化
+Tier -1 工控
+與垂直應用市場  全球應用市場標竿
+◼ 醫療保健 / 5G / 安防監控 / 媒體娛樂 / 自動化
+◼ Tier-1 市場領導品牌
+高附加價值
+工控解決方案市場  4,000+高附加價值客戶群
+◼ 製造產業 / 零售物流 / 智慧能源 / 醫療保健 /
+  網路通訊 / 媒體娛樂 / 企業級應用
+
+[p.42]
+  © COPYRIGHT INNODISK CORPORATION  P41
+  三期
+  預計 2026 年底動工
+  二期
+  一期  2024 (啟用)
+  2018 (啟用)
+宜鼎國際研發製造中心
+三期廠房暨宿舍興建工程
+
+[p.43]
+  © COPYRIGHT INNODISK CORPORATION  P42
+宜鼎國際研發製造中心
+三期廠房暨宿舍興建工程
+預計 2026 年底動工
+  三期
+  二期
+  一期
+
+[p.44]
+  三期  © COPYRIGHT INNODISK CORPORATION  P43
+  二期  一期  宿舍
+三期  一期
+  宿舍
+
+[p.45]
+  © COPYRIGHT INNODISK CORPORATION  P44
+全球 AI IN ACTION 商務拓展
+
+[p.46]
+  © COPYRIGHT INNODISK CORPORATION  P45
+COMPUTEX 台北國際電腦展 2026
+@台灣 台北
+
+[p.47]
+  © COPYRIGHT INNODISK CORPORATION  P46
+INNODISK AI IN ACTION
+全球邊緣 AI 解決方案拓展
+  AI EXPO @Taiwan  IT Week @Japan  Automate @USA  Hardware Pioneer Max @United Kindom
+
+[p.48]
+  © COPYRIGHT INNODISK CORPORATION  P47
+ESG 永續承諾
+
+[p.49]
+  © COPYRIGHT INNODISK CORPORATION  P48
+ 宜鼎永續 亮點成果  生態共好 亮點專案
+◼  公司治理評鑑名列 6～20% 等級  無尾港水鳥保護區：生物多樣性 三年計畫
+◼  通過董事會核准淨零排放路徑目標，積極邁向淨零轉型  ◼  攜手在地團體，投入棲地守護、外來種清除與小燕鷗復育，
+  的長程方向  以實際行動守護生物多樣性環境。
+◼  成立「永續發展暨資安委員會」，強化公司在環境、社  ◼  透過生態監測與環境教育，結合利害關係人共同構築生物多樣性共榮圈。
+  會、治理與資訊安全面向的整合管理與效率
+◼  榮獲國際 EcoVadis 銅級及天下永續公民獎、天下人才永  岳明國中小：蔚藍行動家培育 三年計畫
+  續獎、親子天下友善家庭職場獎等多項殊榮，展現宜鼎  ◼  串聯學界與社區力量，培育未來蔚藍行動家，擴大在地永續發展之社會效益。
+  在永續治理的全方位成果  ◼  深入校園推動生態保育教育，透過工作坊、創新提案等，扎根永續素養。
+宜鼎國際 永續之路
+
+[p.50]
+  © COPYRIGHT INNODISK CORPORATION  P49
+財務資訊
+
+[p.51]
+  © COPYRIGHT INNODISK CORPORATION  P50
+過去5季營收與毛利率
+  NT$: K  GPM
+  27,500,000  65.0%  49.5%  70%
+  59.1%
+  25,000,000
+  60%
+  22,500,000  25,887,731
+  20,000,000  50%
+  17,500,000
+  15,000,000  32.8%  33.4%  40%
+  12,500,000  30%
+  22,443,411
+  10,000,000
+  7,500,000  20%
+  13,182,608
+  5,000,000
+  10%
+  2,500,000
+  3,807,401  4,806,689
+  0  0%
+  2025Q3  2025Q4  2026Q1  2026Q2  2026Q3
+
+[p.52]
+  © COPYRIGHT INNODISK CORPORATION  P51
+過去5季淨利與EPS
+  NT$: K  EPS: NT$
+  NT$:K
+  12,000,000
+  108.93  115.00
+  110.00
+  105.00
+  10,000,000  93.09  100.00
+  95.00
+  90.00
+  85.00
+  80.00
+  8,000,000  75.00
+  57.49  70.00
+  65.00
+  6,000,000  5,466,357  60.00
+  55.00
+  10,368,072  50.00
+  4,000,000
+  9,047,164  45.00
+  40.00
+  35.00
+  30.00
+  6.87  9.15  25.00
+  2,000,000  20.00
+  870,716  15.00
+  643,038  10.00
+  5.00
+  0  0.00
+  2025Q3  2025Q4  2026Q1  2026Q2  2026Q3
+附註:季度EPS依據當季股本計算
+
+[p.53]
+  © COPYRIGHT INNODISK CORPORATION  P52
+產品營收佔比變化
+  2025Q3  2026Q2  2026Q3
+  1%
+  4%  2%1%
+  6% 2%
+  34%  34%
+  34%
+  FLASH  FLASH  63%  FLASH
+  58%  61%
+  DRAM  DRAM  DRAM
+  DRAM  FLASH  AI Solutions  Others
+
+[p.54]
+  © COPYRIGHT INNODISK CORPORATION  P53
+營收依區域佔比
+100  1  1  1
+ 90  17
+  22  23
+ 80
+ 70  21
+  16
+ 60  26
+ 50  18  20
+ 40  20
+  15  13
+ 30
+  9
+ 20
+  28  27
+ 10  21
+ 0
+  2025Q3  2026Q2  2026Q3
+  Taiwan  Europe  America  China  Asia  Others
+
+[p.55]
+  © COPYRIGHT INNODISK CORPORATION  P54
+ 2026Q3 營運成果
+  2026Q3  2026Q2  QoQ  2025Q3  YoY
+  營業收入  25,887,731  22,443,411  15.3%  3,807,401 579.9%
+  營業成本  13,080,680  7,853,799  66.6%  2,558,583  411.2%
+  營業毛利  12,807,051  14,589,612  -12.2%  1,248,818 925.5%
+  營業費用  1,452,136  1,443,892  0.6%  531,059  173.4%
+  營業利益  11,354,915  13,145,720  -13.6%  717,759 1482.0%
+  營業外收入及支出  100,706  68,664  46.7%  88,738  13.5%
+  稅前淨利  11,455,621  13,214,384  -13.3%  806,497 1320.4%
+  所得稅費用  2,390,827  2,808,521  -14.9%  163,923  1358.5%
+  本期淨利  9,064,794  10,405,863  -12.9%  642,574 1310.7%
+  非控制權益利益  17,630  37,791  -53.3%  -464  -3899.6%
+  歸屬母公司淨利  9,047,164  10,368,072  -12.7%  643,038 1306.9%
+  基本每股盈餘  93.09  108.93  6.87
+  毛利率  49.5%  65.0%  32.8%
+  營業利益率  43.9%  58.6%  18.9%
+  淨利率  35.0%  46.4%  16.9%
+附註:季度EPS依據當季股本計算
+
+[p.56]
+  © COPYRIGHT INNODISK CORPORATION  P55
+提問與說明
+
+[p.57]
+© COPYRIGHT INNODISK CORPORATION

@@ -1,0 +1,240 @@
+[p.1]
+HTSI Company Intro
+Henry Chung
+November 2026
+Copyright© 2026 Hermes Testing Solutions Inc.
+Copyright© 2025 Hermes Testing Solutions Inc.
+
+[p.2]
+AGENDA
+01. Company Overview
+02. Financial Performance
+03. Future Growth Drivers
+
+[p.3]
+  THANKS
+Company Overview
+
+[p.4]
+About HTSI
+Founded  Headquarter
+2004.09  Hsinchu,
+  Taiwan
+Chairman  President
+T.C. Lin  Steven Wang
+Employees (as of Oct. 2026)  Paid-in Capital
+655  NT$  330M
+
+[p.5]
+Business Portfolio
+Probe Card &  Engineering Service  Semiconductor Equipment /
+Clean Materials  Tailored Solutions
+Providing one-stop solutions from probe  Full value-added services include  Develops and distributes semiconductor
+cards to cleaning materials to enhance  sales(China), installation(Taiwan), and  test equipment to enhance yield and
+test performance.  technical support  provide customized solutions.
+  5
+
+[p.6]
+Probe Card Overview
+  Membrane Probe Card  Cantilever Probe Card  Vertical Probe Card
+• Supports 5G/6G, RF, and Filters  • Supports WAT, Logic, LCD Driver &  • Cobra probe card: 100% Taiwan-made
+  applications  GaN/SiC chip testing  • MEMS probe card: Partnership with
+• 100% Taiwan-made for superior quality and  • Technology transfer partnership with  MJC, integrated with HTSI components
+  MJC, a top 3 global probe card  for real-time local support
+  delivery reliability
+  manufacturer
+• Exclusive patented probe card leveling for
+  • Custom designs for diverse product
+  stable wafer testing
+  needs
+
+[p.7]
+Turning Customer Challenges into Scalable Solutions
+Over 20 Customized Products Developed Through In-House R&D and Engineering Expertise
+  HTSI  FIMS
+ Precise temperature  Automated 3D
+ control and enhanced  inspection with micron-
+ thermal efficiency.  level precision.
+  Clean Materials  TTV Wafer
+  Simulates high-power
+  Removes probe tip
+  thermal loads for
+  residue for consistent
+  validation.
+  testing.
+  P/C Arm Adapter  ISS Calibration Kit
+ Optimizes probe card  Ensures accurate and
+ handling and  consistent resistance
+ replacement.  EasyCool  measurements.
+  Air-cooling solution for
+  stable test
+  temperatures.
+  7
+
+[p.8]
+Expanding Global Engineering Services to
+Strengthen Customer Partnerships
+  Strategic Service Expansion
+  Wuhan  Qingdao
+  Dongguan  Planned Service Location
+  Chengdu  Suzhou
+  Engineering Service Locations
+  Incheon
+  Boise  New York
+  Oregon
+  Arizona
+  Malaysia
+  Singapore
+  8
+
+[p.9]
+Financial Performance
+
+[p.10]
+Revenue Performance
+HTSI reported revenue of NT$506 million in October 2026, up 61.88% YoY. Cumulative revenue for the first ten months reached
+NT$4.19 billion, representing 118.13% YoY growth and exceeding full-year 2025 revenue by approximately 73%.
+9M26 EPS stood at NT$10.85.
+  Unit: NT$1,000
+4,500,000
+  4,190,574
+4,000,000
+3,500,000
+  50.3%
+3,000,000
+  2,424,681
+2,500,000
+2,000,000  31.5%
+  1,597,765
+1,500,000  25.3%
+  1,152,273
+  1,008,752
+1,000,000  42.9%
+  567,987
+ 500,000  24.4%
+  189,986
+  25.6%
+  0
+  2016  2018  2020  2022  2024  2025  2026 10M
+  Year
+
+[p.11]
+  Employee Share Subscription Expense Recognition
+Jul. 17, 2026  Early Sep. 2026  Sep. 22, 2026
+Capital Increase Approved  Auction Floor Price Set  TPEx Listing
+10% reserved for employees (583,000 shares);  • Floor price: NT$1,800  First trading day; share price on this date
+provisional subscription price of NT$2,250  • Subscription price: NT$2,250  excluded from the expense calculation
+  01  03  05
+  2026  02  04  06
+  Jul. 22, 2026  Sep. 11, 2026  Nov 13, 2026
+  Q3 Financial Results Released
+  Initial Expense Estimate Announced  Auction Results
+  Incl. Share-Based Compensation
+  571,265 shares allocated; estimated  4,192 shares allocated; average winning bid:  (NT$1,118,103 thousand)
+  expense of NT$885.12 million  NT$4,272.7
+  Estimated after-tax impact: approximately
+  NT$700M, or NT$24.5 per share.  Confidential ｜ 12
+
+[p.12]
+Future Growth Drivers
+
+[p.13]
+Strengthening Core Capabilities Through Proprietary
+Technology and Localized Manufacturing
+  MEMS Probe Card  Silicon Photonics / CPO  Advacned Packaging
+  SYMPHONY Fluxless Reflow
+• In-House R&D & Localized Manufacturing  • Advanced Integrated Optical-Electrical Testing  • In-House Dev. Of Wafer-Level Fluxless Reflow
+• Enhanced High-Density, Fine-Pitch Testing  • Covering INS-IN2  • Precise Temperature Control & Low-Oxygen Processing
+  Capabilities  • Expanding Equipment Mfg. & System Integration  • Targeting Wafer Bumping & CoWoS Applicatoins
+• Targeting AI / HPC Chip Applications
+  14
+
+[p.14]
+  Thermal Management Solutions: Evolution & Innovation
+ Applications  Conventional  Mobile &  HPC  AI / HPC  Advanced AI  Next-Gen.
+  Semiconductor  Consumer ICs  Processors  Accelerators  High-Power Devices
+  Devices
+  Power  <5  5~20  40~70  80~100  100~150  >150
+  Density  W/cm2  W/cm2  W/cm2  W/cm2  W/cm2  W/cm2
+  Auto Fan  EasyCool*  *UTCS+C355
+  HTSI  * TEL Product  3rd Gen
+ HTSI  2nd Gen
+  Solutions  1st Gen
+Solutions
+  *Discontinue
+  & Succeed
+  EasyCool Duo*  EasyCool Ultra  TTV Wafer
+  *Discontinue
+  Prober
+  Model
+  Precio & Precio XL  Precio XL Above  Precio XL Above  Confidential ｜
+
+[p.15]
+Dual-Track Strategy for Advanced Probe Card Growth
+  Membrane Probe Card  MEMS Probe Card
+  Estimated TAM  2026E Global Market
+  US$ 235M  US$ 2.78B
+  Strengthening Our Membrane Niche,
+  Expanding Growth Through MEMS Innovation
+  Sources: Yole Group (MEMS market estimate); HTSI internal estimates (Membrane SAM).  16
+
+[p.16]
+From Wafer Testing to Photonics Integration
+Advancing Silicon Photonics Testing Solutions
+Core Technologies x Localized Development Strategy
+ INS 1  INS 2
+ TestMate Integration  Photonic Device Analyzer  Local Manufacturing &
+  Integration
+ Automated FA/GC alignment and  Integrated optical sources, power  Local equipment assembly,
+ optical measurement for SiPh  measurement, and polarization  system integration, and
+ wafer testing.  control.  customized solutions.
+
+[p.17]
+HTSI Solution for Insertion 1:
+HTSI TestMate Integration
+•  Easy Integration: Seamlessly integrates with existing probers.
+•  Automated Alignment: Improves accuracy and efficiency.
+•  Faster Testing: Reduces setup and optical coupling time.
+  Photonic Device Analyzer
+Performance Comparison
+  Parameter  Conventional Method  HTSI TestMate Integration
+  External microscope &
+Alignment Method  Integrated prober camera
+  mirror
+Alignment
+  Coarse alignment  Fine, high-precision alignment
+Precision
+  Manual / Semi-
+FA / GC Matching  Fully automated
+  automated
+Initial Setup Time  Approx. 4-6 hours  Approx. 10 mins
+Optical Coupling
+  Approx. 10-15 secs  Approx. 7-8 secs
+Time
+
+[p.18]
+SYMPHONY Fluxless Reflow
+Expanding into Advanced Packaging Equipment
+ Market Drivers
+  Leveraging in-house equipment development
+ Wafer-Level Bump Packaging &  and local manufacturing capabilities to address
+ Testing Services  advanced packaging opportunities in wafer
+  bumping and CoWoS.
+ 7.9%  Features
+ CAGR｜2026–2032
+  ⦿  Precision Process Control
+  Hot-wall chamber, real-time
+ High-end Packaging Market
+  monitoring, and controlled cooling.
+  ⦿  Process Stability & Quality
+ 27%
+  Thermal stress management and
+  process traceability.
+  ⦿  Operational Efficiency
+ CAGR｜2025-2031
+  Compact footprint and low
+  maintenance requirements.
+ Source: 360iResearch (2026); Yole Group (2026)
+
+[p.19]
+THANKS

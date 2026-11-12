@@ -1,0 +1,190 @@
+[p.1]
+順德公司法說簡報
+( 2351:TT SDI )
+  1
+
+[p.2]
+產品組合
+  營收比重  電子產品終端應用
+  2
+
+[p.3]
+市佔率
+  全球市場市佔率  功率導線架全球市佔率  五金文具市佔率
+  MHT
+  10.8%
+  SDI
+  16.9%
+  Others  CWT
+  34.8%  Others
+  9.5%
+  38%  Jihlin
+  US$  13%
+  3,174M  US$ 733M
+  Shinko
+  8.3%
+  CWT
+  10.4%
+  SDI
+  ASM  7.4%  TSP
+  Pacific  Enomoto  9.5%
+  7.4%
+  8.2%
+  導線架  功率導線架  五金文具
+  No.1
+  No.4  Taiwan
+  No.1
+Source : SEMI Industry Research and Statistics, April 2020
+  3
+
+[p.4]
+公司沿革
+  1953  1983  2001  2023
+ 陳水錦先生創立  成立電子事業部門，  跨入IDM市場  南投H棟
+ 順德製造所，製  生產半導體導線架  陸續新增  擴充完成
+ 造手牌鉛筆刀  及 IC插座等  IDM客戶
+  1967  1996  2010  2024
+ 公司改組為  電子類股  與三菱合作成立  通過TIPS(A級)
+ 順德工業股  掛牌上市  異形材(DG)加工廠  智財管理驗證
+ 份有限公司  (2351:TT)
+  1998  2017  2026
+  順德工業(江蘇)  獲Infineon 2017年  獲Infineon 2026年
+  有限公司成立  長期承諾獎
+  最佳供應商
+  4
+
+[p.5]
+全球據點
+  Osaka, Japan
+  順德文具
+  (日本銷售辦事處)
+  順德電子
+  (日本銷售辦事處)
+  Virginia, USA  Jiangsu,順德江蘇廠
+  順德(美國銷售辦事處)  (電子/文具製造)
+ 工廠
+  彰化, 台灣 順德總部
+ 銷售辦事處
+  南投, 台灣  (R&D、電子/文具製造)
+  順德，德輝
+  (蝕刻製造)
+  5
+
+[p.6]
+電子產品類型及應用
+  導線架 Lead Frame
+  導線架  均熱片
+  Automotive
+ • ICE Powertrain
+ • xEV e-Power train
+  • Microcontroller Unit Protector
+  • Battery Management System
+  Hat
+ • ADAS Application  • Power Control Unit
+ • Parking Brake  • Engine Control Unit
+ • DSC-Inverter
+ • Charging Station
+  • Air Bag Control Module  T-PAK  S-Cell
+  Industrial
+  Cavity
+ • Motor control units
+ • Home applications : Air conditioners, washing
+  machines, Micro wave
+ • Traction : High speed train, subway
+ • 5G base station  Baseplate  Riveting
+ • Smart Grid / Solar power
+  Ring
+  Consumer
+ • Computing / Mobile device
+ • Power charger
+ • Security : smart card  TO-247
+ • VCM Spring  VCM
+  AI Lead frame  MCL
+  • Power Stage
+ • AI server  • Backup Battery Unit
+ • Power supply Unit  • Busbar
+ • 800V HVDC  • Cu Heat slug
+  Clip  TOLT
+  6
+
+[p.7]
+新產品趨勢
+Source : Infineon Technologies  7
+
+[p.8]
+新產品趨勢
+  Source : Infineon Technologies
+Source : Infineon Technologies  8
+
+[p.9]
+文具產品
+ 省力型訂書機  I-PUSH滾輪修正帶  極致型工藝刀
+  專利按鍵機構  刀 折片器
+  獨創省力滑臂專利
+  伸縮自如
+  省力高達50%
+  收納方便
+  刀身安全包覆
+  透明外殼修正帶
+  用量清晰可見
+  專利穩定機構
+  創新強擊平針專利  大幅度降低刀片晃動
+  滾輪帶頭設計
+  節省紙張30％厚度  出帶平滑又順暢
+  每次換帶都是全新滾輪  進口超硬合金鋼『SK2+Cr』
+  30度銳角刀片
+ 直液替換式油性筆  鈦金屬輕量S剪  省力低噪封箱膠帶台
+  2種補墨方式  降噪專利設計
+  專利S曲線設計  降噪高達15dB
+  剪裁省力高達50%  特殊加工蝕刻刀片
+  省力高達50%
+  鈦金屬塗層
+  替換墨水匣  補充墨水罐  硬度提升、耐用加倍
+  供墨發明，專利直液系統設計
+  防滑軟握把設計
+  防水、防暈染、速乾、
+  無毒無臭，不含重金屬
+  可書寫於大部分材質  9
+
+[p.10]
+主要客戶
+  電子  五金文具
+  Pilot
+  KOKUYO
+  10
+
+[p.11]
+財務資訊
+  每股盈餘與現金股利
+  經營績效
+  股東權益報酬率
+  11
+
+[p.12]
+合併綜合損益表
+*註：營業外收(支)變動率係以前期金額之絕對值為計算基礎。
+  12
+
+[p.13]
+合併資產負債表
+  2026.09.30  2026.06.30  2025.09.30
+(新台幣千元)  金額  %  金額  %  金額  %
+  現金及約當現金  1,425,221  9  1,320,250  9  623,550  5
+  應收帳款淨額  2,788,909  18  2,573,078  18  1,824,992  15
+  存貨  4,644,049  31  4,437,216  31  3,732,688  31
+  不動產、廠房及設備  5,258,573  35  5,246,561  37  5,016,556  41
+資產總計  15,136,006  100  14,685,632  100  12,271,857  100
+  流動負債  4,219,363  27  4,562,007  31  3,041,110  24
+  非流動負債  1,742,910  12  1,553,622  11  2,171,925  18
+負債總計  5,962,273  39  6,115,629  42  5,213,035  42
+權益總計  9,173,733  61  8,570,003  58  7,058,822  58
+  13
+
+[p.14]
+Q&A
+  14
+
+[p.15]
+  http://www.sdi.com.tw
+Invest@email.sdi.com.tw
+  15
