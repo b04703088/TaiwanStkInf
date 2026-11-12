@@ -4,6 +4,9 @@
   https://www.tpex.org.tw/www/zh-tw/mostActive/brokerVol?response=json
   https://www.tpex.org.tw/www/zh-tw/mostActive/brokerAmt?response=json
 
+櫃買實測（2026-11-12）：整點後 1–2 分鐘更新一次（截至 10:00、11:00、12:00），13:00 沒有更新，
+收盤後約 13:45 出全天的最後一版（「截至13:46止」）。
+
 開盤期間在 GitHub Actions 上每分鐘問一次，櫃買的統計時間變了才發布：
 寫成 rtbrk.json，以單一 commit 強推到 `live` 分支（不進 main、不觸發部署）。
 網頁 site/rtbrk.html 直接從 GitHub 讀 live 分支的檔案。
@@ -11,7 +14,7 @@
 收盤後（最後一筆）另存 data/rtbrk/YYYY-MM-DD.json，由 workflow commit 回 main，留作日後回測。
 
 用法：
-  python fetch_rtbrk.py --loop          # 盤中一直跑到 --until（預設 13:40）
+  python fetch_rtbrk.py --loop          # 盤中一直跑到收盤後全天資料出來（最晚 --until，預設 14:15）
   python fetch_rtbrk.py --once --out x.json
 """
 import argparse
@@ -127,6 +130,9 @@ def loop(until, interval):
                 print(f"{n:%H:%M:%S} 更新：截至 {s['time']}，{len(s['vol']['data'])} 列", flush=True)
                 publish(s)
                 last_key, last = key, s
+                if s["time"] >= "13:30":
+                    print("已拿到收盤後的全天資料，結束", flush=True)
+                    break
             else:
                 print(f"{n:%H:%M:%S} 未變（截至 {s['time']}）", flush=True)
         except Exception as e:  # noqa: BLE001
@@ -143,7 +149,7 @@ def main():
     ap.add_argument("--loop", action="store_true")
     ap.add_argument("--once", action="store_true")
     ap.add_argument("--out")
-    ap.add_argument("--until", default="13:40", help="台北時間，迴圈跑到這個時間（含收盤後最後一次更新）")
+    ap.add_argument("--until", default="14:15", help="台北時間，最晚跑到這個時間（拿到收盤後全天資料就提早結束）")
     ap.add_argument("--interval", type=int, default=60)
     a = ap.parse_args()
     if a.loop:

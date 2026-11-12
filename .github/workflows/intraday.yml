@@ -1,7 +1,8 @@
 name: Intraday TPEx broker ranking
 
 # 盤中上櫃熱門股券商進出（櫃買「熱門股證券商進出排行」）。
-# 一個 job 從開盤前跑到 13:40，每分鐘問櫃買一次，統計時間變了就把 rtbrk.json 強推到 live 分支，
+# 櫃買整點後 1–2 分鐘更新（10:00、11:00、12:00），13:00 不更新，約 13:45 出收盤後全天版。
+# 一個 job 從開盤前跑到拿到全天版（最晚 14:15），每分鐘問櫃買一次，統計時間變了就把 rtbrk.json 強推到 live 分支，
 # 網頁 rtbrk.html 直接讀 live 分支（不經過 Cloudflare 部署）。收盤後把最後一筆存到 data/rtbrk/ 留作回測。
 # GitHub 排程常延遲，所以排了好幾個時間點；同一時間只會有一個在跑，後面排到的會在前一個結束後自己發現已收盤而結束。
 on:
@@ -36,7 +37,7 @@ jobs:
       - name: Poll TPEx until close
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: python -u fetch_rtbrk.py --loop --until 13:40
+        run: python -u fetch_rtbrk.py --loop --until 14:15
 
       - name: Save closing snapshot to main
         run: |
