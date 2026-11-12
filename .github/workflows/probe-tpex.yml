@@ -1,0 +1,11 @@
+name: probe tpex intraday
+on:
+  push:
+    branches: [claude/project-thread-fhjetb]
+    paths: ['.github/workflows/probe-tpex.yml','research/probe_tpex_intraday.py']
+jobs:
+  p:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install requests && python -u research/probe_tpex_intraday.py
