@@ -73,6 +73,26 @@
   #banks .est{color:var(--text-faint); font-style:italic;}
   #banks tr.sub-row td{background:var(--panel); white-space:normal; font-size:12.5px; color:var(--text-muted); line-height:1.75; padding:10px 14px 14px;}
   #banks tr.sub-row b{color:var(--text); font-weight:500;}
+  #banks .m-lead{display:none;}
+  @media (max-width:860px){
+    /* 手機：每則公告一張卡，不用左右滑；表頭變成排序按鈕列 */
+    .bankbox{padding:14px 12px;}
+    #bank-wrap .tbl{border:none; background:none; overflow:visible;}
+    #bank-wrap table, #banks{display:block;}
+    #bank-wrap thead tr{display:flex; flex-wrap:wrap; gap:6px;}
+    #bank-wrap thead th{border:1px solid var(--line-strong); border-radius:var(--radius-s); padding:4px 9px; background:none;}
+    #banks tr.bk{display:grid; grid-template-columns:1fr auto; grid-template-areas:"nm stg" "when bb" "mt amt" "bank bank"; gap:2px 10px; border:1px solid var(--line); border-radius:var(--radius-m); background:var(--ink); margin-top:10px; padding:10px 12px;}
+    #banks tr.bk.new{border-left:3px solid var(--brass);}
+    #banks tr.bk.new td:first-child{box-shadow:none;}
+    #banks tr.bk td{display:block; border:none; padding:0; position:static; background:none;}
+    #banks td.when{grid-area:when;} #banks td.nm{grid-area:nm;} #banks td.mt{grid-area:mt; color:var(--text-muted);}
+    #banks td.amt{grid-area:amt;} #banks td.bb{grid-area:bb; text-align:right;} #banks td.stg{grid-area:stg; text-align:right;}
+    #banks td.bank{grid-area:bank; max-width:none; margin-top:4px; padding-top:6px; border-top:1px dashed var(--line);}
+    #banks tr.bk td.hide-m{display:none;} #banks .m-lead{display:inline;}
+    #banks tr.sub-row{display:block;} #banks tr.sub-row[hidden]{display:none;}
+    #banks tr.sub-row td{display:block; border:1px solid var(--line); border-top:none; border-radius:0 0 var(--radius-m) var(--radius-m); margin-top:-4px;}
+    #banks tr td.empty{display:block;}
+  }
   .bk-tools{display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
   .bk-tools button{background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:5px 11px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:12.5px;}
   .bk-tools button[aria-pressed="true"]{border-color:var(--text-faint); color:var(--text);}
@@ -489,10 +509,10 @@ function renderBanks(){
     ].filter(Boolean).join("<br>");
     return `<tr class="bk${started.length ? "" : " new"}" data-i="${i}">
       <td class="when" data-v="${b.date} ${b.time}"><span class="mono">${md(b.date)}</span> <span class="mono faint">${esc(b.time.slice(0, 5))}</span><span class="sess${bankSess(b.time) === "盤中" ? " in" : ""}">${bankSess(b.time)}</span></td>
-      <td><b>${esc(c ? (c.short || c.company) : b.name)}</b> <span class="mono faint">${esc(b.code)}</span><small class="faint" style="display:block;font-size:11.5px">${ser ? `第${esc(ser)}次 ` : ""}${esc(sec)}${b.subject.includes("交換") ? " EB" : " CB"}</small></td>
-      <td>${meth}</td><td class="hide-m">${c && c.lead ? esc(c.lead) : "–"}</td><td class="num mono">${amt}</td>
+      <td class="nm"><b>${esc(c ? (c.short || c.company) : b.name)}</b> <span class="mono faint">${esc(b.code)}</span><small class="faint" style="display:block;font-size:11.5px">${ser ? `第${esc(ser)}次 ` : ""}${esc(sec)}${b.subject.includes("交換") ? " EB" : " CB"}</small></td>
+      <td class="mt">${meth}${c && c.lead ? `<span class="m-lead">・${esc(c.lead)}</span>` : ""}</td><td class="hide-m">${c && c.lead ? esc(c.lead) : "–"}</td><td class="num mono amt">${amt}</td>
       <td class="bank">${b.collect ? esc(b.collect) : '<span class="faint">看重訊內容</span>'}${b.escrow && b.escrow !== b.collect ? `<small>專戶 ${esc(b.escrow)}</small>` : ""}</td>
-      <td data-v="${started.length ? started[0].bb_start : ""}">${bb}</td><td>${st}</td></tr>
+      <td class="bb" data-v="${started.length ? started[0].bb_start : ""}">${bb}</td><td class="stg">${st}</td></tr>
       <tr class="sub-row" hidden><td colspan="8">${detail}</td></tr>`;
   }).join("") : `<tr><td colspan="8" class="empty">近 ${bankDays} 天沒有代收行庫公告。</td></tr>`;
   document.querySelectorAll("#banks tr.bk").forEach(tr => tr.onclick = e => { if (e.target.closest("a")) return; const n = tr.nextElementSibling; n.hidden = !n.hidden; });
@@ -891,7 +911,8 @@ document.getElementById("title").textContent = INFO[VIEW][0];
 document.title = `${VIEW === "overview" ? "CB詢圈" : INFO[VIEW][0] + "｜CB詢圈"}｜潮汐`;
 document.getElementById("note").innerHTML = `流程：董事會公告 → 申報送件（金管會生效）→ 代收行庫公告 → <b>詢價圈購</b>（議定溢價率）或 <b>競價拍賣</b>（以價格得標）→ <b>訂價／開標</b>（前後發<b>承銷公告</b>）→ <b>繳款</b> → <b>上櫃掛牌</b>。<br>
   斜體灰字日期是還沒公告時依慣例推估（訂價基準日 ≈ 圈購截止後 2 個營業日、掛牌 ≈ 訂價後 7 個營業日），以正式公告為準。<br>
-  來源：證券商業同業公會承銷公告（詢圈公告、競拍公告、承銷公告 PDF）、櫃買中心轉(交)換公司債發行資料。平日 08:00、18:00 左右更新。`;
+  承銷公告 PDF 還沒上、但公司已在觀測站發「完成訂價／轉換價格及溢價率」重訊的，先用重訊的訂價基準日、溢價率、轉換價（不再顯示推估）。<br>
+  來源：證券商業同業公會承銷公告（詢圈公告、競拍公告、承銷公告 PDF）、櫃買中心轉(交)換公司債發行資料、公開資訊觀測站重大訊息（董事會決議、代收行庫、完成訂價）。平日 08:00、18:00 左右更新。`;
 
 fetch("data/cb/cb.json", {cache:"no-cache"}).then(r => r.json()).then(d => {
   cases = d.rows.map(r => Object.fromEntries(d.cols.map((k, i) => [k, r[i]])));

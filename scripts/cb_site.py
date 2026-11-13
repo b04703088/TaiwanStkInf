@@ -49,7 +49,9 @@ def add_flow_dates(cases, data_dir):
     for c in cases:
         c["nt_date"] = nt.get(c.get("nt_sn") or "", "")
         ref = c.get("board_date") or c.get("filed_date") or ""
-        end = c.get("list_date") or c.get("issue_date") or "9999"
+        # 行庫公告多在詢圈／競拍前幾天，少數在開始後（世紀鋼九 開始後 5 天才公告）；
+        # 舊案沒有掛牌日時，最晚只到開始後 20 天，不要吃到同一家下一次發行的公告
+        end = c.get("list_date") or c.get("issue_date") or (_plus(c["bb_start"], 20) if c.get("bb_start") else "9999")
         hit = [x for x in banks.get(c["code"], []) if ref and ref <= x <= end]
         c["bank_date"] = max(hit) if hit else ""
     add_mops_price(cases, d)
