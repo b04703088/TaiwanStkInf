@@ -59,6 +59,8 @@
   table{width:100%; border-collapse:collapse; font-size:13.5px;}
   th, td{padding:9px 12px; border-bottom:1px solid var(--line); text-align:left; white-space:nowrap;}
   th{font-size:12px; color:var(--text-muted); font-weight:500; background:var(--panel); position:sticky; top:0;}
+  th .th-sub{font-size:10.5px; color:var(--text-faint, var(--text-muted)); font-weight:400; opacity:.8;}
+  td .val{display:block; font-size:11.5px; color:var(--text-muted);}
   td.n, th.n{text-align:right;}
   tbody tr:last-child td{border-bottom:none;}
   tbody tr.click{cursor:pointer;}
@@ -177,7 +179,7 @@
       「內部人分點」是用過去月報比對出來、這家公司內部人慣用的分點；進度＝這些分點在轉讓期間內的賣超 ÷ 申報張數。
       還沒有比對紀錄的公司，列出期間內天天在賣、買賣一面倒的可疑分點。</p>
     <div class="tbl-wrap"><table>
-      <thead><tr><th>股票</th><th>申報人</th><th class="n">申報張數</th><th class="hide-s">轉讓期間</th>
+      <thead><tr><th>股票</th><th>申報人</th><th class="n">申報張數</th><th class="n" title="申報張數 × 申報日收盤">市值<br><span class="th-sub">申報日價</span></th><th class="hide-s">轉讓期間</th>
         <th>內部人分點 期間賣超（張）</th><th>進度</th><th class="hide-s">可疑分點</th></tr></thead>
       <tbody id="l-body"></tbody>
     </table></div>
@@ -202,7 +204,7 @@
     </div>
     <div class="tbl-wrap"><table>
       <thead><tr><th>申報日</th><th>股票</th><th>申報人</th><th>方式</th><th class="n">預定張數</th><th class="n">佔持股</th>
-        <th class="n">約金額</th><th class="hide-s">轉讓期間</th><th class="hide-s">受讓人</th></tr></thead>
+        <th class="n" title="預定張數 × 申報日收盤">市值<br><span class="th-sub">申報日價</span></th><th class="hide-s">轉讓期間</th><th class="hide-s">受讓人</th></tr></thead>
       <tbody id="p-body"></tbody>
     </table></div>
     <button class="more" id="p-more" hidden>顯示更多</button>
@@ -221,7 +223,7 @@
       </div>
     </div>
     <div class="tbl-wrap"><table>
-      <thead><tr><th>股票</th><th class="n">集中買進</th><th class="n">集中賣出</th><th class="n">淨買賣（張）</th><th class="n">約金額</th>
+      <thead><tr><th>股票</th><th class="n">集中買進</th><th class="n">集中賣出</th><th class="n">淨買賣（張）</th><th class="n" title="淨買賣張數 × 當月平均收盤（月報沒有成交價）">市值<br><span class="th-sub">月均價</span></th>
         <th class="n hide-s">其他增減</th><th>申報人</th></tr></thead>
       <tbody id="m-body"></tbody>
     </table></div>
@@ -251,7 +253,7 @@
       <div class="chips" id="a-liq"></div>
     </div>
     <div class="tbl-wrap"><table>
-      <thead><tr><th>股票</th><th class="n">內部人淨買賣（張）</th><th class="n">約金額</th><th>推定分點（同方向淨張數）</th>
+      <thead><tr><th>股票</th><th class="n">內部人淨買賣（張）</th><th class="n" title="淨買賣張數 × 當月平均收盤">市值<br><span class="th-sub">月均價</span></th><th>推定分點（同方向淨張數）</th>
         <th class="n">吻合度</th><th class="hide-s">比對期間</th><th class="hide-s">申報人</th></tr></thead>
       <tbody id="a-body"></tbody>
     </table></div>
@@ -271,8 +273,8 @@
       </div>
     </div>
     <div class="tbl-wrap"><table>
-      <thead><tr><th>股票</th><th class="n">董監設質</th><th class="n">董監解質</th><th class="n">約金額</th>
-        <th class="n">董監累計設質</th><th class="n hide-s">經理人＋大股東設質</th><th>申報人</th></tr></thead>
+      <thead><tr><th>股票</th><th class="n">董監設質</th><th class="n">董監解質</th><th class="n" title="設質（或解質）張數 × 最新收盤，看現在這些擔保品值多少">市值<br><span class="th-sub">最新價</span></th>
+        <th class="n" title="累計設質張數，下方是 × 最新收盤的市值">董監累計設質</th><th class="n hide-s">經理人＋大股東設質</th><th>申報人</th></tr></thead>
       <tbody id="g-body"></tbody>
     </table></div>
     <button class="more" id="g-more" hidden>顯示更多</button>
@@ -281,7 +283,7 @@
   <p class="note">
     資料來源：公開資訊觀測站「內部人持股異動事後申報表」與「董監事、經理人及大股東質權設定彙總表」（每月，上月資料約當月 20～22 日齊全）、證交所／櫃買中心「每日內部人持股轉讓事前申報表」。<br>
     事後申報每月查所有上市櫃公司，含董監、經理人、大股東的配偶及未成年子女（已成年子女不是內部人，不用申報）；設質／解質的公司排行只算董監事（彙總表的分類），經理人與大股東另列累計設質；同一人兼多個身分只算一次；夫妻都是內部人時，配偶那列跟本人重複，加總時略過。張數＝股數 ÷ 1,000，只算普通股。<br>
-    約金額＝張數 × 最新收盤價，只是概算，實際成交價看當時股價。事前申報是「預定」，期限內不一定賣完，也可能完全沒賣，要對照之後的事後申報。資料僅供參考，不構成投資建議。
+    市值＝張數 × 1,000 × 收盤價，只是概算：事前申報、申報追蹤用<b>申報日收盤</b>；每月實際買賣、分點答案用<b>當月平均收盤</b>（月報沒有成交價）；設質／解質、累計設質、持股用<b>最新收盤</b>（看擔保品現在值多少）。億以上顯示「億」，以下顯示「萬」。事前申報是「預定」，期限內不一定賣完，也可能完全沒賣，要對照之後的事後申報。資料僅供參考，不構成投資建議。
   </p>
 </main>
 <footer class="site"><div class="wrap"><p class="note" style="margin:0">資料僅供參考。</p></div></footer>
@@ -297,14 +299,16 @@ const addDays = (d, n) => { const t = new Date(d + "T00:00:00"); t.setDate(t.get
 const per = p => (p || "").split("~").map(md).join("～");
 const md = d => d ? (d.slice(0, 4) === TODAY.slice(0, 4) ? d.slice(5) : d) : "–";
 
-let D, PX = {}, NAME = {}, PXDATE = "", TR = [], PRE = [], PLG = [], B = null, NEWDAY = "9";
+let D, PX = {}, MPX = {}, NAME = {}, PXDATE = "", TR = [], PRE = [], PLG = [], B = null, NEWDAY = "9";
 const S = {q: ""}, P = {kind: "mkt", days: 30, n: 50}, G = {month: "", view: "add", n: 50, open: new Set()}, M = {month: "", view: "buy", n: 50, open: new Set()};
 
 function objs(t){ return (t?.rows || []).map(r => Object.fromEntries(t.cols.map((k, i) => [k, r[i]]))); }
 const stockCell = r => `<a href="#s=${esc(r.code)}" class="sname" data-s="${esc(r.code)}" style="text-decoration:none">${esc(r.company)}<span class="mono">${esc(r.code)}</span></a>${r.market === "otc" ? '<span class="faint" style="font-size:11px;margin-left:4px">櫃</span>' : ""}`;
 const short = s => (s || "").replace(/本人/g, "").replace(/之法人代表人/g, "代表人").replace(/股份有限公司|有限公司/g, "");
 const qmatch = r => !S.q || r.code === S.q || r.code.startsWith(S.q) || (r.company || "").toLowerCase().includes(S.q) || (r.name || "").toLowerCase().includes(S.q);
-const money = (code, sh) => PX[code] && sh ? sh * PX[code] : null;
+const money = (code, sh) => PX[code] && sh ? sh * PX[code] : null;          // 最新收盤
+const mval = (sh, px, code) => sh ? (px ? sh * px : money(code, sh)) : null;    // 指定價（申報日／月均），沒有就用最新收盤
+const yiTag = v => v ? `<span class="faint">（${yi(Math.abs(v))}）</span>` : "";
 
 /* 事前申報 */
 const KIND = m => /一般交易|鉅額|盤後/.test(m) ? "mkt" : /特定人/.test(m) ? "deal" : /贈與|信託/.test(m) ? "gift" : "other";
@@ -312,7 +316,7 @@ function renderPre(){
   const since = P.days && !S.q ? addDays(TODAY, -P.days) : "";
   const rows = PRE.filter(r => r.date >= since && (P.kind === "all" || KIND(r.method) === P.kind) && qmatch(r));
   const shown = rows.slice(0, P.n);
-  const tot = rows.reduce((s, r) => s + (money(r.code, r.shares) || 0), 0);
+  const tot = rows.reduce((s, r) => s + (mval(r.shares, r.px, r.code) || 0), 0);
   document.getElementById("p-hint").textContent = `${rows.length} 筆` + (tot ? `，合計約 ${yi(tot)}` : "");
   document.getElementById("p-body").innerHTML = shown.map(r => {
     const pc = r.held ? r.shares / r.held * 100 : null;
@@ -321,13 +325,14 @@ function renderPre(){
       <td class="person"><span class="sname">${esc(short(r.name))}</span><span class="role">${esc(short(r.role))}</span></td>
       <td><span class="tag ${k === "mkt" ? "sell" : ""}">${esc(r.method.replace(/\(每日得轉讓股數限制\)/, ""))}</span></td>
       <td class="n mono">${lots(r.shares)}</td><td class="n mono">${pc != null ? pc.toFixed(pc >= 10 ? 0 : 1) + "%" : "–"}</td>
-      <td class="n mono">${yi(money(r.code, r.shares))}</td><td class="mono hide-s faint">${esc(per(r.period))}</td>
+      <td class="n mono" title="${r.px ? `申報日收盤 ${r.px}` : "最新收盤"}">${yi(mval(r.shares, r.px, r.code))}</td><td class="mono hide-s faint">${esc(per(r.period))}</td>
       <td class="hide-s faint" style="font-size:12.5px">${esc(short(r.transferee) || "")}</td></tr>`;
   }).join("") || `<tr><td colspan="9" class="empty">${S.q ? "這檔股票沒有事前申報" : "這段期間沒有資料"}</td></tr>`;
   document.getElementById("p-more").hidden = rows.length <= P.n;
 }
 
 /* 設質／解質：質權設定彙總表（公司）＋事後申報（每人） */
+const valLine = v => v ? `<span class="val">${yi(v)}</span>` : "";
 const pctTxt = v => v == null ? "" : `<span class="faint">（${(+v).toFixed(v >= 10 ? 0 : 1)}%）</span>`;
 function renderPledge(){
   if (!PLG.length) return;
@@ -336,7 +341,8 @@ function renderPledge(){
   const rows = PLG.filter(r => (S.q ? true : r.month === G.month) && keep(r) && qmatch(r))
     .sort((a, b) => S.q ? (b.month.localeCompare(a.month) || key(a) - key(b)) : key(a) - key(b));
   const add = rows.reduce((s, r) => s + r.ds_padd, 0), sub = rows.reduce((s, r) => s + r.ds_psub, 0);
-  document.getElementById("g-hint").textContent = `${rows.length} 家` + (G.view === "pct" ? "，董監設質 ≥ 20% 持股" : `，設質 ${lots(add)} 張、解質 ${lots(sub)} 張`);
+  const sumv = k => rows.reduce((s, r) => s + (money(r.code, r[k]) || 0), 0);
+  document.getElementById("g-hint").textContent = `${rows.length} 家` + (G.view === "pct" ? "，董監設質 ≥ 20% 持股" : `，設質 ${lots(add)} 張（約 ${yi(sumv("ds_padd"))}）、解質 ${lots(sub)} 張（約 ${yi(sumv("ds_psub"))}）`);
   document.getElementById("g-body").innerHTML = rows.slice(0, G.n).map(r => {
     const k = "g|" + r.month + "|" + r.code, open = G.open.has(k);
     const ppl = TR.filter(t => t.month === r.month && t.code === r.code && (t.pledge_add || t.pledge_sub));
@@ -346,14 +352,14 @@ function renderPledge(){
       <td class="n mono ${r.ds_padd ? "up" : "faint"}">${r.ds_padd ? lots(r.ds_padd) : "–"}</td>
       <td class="n mono ${r.ds_psub ? "down" : "faint"}">${r.ds_psub ? lots(r.ds_psub) : "–"}</td>
       <td class="n mono">${yi(amt)}</td>
-      <td class="n mono">${r.ds_pledged ? lots(r.ds_pledged) + " 張" : "–"}${r.ds_pledged ? pctTxt(r.ds_ppct) : ""}</td>
-      <td class="n mono hide-s">${r.mm_pledged ? lots(r.mm_pledged) + " 張" + pctTxt(r.mm_ppct) : "–"}</td>
+      <td class="n mono">${r.ds_pledged ? lots(r.ds_pledged) + " 張" : "–"}${r.ds_pledged ? pctTxt(r.ds_ppct) : ""}${valLine(money(r.code, r.ds_pledged))}</td>
+      <td class="n mono hide-s">${r.mm_pledged ? lots(r.mm_pledged) + " 張" + pctTxt(r.mm_ppct) : "–"}${valLine(money(r.code, r.mm_pledged))}</td>
       <td class="who">${names.length ? esc(names.slice(0, 3).join("、")) + (names.length > 3 ? `<span class="faint"> 等 ${names.length} 人</span>` : "") : '<span class="faint">–</span>'}</td></tr>`;
     return head + (open ? ppl.map(t => `<tr class="sub-row"><td class="person"><span class="sname">${esc(short(t.name))}</span><span class="role">${esc(short(t.role))}${t.dup ? `（同 ${esc(t.dup)}）` : ""}</span></td>
       <td class="n mono up">${t.pledge_add ? lots(t.pledge_add) : ""}</td><td class="n mono down">${t.pledge_sub ? lots(t.pledge_sub) : ""}</td>
       <td class="n mono">${yi(money(t.code, t.pledge_add || t.pledge_sub))}</td>
-      <td class="n mono">${lots(t.pledged)} 張${t.held_now ? pctTxt(t.pledged / t.held_now * 100) : ""}</td><td class="hide-s"></td>
-      <td class="faint">持股 ${lots(t.held_now)} 張</td></tr>`).join("") : "");
+      <td class="n mono">${lots(t.pledged)} 張${t.held_now ? pctTxt(t.pledged / t.held_now * 100) : ""}${valLine(money(t.code, t.pledged))}</td><td class="hide-s"></td>
+      <td class="faint">持股 ${lots(t.held_now)} 張${yiTag(money(t.code, t.held_now))}</td></tr>`).join("") : "");
   }).join("") || `<tr><td colspan="7" class="empty">${S.q ? "這檔股票最近幾個月董監沒有設質／解質" : "沒有資料"}</td></tr>`;
   document.getElementById("g-more").hidden = rows.length <= G.n;
   document.querySelectorAll("#g-body tr.click").forEach(tr => tr.onclick = e => {
@@ -369,13 +375,13 @@ function companies(rows){
   for (const r of rows){
     const k = r.month + "|" + r.code;
     let c = by.get(k);
-    if (!c) by.set(k, c = {month: r.month, code: r.code, company: r.company, market: r.market, buy: 0, sell: 0, other: 0, padd: 0, psub: 0, people: []});
+    if (!c) by.set(k, c = {month: r.month, code: r.code, company: r.company, market: r.market, px: r.px, buy: 0, sell: 0, other: 0, padd: 0, psub: 0, people: []});
     c.people.push(r);
     if (r.dup) continue;
     c.buy += r.buy_mkt; c.sell += r.sell_mkt; c.other += r.buy_other - r.sell_other;
     c.padd += r.pledge_add; c.psub += r.pledge_sub;
   }
-  for (const c of by.values()){ c.net = c.buy - c.sell; c.amt = money(c.code, c.net); }
+  for (const c of by.values()){ c.net = c.buy - c.sell; c.amt = mval(c.net, c.px, c.code); }
   return [...by.values()];
 }
 const VIEW = {
@@ -386,9 +392,9 @@ function personRow(r){
   const net = r.buy_mkt - r.sell_mkt, oth = r.buy_other - r.sell_other;
   return `<tr class="sub-row"><td class="person"><span class="sname">${esc(short(r.name))}</span><span class="role">${esc(short(r.role))}${r.dup ? `<span title="夫妻都是內部人，跟 ${esc(r.dup)} 本人那列是同一筆，不重複加總">（同 ${esc(r.dup)}，不加總）</span>` : ""}</span></td>
     <td class="n mono">${r.buy_mkt ? lots(r.buy_mkt) : "–"}</td><td class="n mono">${r.sell_mkt ? lots(r.sell_mkt) : "–"}</td>
-    <td class="n mono ${cls(net)}">${net ? slots(net) : "–"}</td><td class="n mono ${cls(net)}">${yi(money(r.code, net))}</td>
+    <td class="n mono ${cls(net)}">${net ? slots(net) : "–"}</td><td class="n mono ${cls(net)}">${yi(mval(net, r.px, r.code))}</td>
     <td class="n mono hide-s">${oth ? slots(oth) : "–"}</td>
-    <td class="faint">持股 ${lots(r.held_prev)} → ${lots(r.held_now)} 張${r.pledged ? `，質押 ${lots(r.pledged)} 張（${(r.held_now ? r.pledged / r.held_now * 100 : 0).toFixed(0)}%）` : ""}${r.note ? `，${esc(r.note)}` : ""}</td></tr>`;
+    <td class="faint">持股 ${lots(r.held_prev)} → ${lots(r.held_now)} 張${yiTag(money(r.code, r.held_now))}${r.pledged ? `，質押 ${lots(r.pledged)} 張（${(r.held_now ? r.pledged / r.held_now * 100 : 0).toFixed(0)}%）` : ""}${r.note ? `，${esc(r.note)}` : ""}</td></tr>`;
 }
 function renderMonth(){
   const [keep, key] = VIEW[M.view];
@@ -402,7 +408,7 @@ function renderMonth(){
     const names = c.people.filter(r => !r.dup).sort((a, b) => Math.abs(b.buy_mkt - b.sell_mkt) - Math.abs(a.buy_mkt - a.sell_mkt)).slice(0, 3).map(r => short(r.name));
     const head = `<tr class="click" data-k="${esc(k)}"><td><span class="caret">${open ? "▾" : "▸"}</span>${stockCell(c)}${S.q ? `<span class="mono faint" style="margin-left:8px;font-size:12px">${c.month}</span>` : ""}</td>
       <td class="n mono">${c.buy ? lots(c.buy) : "–"}</td><td class="n mono">${c.sell ? lots(c.sell) : "–"}</td>
-      <td class="n mono ${cls(c.net)}">${c.net ? slots(c.net) : "–"}</td><td class="n mono ${cls(c.net)}">${yi(c.amt)}</td>
+      <td class="n mono ${cls(c.net)}">${c.net ? slots(c.net) : "–"}</td><td class="n mono ${cls(c.net)}" title="${c.px ? `${c.month} 月均收盤 ${c.px}` : "最新收盤"}">${yi(c.amt)}</td>
       <td class="n mono hide-s">${c.other ? slots(c.other) : "–"}</td>
       <td class="who">${esc(names.join("、"))}${c.people.length > names.length ? `<span class="faint"> 等 ${c.people.filter(r => !r.dup).length} 人</span>` : ""}</td></tr>`;
     return head + (open ? c.people.map(personRow).join("") : "");
@@ -420,7 +426,7 @@ function renderStats(){
   const nb = cs.filter(c => c.net > 0), ns = cs.filter(c => c.net < 0);
   const since = addDays(TODAY, -30);
   const pre = PRE.filter(r => r.date >= since && KIND(r.method) === "mkt");
-  const preAmt = pre.reduce((s, r) => s + (money(r.code, r.shares) || 0), 0);
+  const preAmt = pre.reduce((s, r) => s + (mval(r.shares, r.px, r.code) || 0), 0);
   const pm = PLG.filter(r => r.month === G.month);
   const padd = pm.reduce((s, r) => s + r.ds_padd, 0), psub = pm.reduce((s, r) => s + r.ds_psub, 0);
   const stat = (k, v, s) => `<div class="stat"><div class="k">${k}</div><div class="v mono">${v}</div><div class="s">${s}</div></div>`;
@@ -429,7 +435,7 @@ function renderStats(){
     stat(`${M.month} 集中市場淨賣出`, `${ns.length} 家`, `約 ${yi(-ns.reduce((s, c) => s + (c.amt || 0), 0))}`) +
     stat(`最新申報日 ${md(NEWDAY)}`, `${PRE.filter(r => r.date >= NEWDAY && KIND(r.method) === "mkt").length} 筆市場賣出`,
       `當天共 ${PRE.filter(r => r.date >= NEWDAY).length} 筆；近 30 天市場賣出 ${pre.length} 筆、約 ${yi(preAmt)}`) +
-    stat(`${G.month || M.month} 董監設質／解質`, `${lots(padd)}／${lots(psub)}`, `張，設質 ${pm.filter(r => r.ds_padd).length} 家、解質 ${pm.filter(r => r.ds_psub).length} 家`);
+    stat(`${G.month || M.month} 董監設質／解質`, `${lots(padd)}／${lots(psub)}`, `張，約 ${yi(pm.reduce((s, r) => s + (money(r.code, r.ds_padd) || 0), 0))}／${yi(pm.reduce((s, r) => s + (money(r.code, r.ds_psub) || 0), 0))}；設質 ${pm.filter(r => r.ds_padd).length} 家、解質 ${pm.filter(r => r.ds_psub).length} 家`);
 }
 
 
@@ -474,14 +480,14 @@ async function renderChart(){
   const close = d => { let c = null; for (const p of px){ if (p[0] > d) break; c = p[1]; } return c ?? px[0][1]; };
   for (const r of pre){
     const x = X(r.date), y = Y(close(r.date)) - 8, mk = KIND(r.method) === "mkt";
-    out += `<g><title>${esc(r.date)} 事前申報 ${esc(short(r.name))}（${esc(short(r.role))}）${esc(r.method)} ${lots(r.shares)} 張</title>` +
+    out += `<g><title>${esc(r.date)} 事前申報 ${esc(short(r.name))}（${esc(short(r.role))}）${esc(r.method)} ${lots(r.shares)} 張（約 ${yi(mval(r.shares, r.px, r.code))}，申報日價）</title>` +
       svgEl("path", {d: `M${x - 6},${y - 9} L${x + 6},${y - 9} L${x},${y} Z`, fill: mk ? "var(--fall)" : "none", stroke: "var(--fall)", "stroke-width": 1.3}) + "</g>";
   }
   // 每月淨買賣柱 250～340（零軸 295）
   const agg = {};
   for (const r of TR){
     if (r.code !== code || r.dup) continue;
-    const a = agg[r.month] ||= {buy: 0, sell: 0, padd: 0, psub: 0, who: []};
+    const a = agg[r.month] ||= {buy: 0, sell: 0, padd: 0, psub: 0, px: r.px, who: []};
     a.buy += r.buy_mkt; a.sell += r.sell_mkt; a.padd += r.pledge_add; a.psub += r.pledge_sub;
     if (r.buy_mkt || r.sell_mkt || r.pledge_add || r.pledge_sub) a.who.push(`${short(r.name)} ${r.buy_mkt ? "買" + lots(r.buy_mkt) : ""}${r.sell_mkt ? "賣" + lots(r.sell_mkt) : ""}${r.pledge_add ? " 設質" + lots(r.pledge_add) : ""}${r.pledge_sub ? " 解質" + lots(r.pledge_sub) : ""}`);
   }
@@ -492,7 +498,7 @@ async function renderChart(){
     const a = agg[m]; if (!a) continue;
     const net = a.buy - a.sell, x0 = X(m + "-01"), [y, mm] = m.split("-").map(Number);
     const x1 = X(`${mm === 12 ? y + 1 : y}-${String(mm === 12 ? 1 : mm + 1).padStart(2, "0")}-01`), w = (x1 - x0) * .42, cx = (x0 + x1) / 2;
-    const tip = `${m}　集中市場買 ${lots(a.buy)}、賣 ${lots(a.sell)}，淨 ${slots(net)} 張；設質 ${lots(a.padd)}、解質 ${lots(a.psub)} 張\n` + a.who.join("\n");
+    const tip = `${m}　集中市場買 ${lots(a.buy)}、賣 ${lots(a.sell)}，淨 ${slots(net)} 張${net ? `（約 ${net < 0 ? "−" : ""}${yi(Math.abs(mval(net, a.px, code)))}，月均價）` : ""}；設質 ${lots(a.padd)}、解質 ${lots(a.psub)} 張\n` + a.who.join("\n");
     let g = "";
     if (net){
       const h = Math.max(2, Math.abs(net) / mx * H);
@@ -539,6 +545,7 @@ function renderLive(){
     const who = [...new Set(ppl.map(r => short(r.name)))];
     const isNew = ppl.some(r => r.date >= NEWDAY);
     const kn = x.known.filter(a => a[3]);
+    const lpx = ppl.find(r => r.px)?.px, lv = mval(x.lots * 1000, lpx, x.code);
     const knTxt = kn.length ? kn.map(a => `${esc(a[1])} ${a[2] == null ? '<span class="faint">不在前15</span>' : `<span class="mono ${a[2] > 0 ? "down" : "up"}">${a[2] > 0 ? "賣 " + a[2].toLocaleString() : "買 " + (-a[2]).toLocaleString()}</span>`}`).join("<br>")
       : '<span class="faint">還沒有比對紀錄</span>';
     const p = x.prog;
@@ -546,9 +553,9 @@ function renderLive(){
     const sus = x.sus.map(e => `${esc(e[1])} <span class="mono down">賣 ${e[2].toLocaleString()}</span>${e[5] ? `<span class="faint">（${e[6]}/${e[5]} 天）</span>` : ""}`).join("<br>");
     return `<tr><td>${stockCell(r0)}${isNew ? ' <span class="tag new">新</span>' : ""}</td>
       <td class="who">${esc(who.slice(0, 2).join("、")) || "–"}${who.length > 2 ? `<span class="faint"> 等 ${who.length} 人</span>` : ""}</td>
-      <td class="n mono">${x.lots.toLocaleString()}</td><td class="mono hide-s faint">${md(x.d1)}～${esc(per(ppl.map(r => r.period.split("~")[1]).sort().pop() || ""))}</td>
+      <td class="n mono">${x.lots.toLocaleString()}</td><td class="n mono" title="${lpx ? `申報日收盤 ${lpx}` : "最新收盤"}">${yi(lv)}</td><td class="mono hide-s faint">${md(x.d1)}～${esc(per(ppl.map(r => r.period.split("~")[1]).sort().pop() || ""))}</td>
       <td class="brk-cell brk">${knTxt}</td><td>${prog}</td><td class="brk-cell brk hide-s">${sus || '<span class="faint">–</span>'}</td></tr>`;
-  }).join("") || `<tr><td colspan="7" class="empty">${S.q ? "這檔股票目前沒有在轉讓期間內的市場賣出申報" : "目前沒有"}</td></tr>`;
+  }).join("") || `<tr><td colspan="8" class="empty">${S.q ? "這檔股票目前沒有在轉讓期間內的市場賣出申報" : "目前沒有"}</td></tr>`;
 }
 function renderAns(){
   const box = document.getElementById("ans");
@@ -560,7 +567,7 @@ function renderAns(){
   const rows = Object.entries(B.match).map(([k, m]) => { const [code, month] = k.split("|"); return {...m, code, month, company: NAME[code] || code, market: ""}; })
     .filter(m => (S.q ? qmatch(m) : m.month === A.month && (!A.view || m.dir === A.view) && TideLiq.pass(m.code))
       && (A.conf === "all" || m.conf !== "低"))
-    .map(m => ({...m, amt: money(m.code, m.lots * 1000)}))
+    .map(m => ({...m, amt: mval(m.lots * 1000, MPX[m.code + "|" + m.month], m.code)}))
     .sort((a, b) => S.q ? b.month.localeCompare(a.month) : (b.amt ?? b.lots) - (a.amt ?? a.lots));
   const cnt = c => rows.filter(r => r.conf === c).length;
   document.getElementById("a-hint").textContent = `${rows.length} 筆：高 ${cnt("高")}、中 ${cnt("中")}` + (A.conf === "all" ? `、低 ${cnt("低")}` : "");
@@ -610,6 +617,7 @@ Promise.all([
   fetch("data/insider/brokers.json", {cache: "no-cache"}).then(r => r.ok ? r.json() : null).catch(() => null),
 ]).then(([d, px, bk]) => {
   D = d; B = bk; TR = objs(D.trades); PRE = objs(D.transfer); PLG = objs(D.pledge);
+  for (const r of TR) if (r.px) MPX[r.code + "|" + r.month] ||= r.px;
   if (px){ const ci = Object.fromEntries(px.columns.map((k, i) => [k, i])); for (const r of px.rows){ const c = +r[ci.close]; if (c) PX[r[ci.code]] = c; NAME[r[ci.code]] = r[ci.name]; } }
   for (const r of [...TR, ...PRE]) NAME[r.code] ||= r.company;
   M.month = D.months[0] || ""; G.month = (D.pmonths || [])[0] || "";
@@ -623,7 +631,7 @@ Promise.all([
   document.getElementById("pledge").hidden = !PLG.length;
   const first = PRE.length ? PRE[PRE.length - 1].date : "–";
   document.getElementById("sub").textContent = `上市櫃公司董監事、經理人、持股 10% 以上大股東的買賣與質押：事前申報（預定賣出、贈與、信託）每天更新，申報日 ${first} 起；` +
-    `實際買賣與設質解質看每月申報，目前有 ${D.months.slice(-1)[0] || "–"}～${D.months[0] || "–"}。約金額用 ${PXDATE || "最新"} 收盤概算。`;
+    `實際買賣與設質解質看每月申報，目前有 ${D.months.slice(-1)[0] || "–"}～${D.months[0] || "–"}。張數旁的市值：事前申報用申報日收盤、每月買賣用月均價、設質與持股用 ${PXDATE || "最新"} 收盤。`;
   renderStats(); renderAll();
   chips("p-kind", P, "kind", renderPre); chips("p-days", P, "days", renderPre, Number);
   chips("g-month", G, "month", () => { G.open.clear(); renderPledge(); });
