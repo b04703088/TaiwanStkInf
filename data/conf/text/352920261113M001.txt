@@ -1,0 +1,431 @@
+[p.1]
+ 2026第三季法人說明會
+  November 13th, 2026
+Embedded Wisely, Embedded Widely
+Embedded Wisely, Embedded Widely
+
+[p.2]
+  智慧財產權聲明
+  All rights, titles and interests contained in this information, texts, images, figures, tables
+  or other files herein, including, but not limited to, its ownership and the intellectual
+  property rights, are reserved to eMemory. This information may contain privileged and
+  confidential information. Some contents in this information can be found in Logic Non-
+  Volatile Memory (The NVM solutions from eMemory), published in 2014. Any and all
+  information provided herein shall not be disclosed, copied, distributed, reproduced or
+  used in whole or in part without prior written permission of eMemory Technology Inc.
+  eMemory, NeoBit, NeoFuse, NeoEE, NeoMTP, NeoROM, EcoBit and NeoPUF are all
+  trademarks and/or service marks of eMemory in Taiwan and/or in other countries.
+Embedded
+ EmbeddedWisely,
+  Wisely,Embedded
+  EmbeddedWidely
+  Widely  2
+
+[p.4]
+  內容
+  1  Review of Operations
+  2  Future Outlook
+  Securing AI Infrastructure from the Silicon Up:
+  3
+  Modular Hardware Trust for Agentic & Physical AI
+  4  Q&A
+  5  Appendix
+Embedded
+ EmbeddedWisely,
+  Wisely,Embedded
+  EmbeddedWidely
+  Widely  4
+
+[p.5]
+  營運回顧
+Embedded Wisely, Embedded Widely  5
+
+[p.6]
+  第三季綜合損益表
+ (thousands of NT dollars)
+  Q1-Q3 202 Q1-Q3 202
+  Q3 2026  Q2 2026  QoQ  Q3 2025  YoY  YoY
+  6  5
+ Revenue  1,210,190  1,096,627  10.4%  952,422  27.1%  3,400,810  2,800,691  21.4%
+ Gross Margin  100.0%  100.0%  -  100.0%  -  100.0%  100.0%  -
+ Operating Expenses  445,589  430,520  3.5%  404,068  10.3%  1,307,725  1,184,099  10.4%
+ Operating Income  764,601  666,107  14.8%  548,354  39.4%  2,093,085  1,616,592  29.5%
+ Operating Margin  63.2%  60.7%  +2.5ppts  57.6%  +5.6ppts  61.5%  57.7%  +3.8ppts
+ *Net Income  639,095  579,791  10.2%  487,135  31.2%  1,815,136  1,348,836  34.6%
+ Net Margin  55.1%  54.3%  +0.8ppt  51.3%  +3.8ppts  55.2%  47.9%  +7.3ppts
+ EPS (NT$)  8.56  7.77  10.2%  6.52  31.3%  24.30  18.06  34.6%
+ ROE  64.2%  63.3%  +0.9ppt  57.0%  +7.2ppts  60.7%  52.6%  +8.1ppts
+ *Net income attributable to Shareholders of the Company
+Embedded Wisely, Embedded Widely  6
+
+[p.7]
+  第三季營收分析 – 授權金&權利金
+  Q3 Revenue Breakdown (NTD)  (NT$ K)  26Q3 in comparison to 26Q2
+  Royalty  $1,000,000  26Q3  26Q2
+  63.6%
+  $500,000
+  Licensing  $0
+  36.4%  Licensing  Royalty
+  NT$  Q1-Q3 202 Q1-Q3 202
+  Q3 2026  Q2 2026  QoQ  Q3 2025  YoY  YoY
+  Thousands  6  5
+  Licensing  440,660  429,640  2.6%  347,011  27.0%  1,251,335  905,204  38.2%
+  Royalty  769,530  666,987  15.4%  605,411  27.1%  2,149,475 1,895,487  13.4%
+  Total  1,210,190 1,096,627  10.4%  952,422  27.1%  3,400,810 2,800,691  21.4%
+Embedded Wisely, Embedded Widely  7
+
+[p.8]
+  第三季營收分析 – 產品線
+  Q3 2026
+  Total Revenue  Licensing Revenue  Royalty Revenue
+  NT$
+  % of  % of  % of
+  QoQ  YoY  QoQ  YoY  QoQ  YoY
+  Revenue  Licensing  Royalty
+  NeoBit  18.2%  -8.1%  -14.1%  7.5%  -46.3%  -68.1%  24.4%  5.0%  22.3%
+  NeoFuse  57.9%  12.9%  26.7%  36.0%  -4.2%  30.1%  70.5%  19.2%  25.7%
+  PUF-Based  14.5%  46.3%  213.1%  36.6%  48.4%  198.1%  1.8%  25.9%  656.5%
+  MTP  9.4%  -2.5%  30.9%  19.9%  -6.7%  29.4%  3.3%  15.2%  36.1%
+  Q1-Q3 2026
+  Total Revenue  Licensing Revenue  Royalty Revenue
+  NT$
+  % of  % of  % of
+  YoY  YoY  YoY
+  Revenue  Licensing  Royalty
+  NeoBit  20.0%  -7.4%  11.9%  -39.3%  24.6%  8.6%
+  NeoFuse  58.1%  16.8%  36.5%  35.1%  70.7%  12.3%
+  PUF-Based  12.6%  252.0%  31.7%  234.2%  1.5%  927.5%
+  MTP  9.3%  24.8%  19.9%  22.9%  3.2%  32.5%
+Embedded Wisely, Embedded Widely  8
+
+[p.9]
+  第三季營收分析 – 晶圓尺寸
+  (NT$ K)  26Q3 in comparison to 26Q2
+  Q3 Royalty Breakdown (NTD)
+  $600,000  26Q3  26Q2
+  12-Inch
+  65.1%
+  $400,000
+  $200,000
+  8-Inch  $0
+  34.9%  8-Inch  12-Inch
+  Q3 2026  Q1-Q3 2026
+  NT$
+  % of Royalty  QoQ  YoY  % of Royalty  YoY
+  8-Inch  34.9%  7.3%  9.2%  35.3%  -2.6%
+  12-Inch  65.1%  20.2%  39.3%  64.7%  24.5%
+Embedded Wisely, Embedded Widely  9
+
+[p.10]
+  未來展望
+Embedded Wisely, Embedded Widely  10
+
+[p.11]
+  未來展望 – 授權金&權利金
+  ◼  Licensing Revenue: Licensing is expected to sustain its strong momentum, supported by robust
+  demand for our technologies across leading-edge and legacy process nodes, hardware security, AI
+  infrastructure, and next-generation Flash applications.
+  ◼  Royalty Revenue: Royalty growth is expected to continue accelerating, driven by higher ASPs from
+  advanced-node applications, ongoing ramp-up of new customer products, increasing contributions
+  from PUF-related deployments, and a growing mix of higher-royalty-rate applications.
+Embedded Wisely, Embedded Widely  11
+
+[p.12]
+  未來展望 – 新IP技術&商務平台擴展
+  ◼  New IP Technologies
+  1.  Advanced-Node OTP and PUF-based Hardware Security: Continuing to develop and qualify next-generation OTP and PUF-based
+  hardware security solutions for 2nm GAA and sub-2nm nodes, addressing growing customer requirements for device identity, key protection,
+  Secure Boot, and hardware Root of Trust.
+  2.  Next-Generation 1T Flash: Our 1T logic technology continues to advance across both embedded and standalone memory applications. Its
+  logic-process-compatible architecture offers greater scalability, simplified process integration, and enhanced cost efficiency, making it an
+  attractive solution for future AI, industrial, and edge computing applications.
+  ◼  Business Development Platforms
+  1.  Data Center and AI Compute Security Platform: Accelerating adoption of Caliptra across CPU, AI accelerator, and AI ASIC ecosystems is
+  driving strong demand for our security solutions, ranging from foundational Hardware Root of Trust IP to Caliptra-compatible Security
+  Subsystems and turnkey integration services. As AI infrastructure continues to scale, trusted computing is becoming a fundamental
+  requirement across next-generation silicon platforms.
+  2.  Post-Quantum Security Platform: AI makes software and firmware cheaper to attack. Arriving quantum computing can further challenge
+  existing cryptographic engines. We continue to strengthen our PUF-PQC portfolio with attack-resistant hardware security technologies,
+  including side-channel protection, to support customers' transition to the post-quantum era and emerging security standards.
+  3.  Chiplet Security Platform: Together with ecosystem partners, we are building an end-to-end security framework for chiplet-based systems,
+  covering supply-chain traceability, identity and authentication, secure provisioning, die-to-die communication, key management, and
+  Hardware Root of Trust. These capabilities help address the growing security challenges arising from AI computing, advanced packaging,
+  heterogeneous integration, and today's evolving geopolitical landscape.
+  4.  HSM Edge Server and SECaaS Platform: The PUF-based HSM Edge Server combines device identity, key and certificate management,
+  secure OTA updates, signature verification, privacy protection, and Post-Quantum Cryptography migration. Early opportunities are
+  progressing in Root CA, enterprise AI token-exchange signing, DID wallets, as well as automotive OTA, industrial control, Edge AI, and data
+  center applications.
+Embedded Wisely, Embedded Widely  12
+
+[p.13]
+Securing AI Infrastructure
+from the Silicon Up
+  Securing AI
+  Infrastructure
+  from the Silicon Up
+  Modular Hardware Trustfor
+  Agentic & Physical AI
+
+[p.14]
+More Autonomous AI Needs Stronger Hardware Security
+  More Autonomous AI Needs Stronger Hardware Security
+  Agentic AI Applications
+  Autonomous decisions and actions
+  Secure VM / Compute Environment
+  Workload isolation and policy control
+  Data-center Silicon Infrastructure
+  CPUs, accelerators, networking, storage, BMC…
+  On-die Root of Trust
+  Chip identity, secure boot, attestation
+
+[p.15]
+Integrated HSMs Bring Security Closer to AI Workloads
+  Integrated HSMs Bring Security Closer to AI Workloads
+  CURRENT  GOAL
+  Centralized HSM  Centralized HSM +
+  Integrated HSM in Serves
+  Remote dep
+  Latency  Scaling  endency
+  pressure
+
+[p.16]
+PUFrt: a Hardware Security Anchor for Multiple Applications
+  PUFrt: a Hardware Security Anchor for Multiple Applications
+  Key Protection  Device Identity
+  Secure/
+  Crypto. Operations  Measured Boot
+  Secure Key  Attestation
+  Management
+
+[p.17]
+Reusable Security Foundation for Different Integrations
+  Reusable Security Foundation for Different Integrations
+  Reusable IP. Lower Integration Risk. Faster Deployment.
+
+[p.18]
+From AI Demand to Silicon Security Market
+  From AI Demand to Silicon Security Market
+  Agentic &  Security  Caliptra  Modular & Scalable  Growing
+  Physical AI  moves closer to  standardizes the  PUF security IPs  adoption and
+  expands security  the silicon  trust model  enable flexible  business
+  needs  integration  market
+
+[p.19]
+  Q&A
+Embedded Wisely, Embedded Widely  19
+
+[p.20]
+  Appendix
+Embedded Wisely, Embedded Widely  20
+
+[p.21]
+  Company Overview
+  ▪  eMemory leads the global market in Logic NVM and PUF-Based Security IPs
+  Revenue Trend
+  (Unit: NT$ in Million)
+  4,500
+  4,000  Royalty  License/Design Revenue
+  3,500
+  3,000
+  2,500
+  2,000
+  1,500
+  1,000
+  500
+  0
+  2005 2006 2007 2008 2009 2010 2011 2012 2013 2014 2015 2016 2017 2018 2019 2020 2021 2022 2023 2024 2025
+  82M+  1390+  17-Year
+  Cumulative Wafers Shipped  Patents Issued  Best IP Partner with TSMC
+  Spanning 788 production processes  Expanding our IP footprint with 231  Founded in 2000 and IPO in 2011.
+  from 0.5µm to 2nm, and 7.5M wafers  pending patents, driven by a 340-  Recognized as TSMC’s Best IP
+  (8″-equivalent) shipped in 2026 Q1-Q3.  member team with 73% R&D focus.  Partner every year since 2010.
+Embedded Wisely, Embedded Widely  21
+
+[p.22]
+  Quarterly Revenue Pattern
+  ▪  1st month: Receive License Fees of the month and Royalty from most foundries on previous quarter’s wafer
+  shipments.
+  ▪  2nd month: Receive License Fees of the month and Royalty from other foundries.
+  ▪  3rd month: License Fees Only.
+  (Unit: NT$ 1,000)
+  2020  2021  2022  2023  2024  2025  2026
+  $800,000  726,073
+  667,012  675,856
+  $700,000  622,668
+  613,115
+  561,522 545,007 546,080
+  $600,000  519,769
+  509,347  542,896
+  492,441  495,333  487,655
+  474,179
+  $500,000  428,676  453,365
+  419,581  433,528  394,270
+  378,185
+  $400,000  309,469  372,498  356,102
+  308,050  324,995
+  290,059
+  $300,000  241,928
+  $200,000
+  $100,000
+  $0
+  Q1 Q2 Q3 Q4 Q1 Q2 Q3 Q4 Q1 Q2 Q3 Q4 Q1 Q2 Q3 Q4 Q1 Q2 Q3 Q4 Q1 Q2 Q3 Q4 Q1 Q2 Q3 Q4
+  First Month  Second Month  Third Month
+Embedded Wisely, Embedded Widely  22
+
+[p.23]
+  Quarterly Number of Licensed Tape-outs
+  2020  2021  2022  2023  2024  2025  2026
+  (Unit: IP Numbers)  3nm
+  201  5nm
+  200  179 181
+  180  184  171  173  7nm
+  149 154  160  156 162  16nm
+  160  149 143 150 154
+  134 136  138  143 150  147 139  137
+  139
+  140  137  28nm
+  120 109 103  40nm
+  100  55nm
+  80  80nm
+  60  0.13um
+  40  0.18um
+  20
+  0.25um
+  0
+  Q1 Q2 Q3 Q4 Q1 Q2 Q3 Q4 Q1 Q2 Q3 Q4 Q1 Q2 Q3 Q4 Q1 Q2 Q3 Q4 Q1 Q2 Q3 Q4 Q1 Q2 Q3
+Embedded Wisely, Embedded Widely  23
+
+[p.24]
+  Accumulated Advanced-Node Licensed Tape-outs
+  ▪  eMemory secures future growth with over 160 advanced-node tape-out licenses, building a high-
+  value royalty pipeline driven by increasing adoption.
+  Leading-Edge Nodes (3nm–7nm)  Mainstream Advanced Nodes (12nm/16nm)
+  71 TOTAL TAPE-OUTS  96 TOTAL TAPE-OUTS
+  Driven primarily by FPGA, CPU  Driven by demand in System-on-Chip (SoC)
+  and SSD Controller sectors.  and Ethernet IC sectors.
+  21  FPGA  2  SoC  17  SoC  2  DSP
+  9  CPU  1  Switch IC  15  Ethernet IC  2  FPGA
+  8  SSD Controller  1  Network ASIC
+  10  SSD Controller  2  USB Host Controller
+  4  Retimer  1  Video IC
+  2  Switch IC
+  8  DDI
+  4  ADAS  1  Edge-AI
+  6  MCU  1  ADAS
+  3  ISP  1  MCU
+  5  ASIC  1  RF IC
+  3  ASIC  1  Security IC
+  5  ISP  1  Edge-AI
+  2  Controller  1  DPU
+  2  CXL  4  DRAM  1  Baseband
+  1  Bluetooth IC
+  2  ECU  1  Others  4  PMIC/PMU  1  LiDAR
+  2  GPU  3  Controller  6  Others
+Embedded Wisely, Embedded Widely  24
+
+[p.25]
+  Worldwide Customers
+  ▪  Our IP solutions are adopted by leading foundries, IDMs and fabless worldwide
+  Country  Foundry  IDM  Fabless
+  Taiwan  4  1  367
+  China  13  1  1548  max_logo_header_25yrs
+  Korea  4  0  111
+  Japan  2  6  93
+  North
+  2  0  402
+ America
+  Europe  0  2  251
+  Others  3  0  160
+Embedded Wisely, Embedded Widely  25
+
+[p.26]
+  Business Model
+  ▪  Recurring royalty is the backbone of our business
+  License Fee:
+  ≈30%
+  ▪  Around 70% revenue are from royalty based on wafer production
+  Royalty: ≈70%  ▪  More adoption = more volume shipment
+  ▪  More advanced node wafers = higher ASP per wafer
+  Revenue
+  Breakdown  1-4 years
+  1-4 years
+  License Fee  Design License Fee  Royalty
+  Foundries Process  Fabless Product  Wafer Mass Production
+  Development  Development
+Embedded Wisely, Embedded Widely  26
+
+[p.27]
+  Technology Licenses
+  Number of Licenses
+  2026
+  Year  2016  2017  2018  2019  2020  2021  2022  2023  2024  2025
+  Q1-Q3
+  License  43  20  26  18  28  32  29  48  41  63  41
+  Note: Terms (including number of process platforms and licensing fees) for each technology license are set contractually.
+  Payments are made according to set milestones, and there are no particular seasonal factors involved.
+  800
+  700
+  No. of Cumulative Technology Licenses of the Previous Years  41
+  600  No. of New Technology Licenses in the Corresponding Period  63
+  41
+  500  48
+  29
+  32
+  400  18
+  28
+  26
+  20  629
+  300  43  566
+  28  525
+  21  448  477
+  19  416
+  200  20  12
+  370  388
+  40  324  344
+  28  253  281
+  100  28  201  213  232
+  24  181
+  19  113  141
+  22  61  85
+  20  42
+  0
+  2005 2006 2007 2008 2009 2010 2011 2012 2013 2014 2015 2016 2017 2018 2019 2020 2021 2022 2023 2024 2025 2026
+  Q1-Q3
+Embedded Wisely, Embedded Widely  27
+
+[p.28]
+  Technology Development
+  ▪  Developments by process nodes
+  12" Fabs  Production  Development  IP Type  Process Type
+  1.4nm  0  1  OTP, PUF  Nanosheet/GAA
+  2nm  0  4  OTP, PUF  Nanosheet/GAA
+  3nm  2  4  OTP, PUF  FF, FFP
+  4/5nm  10  2  OTP, PUF  FF, FF-Auto
+  6/7nm  8  0  OTP, PUF  FF, FF+
+  12/16/17nm  18  15  OTP, PUF, MTP  FF, FF+, FFC. FFC+, LPP, DRAM, HV
+  LP/ULP/ULL, HPC/HPC+, HV-OLED, DRAM, SOI, RRAM,MRAM,
+  22/28nm  82  45  OTP, PUF, MTP
+  E-Flash, BCD, WoW
+  40nm  35  23  OTP, PUF, MTP  LP/ULP, E-Flash, HV-DDI/OLED,ReRAM, BCD+
+  55/65nm  71  33  OTP, PUF, MTP  LP/ULP, E-Flash, HV-DDI/OLED, DRAM, CIS, BCD,PM
+  80/90nm  39  28  OTP, MTP  HV-DDI/OLED, LP,Generic ,BCD, CIS
+  0.11/0.13um  27  15  OTP, MTP  HV-DDI, BCD, Generic, BiCMOS
+  0.15/0.18um  19  19  OTP, MTP  BCD, Generic
+  Total  311  189
+  8" Fabs  Production  Development  IP Type  Process Type
+  80/90nm  10  5  OTP, MTP  HV-DDI, LL, BCD
+  0.11/0.13um  97  27  OTP, PUF, MTP  HV/HV-MR, BCD, LP/LL, CIS, Green, Flash, SOI, Generic, BiCMOS
+  0.152/0.16/0.18um  264  29  OTP, MTP  HV/HV-MR, BCD, LP/LL, CIS, Green, Generic
+  0.25/0.28um  42  2  OTP  BCD
+  0.3/0.35um  52  0  OTP  UHV, BCD
+  0.4/0.5um  12  0  OTP  UHV, BCD
+  Total  477  63
+  Note: As of September 30th, 2026
+Embedded Wisely, Embedded Widely  28
+
+[p.29]
+  Embedded Wisely, Embedded Widely
+  For more information, please visit:
+  eMemory Website: https://www.ememory.com.tw/
+  PUFsecurity Website: https://www.pufsecurity.com/
+Embedded Wisely, Embedded Widely  29

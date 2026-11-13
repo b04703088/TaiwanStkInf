@@ -1,0 +1,297 @@
+[p.1]
+  Always
+  Connecting
+嘉澤端子工業股份有限公司
+  Ray Tsai
+  ray@lotestech.com
+  Steven Lee
+  kclee@lotestech.com
+  2026.11.12
+Confidential  1  Always Connecting
+
+[p.3]
+  Executive Summary  經營綜合報告
+ ü LOTES specializes in the design and manufacture of  ü LOTES為一專業設計及製造連接器／連接線給伺服
+  inter-connect solutions for Server, PC, Automotive,  器、個人電腦、汽車、工控及醫療的廠商。依
+  Industrial and Medical.  According to Bishop &  Bishop統計，在電腦暨週邊連接器廠商中LOTES全
+  associate, LOTES rank no.4 in computer and peripherals  球排名第四，不分行業別排名全球排名第十八。
+  and no.1 in IC socket.
+  ü 做為全球前三大中央處理器插座供應商，客戶多
+ ü As world wide top 3 CPU sockets supplier, LOTES is  會將LOTES選為策略供應商。LOTES也因此得到許
+  being selected by many customers as their strategic  多與客戶共同開發新一代產品的機會。
+  partner. Thus, LOTES has more chance to co-develop
+  ü 做為伺服器及個人電腦連接器與插槽的領導廠商，
+  the front-end products with them.
+  LOTES在新一代的機型上取得佷多的機會。
+ ü Being a connector and socket leading supplier in Server
+  ü 因打入全球知名汽車一階大廠供應鏈，LOTES持續
+  and PC industry, we see more and more opportunities
+  取得各式車用連接器/連接線的詢單，車用市場將
+  in the upcoming generation.
+  在未來數年內有更顯著的貢獻。
+ ü With world-renowned tier 1 customers in automotive
+  industry, LOTES keep receiving inquires from various
+  automotive customers. We expect it will contribute
+  more in few years.
+Confidential  3  Always Connecting
+
+[p.4]
+  Agenda  議程
+  üCompany Profile  ü公司簡介
+  üFinancials at Glance  ü財務概況
+  üBusiness Outlook  ü營運概況
+  üQ & A  ü問答交流
+Confidential  4  Always Connecting
+
+[p.5]
+  公司簡介
+  COMPANY PROFILE
+  股票代號：3533.TW  Stock Symbol : 3533.TW
+  2019.12.6列為台灣中型100指數成份股  Inclusion in FTSE TWSE Taiwan Mid-Cap 100 Index on Dec 6th, 2019
+  2021.3.19列為台灣資訊科技指數成份股  Inclusion in FTSE TWSE IT Index on Mar 19th, 2021
+  2022.5.18列為特選小資高價30指數成份股  Inclusion in TIP Customized Investor Movement Aristocrats 30 Index on May 18th, 2022
+  2026.11.12列為MSCI全球小型股指數  Inclusion in MSCI World Small Cap Index on Nov 12th, 2026
+Confidential  5  Always Connecting
+
+[p.6]
+  About LOTES  關於 LOTES
+ ü In 1986, Mr. Ju and Mr. Ho co-founded LOTES. They firmly  ü 董事長與總經理於1986年成立LOTES，他們深信不
+  believes continuous research and development, and non-stop  斷研究、持續改善是LOTES發展的基石。依著這樣
+  improvement are the foundation of LOTES. With this belief,
+  LOTES has became a world class inter-connect solution provider.
+  的信念，LOTES已成為世界級連接器/連接線的供
+  應商。
+ ü LOTES owns over 4000 patents applied worldwide, top 2 among
+  Taiwan connector makers.  ü LOTES在全球擁有超過4,000件連接器／連接線專
+  利
+ ü LOTES fully integrated processes in house including design,
+  tooling, Injection, stamping, electro-plating and automated  ü LOTES高度製程整合，包括產品設計、模治具及自
+  assembly. It render us more flexibility to support our customers.  動化設備開發、射出成型、金屬沖壓、電鍍、組
+ ü With ISO17025 certification, LOTES reliability test lab is capable  裝等， 以使我們能更有彈性的服務客戶。
+  of providing industry standard test reports and also meeting
+  customers’ test requirements. Which can shorten the time and  ü LOTES有著已取得 ISO 17025認證的信賴性實驗室，
+  lower the expense on product validation.  可出具行業標準報告，亦可依客戶規範進行測試，
+  並可縮短產品驗證時間，並降低驗證的費用。
+ ü Certified with ISO 9001, IATF 16949, ISO 13485, AS 9100, ISO
+  14001, OHSAS 18001, QC 080000, and ISO 14064.  ü 已取得 ISO 9001, IATF 16949, ISO 13485, AS 9100,
+  ISO 14001, OHSAS 18001, QC 080000 及 ISO 14064
+  等品質系統認證。
+Confidential  6  Always Connecting
+
+[p.7]
+ Geographic profile in China
+  • Established: 2004  Suzhou蘇州
+  • Employees: 1000
+  • Function: Product Design, Tooling, Molding,
+  Stamping, Eletro-Plating and Assembly
+ • Established: 2010  Hengnan湖南  • Established in 2011  LINTES中和
+ • Employees : 1200  • Employees : 800
+ • Function: Tooling Center, Cable Assembly  • Products: Thunderbolt, Type C, High Speed
+  Cable, Active Optical Cable
+ • Established: 1993  Guangzhou廣州
+ • Employees : 8000
+ • Function: R&D, Tooling, Molding, Stamping, Electro-  • Established: 1986  LOTES基隆
+  Plating and Assembly
+  • Employees : 100
+  • Function: R&D, Sales, Finance
+Confidential  7  Always Connecting
+
+[p.8]
+  Geographic profile of LOTES 全球佈局
+  斯圖加特
+  奧瑞岡  Stuttgart, Germany
+  Beaverton, OR
+  休士頓
+  Houston, TX  蘇州 Suzhou, China
+  聖荷西  廣州Guangzhou, China
+  Taiwan
+  San Jose, CA
+  嘉澤(LOTES, Keelung)
+  印度Bangalore  越南Vietnam
+  嘉基(LINTES, New Taipei)
+  新加坡Singapore
+  Manufacturing Sites
+  Sales / Eng support
+Confidential  8  Always Connecting
+
+[p.9]
+ LOTES VN
+  Office
+  Building A  Building B  Building C
+  Phase II
+Confidential  9  Always Connecting
+
+[p.10]
+LOTES’ Core Competence 核心競爭力
+  Stamping Die  Injection Mold
+  沖壓模具  塑膠模具
+  100% of design and fabrication in
+  house
+  100% 自行設計及製造
+  Assembly Jigs  Automation Machines
+  組裝治具  自動機
+Confidential  10  Always Connecting
+
+[p.11]
+  LOTES
+  FINANCIAL DATA
+Confidential  11  Always Connecting
+
+[p.12]
+  Revenue  EPS(NT$)  Gross margin(%)  Op erating margin(%)
+  11,000  18.2%  60
+  (YoY)
+  10,000  50
+  9,000
+  40
+  8,000
+  30
+  7,000
+  20
+  6,000
+  5,000  10
+  4,000  0
+Unit: Million (NT$)  Q1’23
+  Q1’23  Q2’23
+  Q2’23  Q3’23
+  Q3’23  Q4’23
+  Q4’23  Q1’24
+  Q1’24  Q2’24
+  Q2’24  Q3’24
+  Q3’24  Q4’24
+  Q4’24  Q1’25
+  Q1’25  Q2’25
+  Q2’25  Q3’25
+  Q3’25  Q4’25
+  Q4’25  Q1'26
+  Q1’26  Q2'26
+  Q2’26  Q3'26
+  Q3’26
+Yearly Revenue  24,483  30,089  33,783  28,854 4.1%
+Quarterly Revenue  5,726  5,722  6,463  6,539  6,347  7,438  8,066  8,300  7,765  8,336  8,421  9,261  9,327  9,569  9,958 (QoQ)
+Gross profit  2,603  2,589  3,072  3,215  3,256  3,856  4,244  4,411  3,996  4,251  4,312  4,775  4,621  4,351  4,464
+Gross margin (%)  45.46  45.35  47.54  48.93  51.31  52.22  52.62  53.15  51.47  51  51.21  51.54  49.55  45.47  44.83
+OPEX  1,073  1,088  1,148  1,223  1,227  1,290  1,454  1,552  1,545  1,652  1,788  2,004  1,913  2,248  2,181
+OPEX (%)  18.7  19  17.8  18.7  19.3  17.3  18  18.7  19.9  19.8  21.2  21.64  20.5  23.49  21.90
+OP margin  1,530  1,500  1,923  1,991  2,029  2,566  2,790  2,858  2,450  2,598  2,524  2,772  2,708  2,103  2,283
+OP margin (%)  26.72  26.22  29.76  30.31  31.97  34.8  34.59  34.44  31.56  31.17  29.98  29.93  29.04  21.97  22.93
+Net profit  1,181  1,284  1,867  1,259  2,070  2,237  2,061  2,908  2,275  749  2,318  2,523  2,397  1,984  1,919
+Net profit (%)  20.63  22.45  28.89  19.17  32.62  30.33  25.56  35.04  29.31  8.99  27.53  27.25  25.69  20.74  19.27
+Yearly EPS(NT$)  50.65  82.77  70.17  56.11
+Quarterly EPS(NT$)  10.96  11.56  16.77  11.36  18.57  20.01  18.33  25.86  20.22  6.69  20.73  22.53  21.37  17.68  17.06
+Payout R(%)  50  50.1  49.8
+Current ratio(%)  361.1  304.98  355  380.41  406.31  286.69  299  319.81  374.7  237.85  321.85  369  381.17  276.97  288.50
+Quick ratio(%)  313.77  268.69  316  340.14  363.57  258.85  269  287.54  336.05  211.14  280.43  320  319.97  234.92  246.98
+Debt ratio(%)  23.91  27.3  24.13  22.58  21.57  27.71  26.63  24.4  20.89  31.01  22.73  20  19.04  25.84  24.92
+Exchange gains & losses  230  (1,505)  215  114  7  (167)  (76)
+Yearly CAPEX  2,695  3,873  5,096  4,453
+Confidential  12  Always Connecting
+
+[p.13]
+  經營概況
+  BUSINESS OVERVIEW
+Confidential  13  Always Connecting
+
+[p.14]
+  Sales Revenue 營收走勢
+  Billion NTD
+  40
+  > 1b USD
+  30
+  Birch
+  Stream
+  Whitley
+  -New product launch
+  (DDR4)  Eagle
+  20  -Strategic customers start
+  New product launches  to contribute
+  -Server SKT R
+  -Desktop SKT H
+  -Laptop SKT G
+  10
+  New Generation
+  Change Cycle Speed up
+  Laptop CPU on board
+  New Generation Change
+  No socket needed
+  -
+  2009  2010  2011  2012  2013  2014  2015  2016  2017  2018  2019  2020  2021  2022  2023  2024  2025
+Confidential  14  Always Connecting
+
+[p.15]
+ Business Coverage 營收比重
+  Strategic
+  Customers
+  LINTES
+Revenue share
+2023  26~27%  13~14%  28~29%  12~13%  5~6%  2~3%  9~10%
+2024  34.1%  12.25%  27.47%  9.8%  6.32%  2.67%  7.31%
+2025  39.56%  10.87%  25.73%  8.77%  7.52%  2.58%  4.95%
+Q1’26(93.27E)  51.02%  8.99%  17.24%  6.83%  6.92%  3.6%  5.41%
+Q2’26(95.69E)  55.36%  8.20%  14.46%  7.68%  7.63%  2.35%  4.31%
+Q3’26(99.58E)  53.08% (YoY 55%)  7.14% (YoY -24%)  15.08% (YoY -28%)  8.61% (YoY 3%)  9.19% (YoY 33%)  2.32% (YoY 12%)  4.58% (YoY 48%)
+  36.6% (2025) - 23.7% (in 1-3Q’26) = 12.9% ↘
+1-3Q’26(288.54E)
+  53.15% (YoY 63%)  8.10% (YoY -19%)  15.58% (YoY -35%)  7.72% (YoY 1%)  7.93% (YoY 29%)  2.75% (YoY 8%)  4.77% (YoY 6%)
+(YoY 17.7%)
+  -Socket  -Connector
+Current main  -All types of  -Connectors  -Connectors  -Connectors  -High Speed Cable
+  -Cable / Connector  -CAMM2
+product  connectors  -Mechanical parts  -Wire harness  -Wire harness  -AOC, AEC
+  -QD  -I/O
+Market trend
+  10%～15% ↗  -10% ↘  -10%↘  → or ↗  → or ↗  → or ↗  ↗
+(by Volume)
+2027 Sales outlook ↗↗↗↗↗↗  ↘  ↘  → or ↗  ↗↗  ↗↗  ↗↗
+  -M.2 Gen 5.0
+Future product  -CPU Socket  -DDR5  -Customized
+  -USB4  -Customized  -Customized  -High Speed Cable
+plan  -HSIO & Cable  -PCIe 5.0  -Medical
+  -CAMM2
+Confidential  15  Always Connecting
+
+[p.16]
+  Market Update 市場概況
+  2022 1.2KK/M  2022 12.5KK/M  2022 6.5KK/M
+  2023 975K/M  2023 11.7KKKK/M  2023 5.5KK/M
+  2024 1.18KK/M  2024 10.6KK/M  2024 5.5KK/M
+  2025 1.32KK/M  2025 9.89KK/M  2025 5.57KK/M
+  Q1’25 : 1.25KK/M  Q1’25 : 9.95KK/M  Q1’25 : 5.4KK/M
+ODM Average
+  Q2’25 : 1.35KK/M  Q2’25 : 10.12KK/M  Q2’25 : 5.8KK/M
+Production  Q3’25 : 1.36KK/M  Q3’25 : 10.00KK/M  Q3’25 : 5.8KK/M
+Volume  Q4’25 : 1.36KK/M  Q4’25 : 9.5KK/M  Q4’25 : 5.3KK/M
+  Q1’26 : 1.29KK/M  Q1’26 : 8.49KK/M  Q1’26 : 5.06KK/M
+  Q2’26 : 1.49KK/M  Q2’26 : 9.18KK/M  Q2’26 : 4.38KK/M
+  Q3’26: 1.41KK/M  Q3’26: 8.85KK/M  Q3’26: 4.07KK/M
+Confidential  16  Always Connecting
+
+[p.17]
+  Server CPU Roadmap 伺服器產品 Roadmap
+  2023  2024  2025  2026  2027
+  Q1  Q2  Q3  Q4  Q1  Q2  Q3  Q4  Q1  Q2  Q3  Q4  Q1  Q2  Q3  Q4  Q1  Q2  Q3  Q4
+  Eagle Stream  Birch Stream  Oak Stream DX
+  E1(4677)  BR(7529)  (9324)
+  DDR5 / PCIe 6.0
+  Birch Stream
+  E2(4710)
+  Genoa SP5(6096)
+  Zen4 up to 92c
+  DDR5 / PCIe 5.0 / CXL 1.1
+  Venice SP7(7536)
+  Zen6 up to 256c
+  Bergamo SP5(6096)  Turin SP5(6096)  DDR5 / PCIe 6.0 / CXL 3.0
+  Zen4 up to 128c  Zen5 up to 192c
+  DDR5 / PCIe 5.0 / CXL 1.1  DDR5 / PCIe 5.0 / CXL 2.0
+  PCIe 6.0
+  SIENA SP6(4844)  SORANO  Venice SP8(5572)
+  Zen4c up to 64c  Zen5 up to 64c  Zen6 up to 128c
+  DDR5 / PCIe 5.0 / CXL 1.1  DDR5 / PCIe 5.0 / CXL 2.0  DDR5 / PCIe 6.0 / CXL 3.0
+  SKT 9614
+  DDR5.PCIe 6.0
+  Altra (4926)  Siryn (5964)  Banshee (7228)  SKT 12xxx
+Confidential  17  Always Connecting
+
+[p.18]
+  Q&A
+Confidential  18  Always Connecting
