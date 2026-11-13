@@ -1,0 +1,191 @@
+[p.1]
+  Land Mark
+L  a  n  d  M  a  r  k  O  p  t  o  e  l  e  c  t  r  o  n  i  c  s  C  o  r  p  o  r  a  t  i  o  n
+  Ticker: 3081
+  LandMark Optoelectronics Corporation
+  LandMark Optoelectronics Corporation
+1  1
+
+[p.3]
+  Company Profile  Land Mark
+L  a  n  d  M  a  r  k  O  p  t  o  e  l  e  c  t  r  o  n  i  c  s  C  o  r  p  o  r  a  t  i  o  n
+  Established  June, 1997
+  Epi-wafer for laser diode (LD)
+  Products
+  Epi-wafer for photo-detector (PD)
+  MOCVD growth, all kinds of overgrowth, Zn-diffusion;
+  Service
+  grating formation and epi-side process
+  Factory I ：No.12, Nanke 9th Rd., Shanhua Dist., Tainan Science
+  Park, Tainan City, Taiwan
+  Address
+  Factory II：No. 9, Xishan 1st Rd., Shanhua Dist., Tainan Science
+  Park, Tainan City, Taiwan
+3 LandMark  3
+
+[p.4]
+  Product Categories  Land Mark
+L  a  n  d  M  a  r  k  O  p  t  o  e  l  e  c  t  r  o  n  i  c  s  C  o  r  p  o  r  a  t  i  o  n
+  2.5G/10G/25G FP/DFB LD
+  InP material  2.5G/10G/25G/50G C-DFB / EML LD
+  (1.2~1.65μm)  (grating and overgrowth completed)
+  LD Epiwafer  SiPh LD
+  GaAs material  High Power LD
+  (0.6~1.06μm)
+  VCSEL  InP
+  InGaAs PD/ C-PD
+  & APD / C-APD
+  PD Epiwafer
+  GaAs PD  GaAs
+  (0.6~0.85μm)
+4 Land Mark  4
+
+[p.5]
+  Product Applications  Land Mark
+L  a  n  d  M  a  r  k  O  p  t  o  e  l  e  c  t  r  o  n  i  c  s  C  o  r  p  o  r  a  t  i  o  n
+  Optical Telecom
+  FTTX / 5G
+  Data Center
+  Industrial/ Consumer
+  / Silicon Photonics
+5 Land Mark  5
+
+[p.6]
+  Supply Chain of Telecom Sector  Land Mark
+L  a  n  d  M  a  r  k  O  p  t  o  e  l  e  c  t  r  o  n  i  c  s  C  o  r  p  o  r  a  t  i  o  n
+  Epitaxy  Land Mark
+  Device
+  Fabrication
+  Module
+  Fabrication
+  System
+6 Land Mark  6
+
+[p.7]
+  Evolution of 5G Networks  Land Mark
+L  a  n  d  M  a  r  k  O  p  t  o  e  l  e  c  t  r  o  n  i  c  s  C  o  r  p  o  r  a  t  i  o  n
+  Source: NGOF  Source: UTP University of Science and Technology
+7 Land Mark  7
+
+[p.8]
+  Example Layouts of SiPh Transceiver  Land Mark
+L  a  n  d  M  a  r  k  O  p  t  o  e  l  e  c  t  r  o  n  i  c  s  C  o  r  p  o  r  a  t  i  o  n
+  Source: Juniper Networks
+8 Land Mark  8
+
+[p.9]
+  Example of SiPh  Land Mark
+L  a  n  d  M  a  r  k  O  p  t  o  e  l  e  c  t  r  o  n  i  c  s  C  o  r  p  o  r  a  t  i  o  n
+  Source: Photonic Network Communications
+9 Land Mark  9
+
+[p.10]
+  Developing Roadmap of SiPh and CPO  Land Mark
+L  a  n  d  M  a  r  k  O  p  t  o  e  l  e  c  t  r  o  n  i  c  s  C  o  r  p  o  r  a  t  i  o  n
+  Source: TSMC
+10Land Mark  10
+
+[p.11]
+  Migration to Higher-Speed in AI Networks  Land Mark
+L  a  n  d  M  a  r  k  O  p  t  o  e  l  e  c  t  r  o  n  i  c  s  C  o  r  p  o  r  a  t  i  o  n
+   800G will be more than 80% for AI
+  networks in 2025.
+   Significant growth of high-speed
+  products before 2028.
+11Land Mark  11
+
+[p.12]
+  Example of Optical Architecture for AI  Land Mark
+L  a  n  d  M  a  r  k  O  p  t  o  e  l  e  c  t  r  o  n  i  c  s  C  o  r  p  o  r  a  t  i  o  n
+  Regular Data Center  AI Application
+  Source: Google
+  Source: Intel
+12Land Mark  12
+
+[p.13]
+  Silicon Photonic Market Value  Land Mark
+L  a  n  d  M  a  r  k  O  p  t  o  e  l  e  c  t  r  o  n  i  c  s  C  o  r  p  o  r  a  t  i  o  n
+13Land Mark  13
+
+[p.14]
+  Revenue & Margin Trend  Land Mark
+L  a  n  d  M  a  r  k  O  p  t  o  e  l  e  c  t  r  o  n  i  c  s  C  o  r  p  o  r  a  t  i  o  n
+  57%  59%
+  55%
+  Gross Margin  49%
+  47%  49%
+  43%  44%
+  Operating Margin  41%
+  31%  32%  30%
+  Net Margin  28%  27%  38%  40%
+  35%
+  19%
+  10%  21%
+  1,500  17%  18%
+  3%  4%
+  9%
+  1,100  2%
+  -2%
+  NT$M  700
+  300
+  -100
+  3Q-24  4Q-24  1Q-25  2Q-25  3Q-25  4Q-25  1Q-26  2Q-26  3Q-26
+  Net Revenue  323  289  455  553  553  642  904  1,221  1,562
+  Gross profit  89  90  147  240  241  313  495  702  915
+  Operating Income  8  -6  45  149  104  135  373  573  771
+  Net Income  8  8  42  97  99  190  318  468  621
+14Land Mark  14
+
+[p.15]
+  Income Statement  Land Mark
+L  a  n  d  M  a  r  k  O  p  t  o  e  l  e  c  t  r  o  n  i  c  s  C  o  r  p  o  r  a  t  i  o  n
+  2026  2026  2025  2026  2025
+  QoQ  YoY  YoY
+  3Q  2Q  3Q  1Q-3Q  1Q-3Q
+  Unit: NTD Million
+  Net revenue  1,562  1,221  553  +28% +183%  3,688  1,560 +136%
+  Gross profit  915  702  241  +30% +279%  2,112  628 +236%
+  Gross margin(%)  59%  57%  44%  57%  40%
+  Operating expenses  (143)  (129)  (138)  +11%  +4%  (394)  (330)  +19%
+  Operating income  771  573  104  +35% +644%  1,717  297 +477%
+  Operating margin(%)  49%  47%  19%  47%  19%
+  Non-operating incomes and expenses  5  13  20  42  0
+  Income before income tax  777  586  124  +33% +528%  1,759  298 +491%
+  Income tax benefit (expense)  (155)  (117)  (25)  (352)  (60)
+  Net income  621  468  99  +33% +528%  1,407  238 +491%
+  Net margin(%)  40%  38%  18%  38%  15%
+  Comprehensive income  619  470  101  +32% +512%  1,406  239 +487%
+  EPS (NT$)  6.12  4.62  0.98  13.88  2.36
+15Land Mark  15
+
+[p.16]
+  Balance Sheets  Land Mark
+L  a  n  d  M  a  r  k  O  p  t  o  e  l  e  c  t  r  o  n  i  c  s  C  o  r  p  o  r  a  t  i  o  n
+  September 30, 2026  December 31, 2025  September 30, 2025
+  Unit: NTD Million
+  Amount  %  Amount  %  Amount  %
+  Cash and cash equivalents  3,954  38  703  14  543  11
+  Time deposits  969  9  1,270  25  1,270  27
+  Accounts receivable, net  931  9  337  7  368  8
+  Inventories  969  9  571  11  416  9
+  Corporate bonds  330  3  231  5  232  5
+  Net property, plant and equipment  2,283  22  1,522  30  1,550  33
+  Other assets  875  8  374  7  378  8
+  Total assets  10,312  100  5,008  100  4,757  100
+  Current liabilities  1,248  12  532  11  476  10
+  Bonds Payable  2,831  27  -  -  -  -
+  Non-current liabilities  333  3  286  6  289  6
+  Total liabilities  4,412  43  817  16  765  16
+  Capital stock  1,019  10  925  18  925  19
+  Capital surplus  2,586  25  1,800  36  1,800  38
+  Retained earnings  2,526  24  1,488  30  1,298  27
+  Other equity  (230)  -2  (23)  0  (31)  -1
+  Total shareholders' equity  5,900  57  4,191  84  3,992  84
+  Book value per share (NT$)  57.92  45.29  43.15
+16Land Mark  16
+
+[p.17]
+  Land Mark
+L  a  n  d  M  a  r  k  O  p  t  o  e  l  e  c  t  r  o  n  i  c  s  C  o  r  p  o  r  a  t  i  o  n
+  Source: Huawei  Thank you!
+17  17

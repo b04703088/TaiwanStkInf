@@ -1,0 +1,294 @@
+[p.1]
+強茂股份有限公司
+
+[p.2]
+十一月 2026
+  ◼  關於強茂
+  ◼  2026 Q3 財務概況
+  ◼  汽車應用
+  2
+
+[p.3]
+  強茂股份有限公司
+  2025 營收: NT$ 13.1Billion (2481.TW)
+  產品: IC, MOSFET, SiC, Diodes, TVS, Zener, Bridge,
+  Transistor, ESD Protection
+  應用: Automotive, Medical, Green Energy,
+  High Performance Computing, Consumer, IoT
+  熒茂光學股份有限公司  虹冠電子工業股份有限公司
+2025 營收: NT$ 1.1Billion (4729.TW)  2025 營收: NT$ 1.1Billion (3257.TW)
+產品: Touch Panel, Display  產品: Power Management IC
+應用: Automotive, IPC, Military  應用: Gaming PC/Adapter, Industrial PC,
+  5G Power
+  凡甲科技股份有限公司  Group  汎星半導體股份有限公司
+2025 營收: NT$ 3.9Billion (3526.TW)  產品: ESD Protection
+產品: Connector, F cable, USB-Type C 3.1  應用: NB, PC, Server, TV/Monitor,
+應用: Automotive, Medical,  Networking
+Communication, Consumer
+  興茂科技股份有限公司
+  產品: Motor MCU, Power Management IC,
+  Signal Chain IC
+  應用: AI/General Computing, Motor Fan,
+  Industrial PC, Consumer, Power Supply
+
+[p.4]
+  關於強茂
+  IDM 設計能力
+  NT$  13.1Billion
+  Y2025 合併營收
+強茂為全球領先IDM分離器件半導體製造商，服務內
+容從晶片設計、製造、封裝測試到銷售。憑藉創新、  4
+  世界排名
+核心技術能力及方案提供，推出新世代晶圓及高效率
+  *資料來源: Omdia, 2025: Low
+產品，持續發展薄型化封裝技術、擴產晶圓產能，並  Power Si Rectifier, >500mA
+提升高功率產品的研發技術及IC產品的設計能力，使
+強茂成為客戶永久信賴的夥伴。
+  3
+  座晶圓廠
+  5
+  座封裝廠
+  4
+
+[p.5]
+強茂全球佈局
+  China
+  Shandong
+ Germany  China
+  Munich  Xuzhou
+  China  South Korea
+  Wuxi / Suzhou  Yongin
+  China
+  Shenzhen/ Hong Kong  Japan
+  Tokyo
+  Japan  U.S.A
+  India  Kyoto  Phoenix
+  Bangalore  Taiwan
+  Pune  Taipei
+  Hyderabad  Taiwan
+  Hsinchu
+  Taiwan
+  Taiwan  Headquarters
+  Kaohsiung Pynmax  Kaohsiung
+  Philippines
+  Vietnam
+  New Ho Chi Minh City  Cabuyao
+  Headquarters  Regional  R&D Sites  Front-End  Back-End
+  Headquarters
+  5
+
+[p.6]
+2026 Q3 合併綜合損益表
+  單位：百萬元新台幣  2026 Q3  2026 Q2  QoQ  2025 Q3  YoY
+  營業收入  4,349.7  3,955.6  10.0%  3,269.7  33.0%
+  營業毛利  1,621.4  1,314.1  23.4%  1,023.7  58.4%
+  營業毛利率  37.3%  33.2%  4.1 ppts  31.3%  6.0 ppts
+  推銷費用  249.8  228.2  9.5%  181.2  37.9%
+  管理費用  410.3  386.0  6.3%  311.3  31.8%
+  研究發展費用  254.4  233.2  9.1%  252.7  0.7%
+  營業費用  924.2  849.7  8.8%  747.4  23.7%
+  營業淨利  697.2  464.5  50.1%  276.3  152.3%
+  營業淨利率  16.0%  11.7%  4.3 ppts  8.5%  7.5 ppts
+  營業外收入及支出  173.0  182.7  -5.3%  166.6  3.8%
+  所得稅  191.2  120.3  58.9%  76.8  149.0%
+  本期淨利  678.9  526.8  28.9%  366.1  85.4%
+  純益率  15.6%  13.3%  2.3 ppts  11.2%  4.4 ppts
+  每股稅後盈餘  1.7  1.28  32.8%  0.79  115.2%
+  6
+
+[p.7]
+損益表重要指標
+  營業毛利率
+  營業收入 (Unit: M’ NTD)
+  50%
+ 4,500  4,349.7
+  3,955.6
+ 4,000  40%  37.3%
+  33.2%
+  31.3%
+ 3,500  3,269.7
+  30%
+ 3,000
+ 2,500  20%
+  3Q25  2Q26  3Q26  3Q25  2Q26  3Q26
+  Revenue  Gross Margin
+  營業淨利率  純益率
+ 20%  20%
+  16.0%  15.6%
+  15%  13.3%
+ 15%
+  11.7%  11.2%
+ 10%  8.5%  10%
+  5%  5%
+  3Q25  2Q26  3Q26  3Q25  2Q26  3Q26
+  Operating Profit Margin  Net Profit Margin
+  7
+
+[p.8]
+資產負債表及重要財務指標
+資產負債表項目
+單位：百萬元新台幣  2026 Q3  2026 Q2  2025 Q3
+  Amount  ％  Amount  ％  Amount  ％
+  現金及約當現金  2,490  7.5%  2,549  8.1%  2,251  7.7%
+  應收款項  5,474  16.6%  4,942  15.7%  4,237  14.6%
+  存貨  3,499  10.6%  3,033  9.6%  2,597  8.9%
+  採用權益法之投資  2,429  7.4%  2,339  7.4%  2,109  7.2%
+  不動產、廠房及設備  6,700  20.3%  6,613  21.0%  6,869  23.6%
+資產總計  33,032  100.0%  31,481  100.0%  29,103  100.0%
+  流動負債  10,226  31.0%  9,105  28.9%  7,495  25.8%
+  非流動負債  5,635  17.1%  5,928  18.8%  6,345  21.8%
+負債總計  15,861  48.0%  15,033  47.8%  13,840  47.6%
+權益總計  17,171  52.0%  16,447  52.2%  15,263  52.4%
+重要財務指標
+  平均收現日數  105  104  110
+  平均銷貨日數  108  99  103
+  營業活動現金流量  140  624  (153)
+  8
+
+[p.9]
+資產負債表重要指標
+  營業活動現金流量  存貨佔資產
+  (Unit: M’ NTD)  15%
+  10.6%
+  800  624  9.6%
+  10%  8.9%
+  140
+  (153)
+  5%
+  (200)  3Q25  2Q26  3Q26  3Q25  2Q26  3Q26
+  Cash from operating activities  Inventories by Total Assets
+  平均收現日數  平均銷貨日數
+  108
+  110
+ 110  105  103
+  105  99
+  104
+ 100  95
+  3Q25  2Q26  3Q26  3Q25  2Q26  3Q26
+  A/R Turnover Days  Inventory Turnover Days
+  9
+
+[p.10]
+2026 YTD 3Q 合併綜合損益表
+  單位：百萬元新台幣  1Q~3Q 26  1Q~3Q 25  YoY
+  營業收入  11,726.4  9,741.5  20.4%
+  營業毛利  4,055.5  2,997.6  35.3%
+  營業毛利率  34.6%  30.8%  3.8 ppts
+  推銷費用  676.6  538.7  25.6%
+  管理費用  1,127.2  873.7  29.0%
+  研究發展費用  710.6  737.9  -3.7%
+  營業費用  2,671.5  2,148.2  24.4%
+  營業淨利  1,384.0  849.4  62.9%
+  營業淨利率  11.8%  8.7%  3.1 ppts
+  營業外收入及支出  534.6  349.6  52.9%
+  所得稅  403.6  215.8  87.0%
+  本期淨利  1,515.1  983.1  54.1%
+  純益率  12.9%  10.1%  2.8 ppts
+  每股稅後盈餘  3.73  2.18  71.1%
+  10
+
+[p.11]
+  市場應用
+  通訊 4%  By 市場應用  應用類別
+  Q1-Q3’26
+  電源供應* 12%
+  車用電子 35%
+  工控&綠能* 13%  汽車電子  工控&綠能*
+  車燈、車身電子裝置、  太陽能逆變器、直流風扇、
+  資訊娛樂系統、泵、  機器人、伺服散熱風扇、
+  車載充電  充電樁、馬達、醫療
+  電腦運算* 16%
+  消費型電子 20%
+  *AI人工智能應用 12%
+  電腦運算*  電源供應*
+ By 產品  By 地區
+  Q1-Q3’26  Q1-Q3’26  筆記型電腦、主機板、  PD 充電器、電源供應器、
+  固態硬碟、伺服器、  不斷電系統、伺服器電源、
+  BJT 4%  SiC 1%  東南亞 4%  日本 3%  資料中心  DC-DC電源模組
+  ESD Diode 6%  美洲 4%
+  Zener 6%  韓國 8%
+Switching 7%  MOSFET
+  32%  歐洲 8%  大陸 39%
+  消費性電子  通訊
+  電視、白色家電、  POE、移動裝置、
+  TVS 9%
+  Schottky
+  黑色家電、 遊戲機、  行動通訊基地台
+  台灣 34%
+  23%  智慧手錶、網路攝影機
+  Rectifier 12%
+  Note: Sales Region
+  11
+
+[p.12]
+營收分析 – 產品
+  By 產品  By 產品
+  1Q~3Q’ 26  1Q~3Q’ 25
+  BJT SiC  ESD Diode  BJT SiC
+  ESD Diode  4% 1%  3% 1%
+  4%
+  6%  Switching
+  6%
+  Zener
+  6%
+  Zener
+  MOSFET  6%
+  MOSFET
+Switching  32%  33%
+  7%
+  TVS
+  9%
+  TVS
+  9%
+  Rectifier
+  Schottky  Schottky
+  13%
+  Rectifier  23%  25%
+  12%
+  12
+
+[p.13]
+營收分析 – 市場應用
+  By市場應用  By市場應用
+  1Q~3Q’ 26  1Q~3Q’ 25
+  通訊  通訊
+  電源供應*  電源供應*
+  4%  3%
+  12%  12%
+  車用電子
+  車用電子
+  33%
+  35%
+工控&綠能*  工控&綠能*
+  13%  15%
+  電腦運算*
+  電腦運算*
+  16%
+  消費型電子  17%  消費型電子
+  20%  20%
+  13
+
+[p.14]
+汽車應用
+  14
+
+[p.15]
+車用產品營收趨勢 Y2026 Q1-Q3  Product Offering
+  AEC-Q101 parts business trend
+  2K+  Parts
+  YoY: 47%  Shipment
+  5.81B
+  Pcs. in 2025
+  Worldwide
+  20+  Countries
+  Serving over
+  300+
+  customers across
+  the globe
+Y 2017  Y 2018  Y 2019  Y 2020  Y 2021  Y 2022  Y 2023  Y 2024  Y 2025  Y 2026,
+  Q1-Q3
+  15
+
+[p.16]
+YOUR COMPONENT
+ OUR PROFESSION

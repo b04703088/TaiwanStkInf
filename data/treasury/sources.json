@@ -1,9 +1,6 @@
 {
- "generated": "2026-11-12 20:10",
+ "generated": "2026-11-13 08:44",
  "since": "2024-01-01",
- "programs": 590,
- "errors": [
-  "ajax_t35sb01 otc 6703: URLError(TimeoutError('timed out'))",
-  "ajax_t35sb01 otc 6612: URLError(ConnectionResetError(104, 'Connection reset by peer'))"
- ]
+ "programs": 591,
+ "errors": []
 }
