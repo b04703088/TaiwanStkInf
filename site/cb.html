@@ -473,6 +473,7 @@ function viewOverview(){
 // 代收價款行庫公告＝申報生效後、承銷前的最後一則重訊；回測公告後中位數 3 個營業日開始詢圈／競拍（多在 1–8 天）
 let banks = [], bankDays = 30;
 const bankSess = t => !t ? "" : t < "09:00" ? "盤前" : t <= "13:30" ? "盤中" : "盤後";
+const bankShort = s => String(s || "").replace(/股份有限公司/g, "").replace(/(國際)?商業(儲蓄)?銀行/g, "銀行").replace(/銀行營業部分行/g, "銀行營業部");
 const SER = s => (s.match(/第([一二三四五六七八九十\d]+)次/) || [])[1] || "";
 function bankCases(b){
   const cs = b.cases.map(id => cases.find(c => c.id === id)).filter(Boolean);
@@ -504,14 +505,15 @@ function renderBanks(){
       b.escrow ? `<b>存儲專戶行庫</b>　${esc(b.escrow)}` : "",
       b.pay_period ? `<b>代收期間</b>　${esc(b.pay_period)}` : "",
       c ? `<b>流程</b>　董事會 ${md(c.board_date)}・送件 ${md(c.filed_date)}・生效 ${md(c.eff_date)}・行庫 ${md(b.date)}${c.lead ? `・主辦 ${esc(c.lead)}` : ""}${c.premium_lo != null ? `・溢價區間 ${pct(c.premium_lo)}~${pct(c.premium_hi)}` : ""}${c.conv_price != null ? `・轉換價 ${fmt(c.conv_price)}` : ""}` : "",
-      b.text ? `<b>重訊內容</b>　${esc(b.text)}` : "",
+      b.text && !(b.collect && b.escrow) ? `<b>重訊內容</b>　${esc(b.text)}` : "",  // 行庫都解析到了就不重複貼公文
       `<a href="${href}">看案件進度 →</a>　<a href="https://mops.twse.com.tw/mops/#/web/t05st02" target="_blank" rel="noopener">公開資訊觀測站重大訊息（${ymd(b.date)}）↗</a>`,
     ].filter(Boolean).join("<br>");
     return `<tr class="bk${started.length ? "" : " new"}" data-i="${i}">
       <td class="when" data-v="${b.date} ${b.time}"><span class="mono">${md(b.date)}</span> <span class="mono faint">${esc(b.time.slice(0, 5))}</span><span class="sess${bankSess(b.time) === "盤中" ? " in" : ""}">${bankSess(b.time)}</span></td>
       <td class="nm"><b>${esc(c ? (c.short || c.company) : b.name)}</b> <span class="mono faint">${esc(b.code)}</span><small class="faint" style="display:block;font-size:11.5px">${ser ? `第${esc(ser)}次 ` : ""}${esc(sec)}${b.subject.includes("交換") ? " EB" : " CB"}</small></td>
       <td class="mt">${meth}${c && c.lead ? `<span class="m-lead">・${esc(c.lead)}</span>` : ""}</td><td class="hide-m">${c && c.lead ? esc(c.lead) : "–"}</td><td class="num mono amt">${amt}</td>
-      <td class="bank">${b.collect ? esc(b.collect) : '<span class="faint">看重訊內容</span>'}${b.escrow && b.escrow !== b.collect ? `<small>專戶 ${esc(b.escrow)}</small>` : ""}</td>
+      <td class="bank" title="代收價款：${esc(b.collect)}${b.escrow ? `
+存儲專戶：${esc(b.escrow)}` : ""}">${b.collect ? esc(bankShort(b.collect)) : '<span class="faint">看重訊內容</span>'}${b.escrow && b.escrow !== b.collect ? `<small>專戶 ${esc(bankShort(b.escrow))}</small>` : ""}</td>
       <td class="bb" data-v="${started.length ? started[0].bb_start : ""}">${bb}</td><td class="stg">${st}</td></tr>
       <tr class="sub-row" hidden><td colspan="8">${detail}</td></tr>`;
   }).join("") : `<tr><td colspan="8" class="empty">近 ${bankDays} 天沒有代收行庫公告。</td></tr>`;

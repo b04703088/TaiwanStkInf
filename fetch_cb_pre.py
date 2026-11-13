@@ -341,14 +341,16 @@ def parse_detail(kind, detail_text, fact_date=""):
     """代收行庫／完成訂價重訊內容 → 行庫、訂價基準日、溢價率、轉換價（解析不到的留空）。"""
     t = unicodedata.normalize("NFKC", detail_text or "").replace("臺", "台").replace("\r", "")
     r = {"date": roc_date(fact_date)}
-    r["collect"] = "、".join(_banks_after(t, r"代收(?:價|債)款(?:行庫|機構|專戶)?|代收行庫"))
-    r["escrow"] = "、".join(_banks_after(t, r"(?:存儲專戶|專戶存儲|存儲價款)(?:行庫|機構)?"))
-    m = re.search(r"以?\s*(\d{2,3}\s*年\s*\d{1,2}\s*月\s*\d{1,2}\s*日|\d{2,3}/\d{1,2}/\d{1,2})\s*(?:為|作為)[^。\n]{0,12}基準日", t)
+    # 寫法很多：代收價款／債款／股款／款項／存款 + 行庫／機構（名稱）；存儲專戶／專戶存儲／存儲價款／存儲款項／存儲行庫
+    r["collect"] = "、".join(_banks_after(t, r"代收(?:價|債|股|存)?款(?:項)?(?:行庫|機構|專戶)?|代收行庫"))
+    r["escrow"] = "、".join(_banks_after(t, r"(?:存儲專戶|專戶存儲|存儲價款|存儲款項|存儲行庫|存儲專業)(?:行庫|機構)?"))
+    t2 = re.sub(r"\s+", "", t)  # 訂價數字常被換行切開（「轉換\n價格訂為」）
+    m = re.search(r"以?(?:民國)?(\d{2,3}年\d{1,2}月\d{1,2}日|\d{2,3}/\d{1,2}/\d{1,2})(?:為|作為)[^。]{0,12}基準日", t2)
     r["price_base_date"] = roc_date(re.sub(r"\s", "", m.group(1))) if m else ""
-    m = re.search(r"溢價率[^\d%]{0,6}([\d.]+)\s*%", t)
+    m = re.search(r"溢價率[^\d%]{0,6}([\d.]+)%", t2)
     r["premium"] = m.group(1) if m else ""
-    m = re.search(r"轉換價格[^\d\n]{0,16}?新台幣\s*([\d,]+(?:\.\d+)?)\s*元", t) or \
-        re.search(r"轉換價格[^\d\n]{0,8}?([\d,]+(?:\.\d+)?)\s*元", t)
+    m = re.search(r"轉換價格[^\d。]{0,16}?新台幣([\d,]+(?:\.\d+)?)元", t2) or \
+        re.search(r"轉換價格[^\d。]{0,8}?([\d,]+(?:\.\d+)?)元", t2)
     r["conv_price"] = m.group(1).replace(",", "") if m else ""
     # 內容只留第 5 項以後（發生緣由、其他應敘明事項）給網頁看
     body = re.split(r"\n\s*5\s*[.、]", t, maxsplit=1)
