@@ -9,13 +9,15 @@
   2. 公開資訊觀測站 重大訊息（新版 API，依日期查詢）
      https://mops.twse.com.tw/mops/api/t05st02          當天所有重訊主旨
      https://mops.twse.com.tw/mops/api/t05st02_detail   單則重訊內容
-     抓主旨含「轉換／交換公司債」的公告，分類成 董事會決議、撤回、代收價款行庫；
+     抓主旨含「轉換／交換公司債」的公告，分類成 董事會決議、撤回、代收價款行庫、完成訂價；
      董事會決議再讀內容：決議日、第幾次、有無擔保、發行總額、承銷方式（詢圈／競拍）、主辦承銷商。
+     代收價款行庫、完成訂價也讀內容 → mops_details.csv：代收／存儲專戶行庫、轉換價格訂定基準日、溢價率、轉換價。
 
 輸出 data/cb/
   sfb.csv          證期局申報案件（只留國內轉換／交換公司債）
   mops_events.csv  觀測站 CB 相關重訊（含董事會決議解析結果）
   mops_days.txt    已抓過的日期（回補用；最近 7 天每次都重抓）
+  mops_details.csv 代收行庫、完成訂價重訊的內容解析（已讀過的不重抓）
 
 用法：python fetch_cb_pre.py [--since 2025-01-01] [--max-minutes 25]
   第一次執行會從 --since 一路回補，超過 --max-minutes 就先停，下次接著抓。
@@ -236,6 +238,10 @@ def classify(subject):
         return "board"
     if re.search(r"代收(價|債)款|存儲專戶", s):
         return "bank"
+    # 完成訂價：「完成訂價」「之轉換價格及溢價率」「訂定轉換價格」（不含重設、調整、反稀釋等事後變動）
+    if re.search(r"完成訂價|訂價結果|轉換價格及(轉換)?溢價率|訂定(之)?轉換價格|轉換價格(之)?訂定", s) \
+            and not re.search(r"重設|重新訂定|調整|反稀釋|向下|變更|除權|除息|配息|配股|停止轉換|贖回", s):
+        return "price"
     # 有些公司董事會決議的主旨只寫債券名稱，例如「崇越科技股份有限公司國內第三次無擔保轉換公司債」（5434，2026-09-21）
     if re.fullmatch(r"(本公司|[^,，;；。]{2,20}?股份有限公司)?(發行)?國內第[一二三四五六七八九十\d]+次"
                     r"([及暨、]第?[一二三四五六七八九十\d]+次)?(有擔保|無擔保)?(可)?[轉交]換公司債(案)?", s):
@@ -315,6 +321,69 @@ def parse_board(detail_text, fact_date=""):
     return r
 
 
+DT_COLS = ["code", "enter_date", "serial", "kind", "date", "collect", "escrow",
+           "price_base_date", "premium", "conv_price", "text"]
+_BANK_END = r"(?=\n\s*\(\d\)|\n\s*\d\s*[.、]|\n\s*(?:國內|第)[^\n]{0,20}公司債\s*[:：]?\s*\n|\Z)"
+
+
+def _banks_after(t, label):
+    """「(2)委託代收價款行庫:台新銀行敦南分行」→ ["台新銀行敦南分行"]；多檔（華邦電、神達）各列一行的也收齊、去重。"""
+    out = []
+    for m in re.finditer(rf"(?:{label})[^:：\n]{{0,8}}[:：]\s*(.*?){_BANK_END}", t, re.S):
+        for line in m.group(1).split("\n"):
+            v = re.split(r"[:：]", line)[-1].strip(" 　。.;；")
+            if v and re.search(r"銀行|金庫|郵政|信託|分行|營業部", v) and v not in out:
+                out.append(v)
+    return out
+
+
+def parse_detail(kind, detail_text, fact_date=""):
+    """代收行庫／完成訂價重訊內容 → 行庫、訂價基準日、溢價率、轉換價（解析不到的留空）。"""
+    t = unicodedata.normalize("NFKC", detail_text or "").replace("臺", "台").replace("\r", "")
+    r = {"date": roc_date(fact_date)}
+    r["collect"] = "、".join(_banks_after(t, r"代收(?:價|債)款(?:行庫|機構|專戶)?|代收行庫"))
+    r["escrow"] = "、".join(_banks_after(t, r"(?:存儲專戶|專戶存儲|存儲價款)(?:行庫|機構)?"))
+    m = re.search(r"以?\s*(\d{2,3}\s*年\s*\d{1,2}\s*月\s*\d{1,2}\s*日|\d{2,3}/\d{1,2}/\d{1,2})\s*(?:為|作為)[^。\n]{0,12}基準日", t)
+    r["price_base_date"] = roc_date(re.sub(r"\s", "", m.group(1))) if m else ""
+    m = re.search(r"溢價率[^\d%]{0,6}([\d.]+)\s*%", t)
+    r["premium"] = m.group(1) if m else ""
+    m = re.search(r"轉換價格[^\d\n]{0,16}?新台幣\s*([\d,]+(?:\.\d+)?)\s*元", t) or \
+        re.search(r"轉換價格[^\d\n]{0,8}?([\d,]+(?:\.\d+)?)\s*元", t)
+    r["conv_price"] = m.group(1).replace(",", "") if m else ""
+    # 內容只留第 5 項以後（發生緣由、其他應敘明事項）給網頁看
+    body = re.split(r"\n\s*5\s*[.、]", t, maxsplit=1)
+    body = re.sub(r"7\s*[.、]\s*其他應敘明事項\(若事件發生[^)]*\)\s*[:：]?", "其他：", body[-1])
+    r["text"] = re.sub(r"\s+", " ", body).strip()[:600]
+    return r
+
+
+def fetch_details(events, budget_s):
+    """代收行庫、完成訂價重訊：還沒讀過內容的去抓（新到舊），超過時間預算就停，下次接著抓。"""
+    p = OUT / "mops_details.csv"
+    have = {(r["code"], r["enter_date"], r["serial"]): r for r in _read(p)}
+    todo = [e for e in sorted(events, key=lambda e: e["date"], reverse=True)
+            if e["kind"] in ("bank", "price") and (e["code"], e["enter_date"], e["serial"]) not in have]
+    t0, n = time.time(), 0
+    for ev in todo:
+        if time.time() - t0 > budget_s:
+            break
+        try:
+            det = mops("t05st02_detail", {"companyId": ev["code"], "marketKind": ev["market"],
+                                          "enterDate": ev["enter_date"], "serialNumber": int(ev["serial"] or 1)})
+            row = (det.get("data") or [[]])[0]
+            r = parse_detail(ev["kind"], row[9] if len(row) > 9 else "", row[8] if len(row) > 8 else "")
+        except Exception as e:  # noqa: BLE001
+            print(f"  {ev['code']} {ev['date']} 重訊內容失敗：{e}", file=sys.stderr)
+            continue
+        have[(ev["code"], ev["enter_date"], ev["serial"])] = {**r, "code": ev["code"], "enter_date": ev["enter_date"],
+                                                              "serial": ev["serial"], "kind": ev["kind"]}
+        n += 1
+        time.sleep(DELAY)
+    rows = sorted(have.values(), key=lambda r: (r.get("date", ""), r["code"]))
+    _write(p, DT_COLS, rows)
+    return n, len(todo) - n
+
+
 def fetch_events(days, budget_s):
     """逐日抓重訊主旨，董事會決議再抓內容；超過時間預算就停。回傳 (events, 完成的日期)"""
     t0, events, done = time.time(), [], []
@@ -350,6 +419,7 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--since", default="2024-07-01", help="重訊回補起日（預設 2024-07-01，2025 年初詢圈的案子董事會在 2024 下半年）")
     ap.add_argument("--max-minutes", type=float, default=25, help="重訊抓取時間上限（分鐘）")
+    ap.add_argument("--detail-minutes", type=float, default=8, help="代收行庫／完成訂價重訊內容的抓取時間上限（分鐘）")
     ap.add_argument("--skip-mops", action="store_true")
     a = ap.parse_args(argv)
     OUT.mkdir(parents=True, exist_ok=True)
@@ -419,6 +489,9 @@ def main(argv=None):
         log["mops"] = {"fetched_days": len(fetched), "left_days": left, "events": len(merged)}
         print(f"重訊：本次 {len(fetched)} 天、還剩 {left} 天未回補；CB 相關重訊共 {len(merged)} 則"
               f"（董事會 {sum(e['kind'] == 'board' for e in merged)}）")
+        got, left_d = fetch_details(merged, a.detail_minutes * 60)
+        log["mops"]["details"] = {"fetched": got, "left": left_d}
+        print(f"代收行庫／完成訂價重訊內容：本次讀 {got} 則，還剩 {left_d} 則")
 
     src = OUT / "pre_sources.json"
     log.update({"generated": datetime.now(C.TPE).strftime("%Y-%m-%d %H:%M"), "errors": errors})

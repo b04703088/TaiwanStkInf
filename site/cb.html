@@ -56,6 +56,27 @@
   .k-board i{background:#9AA5B1;} .k-filed i{background:#7FB3A8;} .k-bank i{background:#C9A27E;} .k-notice i{background:#D08770;}
   .empty{padding:24px 16px; color:var(--text-faint); font-size:13.5px;}
 
+  /* 代收行庫重訊摘要 */
+  .bankbox{border:1px solid var(--line); border-left:3px solid #C9A27E; border-radius:var(--radius-m); background:var(--panel); padding:16px 18px;}
+  .bankbox .block-head{margin-bottom:6px;}
+  .bankbox h2 .k{display:inline-block; font-size:12px; font-weight:600; background:#C9A27E; color:var(--ink); padding:1px 7px; border-radius:2px; margin-right:8px; vertical-align:2px;}
+  .bk-lead{font-size:13px; color:var(--text-muted); line-height:1.7; margin:0;}
+  .bk-lead b{color:var(--text); font-weight:600;}
+  .bankbox .tbl{background:var(--ink);}
+  #banks tr.bk{cursor:pointer;}
+  #banks tr.bk.new td:first-child{box-shadow:inset 3px 0 0 var(--brass);}
+  #banks td.bank{white-space:normal; min-width:150px; max-width:260px; line-height:1.45;}
+  #banks td.bank small{display:block; color:var(--text-faint); font-size:11.5px;}
+  #banks .when small{display:block; color:var(--text-faint); font-size:11px;}
+  #banks .sess{font-size:11px; padding:0 5px; border-radius:2px; margin-left:4px; border:1px solid var(--line-strong); color:var(--text-muted);}
+  #banks .sess.in{border-color:var(--warn); color:var(--warn);}
+  #banks .est{color:var(--text-faint); font-style:italic;}
+  #banks tr.sub-row td{background:var(--panel); white-space:normal; font-size:12.5px; color:var(--text-muted); line-height:1.75; padding:10px 14px 14px;}
+  #banks tr.sub-row b{color:var(--text); font-weight:500;}
+  .bk-tools{display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
+  .bk-tools button{background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:5px 11px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:12.5px;}
+  .bk-tools button[aria-pressed="true"]{border-color:var(--text-faint); color:var(--text);}
+
   /* 進行中卡片 */
   .cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:14px;}
   .card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-m); padding:16px 18px; scroll-margin-top:90px;}
@@ -231,6 +252,14 @@
 
   <!-- 總覽 -->
   <div data-view="overview">
+    <section class="block" id="bank-wrap">
+      <div class="bankbox">
+        <div class="block-head"><h2><span class="k">行庫</span>代收行庫重訊公告</h2>
+          <div class="bk-tools" role="group" aria-label="期間"><button data-d="14" aria-pressed="false">近 2 週</button><button data-d="30" aria-pressed="true">近 30 天</button><button data-d="120" aria-pressed="false">近 4 個月</button></div></div>
+        <p class="bk-lead" id="bank-lead"></p>
+        <div class="tbl"><table><thead><tr><th>公告</th><th>標的</th><th>方式</th><th class="hide-m">主辦</th><th class="num">額度</th><th>代收行庫</th><th>詢圈／競拍</th><th>進度</th></tr></thead><tbody id="banks"></tbody></table></div>
+      </div>
+    </section>
     <section class="block">
       <div class="block-head"><h2>接下來兩週</h2><a class="hint" href="cb-calendar.html">點名稱看該案進度・看整月行事曆 →</a></div>
       <div class="agenda" id="agenda"></div>
@@ -383,6 +412,7 @@ function renderStats(items){
 
 /* ---------- 總覽 ---------- */
 function viewOverview(){
+  viewBanks();
   const n = k => cases.filter(c => c._st[0] === k).length;
   const year = TODAY.slice(0, 4);
   renderStats([["籌備中（董事會／審查／已生效）", `${n("board")}／${n("review")}／${n("eff")}`], ["詢圈／競拍中・即將開始", `${n("bb")}・${n("soon")}`], ["已訂價、待掛牌", n("price") + n("pay") + n("list")],
@@ -417,6 +447,59 @@ function viewOverview(){
     <td>${label(c)}</td><td>${AUC(c) ? "競拍" : "詢圈"}</td><td class="mono">${md(c.done_date || c.price_base_date)}</td>
     <td class="num mono">${pct(c.premium)}</td><td class="num mono">${fmt(c.conv_price)}</td><td class="num mono">${fmt(c.issue_pct)}</td>
     <td class="num mono">${fmt(c.units)}</td><td class="mono">${c.list_date ? md(c.list_date) : `<span class="faint">${md(c.list_expected)}</span>`}</td></tr>`).join("");
+}
+
+/* ---------- 代收行庫重訊摘要 ---------- */
+// 代收價款行庫公告＝申報生效後、承銷前的最後一則重訊；回測公告後中位數 3 個營業日開始詢圈／競拍（多在 1–8 天）
+let banks = [], bankDays = 30;
+const bankSess = t => !t ? "" : t < "09:00" ? "盤前" : t <= "13:30" ? "盤中" : "盤後";
+const SER = s => (s.match(/第([一二三四五六七八九十\d]+)次/) || [])[1] || "";
+function bankCases(b){
+  const cs = b.cases.map(id => cases.find(c => c.id === id)).filter(Boolean);
+  return cs.length ? cs : cases.filter(c => c.code === b.code && c.bank_date === b.date);
+}
+function renderBanks(){
+  const from = addDays(TODAY, -bankDays);
+  const list = banks.filter(b => b.date >= from);
+  document.querySelectorAll("#bank-wrap .bk-tools button").forEach(x => x.setAttribute("aria-pressed", +x.dataset.d === bankDays));
+  const pending = list.filter(b => !bankCases(b).some(c => c.bb_start));
+  const lastB = banks[0];
+  document.getElementById("bank-lead").innerHTML = (lastB ? `最新一則：<b>${esc(lastB.name)} ${esc(lastB.code)}</b> ${md(lastB.date)} ${esc(lastB.time.slice(0, 5))}。` : "")
+    + `近 ${bankDays} 天 <b class="mono">${list.length}</b> 則，其中 <b class="mono">${pending.length}</b> 檔還沒公告詢圈／競拍日期。`
+    + `代收價款行庫是申報生效後、承銷前的最後一步，回測公告後中位數 3 個營業日開始詢圈／競拍（多在 1–8 天）。點列看重訊內容。`;
+  document.getElementById("banks").innerHTML = list.length ? list.map((b, i) => {
+    const cs = bankCases(b), c = cs.find(x => x.method === "詢價圈購") || cs[0];
+    const meth = cs.length > 1 && new Set(cs.map(x => x.method)).size > 1 ? "詢圈＋競拍" : c ? (c.method ? (AUC(c) ? "競拍" : "詢圈") : (c.board_method || "–").replace("詢價圈購", "詢圈").replace("競價拍賣", "競拍").replace("+", "＋")) : "–";
+    const amt = c ? yi(c.sfb_amount || c.board_amount) : "–";
+    const started = cs.filter(x => x.bb_start).sort((a, z) => a.bb_start.localeCompare(z.bb_start));
+    let bb;
+    if (started.length) bb = started.map(x => `<span class="mono">${md(x.bb_start)}${x.bb_end && x.bb_end !== x.bb_start ? "–" + md(x.bb_end) : ""}</span>${cs.length > 1 ? `<span class="faint">${AUC(x) ? "競拍" : "詢圈"}</span>` : ""}`).join("<br>");
+    else { let e = addBiz(b.date, 3); if (e < TODAY) e = TODAY; bb = `<span class="est" title="尚未公告，代收行庫公告後中位數 3 個營業日">${md(e)} 推估</span>`; }
+    const st = c ? stageTag(c) : '<span class="faint">對不到案件</span>';
+    const ser = b.series || SER(b.subject), sec = b.secured || (b.subject.includes("有擔保") ? "有擔保" : b.subject.includes("無擔保") ? "無擔保" : "");
+    const href = c ? (isPre(c) ? `cb-pipeline.html#c-${esc(c.id)}` : `cb-active.html#c-${esc(c.id)}`) : `stock.html#${esc(b.code)}`;
+    const detail = [
+      `<b>主旨</b>　${esc(b.subject)}`,
+      b.collect ? `<b>代收價款行庫</b>　${esc(b.collect)}` : "",
+      b.escrow ? `<b>存儲專戶行庫</b>　${esc(b.escrow)}` : "",
+      b.pay_period ? `<b>代收期間</b>　${esc(b.pay_period)}` : "",
+      c ? `<b>流程</b>　董事會 ${md(c.board_date)}・送件 ${md(c.filed_date)}・生效 ${md(c.eff_date)}・行庫 ${md(b.date)}${c.lead ? `・主辦 ${esc(c.lead)}` : ""}${c.premium_lo != null ? `・溢價區間 ${pct(c.premium_lo)}~${pct(c.premium_hi)}` : ""}${c.conv_price != null ? `・轉換價 ${fmt(c.conv_price)}` : ""}` : "",
+      b.text ? `<b>重訊內容</b>　${esc(b.text)}` : "",
+      `<a href="${href}">看案件進度 →</a>　<a href="https://mops.twse.com.tw/mops/#/web/t05st02" target="_blank" rel="noopener">公開資訊觀測站重大訊息（${ymd(b.date)}）↗</a>`,
+    ].filter(Boolean).join("<br>");
+    return `<tr class="bk${started.length ? "" : " new"}" data-i="${i}">
+      <td class="when" data-v="${b.date} ${b.time}"><span class="mono">${md(b.date)}</span> <span class="mono faint">${esc(b.time.slice(0, 5))}</span><span class="sess${bankSess(b.time) === "盤中" ? " in" : ""}">${bankSess(b.time)}</span></td>
+      <td><b>${esc(c ? (c.short || c.company) : b.name)}</b> <span class="mono faint">${esc(b.code)}</span><small class="faint" style="display:block;font-size:11.5px">${ser ? `第${esc(ser)}次 ` : ""}${esc(sec)}${b.subject.includes("交換") ? " EB" : " CB"}</small></td>
+      <td>${meth}</td><td class="hide-m">${c && c.lead ? esc(c.lead) : "–"}</td><td class="num mono">${amt}</td>
+      <td class="bank">${b.collect ? esc(b.collect) : '<span class="faint">看重訊內容</span>'}${b.escrow && b.escrow !== b.collect ? `<small>專戶 ${esc(b.escrow)}</small>` : ""}</td>
+      <td data-v="${started.length ? started[0].bb_start : ""}">${bb}</td><td>${st}</td></tr>
+      <tr class="sub-row" hidden><td colspan="8">${detail}</td></tr>`;
+  }).join("") : `<tr><td colspan="8" class="empty">近 ${bankDays} 天沒有代收行庫公告。</td></tr>`;
+  document.querySelectorAll("#banks tr.bk").forEach(tr => tr.onclick = e => { if (e.target.closest("a")) return; const n = tr.nextElementSibling; n.hidden = !n.hidden; });
+}
+function viewBanks(){
+  document.querySelectorAll("#bank-wrap .bk-tools button").forEach(x => x.onclick = () => { bankDays = +x.dataset.d; renderBanks(); });
+  renderBanks();
 }
 
 /* ---------- 行事曆 ---------- */
@@ -464,6 +547,7 @@ function evDetail(e){
     else if (c.premium != null) x.push(`溢價率 <span class="mono">${pct(c.premium)}</span>`);
     else if (c.premium_lo != null) x.push(`溢價區間 <span class="mono">${pct(c.premium_lo)}~${pct(c.premium_hi)}</span>`);
     if (c.conv_price != null) x.push(`轉換價 <span class="mono">${fmt(c.conv_price)}</span>`);
+    if (c.price_src === "mops") x.push('<span class="faint">取自觀測站完成訂價重訊</span>');
   } else if (k === "start" || k === "end"){
     if (c.bb_start) x.push(`期間 <span class="mono">${md(c.bb_start)}~${md(c.bb_end)}</span>`);
     if (!AUC(c) && c.premium_lo != null) x.push(`溢價區間 <span class="mono">${pct(c.premium_lo)}~${pct(c.premium_hi)}</span>`);
@@ -812,6 +896,7 @@ document.getElementById("note").innerHTML = `流程：董事會公告 → 申報
 fetch("data/cb/cb.json", {cache:"no-cache"}).then(r => r.json()).then(d => {
   cases = d.rows.map(r => Object.fromEntries(d.cols.map((k, i) => [k, r[i]])));
   cases.forEach(c => c._st = stage(c));
+  if (d.banks) banks = d.banks.rows.map(r => Object.fromEntries(d.banks.cols.map((k, i) => [k, r[i]])));
   document.getElementById("sub").textContent = `${INFO[VIEW][1]}${d.generated ? `（資料更新 ${d.generated}）` : ""}`;
   document.getElementById("n-pipeline").textContent = cases.filter(isPre).length;
   document.getElementById("n-active").textContent = cases.filter(c => !["done", "wd"].includes(c._st[0]) && !isPre(c)).length;
