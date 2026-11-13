@@ -50,6 +50,13 @@ def _wan(k):  # 仟元 → 「x 億」或「x 萬」
     return f"{k / 100000:,.2f} 億" if abs(k) >= 100000 else f"{round(k / 10):,} 萬"
 
 
+def _val(sh, px):  # 股數 × 收盤價（元）→ 「約 x 億」「約 x 萬」；沒有價格回空字串
+    if not sh or not px:
+        return ""
+    v = abs(sh) * px
+    return f"約 {v / 1e8:,.1f} 億" if v >= 1e8 else f"約 {round(v / 1e4):,} 萬"
+
+
 def _month_end(ym):
     y, m = int(ym[:4]), int(ym[5:7])
     return (date(y + (m == 12), m % 12 + 1, 1) - timedelta(days=1)).isoformat()
@@ -116,14 +123,16 @@ def collect(data: Path, today: date):
     if ins:
         for r in _objs(ins["transfer"]):
             names.setdefault(r["code"], r["company"])
-            add(r["code"], r["date"], "insider", f"{r['role']}{r['name']} 申報轉讓 {_lots(r['shares'])} 張",
-                f"{r['method']}，轉讓期間 {r['period'] or '–'}" + (f"，受讓人 {r['transferee']}" if r["transferee"] else ""),
+            v = _val(r["shares"], r.get("px"))
+            add(r["code"], r["date"], "insider", f"{r['role']}{r['name']} 申報轉讓 {_lots(r['shares'])} 張" + (f"（{v}）" if v else ""),
+                (f"市值以申報日收盤 {_num(r['px'])} 元估；" if v else "") + f"{r['method']}，轉讓期間 {r['period'] or '–'}" + (f"，受讓人 {r['transferee']}" if r["transferee"] else ""),
                 "insider.html#s=" + r["code"])
-        agg = defaultdict(lambda: {"bm": 0, "sm": 0, "bo": 0, "so": 0, "pa": 0, "ps": 0, "who": defaultdict(int)})
+        agg = defaultdict(lambda: {"bm": 0, "sm": 0, "bo": 0, "so": 0, "pa": 0, "ps": 0, "px": None, "who": defaultdict(int)})
         for r in _objs(ins["trades"]):
             if r["dup"]:
                 continue
             g = agg[(r["code"], r["month"])]
+            g["px"] = g["px"] or r.get("px")
             g["bm"] += r["buy_mkt"] or 0
             g["sm"] += r["sell_mkt"] or 0
             g["bo"] += r["buy_other"] or 0
@@ -134,11 +143,15 @@ def collect(data: Path, today: date):
         for (code, mon), g in agg.items():
             bits = []
             if g["bm"] or g["sm"]:
-                bits.append(f"集中市場買 {_lots(g['bm'])} 張、賣 {_lots(g['sm'])} 張")
+                net = g["bm"] - g["sm"]
+                v = _val(net, g["px"])
+                bits.append(f"集中市場買 {_lots(g['bm'])} 張、賣 {_lots(g['sm'])} 張" +
+                            (f"，淨{'買' if net > 0 else '賣'}{v}（月均價 {_num(g['px'])} 元）" if v else ""))
             if g["bo"] or g["so"]:
                 bits.append(f"其他（贈與、信託等）增 {_lots(g['bo'])} 張、減 {_lots(g['so'])} 張")
             if g["pa"] or g["ps"]:
-                bits.append(f"設質 {_lots(g['pa'])} 張、解質 {_lots(g['ps'])} 張")
+                pv, sv = _val(g["pa"], g["px"]), _val(g["ps"], g["px"])
+                bits.append(f"設質 {_lots(g['pa'])} 張" + (f"（{pv}）" if pv else "") + f"、解質 {_lots(g['ps'])} 張" + (f"（{sv}）" if sv else ""))
             if not bits:
                 continue
             top = sorted(g["who"].items(), key=lambda x: -abs(x[1]))[:3]
@@ -148,7 +161,8 @@ def collect(data: Path, today: date):
         for r in _objs(ins["pledge"]):
             if r["ds_ppct"] is not None and (r["ds_padd"] or r["ds_psub"]):
                 add(r["code"], _month_end(r["month"]), "insider", f"{int(r['month'][5:])} 月董監質押比 {_num(r['ds_ppct'])}%",
-                    f"本月設質 {_lots(r['ds_padd'])} 張、解質 {_lots(r['ds_psub'])} 張，累計質押 {_lots(r['ds_pledged'])} 張",
+                    f"本月設質 {_lots(r['ds_padd'])} 張、解質 {_lots(r['ds_psub'])} 張，累計質押 {_lots(r['ds_pledged'])} 張" +
+                    (f"（{_val(r['ds_pledged'], r.get('px'))}，月底收盤 {_num(r['px'])} 元）" if r.get("px") and r["ds_pledged"] else ""),
                     "insider.html#s=" + r["code"])
 
     # 庫藏股
