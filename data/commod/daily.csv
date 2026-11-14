@@ -88821,7 +88821,12 @@ date,key,close,source
 2026-11-12,wti,88.74,yahoo
 2026-11-12,zinc,3724.0,sinag
 2026-11-13,aluminum,3019.0,sinag
+2026-11-13,bci,4719.0,cnyes
+2026-11-13,bcti,2592.0,cnyes
+2026-11-13,bdti,4483.0,cnyes
+2026-11-13,bpi,2118.0,cnyes
 2026-11-13,brent,96.08,yahoo
+2026-11-13,bsi,1836.0,cnyes
 2026-11-13,ccfi,1919.27,sse
 2026-11-13,ccfi_eu,1846.3,sse
 2026-11-13,ccfi_usw,1821.58,sse
