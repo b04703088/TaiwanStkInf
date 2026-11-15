@@ -24,6 +24,7 @@ import tempfile
 import time
 import urllib.request
 from collections import Counter
+from concurrent.futures import ThreadPoolExecutor
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -212,6 +213,7 @@ def main():
     ap.add_argument("--min-liq", type=float, default=MIN_LIQ)
     ap.add_argument("--max", type=int, default=40, help="一次最多抓幾份")
     ap.add_argument("--max-minutes", type=float, default=25)
+    ap.add_argument("--workers", type=int, default=3, help="同時下載幾份")
     args = ap.parse_args()
     today = date.fromisoformat(subprocess.run(["date", "+%F"], capture_output=True, text=True, env={"TZ": "Asia/Taipei"}).stdout.strip())
     idx = {r["key"]: r for r in _read(OUT / "index.csv")}
@@ -220,25 +222,32 @@ def main():
     todo = pick(_read(DATA / "mops" / "calls.csv"), done, today, liq, args.days, args.min_liq)[:args.max]
     print(f"{today} 待抓簡報 {len(todo)} 份", flush=True)
     t0 = time.time()
-    for key, r in todo:
-        if time.time() - t0 > args.max_minutes * 60:
-            print("時間到，剩下的下次再抓")
-            break
-        print(f"  抓 {key} {r['code']} {r['name']} …", flush=True)
+
+    def one(item):
+        """下載＋轉檔一份（在背景執行緒跑；只寫自己這份的 text/img，index 由主執行緒更新）。"""
+        key, r = item
         row = {k: r.get(k, "") for k in ("code", "name", "market", "date", "time", "place")}
         row.update(key=key, liq=round(liq.get(r["code"], 0) / 1e8, 1), tries=int((idx.get(key) or {}).get("tries") or 0) + 1)
+        if time.time() - t0 > args.max_minutes * 60:
+            return key, None, "時間到，下次再抓"
+        print(f"  抓 {key} {r['code']} {r['name']} …", flush=True)
         try:
             b = download(URL.format(key + ".pdf"))
             if not b.startswith(b"%PDF"):
                 raise ValueError("不是 PDF")
             pages, chars, imgs = process(key, b)
             row.update(status="ok", pages=pages, chars=chars, imgs=imgs)
-            print(f"  {key} {r['code']} {r['name']} {r['date']} 頁 {pages} 字 {chars} 圖 {imgs}")
+            return key, row, f"{r['code']} {r['name']} {r['date']} 頁 {pages} 字 {chars} 圖 {imgs}（{len(b) // 1024} KB）"
         except Exception as e:  # noqa: BLE001
             row.update(status="fail")
-            print(f"  {key} {r['code']} 失敗：{e}")
-        idx[key] = row
-        time.sleep(2)
+            return key, row, f"{r['code']} 失敗：{e}"
+
+    # 觀測站放簡報的主機每條連線只有約 20～25 KB/s，一份 1～10 MB 要 1～7 分鐘；同時開幾條一起抓
+    with ThreadPoolExecutor(max_workers=max(1, args.workers)) as ex:
+        for key, row, msg in ex.map(one, todo):
+            print(f"  {key} {msg}", flush=True)
+            if row is not None:
+                idx[key] = row
     dedupe(idx)
     cleanup()
     _write(OUT / "index.csv", sorted(idx.values(), key=lambda r: (r["date"], r["time"], r["code"]), reverse=True))

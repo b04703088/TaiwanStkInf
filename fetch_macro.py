@@ -1,23 +1,21 @@
 #!/usr/bin/env python3
-"""資金水龍頭用的國際／匯率日資料：台幣匯率、美元指數、美 10 年債、VIX、美國公司債信用利差。
+"""資金水龍頭用的國際／匯率日資料：台幣匯率、美元指數、美 10 年債、VIX、信用利差（HYG÷IEF）。
 
 資料來源
   Yahoo Finance chart API  https://query1.finance.yahoo.com/v8/finance/chart/<symbol>?range=2y&interval=1d
       TWD=X（美元兌台幣）、DX-Y.NYB（美元指數）、^TNX（美 10 年債殖利率）、^VIX
-  FRED CSV                 https://fred.stlouisfed.org/graph/fredgraph.csv?id=<series>
-      BAMLH0A0HYM2（高收益債利差 OAS）、BAMLC0A0CM（投資級債利差 OAS）
-      FRED 從 GitHub runner 常逾時，所以另抓 HYG（高收益債 ETF）、IEF（7-10 年美債 ETF），
-      用 HYG÷IEF 當信用利差的替代（比值跌＝高收益債相對公債走弱＝利差擴大）
-      Yahoo 抓不到時改用 FRED：DEXTAUS、DTWEXBGS（廣義美元指數）、DGS10、VIXCLS
+      HYG（高收益債 ETF）、IEF（7-10 年美債 ETF）：用 HYG÷IEF 當信用利差
+      （比值跌＝高收益債相對公債走弱＝利差擴大）
+  原本另從 FRED 抓高收益／投資級債 OAS，但 GitHub runner 連 FRED 每次都逾時（每次白等 3 分鐘、
+  一筆都沒抓到過），2026-11 拿掉。
 
 輸出 data/macro/daily.csv：date, series, value, source
-  series：usdtwd、dxy、us10y（%）、vix、hy_oas（%）、ig_oas（%）、hyg、ief
+  series：usdtwd、dxy、us10y（%）、vix、hyg、ief
   每次抓近 2 年並覆蓋重疊日期，所以重跑沒關係。
 
 用法：python fetch_macro.py
 """
 import csv
-import io
 import json
 import sys
 import time
@@ -33,12 +31,10 @@ UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
 
 # series: [(來源, 代號), ...]，依序嘗試，第一個成功的就用
 SERIES = {
-    "usdtwd": [("yahoo", "TWD=X"), ("fred", "DEXTAUS")],
-    "dxy": [("yahoo", "DX-Y.NYB"), ("fred", "DTWEXBGS")],
-    "us10y": [("yahoo", "^TNX"), ("fred", "DGS10")],
-    "vix": [("yahoo", "^VIX"), ("fred", "VIXCLS")],
-    "hy_oas": [("fred", "BAMLH0A0HYM2")],
-    "ig_oas": [("fred", "BAMLC0A0CM")],
+    "usdtwd": [("yahoo", "TWD=X")],
+    "dxy": [("yahoo", "DX-Y.NYB")],
+    "us10y": [("yahoo", "^TNX")],
+    "vix": [("yahoo", "^VIX")],
     "hyg": [("yahoo", "HYG")],
     "ief": [("yahoo", "IEF")],
 }
@@ -64,16 +60,6 @@ def yahoo(sym):
     return out
 
 
-def fred(sid):
-    start = f"{datetime.now().year - 2}-01-01"
-    text = get(f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={sid}&cosd={start}", timeout=90)
-    out = {}
-    for row in list(csv.reader(io.StringIO(text)))[1:]:
-        if len(row) == 2 and row[1] not in ("", "."):
-            out[row[0]] = float(row[1])
-    return {d: v for d, v in out.items() if d >= start}
-
-
 def main():
     rows = {}
     if OUT.exists():
@@ -84,7 +70,7 @@ def main():
     for name, tries in SERIES.items():
         for src, sym in tries:
             try:
-                data = yahoo(sym) if src == "yahoo" else fred(sym)
+                data = yahoo(sym)
             except Exception as e:  # noqa: BLE001  一個來源壞掉就換下一個
                 print(f"{name} {src}:{sym} 失敗：{e}")
                 time.sleep(2)
