@@ -16,7 +16,8 @@
 股票清單取自同一天的收盤行情檔（data/<YYYY>/<YYYYMMDD>.csv），只抓成交金額 ≥ --min-value
 （預設 3000 萬元，約 900 檔、涵蓋當天 99% 以上成交金額）；--min-value 0 = 有成交的全部（約 2,400 檔）。
 門檻是為了省 GitHub Actions 分鐘數（私人 repo 免費方案每月 2,000 分鐘）。
-已抓過的股票會略過，中途中斷或部分失敗時，重跑只補沒抓到的。
+已有分點資料的股票會略過，中途中斷、部分失敗或「查無資料」（太早抓到空頁）時，重跑只補這些。
+每次執行也會順便補前 12 個交易日裡還是空頁的股票（--recheck-days）。
 資料還沒出來（收盤後要一段時間）時直接結束、不算失敗，下一次排程再抓。
 --wait-until HH:MM：還沒出來就每 5 分鐘再看一次，等到台北時間 HH:MM 為止（傍晚那次用，資料一出來就抓）。
 
@@ -163,6 +164,74 @@ def save(date, rows, totals, order):
     _write(tp, TOTAL_COLS, totals)
 
 
+def fetch_date(date, codes, deadline, retry_rounds=0, retry_wait=120):
+    """抓 date 這天 codes 裡還沒有分點資料的股票。回傳 (本次抓的檔數, 失敗代號, 仍查無資料檔數)。
+
+    「查無資料」（頁面沒有任何分點）不算抓過：富邦收盤後是一檔一檔陸續算好的，太早抓會拿到空頁，
+    2026-11-03 起 18:01 一公布就抓，每天有 60～280 檔空頁被當成已抓、之後再也不補。
+    現在空頁不記為完成，同一次執行最後再隔 retry_wait 秒重抓 retry_rounds 輪，下一次排程也會再補。
+    """
+    rp, tp = out_paths(date)
+    rows, totals = _read(rp), _read(tp)
+    have = {t["code"] for t in totals if t["buy_total"] != ""}
+    todo = [c for c in codes if c not in have]
+    if not todo:
+        return 0, [], 0
+    by_code = {t["code"]: t for t in totals}
+    failed, n_new, empty = [], 0, []
+    for rnd in range(retry_rounds + 1):
+        if rnd:
+            if time.time() + retry_wait > deadline:
+                break
+            print(f"  {date}: {len(todo)} 檔查無分點資料，{retry_wait} 秒後重抓（第 {rnd} 輪）", flush=True)
+            time.sleep(retry_wait)
+        empty = []
+        for i, code in enumerate(todo, 1):
+            if time.time() > deadline:
+                print(f"  時間到，先存檔，{date} 剩 {len(todo) - i + 1} 檔下次再抓")
+                empty += todo[i - 1:]
+                break
+            try:
+                r, t = parse(fetch_page(code, date), date, code)
+            except C.AdapterError as e:
+                failed.append(code)
+                print(f"  {code} 失敗：{e}", file=sys.stderr)
+                continue
+            if r:
+                rows = [x for x in rows if x["code"] != code] + r
+            by_code[code] = t
+            n_new += 1
+            if not r:
+                empty.append(code)
+            if i % 200 == 0:
+                save(date, rows, list(by_code.values()), codes)
+                print(f"  {i}/{len(todo)}")
+            time.sleep(DELAY)
+        save(date, rows, list(by_code.values()), codes)
+        todo = [c for c in empty if c not in failed]
+        if not todo:
+            break
+    with_data = sum(1 for t in by_code.values() if t["buy_total"] != "")
+    print(f"{date}: 本次 {n_new} 頁，累計 {len(by_code)}/{len(codes)} 檔（有分點資料 {with_data} 檔，"
+          f"查無資料 {len(todo)} 檔），失敗 {len(failed)} -> {rp}", flush=True)
+    return n_new, failed, len(todo)
+
+
+def recent_dates_with_empty(date, days):
+    """date 之前 days 個交易日中，_total.csv 裡還有「查無資料」股票的日期（新到舊）。"""
+    files = sorted(OUT.glob("[0-9][0-9][0-9][0-9]/[0-9]*_total.csv"), key=lambda p: p.name)
+    out = []
+    for f in reversed(files):
+        d = f.stem[:8]
+        d = f"{d[:4]}-{d[4:6]}-{d[6:8]}"
+        if d >= date:
+            continue
+        if len(out) >= days:
+            break
+        out.append((d, sum(1 for t in _read(f) if t["buy_total"] == "")))
+    return [d for d, n in out if n]
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--date", help="交易日 YYYY-MM-DD（預設：最新收盤行情的日期）")
@@ -172,59 +241,49 @@ def main(argv=None):
                     help="只抓成交金額 ≥ 這個數字（元）的股票；0 = 全部（預設 3000 萬）")
     ap.add_argument("--wait-until", metavar="HH:MM",
                     help="資料還沒公布就每 5 分鐘再查一次，最晚等到台北時間 HH:MM")
+    ap.add_argument("--retry-rounds", type=int, default=3, help="查無資料的股票，同一次執行最後再重抓幾輪（預設 3）")
+    ap.add_argument("--recheck-days", type=int, default=12,
+                    help="順便補前幾個交易日裡「查無資料」的股票（預設 12；0 = 不補）")
     a = ap.parse_args(argv)
 
     date = a.date or latest_trading_day()
     if not price_file(date).exists():
         print(f"{date} 沒有收盤行情檔，無法決定股票清單（非交易日或股價還沒抓）")
         return 0
+    deadline = time.time() + a.max_minutes * 60
     codes = a.codes or stock_list(date, a.min_value)
     rp, tp = out_paths(date)
-    rows, totals = _read(rp), _read(tp)
-    done = {t["code"] for t in totals}
-    todo = [c for c in codes if c not in done]
+    have = {t["code"] for t in _read(tp) if t["buy_total"] != ""}
+    todo = [c for c in codes if c not in have]
+    failed, n_todo = [], len(todo)
     if not todo:
-        print(f"{date}: {len(done)} 檔都已抓過")
-        return 0
+        print(f"{date}: {len(have)} 檔都已有分點資料")
+    else:
+        # 先確認當天資料已經出來
+        probe_rows, _ = parse(fetch_page(PROBE, date), date, PROBE)
+        if not probe_rows and a.wait_until:
+            tpe = timezone(timedelta(hours=8))
+            now = datetime.now(tpe)
+            hh, mm = map(int, a.wait_until.split(":"))
+            until = now.replace(hour=hh, minute=mm, second=0, microsecond=0)
+            while not probe_rows and datetime.now(tpe) + timedelta(minutes=5) <= until:
+                print(f"{date}: 分點資料尚未公布，{datetime.now(tpe):%H:%M} 起等 5 分鐘再查（最晚 {a.wait_until}）", flush=True)
+                time.sleep(300)
+                probe_rows, _ = parse(fetch_page(PROBE, date), date, PROBE)
+        if not probe_rows:
+            print(f"{date}: 分點資料尚未公布（{PROBE} 查無資料），稍後再抓")
+            return 0
+        _, failed, _ = fetch_date(date, codes, deadline, a.retry_rounds)
 
-    # 先確認當天資料已經出來
-    probe_rows, _ = parse(fetch_page(PROBE, date), date, PROBE)
-    if not probe_rows and a.wait_until:
-        tpe = timezone(timedelta(hours=8))
-        now = datetime.now(tpe)
-        hh, mm = map(int, a.wait_until.split(":"))
-        deadline = now.replace(hour=hh, minute=mm, second=0, microsecond=0)
-        while not probe_rows and datetime.now(tpe) + timedelta(minutes=5) <= deadline:
-            print(f"{date}: 分點資料尚未公布，{datetime.now(tpe):%H:%M} 起等 5 分鐘再查（最晚 {a.wait_until}）", flush=True)
-            time.sleep(300)
-            probe_rows, _ = parse(fetch_page(PROBE, date), date, PROBE)
-    if not probe_rows:
-        print(f"{date}: 分點資料尚未公布（{PROBE} 查無資料），稍後再抓")
-        return 0
-
-    t0, failed, n_new = time.time(), [], 0
-    for i, code in enumerate(todo, 1):
-        if time.time() - t0 > a.max_minutes * 60:
-            print(f"達到 {a.max_minutes} 分鐘上限，先存檔，剩 {len(todo) - i + 1} 檔下次再抓")
-            break
-        try:
-            r, t = parse(fetch_page(code, date), date, code)
-        except C.AdapterError as e:
-            failed.append(code)
-            print(f"  {code} 失敗：{e}", file=sys.stderr)
-            continue
-        rows += r
-        totals.append(t)
-        n_new += 1
-        if i % 200 == 0:
-            save(date, rows, totals, codes)
-            print(f"  {i}/{len(todo)}（{time.time() - t0:.0f} 秒）")
-        time.sleep(DELAY)
-    save(date, rows, totals, codes)
-    with_data = sum(1 for t in totals if t["buy_total"] != "")
-    print(f"{date}: 本次 {n_new} 檔，累計 {len(totals)}/{len(codes)} 檔（有分點資料 {with_data} 檔）"
-          f"，失敗 {len(failed)} -> {rp}")
-    return 1 if len(failed) > FAIL_RATIO * len(todo) else 0
+    # 回補前幾天的空頁（只在抓最新一天、沒有指定股票時做）
+    if not a.codes and a.recheck_days > 0:
+        for d in recent_dates_with_empty(date, a.recheck_days):
+            if time.time() > deadline:
+                break
+            if not price_file(d).exists():
+                continue
+            fetch_date(d, stock_list(d, a.min_value), deadline, retry_rounds=0)
+    return 1 if n_todo and len(failed) > FAIL_RATIO * n_todo else 0
 
 
 if __name__ == "__main__":

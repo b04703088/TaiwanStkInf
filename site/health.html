@@ -91,13 +91,14 @@
   </div>
   <div class="tbl">
     <table>
-      <thead><tr><th>狀態</th><th>項目</th><th class="hide-m">名稱</th><th class="hide-m">資料日</th><th class="num hide-m">落後</th><th class="num hide-m">檔數</th><th class="num hide-m">權重加總</th><th>說明</th><th>來源</th></tr></thead>
+      <thead><tr><th>狀態</th><th>項目</th><th class="hide-m">名稱</th><th class="hide-m">資料日</th><th class="hide-m" title="爬蟲抓完、資料存檔（commit）的時間，台北時間">抓完時間</th><th class="num hide-m">落後</th><th class="num hide-m">檔數</th><th class="num hide-m">權重加總</th><th>說明</th><th>來源</th></tr></thead>
       <tbody id="rows"></tbody>
     </table>
   </div>
   <p class="note">
     落後＝資料日之後已經過了幾個交易日。多數投信當天晚上公告，凱基、統一等是隔天早上才公告，所以早上看到落後 1 天屬正常；落後 2 天以上就是漏抓。<br>
     權重加總偏低常見於主動式 ETF（持有現金），單獨出現不一定是錯。<br>
+    抓完時間＝這一項的爬蟲抓完、資料存檔的時間（台北，到分）；之後若有補抓，會顯示最後一次補抓的時間。<br>
     每天台北 09:10 左右 GitHub 會自動跑一次健檢；有「異常」時該次執行會失敗，GitHub 會寄通知信到帳號信箱。
   </p>
 </main>
@@ -106,6 +107,8 @@
 const LABEL = {price:"股價", etf:"ETF", aum:"規模", broker:"分點", watch:"重點分點", tip:"行事曆", msci:"MSCI", cb:"CB詢圈", industry:"產業分類", mops:"重訊", chips:"法人籌碼", futures:"期權", tdcc:"集保"};
 const TXT = {ok:"正常", warn:"留意", error:"異常"};
 let data, mode = "issue";
+// "2026-11-13 18:21" → "11/13 18:21"
+const fmtT = t => t ? t.slice(5, 7) + "/" + t.slice(8, 10) + " " + t.slice(11, 16) : "–";
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function render(){
   const order = {error:0, warn:1, ok:2};
@@ -116,12 +119,13 @@ function render(){
     <td class="mono">${LABEL[i.kind]} ${i.kind === "etf" ? esc(i.id) : ""}</td>
     <td class="hide-m">${esc(i.name)}</td>
     <td class="mono hide-m">${esc(i.date || "–")}</td>
+    <td class="mono hide-m" style="white-space:nowrap">${esc(fmtT(i.fetched))}</td>
     <td class="num mono hide-m">${i.lag ?? "–"}</td>
     <td class="num mono hide-m">${i.n ?? i.rows ?? "–"}</td>
     <td class="num mono hide-m">${i.wsum != null ? i.wsum.toFixed(1) + "%" : "–"}</td>
-    <td class="msg"><span class="show-m">${esc(i.name)}・${esc(i.date || "–")}<br></span>${esc(i.msg)}</td>
+    <td class="msg"><span class="show-m">${esc(i.name)}・${esc(i.date || "–")}・抓完 ${esc(fmtT(i.fetched))}<br></span>${esc(i.msg)}</td>
     <td class="src">${(i.src || []).map(([n, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(n)}</a>`).join("<br>") || "–"}</td></tr>`).join("")
-    : `<tr><td colspan="9" class="faint" style="padding:28px 14px">全部正常 ✓</td></tr>`;
+    : `<tr><td colspan="10" class="faint" style="padding:28px 14px">全部正常 ✓</td></tr>`;
 }
 document.querySelectorAll(".filters button").forEach(b => b.onclick = () => {
   mode = b.dataset.f;
