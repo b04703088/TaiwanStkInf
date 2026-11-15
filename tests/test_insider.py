@@ -128,6 +128,54 @@ class MonthResumeTest(unittest.TestCase):
             finally:
                 F.OUT, F.irb110, F.irb130, F.mops, F.DELAY = olds
 
+    def test_provisional_incremental(self):
+        """彙總表還沒出：用上個月公司清單抓暫定版，之後每天只查還沒申報的；彙總表出來後只補沒查過的公司。"""
+        res = json.loads((FIX / "query6_1_2330_11508.json").read_text(encoding="utf-8"))["result"]
+        calls, published, filed = [], {"v": False}, {"2330"}
+        olds = (F.OUT, F.irb110, F.irb130, F.mops, F.DELAY)
+        with tempfile.TemporaryDirectory() as d:
+            F.OUT, F.DELAY = Path(d), 0
+            F._write(Path(d) / "irb110" / "202609_sii.csv", F.IRB_COLS, [{"code": "2330", "company": "台積電"}])
+            F._write(Path(d) / "irb110" / "202609_otc.csv", F.IRB_COLS, [{"code": "6488", "company": "環球晶"}])
+            new = [{"code": c, "company": "x"} for c in ("2330", "6488", "7777")]
+            F.irb110 = lambda y, m, mkt: (new if mkt == "sii" else []) if published["v"] else None
+            F.irb130 = lambda y, m, mkt: [] if published["v"] else None
+
+            def mops(api, body):
+                calls.append(body["companyId"])
+                return res if body["companyId"] in filed else {"data": []}
+            F.mops = mops
+            try:
+                out = Path(d) / "trades" / "202610.csv"
+                prov = out.with_suffix(".prov.txt")
+                self.assertTrue(F.fetch_month(2026, 10))
+                self.assertEqual(calls, ["2330", "6488"])
+                self.assertTrue(out.exists() and prov.exists())
+                n = len(F._read(out))
+                self.assertGreater(n, 0)
+                upd = F._read(Path(d) / "trades" / "updates.csv")
+                self.assertEqual([(r["code"], r["kind"]) for r in upd], [("2330", "暫定")])
+                self.assertGreater(int(upd[0]["rows"]), 0)
+                self.assertTrue(F.fetch_month(2026, 10))                  # 隔天：只查還沒申報的 6488
+                self.assertEqual(calls[2:], ["6488"])
+                self.assertEqual(len(F._read(Path(d) / "trades" / "updates.csv")), 1)
+                filed.add("6488")
+                self.assertTrue(F.fetch_month(2026, 10, prov_ok=False))   # 17 日後：不查，等彙總表
+                self.assertEqual(len(calls), 3)
+                self.assertTrue(F.fetch_month(2026, 10))                  # 6488 申報了：補進來
+                self.assertEqual(calls[3:], ["6488"])
+                self.assertGreater(len(F._read(out)), n)
+                published["v"] = True
+                self.assertTrue(F.fetch_month(2026, 10))                  # 彙總表出來：只補沒查過的 7777
+                self.assertEqual(calls[4:], ["7777"])
+                self.assertFalse(prov.exists())
+                upd = F._read(Path(d) / "trades" / "updates.csv")
+                self.assertEqual([(r["code"], r["kind"]) for r in upd],
+                                 [("2330", "暫定"), ("6488", "暫定"), ("7777", "補查")])
+                self.assertTrue(F.fetch_month(2026, 10))
+                self.assertEqual(len(calls), 5)
+            finally:
+                F.OUT, F.irb110, F.irb130, F.mops, F.DELAY = olds
 
 if __name__ == "__main__":
     unittest.main()

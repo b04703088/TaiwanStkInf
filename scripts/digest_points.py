@@ -379,7 +379,35 @@ def etf(iso, prev_iso, names):
 FAMILY = re.compile(r"配偶|未成年")
 
 
-def insider(iso, prev_iso, px, top=8):
+def monthly_updates(iso, prev_iso, px, top=8):
+    """月報這次更新了哪些（fetch_insider 記在 trades/updates.csv）：新申報幾家、有市場買賣的依金額列前幾家。"""
+    upd = [r for r in _read(D / "insider" / "trades" / "updates.csv") if prev_iso < r["date"] <= iso]
+    if not upd:
+        return []
+    res = []
+    for mon in sorted({r["month"] for r in upd}, reverse=True):
+        u = [r for r in upd if r["month"] == mon]
+        for r in u:
+            p = px.get(r["code"], 0)
+            r["_b"], r["_s"] = float(r["buy_mkt"] or 0) * p / 1e8, float(r["sell_mkt"] or 0) * p / 1e8
+        chg = [r for r in u if int(r["rows"] or 0)]
+        kinds = {r["kind"] for r in u}
+        how = "（暫定，彙總表還沒出）" if kinds == {"暫定"} else "（彙總表出來後補查）" if "補查" in kinds else ""
+        res += ["", f"**{mon} 月報更新**{how}：新申報 {len(u)} 家，其中 {len(chg)} 家有持股異動或設質", ""]
+        big = sorted([r for r in chg if r["_b"] + r["_s"] >= 0.1], key=lambda r: -(r["_b"] + r["_s"]))
+        if big:
+            res += _tbl(["公司", "市場買進（億）", "市場賣出（億）", "異動筆數"],
+                        [[f"{r['company']}（{r['code']}）", f"{r['_b']:,.1f}", f"{r['_s']:,.1f}", r["rows"]] for r in big[:top]])
+            if len(big) > top:
+                res.append(f"- 另有 {len(big) - top} 家市場買賣 1000 萬以上。")
+        rest = [r for r in chg if r not in big]
+        if rest:
+            names = "、".join(f"{r['company']}" for r in rest[:15])
+            res.append(f"- 其他有異動：{names}{' 等' if len(rest) > 15 else ''}（{len(rest)} 家）")
+    return res
+
+
+def insider(iso, prev_iso, px, top=8, day_prev=None):
     rows = []
     for f in sorted((D / "insider" / "transfer").glob("*.csv")):
         rows += [r for r in _read(f) if prev_iso < r["date"] <= iso]
@@ -420,6 +448,8 @@ def insider(iso, prev_iso, px, top=8):
         res.append("這次沒有新的事前申報轉讓。")
     if notes:
         res += [""] + notes
+
+    res += monthly_updates(iso, day_prev or prev_iso, px)
 
     # 最新月報（每月 15 日前後公布上月）
     tf = sorted((D / "insider" / "trades").glob("[0-9]*.csv"))
@@ -667,7 +697,7 @@ def build(day, px_files, chip_files):
     out = []
     since5 = _iso(stems[max(0, i - 5)])   # 內部人事件看近 5 個交易日
     fns = {("events" if f is upcoming_events else f.__name__): (f, a) for f, a in ((flows, (px_files, chip_files, day)), (watch, (day,)), (cb, (iso, prev_iso, names)),
-                                           (etf, (iso, prev_iso, names)), (insider, (iso, since5, px)), (shift, (iso, prev_iso)),
+                                           (etf, (iso, prev_iso, names)), (insider, (iso, since5, px, 8, prev_iso)), (shift, (iso, prev_iso)),
                                            (cb_brief, (iso, prev_iso, names)), (etf_brief, (iso, since5)),
                                            (disp_exit, (iso, stems)), (delev, (iso,)), (upcoming_events, (iso,)))}
     for f, args in (fns[k] for k in SECTIONS):
