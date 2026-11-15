@@ -14,6 +14,8 @@
      以及每個人當月的設定質權／解除質權股數。
      第 1 步清單上的每一家都查（約 2000 家，一家約 1.5 秒，約 50～60 分鐘），
      中途停掉（--max-minutes）會存進度，下次接著查。
+     公司每月 15 日前申報完，但彙總表 22 日左右才出：彙總表還沒出就先用上個月的公司清單抓「暫定版」
+     （trades/<YYYYMM>.prov.txt 標記），彙總表出來後整個月重查一次。
   3. 持股轉讓事前申報（每天，OpenAPI 只給最新一天，所以要每天抓、累積）
        https://openapi.twse.com.tw/v1/opendata/t187ap12_L
        https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap12_O
@@ -243,19 +245,42 @@ def mark_dups(rows):
     return rows
 
 
+def _latest_company_list(y, m, back=3):
+    """往前找最近一個已公布的 IRB110 → (YYYY-MM, [(mkt, code, company)]) 或 None。"""
+    for k in range(1, back + 1):
+        py, pm = ym_add((y, m), -k)
+        ps = [OUT / "irb110" / f"{py}{pm:02d}_{mkt}.csv" for mkt in ("sii", "otc")]
+        if all(p.exists() for p in ps):
+            return f"{py}-{pm:02d}", [(mkt, r["code"], r["company"]) for mkt, p in zip(("sii", "otc"), ps)
+                                      for r in _read(p)]
+    return None
+
+
 def fetch_month(y, m, force=False, deadline=None):
     """回傳 True = 這個月完成；False = 還沒公布或還沒查完（進度已存）。"""
     out_p = OUT / "trades" / f"{y}{m:02d}.csv"
     part_p, done_p = out_p.with_suffix(".part.csv"), out_p.with_suffix(".done.txt")
-    if out_p.exists() and not force:
+    prov_p = out_p.with_suffix(".prov.txt")   # 有這個檔 = 先用上個月公司清單抓的暫定版
+    if out_p.exists() and not force and not prov_p.exists():
         return True
-    cand = []
+    cand, missing = [], False
     for mkt in ("sii", "otc"):
         cur, pledge = irb110(y, m, mkt), irb130(y, m, mkt)
         if cur is None or pledge is None:
-            print(f"{y}-{m:02d} {mkt} 股權異動／質權設定彙總表還沒公布", flush=True)
+            missing = True
+        else:
+            cand += [(mkt, r["code"], r["company"]) for r in cur]
+    if out_p.exists() and not force and missing:   # 暫定版已抓，彙總表還沒出
+        return True
+    if missing:
+        # 公司 15 日前就會申報完，但彙總表要到 22 日左右才公布：先拿最近一個月的公司清單查（暫定版），
+        # 彙總表出來後再整個月重查一次（補新上市櫃、晚申報的公司），重查完才拿掉 .prov.txt
+        prev = _latest_company_list(y, m)
+        if not prev:
+            print(f"{y}-{m:02d} 股權異動／質權設定彙總表還沒公布，也沒有前幾個月的公司清單可用", flush=True)
             return False
-        cand += [(mkt, r["code"], r["company"]) for r in cur]
+        print(f"{y}-{m:02d} 彙總表還沒公布，先用 {prev[0]} 的公司清單抓暫定版", flush=True)
+        cand = prev[1]
     rows = [{**r, **{k: _int(r.get(k)) for k in TRADE_INTS}} for r in _read(part_p)]
     done = set(done_p.read_text(encoding="utf-8").split()) if done_p.exists() else set()
     todo = [c for c in cand if c[1] not in done]
@@ -291,6 +316,10 @@ def fetch_month(y, m, force=False, deadline=None):
     _write(out_p, TRADE_COLS, rows)
     part_p.unlink(missing_ok=True)
     done_p.unlink(missing_ok=True)
+    if missing:
+        prov_p.write_text(f"暫定：用前一期公司清單查，失敗 {len(failed)} 家\n", encoding="utf-8")
+    else:
+        prov_p.unlink(missing_ok=True)
     n_buy = sum(1 for r in rows if r["buy_mkt"] > r["sell_mkt"])
     print(f"{y}-{m:02d}：{len(rows)} 筆異動（集中市場淨買進 {n_buy} 筆），失敗 {len(failed)} 家 -> {out_p}")
     return True
