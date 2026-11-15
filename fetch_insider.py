@@ -323,8 +323,8 @@ def fetch_month(y, m, force=False, deadline=None, prov_ok=True):
         rows = to_rows(part_p)
         done = set(done_p.read_text(encoding="utf-8").split()) if done_p.exists() else set()
     elif out_p.exists() and prov_p.exists() and not force:       # 暫定版：只查還沒申報的
-        rows = to_rows(out_p)
         done = {t for t in prov_p.read_text(encoding="utf-8").split() if re.fullmatch(r"[0-9A-Z]{4,6}", t)}
+        rows = [r for r in to_rows(out_p) if r["code"] in done]   # 沒記在已申報清單的會重查，舊列先拿掉免得重複
     else:
         rows, done = [], set()
     todo = [c for c in cand if c[1] not in done]
