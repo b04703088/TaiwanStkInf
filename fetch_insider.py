@@ -15,7 +15,8 @@
      第 1 步清單上的每一家都查（約 2000 家，一家約 1.5 秒，約 50～60 分鐘），
      中途停掉（--max-minutes）會存進度，下次接著查。
      公司每月 15 日前申報完，但彙總表 22 日左右才出：彙總表還沒出就先用上個月的公司清單抓「暫定版」
-     （trades/<YYYYMM>.prov.txt 記已申報的公司），之後每天只查還沒申報的；彙總表出來後只補沒查過的公司。
+     （trades/<YYYYMM>.prov.txt 記已申報的公司）。每月 1～16 日每天只查還沒申報的公司；之後不再每天查，
+     等彙總表出來只補沒查過的公司（新上市櫃、晚報）。每次新申報的公司記在 trades/updates.csv（盤後重點列出）。
   3. 持股轉讓事前申報（每天，OpenAPI 只給最新一天，所以要每天抓、累積）
        https://openapi.twse.com.tw/v1/opendata/t187ap12_L
        https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap12_O
@@ -44,7 +45,8 @@ import html
 import re
 import sys
 import time
-from datetime import date
+from datetime import date, datetime
+from zoneinfo import ZoneInfo
 from pathlib import Path
 
 import etf_common as C
@@ -260,7 +262,35 @@ def _empty(res):
     return not (res.get("data") or [])
 
 
-def fetch_month(y, m, force=False, deadline=None):
+UPD_COLS = ["date", "month", "code", "company", "kind", "rows", "buy_mkt", "sell_mkt"]
+PROV_LAST_DAY = 16   # 申報期（15 日截止，16 日再看一次晚報的）每天查還沒申報的公司；之後等彙總表
+
+
+def today_tw():
+    return datetime.now(ZoneInfo("Asia/Taipei")).date()
+
+
+def log_updates(y, m, new, rows, kind):
+    """把這次新查到（新申報）的公司記進 trades/updates.csv，給盤後重點每天列「月報更新了哪些」。"""
+    if not new:
+        return
+    agg = {}
+    for r in rows:
+        if r["code"] in new and not r.get("dup"):
+            a = agg.setdefault(r["code"], [0, 0, 0])
+            a[0] += 1
+            a[1] += _int(r["buy_mkt"])
+            a[2] += _int(r["sell_mkt"])
+    p = OUT / "trades" / "updates.csv"
+    old = _read(p)
+    d = today_tw().isoformat()
+    add = [{"date": d, "month": f"{y}-{m:02d}", "code": c, "company": name, "kind": kind,
+            "rows": agg.get(c, [0])[0], "buy_mkt": agg.get(c, [0, 0])[1], "sell_mkt": agg.get(c, [0, 0, 0])[2]}
+           for c, name in new.items()]
+    _write(p, UPD_COLS, old + add)
+
+
+def fetch_month(y, m, force=False, deadline=None, prov_ok=True):
     """回傳 True = 這個月完成（或今天的暫定版已更新）；False = 還沒公布或還沒查完（進度已存）。
 
     暫定版（彙總表還沒出）：.prov.txt 記已申報的公司代號，之後每天只查還沒申報的公司（增量）；
@@ -278,6 +308,8 @@ def fetch_month(y, m, force=False, deadline=None):
             missing = True
         else:
             cand += [(mkt, r["code"], r["company"]) for r in cur]
+    if missing and out_p.exists() and not prov_ok and not force:
+        return True   # 申報期過了：暫定版不再每天查，等彙總表出來再補
     if missing:
         # 公司 15 日前就申報完，但彙總表 22 日左右才公布：先用最近一期的公司清單查
         prev = _latest_company_list(y, m)
@@ -297,11 +329,15 @@ def fetch_month(y, m, force=False, deadline=None):
         rows, done = [], set()
     todo = [c for c in cand if c[1] not in done]
     print(f"{y}-{m:02d}：公司 {len(cand)} 家（已申報、不再查 {len(done)}），這次查 {len(todo)} 家", flush=True)
-    failed, pending = [], []
+    failed, pending, new = [], [], {}
+    kind = "暫定" if missing else ("補查" if prov_p.exists() else "完整")
 
     def save_part():
         _write(part_p, TRADE_COLS, rows)
         done_p.write_text("\n".join(sorted(done)), encoding="utf-8")
+        if not force:
+            log_updates(y, m, new, rows, kind)
+        new.clear()
 
     for i, (mkt, code, company) in enumerate(todo, 1):
         if deadline and time.time() > deadline:
@@ -319,8 +355,10 @@ def fetch_month(y, m, force=False, deadline=None):
             if missing and _empty(res):
                 pending.append(code)                              # 還沒申報：明天再查
             else:
-                rows += parse_query6(res, y, m, mkt, code, res.get("companyAbbreviation") or company)
+                name = res.get("companyAbbreviation") or company
+                rows += parse_query6(res, y, m, mkt, code, name)
                 done.add(code)
+                new[code] = name
         except C.AdapterError as e:
             failed.append(code)
             print(f"  {code} 失敗：{e}", file=sys.stderr)
@@ -334,6 +372,8 @@ def fetch_month(y, m, force=False, deadline=None):
         return False
     rows.sort(key=lambda r: (r["code"], -(r["buy_mkt"] - r["sell_mkt"])))
     _write(out_p, TRADE_COLS, rows)
+    if not force:
+        log_updates(y, m, new, rows, kind)
     part_p.unlink(missing_ok=True)
     done_p.unlink(missing_ok=True)
     if missing:
@@ -410,10 +450,10 @@ def main(argv=None):
         y, m = (int(x) for x in a.month.split("-"))
         fetch_month(y, m, force=True, deadline=deadline)
         return 0
-    today = date.today()
+    today = today_tw()
     for k in range(1, a.months + 1):   # 由新到舊：最新的月份最有用
         y, m = ym_add((today.year, today.month), -k)
-        if not fetch_month(y, m, deadline=deadline) and time.time() > deadline:
+        if not fetch_month(y, m, deadline=deadline, prov_ok=today.day <= PROV_LAST_DAY) and time.time() > deadline:
             break
     return 0
 

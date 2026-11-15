@@ -1,7 +1,11 @@
 name: Fetch insider trading
 
 on:
-  # 例行排程已併到 batch.yml；這裡只留手動回補
+  # 每月 1～16 日（申報期）每天查還沒申報的公司；17～28 日只在彙總表出來時補（其他天幾秒就結束）。
+  # 獨立排程不放 batch.yml：申報期前幾天每次可能跑到 50 分鐘，放進 batch 會拖慢後面的法人／籌碼。
+  # 台北 17:00 跑，18:20 ETF 那次部署就會帶上；新申報的公司記在 trades/updates.csv，盤後重點列出。
+  schedule:
+    - cron: "0 9 1-28 * *"
   workflow_dispatch:
     inputs:
       month:

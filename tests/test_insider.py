@@ -153,9 +153,15 @@ class MonthResumeTest(unittest.TestCase):
                 self.assertTrue(out.exists() and prov.exists())
                 n = len(F._read(out))
                 self.assertGreater(n, 0)
+                upd = F._read(Path(d) / "trades" / "updates.csv")
+                self.assertEqual([(r["code"], r["kind"]) for r in upd], [("2330", "暫定")])
+                self.assertGreater(int(upd[0]["rows"]), 0)
                 self.assertTrue(F.fetch_month(2026, 10))                  # 隔天：只查還沒申報的 6488
                 self.assertEqual(calls[2:], ["6488"])
+                self.assertEqual(len(F._read(Path(d) / "trades" / "updates.csv")), 1)
                 filed.add("6488")
+                self.assertTrue(F.fetch_month(2026, 10, prov_ok=False))   # 17 日後：不查，等彙總表
+                self.assertEqual(len(calls), 3)
                 self.assertTrue(F.fetch_month(2026, 10))                  # 6488 申報了：補進來
                 self.assertEqual(calls[3:], ["6488"])
                 self.assertGreater(len(F._read(out)), n)
@@ -163,6 +169,9 @@ class MonthResumeTest(unittest.TestCase):
                 self.assertTrue(F.fetch_month(2026, 10))                  # 彙總表出來：只補沒查過的 7777
                 self.assertEqual(calls[4:], ["7777"])
                 self.assertFalse(prov.exists())
+                upd = F._read(Path(d) / "trades" / "updates.csv")
+                self.assertEqual([(r["code"], r["kind"]) for r in upd],
+                                 [("2330", "暫定"), ("6488", "暫定"), ("7777", "補查")])
                 self.assertTrue(F.fetch_month(2026, 10))
                 self.assertEqual(len(calls), 5)
             finally:

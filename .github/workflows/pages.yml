@@ -6,7 +6,7 @@ on:
   # 平日大約（台北）：15:20 股價、18:20 ETF、18:50 處置／CB／財報／法人／期交所、18:30～19:30 分點（一公布就抓）、
   #                 19:40 庫藏股／CB 分點、21:30～22:05 融資券＋盤後摘要
   workflow_run:
-    workflows: ["Fetch daily stock prices", "Fetch broker branches", "Fetch ETF holdings", "Fetch batch"]
+    workflows: ["Fetch daily stock prices", "Fetch broker branches", "Fetch ETF holdings", "Fetch batch", "Fetch insider trading"]
     types: [completed]
   # 固定時段當備援（GitHub 排程常延遲好幾小時；沒新資料一樣跳過）
   schedule:
