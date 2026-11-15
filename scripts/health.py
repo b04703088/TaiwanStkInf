@@ -18,6 +18,7 @@ import argparse
 import csv
 import json
 import os
+import subprocess
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -121,6 +122,36 @@ def expected_trading_day(now, holidays):
     return None
 
 
+def commit_times(paths):
+    """{檔案絕對路徑: 最後一次 commit 的時間（unix 秒）}。
+
+    用 author time：資料 commit 是爬蟲一抓完就 git commit，之後 pull --rebase 只會改 committer time。
+    淺層 clone（只有最新一個 commit）看不出時間，回傳空的；網站部署要 fetch-depth: 0。
+    """
+    paths = {Path(p).resolve() for p in paths}
+    if not paths:
+        return {}
+    try:
+        top = Path(subprocess.run(["git", "rev-parse", "--show-toplevel"], cwd=ROOT, capture_output=True,
+                                  text=True, check=True).stdout.strip()).resolve()
+        if subprocess.run(["git", "rev-parse", "--is-shallow-repository"], cwd=top, capture_output=True,
+                          text=True).stdout.strip() == "true":
+            return {}
+        rel = sorted(str(p.relative_to(top)) for p in paths if p.is_relative_to(top))
+        out = subprocess.run(["git", "log", "--since=120 days ago", "--format=@%at", "--name-only",
+                              "--no-renames", "--", *rel], cwd=top, capture_output=True, text=True,
+                             check=True).stdout
+    except (OSError, subprocess.CalledProcessError, ValueError):
+        return {}
+    res, t = {}, None
+    for line in out.splitlines():
+        if line.startswith("@"):
+            t = int(line[1:])
+        elif line and t:
+            res.setdefault((top / line).resolve(), t)
+    return res
+
+
 def check(data_dir=ROOT / "data", now=None):
     data_dir = Path(data_dir)
     now = now or datetime.now(TPE)
@@ -129,9 +160,11 @@ def check(data_dir=ROOT / "data", now=None):
     expected = expected_trading_day(now, holidays)
     items = []
 
-    def add(kind, key, name, level, date, msg, issuer=None, issuer_name="", **stats):
+    def add(kind, key, name, level, date, msg, issuer=None, issuer_name="", path=None, **stats):
         it = {"kind": kind, "id": key, "name": name, "level": level, "date": date, "msg": msg, **stats}
         it["src"] = sources(it, issuer, issuer_name)
+        if path is not None:
+            it["_path"] = Path(path)
         items.append(it)
 
     # ---------- 股價 ----------
@@ -144,11 +177,11 @@ def check(data_dir=ROOT / "data", now=None):
         n = len(_read(price_files[-1]))
         if expected and latest_price < expected:
             add("price", "prices", "每日股價", "error", latest_price,
-                f"缺 {expected} 的收盤資料（若當天休市，排程會自動記進 no_trading_days.txt）", rows=n)
+                f"缺 {expected} 的收盤資料（若當天休市，排程會自動記進 no_trading_days.txt）", rows=n, path=price_files[-1])
         elif n < PRICE_MIN_ROWS:
-            add("price", "prices", "每日股價", "error", latest_price, f"只有 {n} 檔，資料可能不完整", rows=n)
+            add("price", "prices", "每日股價", "error", latest_price, f"只有 {n} 檔，資料可能不完整", rows=n, path=price_files[-1])
         else:
-            add("price", "prices", "每日股價", "ok", latest_price, f"{n} 檔", rows=n)
+            add("price", "prices", "每日股價", "ok", latest_price, f"{n} 檔", rows=n, path=price_files[-1])
 
     # 交易日序列（含應開盤但還沒抓到的那天），用來算 ETF 落後幾個交易日
     days = sorted(set(trading_days) | ({expected} if expected else set()))
@@ -196,7 +229,7 @@ def check(data_dir=ROOT / "data", now=None):
         else:
             msg = ""
         level = "error" if errs else ("warn" if warns else "ok")
-        add("etf", code, name, level, d, "；".join(errs + warns) or msg, **who, **stats)
+        add("etf", code, name, level, d, "；".join(errs + warns) or msg, path=files[-1], **who, **stats)
 
     # 新上市的主動式 ETF 由 fetch_etf.discover_new_active 自動加入；投信沒有 adapter 的才會留在這裡 → 提醒補上
     if lst.exists() and price_files:
@@ -230,7 +263,7 @@ def check(data_dir=ROOT / "data", now=None):
         level = "error" if errs else ("warn" if warns else "ok")
         add("broker", "broker", "券商分點（前 15 大）", level, d,
             "；".join(errs + warns) or f"{with_data} 檔" + ("，T+1 等下一次排程" if lg == 1 else ""),
-            rows=len(tot), lag=lg)
+            rows=len(tot), lag=lg, path=f)
     else:
         add("broker", "broker", "券商分點（前 15 大）", "warn", None, "還沒有分點資料")
 
@@ -248,7 +281,7 @@ def check(data_dir=ROOT / "data", now=None):
             errs = [f"落後 {lg} 個交易日"] if lg is not None and lg >= BROKER_LAG_ERROR else []
             warns = [f"只有 {n_have}/{n_cfg} 個分點有資料"] if n_have < n_cfg else []
             add("watch", "watch", "重點分點", "error" if errs else ("warn" if warns else "ok"), d,
-                "；".join(errs + warns) or f"{n_have} 個分點", rows=n_have, lag=lg)
+                "；".join(errs + warns) or f"{n_have} 個分點", rows=n_have, lag=lg, path=wfiles[-1])
 
     # ---------- 臺灣指數公司 審核行事曆 ----------
     src = data_dir / "etf" / "tip" / "sources.json"
@@ -258,7 +291,7 @@ def check(data_dir=ROOT / "data", now=None):
         upcoming = sum(1 for r in sched if r["announce_date"] >= now.date().isoformat())
         stale = latest and (now.date() - datetime.strptime(latest, "%Y-%m-%d").date()).days > 40
         add("tip", "tip", "指數調整行事曆（TIP）", "warn" if stale or not upcoming else "ok", latest or None,
-            (f"日程表 {latest} 之後沒有新的一份" if stale else "") or (f"即將公告 {upcoming} 筆" if upcoming else "沒有即將公告的審核"))
+            (f"日程表 {latest} 之後沒有新的一份" if stale else "") or (f"即將公告 {upcoming} 筆" if upcoming else "沒有即將公告的審核"), path=src)
 
     # ---------- MSCI 審核名單 ----------
     mres = data_dir / "etf" / "msci" / "results.csv"
@@ -268,7 +301,7 @@ def check(data_dir=ROOT / "data", now=None):
         latest_m = max((r["announce_date"] for r in rows_m), default=None)
         add("msci", "msci", "MSCI 臺灣指數審核", "warn" if unmatched else "ok", latest_m,
             ("英文名稱對不到代號：" + "、".join(unmatched[:5]) + "（請加到 config/msci_names.csv）") if unmatched
-            else f"{len({r['review'] for r in rows_m})} 期名單")
+            else f"{len({r['review'] for r in rows_m})} 期名單", path=mres)
 
     # ---------- CB 詢圈 ----------
     cb_src = data_dir / "cb" / "sources.json"
@@ -290,7 +323,7 @@ def check(data_dir=ROOT / "data", now=None):
             msg += "，PDF 欄位不完整：" + "、".join(f"{n['sn']}{n['company'][:6]}" for n in bad[:3])
         if src.get("unmapped"):
             msg += "，對不到代號：" + "、".join(src["unmapped"][:3])
-        add("cb", "cb", "CB 詢圈", level, gen, msg, rows=len(cases))
+        add("cb", "cb", "CB 詢圈", level, gen, msg, rows=len(cases), path=cb_src)
 
     # ---------- CB 詢圈前（董事會／送件／生效） ----------
     pre_src = data_dir / "cb" / "pre_sources.json"
@@ -310,7 +343,7 @@ def check(data_dir=ROOT / "data", now=None):
             msg += "，超過 4 天沒更新"
         if errs:
             msg += f"，錯誤：{errs[0]}"
-        add("cb", "cb-pre", "CB 董事會／送件", level, gen, msg, rows=len(sfb))
+        add("cb", "cb-pre", "CB 董事會／送件", level, gen, msg, rows=len(sfb), path=pre_src)
 
     # ---------- 重大訊息 ----------
     mops_src = data_dir / "mops" / "sources.json"
@@ -329,7 +362,7 @@ def check(data_dir=ROOT / "data", now=None):
             msg += "，超過 3 天沒更新"
         if errs:
             msg += f"，錯誤：{errs[0]}"
-        add("mops", "mops", "重大訊息", level, gen, msg, rows=src.get("news"))
+        add("mops", "mops", "重大訊息", level, gen, msg, rows=src.get("news"), path=mops_src)
 
     # ---------- 產業分類 ----------
     ind_src = data_dir / "industry" / "sources.json"
@@ -344,7 +377,7 @@ def check(data_dir=ROOT / "data", now=None):
             msg += f"，已 {age} 天沒更新（每週六更新）"
         if errs:
             msg += f"，錯誤：{errs[0]}"
-        add("industry", "industry", "產業分類", level, gen, msg, rows=src.get("chain_rows"))
+        add("industry", "industry", "產業分類", level, gen, msg, rows=src.get("chain_rows"), path=ind_src)
 
     # ---------- ETF 規模 ----------
     aum_files = sorted((etf_dir / "aum").glob("[0-9]*.csv"))
@@ -355,7 +388,7 @@ def check(data_dir=ROOT / "data", now=None):
         n = len(_read(aum_files[-1]))
         lg = lag(d)
         level = "warn" if (lg or 0) >= AUM_LAG_WARN or n < 100 else "ok"
-        add("aum", "aum", "全體 ETF 規模", level, d, f"{n} 檔" + (f"，落後 {lg} 個交易日" if lg else ""), rows=n, lag=lg)
+        add("aum", "aum", "全體 ETF 規模", level, d, f"{n} 檔" + (f"，落後 {lg} 個交易日" if lg else ""), rows=n, lag=lg, path=aum_files[-1])
 
     # ---------- 三大法人、借券、當沖 ----------
     chip_files = sorted(data_dir.glob("chips/[0-9][0-9][0-9][0-9]/[0-9]*.csv"), key=lambda p: p.name)
@@ -368,7 +401,7 @@ def check(data_dir=ROOT / "data", now=None):
         miss = [k for k, col in (("借券", "sbl_bal"), ("當沖", "dt_vol")) if not any(r.get(col) for r in rows)]
         level = "warn" if (lg or 0) >= 2 or miss or len(rows) < 1500 else "ok"
         add("chips", "chips", "三大法人／借券／當沖", level, d,
-            f"{len(rows)} 檔" + (f"，缺{'、'.join(miss)}" if miss else "") + (f"，落後 {lg} 個交易日" if lg else ""), rows=len(rows), lag=lg)
+            f"{len(rows)} 檔" + (f"，缺{'、'.join(miss)}" if miss else "") + (f"，落後 {lg} 個交易日" if lg else ""), rows=len(rows), lag=lg, path=chip_files[-1])
 
     # ---------- 期貨選擇權 ----------
     fut = _read(data_dir / "futures" / "inst.csv") if (data_dir / "futures" / "inst.csv").exists() else []
@@ -378,7 +411,8 @@ def check(data_dir=ROOT / "data", now=None):
         d = max(r["date"] for r in fut)
         lg = lag(d)
         add("futures", "futures", "期貨選擇權籌碼", "warn" if (lg or 0) >= 2 else "ok", d,
-            "三大法人未平倉" + (f"，落後 {lg} 個交易日" if lg else ""), lag=lg)
+            "三大法人未平倉" + (f"，落後 {lg} 個交易日" if lg else ""), lag=lg,
+            path=data_dir / "futures" / "inst.csv")
 
     # ---------- 集保股權分散 ----------
     tdcc = sorted((data_dir / "tdcc").glob("[0-9]*.csv"))
@@ -388,7 +422,14 @@ def check(data_dir=ROOT / "data", now=None):
         d = _date(tdcc[-1].stem)
         age = (now.date() - datetime.strptime(d, "%Y-%m-%d").date()).days
         add("tdcc", "tdcc", "集保大戶持股", "warn" if age > 9 else "ok", d,
-            f"{len(tdcc)} 週" + (f"，已 {age} 天沒更新（每週六更新）" if age > 9 else ""), rows=len(_read(tdcc[-1])))
+            f"{len(tdcc)} 週" + (f"，已 {age} 天沒更新（每週六更新）" if age > 9 else ""), rows=len(_read(tdcc[-1])), path=tdcc[-1])
+
+    # 爬蟲完成時間：這一項資料檔最後一次被 commit 的時間（爬蟲抓完就 commit）
+    times = commit_times([i["_path"] for i in items if "_path" in i])
+    for i in items:
+        p = i.pop("_path", None)
+        t = times.get(p.resolve()) if p else None
+        i["fetched"] = datetime.fromtimestamp(t, TPE).strftime("%Y-%m-%d %H:%M") if t else None
 
     count = {k: sum(1 for i in items if i["level"] == k) for k in ("ok", "warn", "error")}
     return {"generated": now.strftime("%Y-%m-%d %H:%M"), "expected": expected, "latest_price": latest_price,
@@ -401,7 +442,8 @@ def report(h):
     for lv, tag in (("error", "✗ 異常"), ("warn", "! 留意")):
         for i in h["items"]:
             if i["level"] == lv:
-                lines.append(f"{tag}  {i['id']:8} {i['name']}  資料日 {i['date'] or '-'}  {i['msg']}")
+                lines.append(f"{tag}  {i['id']:8} {i['name']}  資料日 {i['date'] or '-'}"
+                             f"  抓完 {i.get('fetched') or '-'}  {i['msg']}")
                 if i.get("src"):
                     lines.append("          來源 " + "  ".join(f"{n} {u}" for n, u in i["src"]))
     return "\n".join(lines)

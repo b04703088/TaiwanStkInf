@@ -105,6 +105,9 @@ jobs:
         with:
           # workflow_run 會停在觸發當時的 commit；改抓分支最新版，才包含剛 commit 的資料
           ref: ${{ github.event.repository.default_branch }}
+          # 資料健檢的「抓完時間」= 資料檔最後一次 commit 的時間，要有歷史；blob:none 只抓 commit／tree，很快
+          fetch-depth: 0
+          filter: blob:none
 
       - uses: actions/setup-python@v5
         with:
@@ -135,6 +138,9 @@ jobs:
         with:
           # workflow_run 會停在觸發當時的 commit；改抓分支最新版，才包含剛 commit 的資料
           ref: ${{ github.event.repository.default_branch }}
+          # 資料健檢的「抓完時間」= 資料檔最後一次 commit 的時間，要有歷史；blob:none 只抓 commit／tree，很快
+          fetch-depth: 0
+          filter: blob:none
 
       - uses: actions/setup-python@v5
         with:
