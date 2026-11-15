@@ -128,10 +128,10 @@ class MonthResumeTest(unittest.TestCase):
             finally:
                 F.OUT, F.irb110, F.irb130, F.mops, F.DELAY = olds
 
-    def test_provisional_then_final(self):
-        """彙總表還沒出：用上個月公司清單抓暫定版；彙總表出來後整月重查並拿掉 .prov.txt。"""
+    def test_provisional_incremental(self):
+        """彙總表還沒出：用上個月公司清單抓暫定版，之後每天只查還沒申報的；彙總表出來後只補沒查過的公司。"""
         res = json.loads((FIX / "query6_1_2330_11508.json").read_text(encoding="utf-8"))["result"]
-        calls, published = [], {"v": False}
+        calls, published, filed = [], {"v": False}, {"2330"}
         olds = (F.OUT, F.irb110, F.irb130, F.mops, F.DELAY)
         with tempfile.TemporaryDirectory() as d:
             F.OUT, F.DELAY = Path(d), 0
@@ -140,23 +140,33 @@ class MonthResumeTest(unittest.TestCase):
             new = [{"code": c, "company": "x"} for c in ("2330", "6488", "7777")]
             F.irb110 = lambda y, m, mkt: (new if mkt == "sii" else []) if published["v"] else None
             F.irb130 = lambda y, m, mkt: [] if published["v"] else None
-            F.mops = lambda api, body: calls.append(body["companyId"]) or res
+
+            def mops(api, body):
+                calls.append(body["companyId"])
+                return res if body["companyId"] in filed else {"data": []}
+            F.mops = mops
             try:
                 out = Path(d) / "trades" / "202610.csv"
+                prov = out.with_suffix(".prov.txt")
                 self.assertTrue(F.fetch_month(2026, 10))
                 self.assertEqual(calls, ["2330", "6488"])
-                self.assertTrue(out.exists() and out.with_suffix(".prov.txt").exists())
-                self.assertTrue(F.fetch_month(2026, 10))                  # 彙總表還沒出：不重查
-                self.assertEqual(len(calls), 2)
+                self.assertTrue(out.exists() and prov.exists())
+                n = len(F._read(out))
+                self.assertGreater(n, 0)
+                self.assertTrue(F.fetch_month(2026, 10))                  # 隔天：只查還沒申報的 6488
+                self.assertEqual(calls[2:], ["6488"])
+                filed.add("6488")
+                self.assertTrue(F.fetch_month(2026, 10))                  # 6488 申報了：補進來
+                self.assertEqual(calls[3:], ["6488"])
+                self.assertGreater(len(F._read(out)), n)
                 published["v"] = True
-                self.assertTrue(F.fetch_month(2026, 10))                  # 出來了：整月重查
-                self.assertEqual(calls[2:], ["2330", "6488", "7777"])
-                self.assertFalse(out.with_suffix(".prov.txt").exists())
+                self.assertTrue(F.fetch_month(2026, 10))                  # 彙總表出來：只補沒查過的 7777
+                self.assertEqual(calls[4:], ["7777"])
+                self.assertFalse(prov.exists())
                 self.assertTrue(F.fetch_month(2026, 10))
                 self.assertEqual(len(calls), 5)
             finally:
                 F.OUT, F.irb110, F.irb130, F.mops, F.DELAY = olds
-
 
 if __name__ == "__main__":
     unittest.main()
