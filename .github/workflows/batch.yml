@@ -124,7 +124,7 @@ jobs:
               if [ $wk = 1 ]; then on cb; on treasury; on alert; on margin; fi ;;
             evening)
               on financials
-              [ "$dom" -ge 15 ] && [ "$dom" -le 28 ] && on insider   # 15 日申報截止就先抓暫定版，22 日左右彙總表出來再重查
+              [ "$dom" -ge 16 ] && [ "$dom" -le 28 ] && on insider   # 15 日申報截止，16 日抓暫定版；之後只查還沒申報的，22 日左右彙總表出來補新上市櫃
               if [ $wk = 1 ]; then on alert; on adjust; on cb; on mops; on chips; on macro; on commod; on dusk_next; fi ;;
             dusk)
               on analyst; on mops; on conf; on treasury; on treasury_broker; on cb_broker; on insider_broker ;;
