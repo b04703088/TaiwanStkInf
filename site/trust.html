@@ -150,6 +150,18 @@
   tbody tr.on td{background:var(--brass-soft);}
   .bar2{display:inline-block; width:56px; height:6px; border-radius:2px; background:var(--line); vertical-align:middle; margin-right:6px; position:relative; overflow:hidden;}
   .bar2 i{position:absolute; top:0; bottom:0;}
+  /* 投信買超拆三塊 */
+  :root{--c-pas:#5B8DB8; --c-act:#C6A15B; --c-fund:#C08BD0;}
+  .split-stats{grid-template-columns:repeat(4,1fr); margin-top:0;}
+  .split-stats .k i{display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:6px; vertical-align:0;}
+  .legend{display:flex; gap:14px; flex-wrap:wrap; font-size:12.5px; color:var(--text-muted);}
+  .legend i{display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:5px; vertical-align:-1px;}
+  #sp-chart{margin-top:14px;}
+  #sp-chart rect.hit{fill:transparent; cursor:pointer;}
+  #sp-chart rect.hl{fill:var(--brass-soft);}
+  .tip .sw{display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:5px;}
+  .miss{color:var(--brass);}
+  @media (max-width:860px){ .split-stats{grid-template-columns:repeat(2,1fr);} }
 </style>
 </head>
 <body>
@@ -164,7 +176,7 @@
   <section class="page-head">
     <div class="eyebrow">籌碼動向</div>
     <h1>投信買賣超：當天全部個股</h1>
-    <p class="desc">投信當天有買或賣的每一檔，加上買賣超佔成交量多少。佔比高代表投信是當天的主要買盤（或賣壓），比單看張數更能看出影響力。</p>
+    <p class="desc">投信當天買賣超拆成被動式 ETF、主動式 ETF、非 ETF 三塊，以及有買或賣的每一檔、買賣超佔成交量多少。佔比高代表投信是當天的主要買盤（或賣壓），比單看張數更能看出影響力。</p>
     <div class="daynav">
       <button type="button" id="prev" aria-label="前一個交易日">‹</button>
       <select id="day" aria-label="選擇日期"></select>
@@ -172,6 +184,23 @@
     </div>
     <nav class="ptabs"></nav>
     <div class="stats" id="stats"></div>
+  </section>
+
+  <section class="block" id="split">
+    <div class="block-head"><h2>投信買賣超拆三塊：被動 ETF／主動 ETF／非 ETF</h2>
+      <div class="chips" id="sp-range">
+        <button data-v="20" aria-pressed="false">20 天</button>
+        <button data-v="60" aria-pressed="true">60 天</button>
+        <button data-v="120" aria-pressed="false">120 天</button>
+      </div>
+    </div>
+    <div class="stats split-stats" id="sp-stats"></div>
+    <div class="chart" id="sp-chart"></div>
+    <div class="legend" style="margin-top:8px"><span><i style="background:var(--c-pas)"></i>被動式 ETF</span><span><i style="background:var(--c-act)"></i>主動式 ETF</span><span><i style="background:var(--c-fund)"></i>非 ETF（封閉型等）</span><span><i style="background:var(--text);border-radius:50%"></i>合計</span></div>
+    <p class="note" style="margin-top:10px">
+      金額＝股數 × 當天收盤，只算個股（不含投信買賣 ETF 本身）。ETF＝各檔 ETF 前一交易日→當天的持股增減（現金申贖的被動式＋全部主動式；實物申贖的 0050、0056 等不經市場，不算）；
+      非 ETF＝投信買賣超 − 兩種 ETF，當成封閉型基金等。標 <span class="miss">＊</span> 的日子有 ETF 當天還沒公布持股（最新一天常見，隔天早上補齊後會重算），它的買賣暫時混在非 ETF 裡。點長條看那一天（最近 20 天會同時切換下方個股明細）。
+    </p>
   </section>
 
   <section class="block">
@@ -331,11 +360,74 @@ function renderTable(){
     || `<tr><td colspan="12" class="empty">沒有符合的股票</td></tr>`;
 }
 
-function render(){ renderStats(); renderGroups(); renderTable(); }
+function render(){ renderStats(); renderSplit(); renderGroups(); renderTable(); }
+
+/* 投信買賣超拆三塊 */
+const SP = {n: 60, sel: null};
+const SPC = [["被動式 ETF", "var(--c-pas)", 1], ["主動式 ETF", "var(--c-act)", 2], ["非 ETF", "var(--c-fund)", 3]];
+function renderSplit(){
+  const sp = IDX.split || {};
+  const ds = Object.keys(sp).sort();
+  if (!ds.length) { $("split").hidden = true; return; }
+  const SD = SP.sel || DATE, cur = sp[SD];
+  const missTxt = m => m && m.length ? `<span class="miss">＊</span>${m.length} 檔 ETF 未公布：${esc(m.slice(0, 6).join("、"))}${m.length > 6 ? "…" : ""}` : "";
+  $("sp-stats").innerHTML = cur ? [["個股合計", "var(--text)", 0], ...SPC].map(([k, c, i]) =>
+    `<div class="stat"><div class="k"><i style="background:${c}${i ? "" : ";border-radius:50%"}"></i>${k}</div><div class="v mono" style="font-size:22px">${sgn(cur[i], 1)}<small>億</small></div>
+     <div class="s">${i === 3 ? missTxt(cur[4]) || "＝合計 − 被動 − 主動" : i === 0 ? dTxt(SD) : cur[0] ? `佔合計 ${fx(cur[i] / Math.abs(cur[0]) * 100)}%` : ""}</div></div>`).join("")
+    : `<div class="stat" style="grid-column:1/-1"><div class="s">${dTxt(SD)} 沒有拆分資料</div></div>`;
+  const show = ds.slice(-SP.n), N = show.length;
+  const W = Math.max(300, $("sp-chart").clientWidth - 16), H = 260, L = 46, R = 8, T = 10, B = 24, bw = (W - L - R) / N;
+  let hi = 0, lo = 0;
+  for (const d of show) {
+    const v = sp[d]; let p = 0, n = 0;
+    for (const i of [1, 2, 3]) v[i] > 0 ? p += v[i] : n += v[i];
+    hi = Math.max(hi, p, v[0]); lo = Math.min(lo, n, v[0]);
+  }
+  const step = [10, 20, 50, 100, 200, 500, 1000].find(s => (hi - lo) / s <= 6) || 2000;
+  hi = Math.ceil(hi / step) * step || step; lo = Math.floor(lo / step) * step;
+  const y = v => T + (hi - v) / (hi - lo) * (H - T - B);
+  const si = show.indexOf(SD);
+  let g = `<rect class="hl" id="sp-hl" x="${L + Math.max(0, si) * bw}" y="${T}" width="${bw}" height="${H - T - B}"${si < 0 ? ' style="display:none"' : ""}/>`;
+  for (let v = lo; v <= hi + 1e-9; v += step)
+    g += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(${v === 0 ? "--line-strong" : "--line"})"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${v}</text>`;
+  const every = Math.ceil(N / 8);
+  show.forEach((d, k) => {
+    const v = sp[d], x = L + k * bw, w = Math.max(1, bw * 0.72), x0 = x + (bw - w) / 2;
+    let p = 0, n = 0;
+    for (const [, c, i] of SPC) {
+      const a = v[i]; if (!a) continue;
+      const y0 = a > 0 ? y(p + a) : y(n), h = Math.abs(y(a) - y(0));
+      a > 0 ? p += a : n += a;
+      g += `<rect x="${x0}" y="${y0}" width="${w}" height="${h}" fill="${c}"/>`;
+    }
+    g += `<circle cx="${x + bw / 2}" cy="${y(v[0])}" r="${Math.min(3, bw / 3)}" fill="var(--text)"/>`;
+    if (v[4] && v[4].length) g += `<text x="${x + bw / 2}" y="${H - B + 14}" text-anchor="middle" fill="var(--brass)" style="fill:var(--brass)">${N <= 60 ? "＊" : ""}</text>`;
+    if ((N - 1 - k) % every === 0) g += `<text x="${x + bw / 2}" y="${H - 2}" text-anchor="middle">${d.slice(5).replace("-", "/")}</text>`;
+    g += `<rect class="hit" data-d="${d}" x="${x}" y="${T}" width="${bw}" height="${H - T - B}"/>`;
+  });
+  $("sp-chart").innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${g}</svg><div class="tip" id="sp-tip"></div>`;
+  const tip = $("sp-tip"), hl = $("sp-hl");
+  $("sp-chart").querySelectorAll("rect.hit").forEach(r => {
+    r.onmousemove = e => {
+      const d = r.dataset.d, v = sp[d], box = $("sp-chart").getBoundingClientRect();
+      tip.innerHTML = `<div class="d">${dTxt(d)}</div>` + [["合計", "var(--text)", 0], ...SPC].map(([k, c, i]) =>
+        `<div class="r"><span><i class="sw" style="background:${c}"></i>${k}</span><b class="${cls(v[i])}">${v[i] > 0 ? "+" : ""}${fx(v[i], 1)} 億</b></div>`).join("")
+        + (v[4] && v[4].length ? `<div class="r miss" style="margin-top:4px">＊${v[4].length} 檔 ETF 未公布</div>` : "");
+      tip.style.display = "block"; hl.style.display = ""; hl.setAttribute("x", r.getAttribute("x"));
+      const tx = e.clientX - box.left, tw = tip.offsetWidth;
+      tip.style.left = `${tx + 14 + tw > box.width ? tx - tw - 14 : tx + 14}px`; tip.style.top = `${Math.max(0, e.clientY - box.top - 40)}px`;
+    };
+    r.onmouseleave = () => { tip.style.display = "none"; if (si < 0) hl.style.display = "none"; else hl.setAttribute("x", L + si * bw); };
+    r.onclick = () => { SP.sel = r.dataset.d; if (IDX.dates.includes(SP.sel)) showDay(SP.sel); else renderSplit(); };
+  });
+}
+$("sp-range").querySelectorAll("button").forEach(b => b.onclick = () => {
+  $("sp-range").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); SP.n = +b.dataset.v; renderSplit();
+});
 
 async function showDay(d){
   const j = await fetch(`data/trust/${d}.json`, {cache: "no-cache"}).then(r => { if (!r.ok) throw r.status; return r.json(); });
-  DATE = d; ROWS = j.rows.map(r => Object.fromEntries(j.cols.map((k, i) => [k, r[i]])));
+  DATE = d; SP.sel = d; ROWS = j.rows.map(r => Object.fromEntries(j.cols.map((k, i) => [k, r[i]])));
   const i = IDX.dates.indexOf(d);
   $("day").value = d; $("prev").disabled = i <= 0; $("next").disabled = i >= IDX.dates.length - 1;
   const u = new URL(location.href);
@@ -361,6 +453,7 @@ $("body").addEventListener("click", e => {
   const n = +t.dataset.node; S.grp = S.lvl === "ind" ? nodePath(n).split(" › ")[0] : nodeLabel(n);
   render(); $("pick").scrollIntoView({behavior: "smooth", block: "center"});
 });
+let rsz; addEventListener("resize", () => { clearTimeout(rsz); rsz = setTimeout(() => IDX && renderSplit(), 150); });
 TideLiq.mount("liq", () => { if (ROWS.length) render(); });
 
 try {
