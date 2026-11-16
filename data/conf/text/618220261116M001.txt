@@ -1,0 +1,191 @@
+[p.1]
+  合晶科技(6182)
+  公司近況與策略執行進展
+  Nov 16, 2026
+  Tpex × Macquarie Taiwan Conference 2026：Tech and Beyond
+1
+
+[p.3]
+  會議流程
+  營運績效會報
+  合晶：新材料平台進程
+  Q&A
+3  Wafer Works Corporation Proprietary © 2024 / www.waferworks.com
+
+[p.4]
+  2026年第三季財務報表(金額為單一季度)
+  新台幣百萬元
+  (除另外註明者外)  Q3’26  Q2’26  Q3’25
+  營業收入  2,996  2,712  2,557
+  營業毛利  684  614  598
+  毛利率  22.84%  22.64%  23.37%
+  營業費用  517  523  455
+  營業利益  167  91  143
+  營業淨利率  5.59%  3.34%  5.57%
+  營業外收入及支出  30  -15  42
+  稅前淨利  197  76  185
+  所得稅  57  15  26
+  本期淨利  140  61  159
+  淨利歸屬於母公司業主  72  31  22
+  每股盈餘 (新台幣元)  0.12  0.05  0.03
+4  Wafer Works Corporation Proprietary © 2013 / www.waferworks.com
+
+[p.5]
+  銷售分析 – 地區別
+  其他,  其他,
+  6.9%  7.2%
+  歐洲, 22.4%  臺灣, 28.2%
+  臺灣, 35.1%  歐洲, 26.7%
+  美國,
+  12.4%  中國大陸,
+  中國大陸,  美國,
+  28.7%
+  23.2%  9.2%
+  2026Q3  2025
+5  Wafer Works Corporation Proprietary © 2013 / www.waferworks.com
+
+[p.6]
+  銷售分析 – 應用別
+  合晶重摻營收占比
+  40%  34%  33%
+  41%
+  60%  66%  67%
+  59%
+  2023  2024  2025  2026Q3
+  重摻矽晶圓  輕摻矽晶圓
+6  Wafer Works Corporation Proprietary © 2013 / www.waferworks.com
+
+[p.7]
+  會議流程
+  營運績效會報
+  合晶：新材料平台進程
+  Q&A
+7  Wafer Works Corporation Proprietary © 2024 / www.waferworks.com
+
+[p.8]
+  12”矽晶圓市場供需態勢
+  短中期市場需求持續增加，產能利用率與供需態勢值得關注
+8  Wafer Works Corporation Proprietary © 2024 / www.waferworks.com
+
+[p.9]
+  先進封裝市場
+  先進封裝占比  先進封裝產值
+  單位： USD billion
+  資料來源：SEMI，國票投顧整理預估
+  先進封裝產值持續擴大，市場結構亦逐步向先進封裝傾斜
+9  Wafer Works Corporation Proprietary © 2024 / www.waferworks.com
+
+[p.10]
+  市場環境與產業趨勢
+  產能調整與供應鏈布局
+  產能布局持續調整，設備建置與產品導入同步
+  關鍵點：產能建置與產品商業化進度
+  先進封裝帶動材料需求演進
+  AI推動封裝技術發展，相關材料逐步驗證導入
+  關鍵點：新材料開發與客戶驗證進度
+10  Wafer Works Corporation Proprietary © 2024 / www.waferworks.com
+
+[p.11]
+  公司定位與產品平台
+  01  02
+  核心矽晶圓業務  新發展專案與先進材料
+  產品範圍  產品範圍
+  －各尺寸規格之輕重摻矽晶圓  －方型晶片、結構補償裸晶粒、SiC材料
+  (產品規格深化、客戶驗證及應用導入)
+11  Wafer Works Corporation Proprietary © 2024 / www.waferworks.com
+
+[p.12]
+  核心業務：12”輕摻產品驗證與應用拓展
+  市場應用機會
+  記憶體應用拓展
+  • 逐步推進送樣
+  • 客戶表達長期供貨期望
+  ≤ 8”  • 持續洽談需求預測、LTA或各種合作方案  2029
+  2028
+  2027
+  12”重摻
+  12”輕摻  2026  盈利模式
+  成為主要產品線
+  正片認證
+  具穩定獲利
+  取得全製程驗證
+  產能分配
+  拓展出貨規模
+  客戶搶占產能
+  矽晶圓產品平台  產品開發
+  持續推動正片認證
+  技術累積
+  製程調校
+12  Wafer Works Corporation Proprietary © 2024 / www.waferworks.com
+
+[p.13]
+  新發展專案與先進材料
+  分段推進製程開發、
+  SiC相關材料  送樣與驗證
+  結構補償  持續推進客戶驗證
+  裸晶粒  完善商業化準備
+  布局先進封裝
+  穩定供應
+  拓展新興應用
+  方型晶片  拓展應用及出貨規模
+  晶圓再生服務
+13  Wafer Works Corporation Proprietary © 2024 / www.waferworks.com
+
+[p.14]
+  二林新廠：產能建置與導入進度
+  廠房建置進度  設備進駐與製程整合  分階段廠區規劃
+  • 主結構已完成  • 設備陸續移入，二次配工程持續進行  • 客戶訂單需求確認
+  • 主要機電設施完成  • 二期無塵室規劃及整合  • 產能及良率提升
+  • 無塵室擴建中  • 客戶需求(含規格)確認、製程規劃與產銷協調  • 後續資本投入規劃
+  各項期程將依客戶驗證成熟度、商業化可行性及長期策略價值進行規劃
+14  Wafer Works Corporation Proprietary © 2024 / www.waferworks.com
+
+[p.15]
+  二林新廠：即時產能擴充優勢
+  01 | Phase 1
+第一階段產能建置
+  廠房主體完成，100K產能建置中
+  02 | Phase 1 Expansion
+ 既有廠房持續擴充
+  保留約100K產能擴充空間
+  03 | Phase 2 / 3
+預留長期發展腹地
+  國際大廠積極進駐，二林成為炙
+  手可熱之半導體聚落，現有土地
+  可隨時支持未來新廠建置
+15  Wafer Works Corporation Proprietary © 2024 / www.waferworks.com
+
+[p.16]
+  鄭州二期：在地供應與產能擴充
+  鄭州一期  累積12”產品製程經驗
+  建立市場與客戶基礎
+  鄭州二期  配合區域市場發展，分階段擴產
+  強化在地供應鏈連結
+  配合集團產能規劃與調度
+  在地供應能力  分階段產能規劃  需求導向釋出產能
+  配合市場需求，逐步完善  以各年度規劃為節點，逐  配合客戶訂單、導入及市
+  當地生產及供應布局  步提升產能  場變化，精準把控擴產與
+  營運效益
+16  Wafer Works Corporation Proprietary © 2024 / www.waferworks.com
+
+[p.17]
+  ESG績效
+  Our
+  Achievement
+  RBA銀牌證書  21世紀基金會
+  2024取得，兩年評選一次
+  淨零產業競爭力獎
+  響應綠色供應鏈  年度運動會
+  持續推動RE30目標  公益募捐等活動
+17  Wafer Works Corporation Proprietary © 2013 / www.waferworks.com
+
+[p.18]
+  會議流程
+  營運績效會報
+  合晶：新材料平台進程
+  Q&A
+18  Wafer Works Corporation Proprietary © 2024 / www.waferworks.com
+
+[p.19]
+  Thank You
+19  Wafer Works Corporation Proprietary © 2013 / www.waferworks.com

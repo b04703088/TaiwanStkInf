@@ -1,0 +1,262 @@
+[p.1]
+公司簡介
+November 2026
+
+[p.3]
+第一部份
+公司概況
+
+[p.4]
+  力積電總覽
+  力積電，讓 AI 供應鏈更強大
+  3D AI  5  TOP 7
+  2  8  / 3  12  ESG  (1)
+  163  7,900+
+  (2)
+  NT$472
+  2025
+  2025  88%
+  300mm  4.5%
+Note:
+1)  2025 DJSI
+2)  2026 10 31
+
+[p.5]
+2025 DJSI 排名
+Ranking  Score  Company Name
+  1  95  United Microelectronics Corporation
+  2  90  ASE Technology Holding Co., Ltd.
+  3  88  Vanguard International Semiconductor Corporation
+  4  86  WIN Semiconductors Corp.
+  5  84  Taiwan Semiconductor Manufacturing Company Limited
+  6  82  Winbond Electronics Corporation
+  7  81  ASM International NV
+  7  81  Powerchip Semiconductor Manufacturing Corp.
+  9  78  Jinko Solar Co., Ltd.
+  10  77  ROHM Co., Ltd.
+
+[p.6]
+  我們的發展沿革
+  PSC
+  DRAM
+1994
+  力晶半導體（“PSC”）成立於新竹科學園區，與三菱電機的
+  DRAM 技轉合作  Spun-off
+  Maxchip  PSC
+  Logic Foundry  DRAM
+2008
+  力晶半導體分割 8 吋廠成立邏輯專業晶圓代工公司（“鉅晶電  Fab 8A  Fab P1, P2, P3
+  子”），力晶仍專注在 12 吋 DRAM 業務  Rename
+  + Logic
+  PTC
+  DRAM + Logic
+2010  力晶半導體更名為力晶科技（“PTC”），並擴展邏輯業務  Fab P1, P2, P3
+  Rename
+  + Fab 8B(1)
+2018
+  鉅晶電子更名為力晶積成電子製造股份有限公司（“PSMC”），  PSMC
+  簡稱（”力積電” ）  Logic Foundry
+  Fab 8A, 8B(1)
+  Acquisition of
+  Fab P1, P2, P3
+2019  力積電從力晶科技收購了 3 座 12 吋晶圓廠（P1、P2、P3）
+  PSMC  PTC
+  Logic + Memory  Holding
+  Fab 8A, 8B, P1, P2, P3  Company
+2021  力積電台灣證券交易所上市  Listing
+  PSMC (6770-TW)
+2026  P5 廠售予美光科技，並承接美光 HBM 後製程（PWF）代工服
+  務，擴大 3D AI 業務  Fab P5 Sold to
+  Micron Tech.
+Note:
+(1)  Purchased 8B in 2017 and started mass production in 2019
+
+[p.7]
+  我們的晶圓廠
+  Fab 8A  Fab P1  Fab P2  Fab P3  Fab 8B
+  (1)
+  1996  2002  2005  2007  2019
+ 地點  新竹  新竹  新竹  竹南
+ Wafer  8’’ (200mm)  12’’ (300mm)  12’’ (300mm)  8’’ (200mm)
+  (2)
+  70K WPM  65K (+ 5K 3D AI) WPM  35K WPM  47K WPM
+  350 – 110nm  180 – 24nm  30 – 1Xnm  350 – 110nm
+ 產品  邏輯/分離式元件  邏輯/記憶體/3D AI  記憶體  分離式元件
+Note:
+(1)  Mass production
+(2)  In terms of wafer per month in respective wafer size (200mm / 300mm)
+.
+
+[p.8]
+ 我們的業務
+  終端市場應用
+  Memory  AI 伺服器數據中心
+  (1)
+  54%  DRAM  Flash
+  車用電子
+  Consumer DRAM  SLC NAND Flash
+  Niche DRAM  NOR Flash
+  消費型電子產品
+  3D AI
+  (1)
+  3.2%  WoW  Interposer  IPD  PWF  工業電子
+  Trench Cap.
+  4/8-Layer DRAM + Logic
+  Stack Cap.
+  物聯網
+  Logic
+  42.8%
+  (1)
+  Power IC
+  Power Discrete  MCU / COMM  Display IC  Image Sensor  白色家電
+  DC/DC | AC/DC | LED Driver  MCU | OIS | RF | NFC  uDisplay | LCD | OLED
+  RFID | BlueTooth | Wifi  e-paper | e-tag  FSI CIS | FoD
+  MOSFET | IGBT | GaN
+  安全及其他
+註：
+（1） 2026年前三季累計營收
+
+[p.9]
+ 對ESG的堅定承諾
+  永續績效與榮耀  環境
+  •  實現2025年所有工廠節電1.5%的目標
+  •  實現2025年溫室氣體平均年削減率1%的目標
+  •  實現2025年再生能源綠電使用比例2%的目標
+  •  實現2025年製程水回收率及全廠水回收率的目標
+  社會
+  •  獲取 RBA VAP（ Validated Audit Process ）驗證
+  •  零強迫勞動
+  •  100%完成培訓計劃
+  •  100%員工接受勞工保障權益培訓的完成率
+  •  所有員工定期接受績效評估
+  • 6名獨立董事，超過半數的董事會成員
+  • 收集了466份調查問卷，綜合評估對公司價值與經濟、環境、人與人權之影響，
+  鑑別出15項重大主題
+  • 無倒閉情事
+  • 所有營運據點無重大違規行為
+  • 無重大資訊安全事件
+註：2025年永續成效
+
+[p.10]
+ 擁有豐富產學經驗的董事會成員
+  MOLECATEX INC.
+資料來源：公司
+
+[p.11]
+第二部分
+投資亮點
+
+[p.12]
+PSMC 3D AI 晶圓代工
+  WoW 晶圓堆疊  IPD 整合式被動元件
+ 力積電 3D 堆疊技術，於 AI 應用上可優化記憶體頻寬、延遲與功耗。  高容值堆疊式矽電容已切入大型 IDM 客戶先進封裝平台；深溝槽式矽
+  電容已進入LiDAR、PCIe 與CPO等下游光模組市場。
+  •  密度：2-8GB  • 以堆疊/深溝槽技術開發的超高容值整合式矽電容，具
+  •  頻寬：1-8TB/s  備優異的 ESR/ESL 電氣效能，滿足CPU、HPC 及
+  •  連接數：> 10k  VPD 等高階晶片的運作需求。  資料中心
+  •  移動能量：< 1pJ/bit
+  • 以深溝槽技術製作的高密度矽電容，適用於LiDAR、
+  CPO等光模組及PCIe高速資料系統等超寬頻應用領域。
+  Interposer 中介層  HBM PWF 晶圓後段製程
+ 為整合 SoC 與高頻寬記憶體而設計的矽中介層，是 2.5D 先進封裝的  與一線 HBM 供應商建立長期合作關係，提供 PWF 服務。
+ 關鍵技術。
+ •  最大 3.x 倍光罩尺寸  HBM2E / HBM3  SoC  •  透過與一線供應商之技術合作，
+ •  最多 8 層厚銅  加入 HBM 生態系
+  3D Cap.  3D Cap.
+ •  嵌入式電容，電容值 > 1000 nF/mm²
+
+[p.13]
+  記憶體及邏輯代工利基市場中的重要地位
+  作為一家專業代工廠，我們擁有強大的影響力，在多個利基市場佔據主導地位，推動長期成長
+  記憶體代工  邏輯代工
+  71%  74%  24%  34%
+  DRAM (≤1Gb)  Pseudo SRAM (≤256Mb)  電源管理晶片  射頻識別晶片
+  適用於網路、監控、消費電子  適用於功能手機、IoT 小工具和邊緣裝置  適用於智慧手機  適用於交通、門禁、物
+  PC 、工業和汽車  流、零售、行動支付
+  15%  55%
+  SLC NAND (1Gb~4Gb)  觸控顯示驅動晶片
+  適用於網路、監控、消費電子、PC 、  適用於平板電腦
+  工業和汽車
+  市占率
+  %
+資料來源：公司， Omdia, TrendForce 2025
+
+[p.14]
+多樣化的產品線，應用範圍廣泛
+針對多種長期成長的終端市場，滿足不同客戶的晶圓代工需求
+  Power Management IC  IPD  PWF
+  MCU / Display IC  DRAM  Flash  WoW  Interposer
+  Power Discrete
+  Smart Power Stage    Embedded NVM    Consumer DRAM    SLC NAND Flash  •  4/8-Layer    Trench Cap.
+  DC-DC and AC-DC Converter    Bluetooth, WiFi, RFID, NFC    Niche DRAM ( 4Gb  (1/2/4Gb)  DRAM + Logic    Stack Cap.
+  BMS / PD    uDisplay  DRAM)    NOR Flash (≧ 64 Mb)
+  LED Driver    e-paper / e-tag
+  MOSFET / IGBT    OLED
+  GaN
+  > 200 foundry platforms  > 60 foundry platforms
+  Our pervasive technology platforms
+  White goods  Consumer electronics  Industrial electronics  AI Server Data Center  Internet of Things  Automotive  Security and
+  electronics  others
+  Serving Global Leaders
+  Source: Company
+
+[p.15]
+獨特的技術與製程平台
+在邏輯和記憶體IC生產中都擁有可觀產能，並具備產線靈活調度的能力，加上創新技術以及鋁、銅製程的均衡使用，我們以低成本解決方案競爭優勢吸納更
+多的新客戶。
+  Example on innovative technology: 3D Interchip WoW1 technology  Use of both aluminum and copper process
+  Memory (low-power DRAM)  Logic
+  Aluminum  Copper
+  3D Interchip WoW Technology
+  DRAM / Logic  Multiple layer DRAM / Logic  DRAM / Logic
+  CIS / Logic  CIS / Logic
+  DRAM  DRAM  DRAM  90%  Using
+  of current production for 80nm  copper for 55nm and below
+  and above  and 3D interchip
+  Logic
+  CIS
+  CIS
+  Logic
+  Logic
+  Hybrid  TSV Middle
+  Up to 30% die cost reduction  Better conductivity with higher
+  Oxide Bond + Paired TV  Bond  Mini-HBM  Hybrid Bond  for 12”, as compared to 8”  metal routing density and
+  for the same technology  better IC performance
+  node
+  Key applications
+  High  CMOS Image  Good customer  Meet customers’ needs
+  AI  IoT  Performance  Sensor  adherence from  of wider range of
+  Computing  applications
+  130~80nm  product applications
+  Low latency  High bandwidth data transmission
+  Low power consumption  Solid computing performance
+資料來源：公司
+Note: (1) WoW represents Wafer-on-Wafer, a 3D wafer stacking process technology
+
+[p.16]
+製程技術總覽
+CMOS Foundry  3D AI Foundry
+  Wafer on wafer stacking
+  Interposer / integrated passive device (IPD)
+  TSV
+
+[p.17]
+第三部分
+財務摘要
+
+[p.18]
+營運結果摘要
+
+[p.19]
+產品銷售組合分析-產品別
+  2Q26  3Q26
+Specialty
+    Discrete : 分離式元件產品    IMC  : 嵌入式邏輯產品
+    HV  : 高壓邏輯驅動晶片    Flash : 快閃記憶體產品
+    CIS  : 影像感測晶片    DRAM : 動態隨機存取記憶體產品(include Specialty)
+    PMIC  : 電源管理晶片    3D AI Foundry: Interposer/ WoW..etc
+
+[p.20]
+  謝謝!
+ 發言人/副總：譚仲民
+erictang@powerchip.com

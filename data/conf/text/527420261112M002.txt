@@ -1,0 +1,435 @@
+[p.1]
+  信驊科技2026年法人說明會
+  ASPEED Technology Investor Conference
+  November 2026
+© ASPEED Technology. Proprietary and Confidential​
+
+[p.3]
+  Agenda
+ ●  公司簡介
+ ●  2026年第三季財務表現
+ ●  產品組合
+ ●  企業價值提升計畫
+ ●  Q&A
+© ASPEED Technology. Proprietary and Confidential.
+
+[p.4]
+  公司簡介
+© ASPEED Technology. Proprietary and Confidential.
+
+[p.5]
+  公司簡介
+  ●  2004 年成立
+  ●  無晶圓廠 IC 設計公司
+  ●  員工人數：120 (2026 年 10 月底資料)
+  ●  產品組合
+  -  企業及雲端業務 (BMC/BIC/PFR)  #1 in BMC
+  -  智慧 AV (Cupola360 & AVoIP SoC)  #1 in AV over IP (1G Ethernet)
+  #1 in Commercial 360° camera
+  ● 營運地點:
+  -  總部： 台灣新竹市
+  -  分公司： 台灣台北市
+  -  美國辦公室： San Jose, CA
+  -  高雄研發中心
+© ASPEED Technology. Proprietary and Confidential.  5
+
+[p.6]
+  營收歷史數據
+  2026年 1-10月累計營收： • 營收 新台幣 138.34 億元
+  • 年增率 (YoY growth) 為 87.65%
+  NT$ million
+  14,000  13,834
+  12,000
+  10,000  9,085
+  8,000
+  6,460
+  6,000  5,210
+  3,638
+  4,000  3,064  3,130
+  2,484
+  1,894 2,154
+  2,000  993
+  1,346
+  591  856
+  176  252  285  338  484
+  9  49  113
+  0
+© ASPEED Technology. Proprietary and Confidential.  6
+
+[p.7]
+  每股盈餘 & 現金股利發放率
+  ⚫ 2025年每股盈餘達 103.92，創歷史新高，且該年度之現金股利發放率為 77.0%。
+  EPS  Cash Payout Ratio
+  120  100%
+  103.92
+  90%
+  100
+  80%
+  80
+  68.04  70%
+  60  55.72  60%
+  38.3  50%
+  40
+  29.38  26.66
+  24.39  40%
+  20.2
+  20  14.07  15.7
+  10.72  10.79  30%
+  7.4
+  0  20%
+  2013  2014  2015  2016  2017  2018  2019  2020  2021  2022  2023  2024  2025
+  EPS  Cash Payout Ratio
+© ASPEED Technology. Proprietary and Confidential.  7
+
+[p.8]
+  重要里程碑
+信驊科技成立  • 獲得 ISO 9001-2000 認  • 正式於台灣證券櫃檯買  • 與業界平台廠商結盟並  成立高雄研發中心
+  證  賣中心掛牌  提出 OpenBMC 解決方案
+  完成實境遠端管理 (RRM)
+  • 發布第二代遠端伺服器 • 發布第六代遠端伺服器  • 發表 Cupola360 影像拼接  業務分割至酷博樂
+  管理晶片 AST2100/ 管理晶片 AST2500  專用處理晶片
+  2050/ 1100
+  • 獲得 ISO 14001:2015 認證
+  • 發布第三代遠端伺服器
+  • 發表第七代遠端伺服器
+  管理晶片AST2200/2150
+  管理晶片AST2600
+2004.11  2007-2008  2012-2014  2017-2019  2025
+  2005-2006  2009-2011  2015-2016  2020-2024
+  • 發布第一代遠端伺服器  • 推出新產品 PC/AV 影音延  • 拿下BMC市佔率第一  • ISO27001 資訊安全管理系統認證
+  管理晶片AST2000/1000  伸控制晶片 AST1600  • 通過 ISO14064 溫室氣體盤查認證
+  • 併購博通之 Emulex Pilot
+  • 第一批晶片量產交貨  • 英特爾投資信驊科技  伺服器管理晶片事業  • 發布安全晶片 AST1060 及SMC*
+  • 獲得 ISO 9001:2015 認證  AST1030
+  註：Satellite Management Controller (SMC) 又稱輔助管理晶片 (Auxiliary Management Controller, AMC) 或 橋接
+  • 發布第八代遠端伺服器管理晶片
+  晶片 (Bridge IC, BIC)  AST2700 和 I/O 擴充晶片 AST1700
+ © ASPEED Technology. Proprietary and Confidential.  8
+
+[p.9]
+  獲獎紀錄與其他殊榮
+2014 - 2023  2020  2022  2024  2025
+連續10年榮獲富比士雜誌  榮獲聯想集團所評選  營運長謝承儒先生榮獲  榮獲台灣產業科技推動協  榮獲全球半導體聯盟 (GSA)
+評選為「亞太地區最佳中  Technology Innovation Award  SEMI 產業貢獻獎殊榮  會頒發金根獎  「最佳財務管理半導體公
+小企業 」  榮獲台灣董事學會及企  司獎」
+  董事長林鴻明先生榮獲  獲得金融時報(Financial
+  業發展研究中心評選為  Times) 亞太區高成長公司  榮獲 Extel 評選為「最受
+2009  交大傑出校友殊榮  「外資精選台灣百強」  殊榮  尊崇企業」、半導體領域
+榮獲台北國際電腦展  2023  董事長林鴻明先生榮獲
+  （中小型企業）第一名、
+  台灣企業第三名
+Best Choice Award
+  2021  董事長林鴻明先生榮獲  《機構投資者》評選為
+  董事長林鴻明先生榮獲  《機構投資者》評選為  2024 年度科技半導體領域  董事長兼總經理林鴻明先
+2008  資訊月傑出資訊人才獎  2023年度科技半導體  亞洲最佳 CEO  生榮獲 Extel（原《機構投
+榮獲「2008 年德勤亞太  領域亞洲最佳 CEO  資者》）評選為科技（半
+高科技 Fast 500」營收成  獲得金融時報(Financial  高畫質遠端傳輸晶片獲  導體）領域最佳 CEO
+長類第 37 名  Times) 亞太區高成長公司  頒 InfoComm 2023 Best of  榮獲富比士 (Forbes) 雜誌
+  殊榮  Show  評選為「亞太地區最佳中
+  董事長林鴻明先生榮獲清  榮獲《機構投資者》評選  小企業」
+  華大學傑出校友殊榮  為 2023 年度亞洲最佳管
+  理團隊半導體領域第一名
+  董事長林鴻明先生榮獲潘
+  文淵文教基金會 ERSO
+  Award
+  © ASPEED Technology. Proprietary and Confidential.  9
+
+[p.10]
+  2026年第三季
+  財務表現
+© ASPEED Technology. Proprietary and Confidential.
+
+[p.11]
+  2026年第三季財務亮點
+  營收與營業利益年增逾一倍，展現強勁成長動能
+  營業收入  營業利益  毛利率
+  NT$4.786bn  NT$2,496bn  69.48%
+  +23.63% QoQ  +19.69% QoQ  -2.53ppts QoQ
+  +105.41% YoY  +102.73% YoY  +0.22ppts YoY
+© ASPEED Technology. Proprietary and Confidential.  11
+
+[p.12]
+  2026年第三季損益表
+  3Q26  3Q26
+  In NT$ thousand  3Q26  2Q26  3Q25  over  over
+  2Q26  3Q25
+  Operating Revenue  4,786,281  3,871,409  2,330,084  23.63%  105.41%
+  Gross Profit  3,325,288  2,787,502  1,613,721  19.29%  106.06%
+  Gross Margin (%)  69.48%  72.00%  69.26%  -2.53ppts  +0.22ppts
+  Operating Expenses  828,791  701,636  382,254  18.12%  116.82%
+  Operating Profit  2,496,497  2,085,866  1,231,467  19.69%  102.73%
+  Operating Margin (%)  52.16%  53.88%  52.85%  -1.72ppts  -0.69ppts
+  Non-Operating Income and Expenses  23,160  179,584  274,859  -87.10%  -91.57%
+  Pre-Tax Profit  2,519,657  2,265,450  1,506,326  11.22%  67.27%
+  Consolidated Net Income  2,005,167  1,841,750  1,214,205  8.87%  65.14%
+  Net Profit Margin (%)  41.89%  47.57%  52.11%  -5.68ppts  -10.22ppts
+  EPS (Basic)  48.13  44.27  32.12  8.72%  49.84%
+© ASPEED Technology. Proprietary and Confidential.  12
+
+[p.13]
+  合併營業收入
+  Unit : NT$ thousand
+  6,000,000  73%
+  5,000,000  72%
+  4,000,000  71%
+  3,000,000  70%
+  2,000,000  69%
+  1,000,000  68%
+  -  67%
+  3Q25  4Q25  1Q26  2Q26  3Q26
+  Revenue  Gross Margin
+  3Q25  4Q25  1Q26  2Q26  3Q26  QoQ  YoY
+  Revenue  2,330,084  2,443,126  3,146,757  3,871,409  4,786,281  23.63%  105.41%
+  Gross Margin  69.26%  68.45%  69.18%  72.00%  69.48%  -2.53ppts  +0.22ppts
+© ASPEED Technology. Proprietary and Confidential.  13
+
+[p.14]
+  營業利益
+  Unit : NT$ thousand
+  3,000,000  55%
+  54%
+  2,500,000
+  53%
+  2,000,000
+  52%
+  1,500,000  51%
+  50%
+  1,000,000
+  49%
+  500,000
+  48%
+  -  47%
+  3Q25  4Q25  1Q26  2Q26  3Q26
+  Operating Profit  Operating Margin (%)
+  3Q25  4Q25  1Q26  2Q26  3Q26  QoQ  YoY
+  Operating Profit  1,231,467  1,217,729  1,659,042  2,085,866  2,496,497  19.69%  102.73%
+  Operating Margin (%)  52.85%  49.84%  52.72%  53.88%  52.16%  -1.72ppts  -0.69ppts
+© ASPEED Technology. Proprietary and Confidential.  14
+
+[p.15]
+  營業費用
+  Unit : NT$ thousand
+  1,000,000
+  800,000
+  600,000
+  400,000
+  200,000
+  -
+  3Q25  4Q25  1Q26  2Q26  3Q26
+  R&D  Admin  Sales
+  3Q25  4Q25  1Q26  2Q26  3Q26  QoQ  YoY
+  R&D  288,906  285,843  350,307  428,156  479,128  11.91%  65.84%
+  Admin  77,395  113,677  118,241  170,724  200,855  17.65%  159.52%
+  Sales  15,953  55,103  49,427  102,756  148,808  44.82%  832.79%
+  Operating Expenses  382,254  454,623  517,975  701,636  828,791  18.12%  116.82%
+  註：3Q26 營業費用占營收比重由 2Q26 的 18.1% 降至 17.3%。
+© ASPEED Technology. Proprietary and Confidential.  15
+
+[p.16]
+  本期淨利
+  Unit : NT$ thousand
+  2,500,000  60%
+  2,000,000  50%
+  40%
+  1,500,000
+  30%
+  1,000,000
+  20%
+  500,000  10%
+  -  0%
+  3Q25  4Q25  1Q26  2Q26  3Q26
+  Net Income  Net Profit Margin (%)
+  3Q25  4Q25  1Q26  2Q26  3Q26  QoQ  YoY
+  Net Income  1,214,205  1,197,735  1,414,275  1,841,750  2,005,167  8.87%  65.14%
+  Net Profit Margin (%)  52.11%  49.02%  44.94%  47.57%  41.89%  -5.68ppts -10.22ppts
+  註：3Q25 本期淨利受惠於匯兌收益。
+© ASPEED Technology. Proprietary and Confidential.  16
+
+[p.17]
+  有效稅率
+  Unit : NT$ thousand
+  600,000  21%
+  21%
+  500,000
+  20%
+  400,000  20%
+  19%
+  300,000
+  19%
+  200,000  18%
+  18%
+  100,000
+  17%
+  -  17%
+  3Q25  4Q25  1Q26  2Q26  3Q26
+  Tax  Effective Tax Rate (%)
+  3Q25  4Q25  1Q26  2Q26  3Q26  QoQ  YoY
+  Tax  292,121  259,491  353,850  423,700  514,490  21.43%  76.12%
+  Effective Tax Rate (%)  19.39%  17.81%  20.01%  18.70%  20.42%  +1.72ppts  +1.03ppts
+© ASPEED Technology. Proprietary and Confidential.  17
+
+[p.18]
+  每股盈餘
+  Unit : NTD
+  50
+  40
+  30
+  20
+  10
+  -
+  3Q25  4Q25  1Q26  2Q26  3Q26
+  Quarterly  3Q25  4Q25  1Q26  2Q26  3Q26  QoQ  YoY
+  EPS  32.12  31.69  37.41  44.27  48.13  8.72%  49.84%
+© ASPEED Technology. Proprietary and Confidential.  18
+
+[p.19]
+  股利政策
+  2013  2014  2015  2016  2017  2018  2019  2020  2021  2022  2023  2024  2025
+現金股利  5.5  7  8  12  15  18  22  26  35  45  20  52  80
+股票股利  0  2  0  0  0  0  0  0  0  0  0  0  0
+由資本公積發放的股利  1  0  0  0  0  0  0  0  1  0  0  0  1
+股利總和  6.5  9  8  12  15  18  22  26  36  45  20  52  81
+每股盈餘  7.4  10.72  10.79  14.07  15.7  20.2  24.39  29.38  38.3  55.72  26.66  68.04 103.92
+盈餘分配說明：
+•  應提撥不低於 8%為員工酬勞，其中不低於1%之獲利應為基層員工分配酬勞。
+•  應提撥董事酬勞不高於 3%。
+•  關於可供分配之盈餘加計前期累積之未分配盈餘，董事會得擬定股利分配案，提請股東常會決議核准。經綜合考量公司
+  正處於企業生命週期之成長階段與未來擴充計畫等營運、財務及稅務因素後，剩餘盈餘得以現金股利及／或股票股利之
+  方式發放，且現金股利之比例不得低於該次擬分配盈餘之 10%。
+  © ASPEED Technology. Proprietary and Confidential.  19
+
+[p.20]
+  產品組合
+© ASPEED Technology. Proprietary and Confidential.
+
+[p.21]
+  信驊產品的策略優勢
+  BMC: Setting the Standard  SMC*: Multi-Card Architectures
+  ✓ Co-designed with hyperscalers  ✓ Empowering extreme scalability with
+  and chip makers  efficient 2-level management
+  PRoT: Security for Platform  I/O Expander: Seamless Integration
+  ✓ Protection, detection, recovery  ✓ Bridging decoupled modules
+  We further strengthen platform security by integrating
+  Caliptra across our next-generation SoCs.
+  Note: Satellite Management Controller (SMC) is also known as Auxiliary Management Controller (AMC) or Bridge IC
+© ASPEED Technology. Proprietary and Confidential.  21
+
+[p.22]
+  分層式管理架構
+  Data Center / Cluster Management
+  RMC  負責機櫃層級的協調與管理
+  BMC  作為伺服器的核心管理中樞
+  SMC  將管理能力延伸至各節點／模組
+© ASPEED Technology. Proprietary and Confidential.  22
+
+[p.23]
+  什麼是RMC?
+  Data Center / Cluster Management
+  機櫃層級管理  協調機櫃層級的
+  (RMC功能)  各項管理資源
+  透過 OOB 管理網路與各 BMC
+  協同，提供整合式營運視圖
+  機櫃基礎設施管理
+  Compute Trays  Switch Trays  Power Shelf / PDU  Cooling / CDU
+  BMC  BMC  BMC  BMC
+© ASPEED Technology. Proprietary and Confidential.  23
+
+[p.24]
+  BMC：伺服器管理的核心基礎
+  帶外（OOB）遙測與 RAS
+  Always on.
+  硬體信任根
+  Independent of the host OS.
+  韌體管理
+  Observe  Protect  Control
+  散熱與電源管理
+  開放式管理 API
+© ASPEED Technology. Proprietary and Confidential.  24
+
+[p.25]
+  為何需要 SMC？讓每個模組具備本地管理能力
+  模組化平台需要本地控制能力，以協助 BMC 進行分層管理
+  Compute Card  SMC
+  BMC  Accelerator Card  SMC
+  Network / Storage Card  SMC
+  雙層管理：共通架構、本地控制
+© ASPEED Technology. Proprietary and Confidential.  25
+
+[p.26]
+  AST1840：整合 SMC 與 eFPGA
+  傳統架構  AST1840 方案
+  AST1700  AST1840
+  AST2700  CPU /  AST2700  CPU /
+  I/O  SMC +
+  BMC  System  BMC  System
+  Expander  eFPGA
+  External FPGA
+  Flash
+© ASPEED Technology. Proprietary and Confidential.  26
+
+[p.27]
+  AST1840 支援多節點平台的規模化擴展
+  CPU Card A
+  AST1840  CPU
+  eFPGA
+  CPU Card B
+  AST1840  CPU
+  eFPGA
+  BMC  CPU Card C
+  AST1840  CPU
+  eFPGA
+  CPU Card D
+  AST1840  CPU
+  eFPGA
+© ASPEED Technology. Proprietary and Confidential.  27
+
+[p.28]
+  AST1840：將 SMC + eFPGA 整合於單一 SoC
+  管理運算與可程式邏輯整合
+  25K LUTs / 200 dedicated I/Os
+  以可重複使用的管理平台，提供即時啟動的控
+  制能力，因應持續演進的伺服器設計。  LTPI with 1 Gb/s bandwidth
+  Caliptra 2.x + Streaming Boot
+© ASPEED Technology. Proprietary and Confidential.  28
+
+[p.29]
+  從 BMC 邁向 AI 基礎設施管理
+  整合 BMC 遙測資料與互補的視覺及感測智慧
+  BMC Telemetry
+  29
+  Panoramic Live View  Thermal Sensing
+  伺服器內部  涵蓋機房空間  機櫃周邊
+  健康狀態與遙測  360° 即時影像  持續熱感測
+  電源與散熱  遠端巡檢  設備層級熱分布圖
+  故障與事件  視覺驗證  AI 輔助分析
+© ASPEED Technology. Proprietary and Confidential.  29
+
+[p.30]
+  產品組合
+  BMC  AST2500, AST2600, AST2700, AST2750, AST2755
+  SMC*  AST1030, AST1040
+  SMC + eFPGA  AST1840
+  PRoT  AST1060, AST1080
+  I/O Expander  AST1700
+  註：SMC（Satellite Management Controller）亦稱輔助管理控制器（AMC）或橋接晶片（Bridge IC）。
+© ASPEED Technology. Proprietary and Confidential.  30
+
+[p.31]
+  企業價值提升計畫
+© ASPEED Technology. Proprietary and Confidential.
+
+[p.32]
+  Enterprise Value Enhancement
+  Business Strategy
+  信驊科技透過以下方式提升企業價值：
+  ⚫ 成長：透過更廣泛的產品組合，提升每台伺服器與每個機櫃的內含價值；
+  ⚫ 獲利能力：透過技術領先與更高附加價值產品，維持高毛利；
+  ⚫ 股東回報：將獲利成長轉化為可持續的長期股東回報。
+© ASPEED Technology. Proprietary and Confidential.  32
+
+[p.33]
+  Q&A
+© ASPEED Technology. Proprietary and Confidential.
+
+[p.34]
+© ASPEED Technology. Proprietary and Confidential.

@@ -1,0 +1,186 @@
+[p.1]
+  股票代號7769
+  2026Q3
+  法人說明會簡報
+  (2026/10)
+
+[p.3]
+  財務表現  產品組合  前瞻技術
+  AGENDA
+  01  02  03
+  財務表現  產品組合  前瞻技術
+  Profitability  Product Mix  Key Developments
+  3
+
+[p.4]
+  財務表現  產品組合  前瞻技術
+  財務表現
+  Profitability
+  •  獲利趨勢
+  •  財務報表
+  4
+
+[p.5]
+  財務表現  產品組合  前瞻技術
+  獲利趨勢
+  營業收入 (仟元)  毛利率  EPS (元)  毛利率  營業淨利率  淨利率
+  70.00%
+  2026
+  40,713,157 56.46%  93.47
+  60.00%
+  Q1~Q3  50.00%
+  40.00%
+  2025  30,270,625  56.54%  75.71  30.00%
+  20.00%
+  10.00%
+  2024  13,992,344  55.02%  32.95  0.00%
+  25Q2  25Q3  25Q4  26Q1  26Q2  26Q3
+  5
+
+[p.6]
+  財務表現  產品組合  前瞻技術
+  財務報表
+  TWD ；仟元
+  25Q3  %  26Q2  %  26Q3  %  26Q1~Q3  %
+  營業收入  8,197,806  100.0  13,793,769 100.0  16,194,191  100.0  40,713,157  100.0
+  營業毛利  4,730,231  57.7  7,736,594  56.1  9,220,033  56.9  22,988,337  56.5
+  營業費用  564,718  6.9  1,050,389  7.6  1,178,581  7.3  2,900,629  7.1
+  營業淨利  4,165,513  50.8  6,686,205  48.5  8,041,452  49.7  20,087,708  49.3
+  年度淨利  3,616,875  44.1  5,476,251  39.7  6,716,581  41.5  16,817,098  41.3
+  © Hon. Precision, Inc. All Rights Reserved.  6
+
+[p.7]
+  財務表現  產品組合  前瞻技術
+  產品組合
+  Product Mix
+  •  訂單應用別分布
+  7
+
+[p.8]
+  財務表現  產品組合  前瞻技術
+  訂單應用別分布
+  Mobile AP  3C
+  AI / HPC /ASIC  Automotive  Memory MEMS
+  Communication  Consumer
+法 人 說 明 會 簡 報  2026 Q1~Q3  2026 Q1~Q3  2026 Q1~Q3  2026 Q1~Q3  2026 Q1~Q3
+  78%  9%  7%  4%  2%
+  from 72% (2025)  from 11% (2025)  from 10% (2025)  from 5% (2025)  from 2% (2025)
+  ►  AI Computing  ►  Sensor  ►  SiP  ►  AR glasses  ►  Flash/DRAM Memory
+  ►  Accelerometer
+  ►  Server  ►  MCU  ►  5G OTA  ►  LCD driver
+  ►  Gyroscope
+  ►  Networking  ►  LiDAR  ►  Power, PMIC  ►  CIS  ►  Barometer
+  ►  APU/GPU/CPU/FPGA  ►  Mobile Phone/AP  ►  Light Sensor
+  © Hon. Precision, Inc. All Rights Reserved.  ►  Pressure Sensor
+  8  ►  RF Related Devices  88
+
+[p.9]
+  財務表現  產品組合  前瞻技術
+  關鍵發展
+  Key Developments
+  •  ATC Roadmap
+  •  Mega Tray Solution
+  •  CPO Solution
+  •  CPC Solution
+  © Hon. Precision, Inc. All Rights Reserved.  9
+  9
+
+[p.10]
+  財務表現  產品組合  前瞻技術
+  Key Update: ATC Roadmap - Innovative Cooling for Next-Generation Testing Solution
+  Power Density Leadership  Wide Temperature Range  Cooling Capacity Expansion
+  Liquid  100 → 500 W/cm2  -70~175ﾟC  1.5 kW → 25 kW
+  ATC 3 series (快速變溫) ~10kW
+  -70ﾟC  -40ﾟC  -10ﾟC  25ﾟC  125ﾟC  175ﾟC
+  ATC 8 series (High Power) ~25kW
+  Option:  Option:
+  Down to -40ﾟC  Up to 175ﾟC
+  ATC 5 series (全區段溫控) ~10kW
+  Option:
+  Up to 175ﾟC
+  Refrigerant
+  Next  Future
+  Generation  Innovation
+  Powering the Future of Semiconductor Testing
+  2026 Q4  2027 Q4
+  AI GPU
+  & CPU
+  AI Accelerator
+  (HPC)
+  CPC  NPO
+  CPO / Silicon
+  Photonics
+  12 kW  25 kW
+  200*200 mm
+  10
+
+[p.11]
+  財務表現  產品組合  前瞻技術
+  Key Update: Mega Tray Solution - FT (HP-9050、HP-1050)
+  • Full Automation Option,
+  Large Package (>120x150mm)  Support OHT/ AMR/ Lot cascade
+  Full
+  Automation
+  New
+  Model
+  ATC  Multi AOI
+  System  Solutions
+  Mega tray and IC
+  • The latest ATC  • Integrity improving
+  System (ATC3.7/8.5)
+  © Hon. Precision, Inc. All Rights Reserved.  11
+  11
+
+[p.12]
+  財務表現  產品組合  前瞻技術
+  Key Update: Mega Tray Solution - SLT (HP-3036)
+  可支援36個測板
+  • Full Automation Option,
+  Large Package (>120x150mm)  Support OHT/ AMR/ Lot cascade
+  • Support up to 36 sites
+  Full
+  Automation
+  New
+  Model
+  ATC  Multi AOI
+  System  Solutions
+2 0 2 6 Q 3  Mega tray and IC
+  • The latest ATC  • Integrity improving
+  System (ATC3.7/8.5)
+  © Hon. Precision, Inc. All Rights Reserved.  12
+  12
+
+[p.13]
+  財務表現  產品組合  前瞻技術
+  Mega Tray FT/SLT ATC Handler with Automation Solution
+  Handler+AMR
+  • Implemented with Taiwan OSAT
+  • Manpower saving
+  © Hon. Precision, Inc. All Rights Reserved.  13
+
+[p.14]
+  財務表現  產品組合  前瞻技術
+  Key Update: CPO - INS4 OE Solution
+  14
+
+[p.15]
+  財務表現  產品組合  前瞻技術
+  Key Update: CPC Solution
+  • Chuck (with alignment pin) + Top socket (without alignment pin)
+  Top Socket
+  (without Alignment Pin)
+  Shim
+  Alignment Pin
+  (Installed on the Chuck)
+  Chuck
+  © Hon. Precision, Inc. All Rights Reserved.  15
+  15
+
+[p.16]
+  Smarter Chips.
+  Efficient Tomorrow.
+  Powered by Our Growth Drivers.
+  16
+
+[p.17]
+  Questions & Answers
