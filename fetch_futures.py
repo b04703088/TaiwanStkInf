@@ -22,6 +22,10 @@
              商品代碼是根碼（CD＝台積電、QF＝小型台積電）；除權息等調整型契約（CD1…）已併在根碼口數內
   stk_px/YYYY.csv  股期近月一般時段行情（算正逆價差用）：date, product（根碼）, contract（CDF／QFF…）, close, settle, volume, oi
              同一份 futDataDown commodity_id=all（台指期 tx.csv 也從這份取），只留近月、不含調整型契約
+  txo/YYYY/YYYYMMDD.csv  臺指選擇權各履約價（一般時段，只留未平倉或成交量 > 0 的序列）：
+             exp（到期月份／週別：202611＝月選、202611W4＝週三週選、202611F3＝週五週選）, exp_date（最後結算日）,
+             strike, cp（C／P）, close, settle, volume, oi（未沖銷口數）
+             來源 https://www.taifex.com.tw/cht/3/optDataDown  down_type=1, commodity_id=TXO（盤後時段的未沖銷是「-」，不用）
   stk_list.csv  product, name, code, size：股期商品代碼 → 證券代號、每口股數
              來源 https://www.taifex.com.tw/cht/2/stockLists；小型股期不在表上，用名稱「小型ＸＸ期貨」對回，每口 100 股
 
@@ -56,6 +60,7 @@ COLS = {
 STK_COLS = ["date", "product", "month", "top10_long", "top10_short", "oi"]
 PX_COLS = ["date", "product", "contract", "close", "settle", "volume", "oi"]
 LIST_COLS = ["product", "name", "code", "size"]
+TXO_COLS = ["exp", "exp_date", "strike", "cp", "close", "settle", "volume", "oi"]
 KEYS = {"inst": ("date", "product", "who"), "pcr": ("date",), "large": ("date", "month", "kind"), "tx": ("date",), "mini": ("date", "product")}
 
 
@@ -237,6 +242,47 @@ def parse_mini(rows):
     return [{"date": d, "product": p, "oi_all": str(v)} for (d, p), v in sorted(by.items()) if v]
 
 
+def parse_txo(rows):
+    """交易日期, 契約, 到期月份(週別), 履約價, 買賣權, 開, 高, 低, 收, 成交量, 結算價, 未沖銷, 最佳買, 最佳賣, 歷史高, 歷史低,
+    暫停交易, 交易時段, 漲跌, 漲跌%, 最後結算日 → {date: [row…]}，只留一般時段、未沖銷或成交量 > 0"""
+    by = {}
+    for r in rows:
+        if len(r) < 21 or r[1] != "TXO" or r[17] != "一般" or r[4] not in ("買權", "賣權"):
+            continue
+        oi, vol = _n(r[11]), _n(r[9])
+        if not (float(oi or 0) > 0 or float(vol or 0) > 0):
+            continue
+        k = float(r[3])
+        ed = r[20].strip()
+        by.setdefault(_d(r[0]), []).append({
+            "exp": r[2].strip(), "exp_date": f"{ed[:4]}-{ed[4:6]}-{ed[6:8]}" if len(ed) == 8 else "",
+            "strike": str(int(k)) if k == int(k) else str(k), "cp": "C" if r[4] == "買權" else "P",
+            "close": _n(r[8]), "settle": _n(r[10]), "volume": vol or "0", "oi": oi or "0"})
+    return by
+
+
+def txo_path(d):
+    return OUT_DIR / "txo" / d[:4] / f"{d.replace('-', '')}.csv"
+
+
+def fetch_txo(a, b, refresh=3):
+    """臺指選擇權各履約價：一天一個檔；已經有檔的日子跳過（最近 refresh 個日曆天以外）"""
+    need = [a + timedelta(i) for i in range((b - a).days + 1)]
+    need = [d for d in need if d.weekday() < 5 and (not txo_path(d.isoformat()).exists() or (b - d).days < refresh)]
+    if not need:
+        return
+    by = parse_txo(_get("optDataDown", {"down_type": "1", "commodity_id": "TXO"}, need[0], b))
+    for d, rs in by.items():
+        p = txo_path(d)
+        p.parent.mkdir(parents=True, exist_ok=True)
+        rs.sort(key=lambda r: (r["exp_date"], r["exp"], float(r["strike"]), r["cp"]))
+        with p.open("w", newline="", encoding="utf-8") as fp:
+            w = csv.DictWriter(fp, fieldnames=TXO_COLS)
+            w.writeheader()
+            w.writerows(rs)
+    print(f"  txo {len(by)} 天 {sum(len(v) for v in by.values())} 列")
+
+
 def upsert(name, rows, p=None, cols=None, keys=None):
     p = p or OUT_DIR / f"{name}.csv"
     cols, keys = cols or COLS[name], keys or KEYS[name]
@@ -285,6 +331,7 @@ def fetch_range(a, b):
     print(f"  stk_px {len(px)}")
     for k, v in got.items():
         upsert(k, v)
+    fetch_txo(a, b)
     print(f"{a}~{b}: " + "、".join(f"{k} {len(v)}" for k, v in got.items()))
 
 
@@ -313,13 +360,14 @@ def months(start, end):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--start", type=date.fromisoformat, help="回補起日")
+    ap.add_argument("--txo-only", action="store_true", help="只抓臺指選擇權各履約價（回補用）")
     a = ap.parse_args()
     today = datetime.now(timezone(timedelta(hours=8))).date()
     start = a.start or (today - timedelta(days=10))
     failed = []
     for s, e in months(start, today):
         try:
-            fetch_range(s, e)
+            fetch_txo(s, e) if a.txo_only else fetch_range(s, e)
         except Exception as ex:  # noqa: BLE001
             print(f"{s}~{e}: 失敗 {ex!r}", file=sys.stderr)
             failed.append(s)
