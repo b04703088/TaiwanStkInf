@@ -1,6 +1,8 @@
 """data/chips/（三大法人）＋每日股價 → 投信買賣超頁（trust.html）。
 
-  data/trust/index.json        {dates: [最近 KEEP 個交易日，由舊到新], totals: {date: [合計億元, 買超家數, 賣超家數]}}
+  data/trust/index.json        {dates: [最近 KEEP 個交易日，由舊到新], totals: {date: [合計億元, 買超家數, 賣超家數]},
+                                split: {date: [合計, 被動ETF, 主動ETF, 非ETF（億元）, [當天未公布持股的 ETF]]}（最近 SPLIT_DAYS 天，
+                                見 etf_site.build_trust_split）}
   data/trust/<YYYY-MM-DD>.json {date, cols, rows}：當天投信有買賣的每一檔（買賣超 ≠ 0）
 
 欄位（張數已除 1000；比率是 %）：
@@ -14,9 +16,11 @@ import json
 from pathlib import Path
 
 from chips_site import _f, _read, chip_files, prices_for, streak
+from etf_site import build_trust_split
 
 KEEP = 20       # 網頁可以切換的天數
 LOOK = 60       # 往回讀幾天（算連買天數、20 日累計）
+SPLIT_DAYS = 120  # 被動／主動／非 ETF 拆分走勢的天數
 COLS = ["code", "name", "market", "close", "pct", "value", "t", "amt", "r1", "r1x", "t5", "r5", "r5x", "t20", "ts"]
 
 
@@ -85,7 +89,11 @@ def build(data_dir, keep=KEEP, look=LOOK):
                          round(t5 / 1000), _pct(t5, v5), _pct(t5, v5 - dt5), round(t20 / 1000), streak(ts_all)])
         out[d] = {"date": d, "cols": COLS, "rows": rows}
         totals[d] = [round(tot / 1e8, 2), nb, ns]
-    return {"dates": list(out), "totals": totals}, out
+    try:
+        split = build_trust_split(data_dir, days=SPLIT_DAYS)
+    except FileNotFoundError:
+        split = {}
+    return {"dates": list(out), "totals": totals, "split": split}, out
 
 
 def write_trust(data_dir, out_dir):

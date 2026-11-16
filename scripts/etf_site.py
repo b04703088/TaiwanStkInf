@@ -603,3 +603,67 @@ def write_shift(data_dir, out_path):
     Path(out_path).parent.mkdir(parents=True, exist_ok=True)
     Path(out_path).write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     return payload
+
+
+# ---------------- 投信買賣超拆三塊：被動式 ETF／主動式 ETF／非 ETF ----------------
+def build_trust_split(data_dir, root=None, days=60):
+    """每天投信買賣超金額（億元，股數 × 當天收盤，只算 4 碼個股）拆成
+    被動式 ETF（現金申贖）＋主動式 ETF＋非 ETF（＝投信合計 − 兩種 ETF，Leo 指定當成封閉型基金等）。
+    ETF 只算「前一交易日 → 當天」一天期的持股增減（同 _add_fund）；當天沒公布或跨多天才公布的 ETF
+    記在 miss（代號），它那天的買賣會混進非 ETF。實物申贖 ETF 不算（申購買回不經市場、不在投信買賣超裡）。
+    回傳 {日期: [合計, 被動, 主動, 非ETF, [未公布 ETF 代號…]]}。"""
+    data_dir = Path(data_dir)
+    files = _chips_days(data_dir, "9999-12-31", days)
+    if len(files) < 2:
+        return {}
+    tdays = [date_of(f) for f in files]
+    prev = dict(zip(tdays[1:], tdays[:-1]))
+    want = set(tdays[1:])
+    exclude = inkind_etfs(root or data_dir.parent)
+    etf_dir = data_dir / "etf"
+    with (etf_dir / "etf_list.csv").open(encoding="utf-8") as fp:
+        etfs = [r for r in csv.DictReader(fp) if r["kind"] in ("active", "passive") and r["etf"] not in exclude]
+    tw = re.compile(r"^[1-9]\d{3}$")
+    prices = PriceBook(data_dir)
+    lo = tdays[0].replace("-", "") + ".csv"
+    amt = {d: {"passive": 0.0, "active": 0.0} for d in want}
+    miss = {d: [] for d in want}
+    for info in etfs:
+        fs = sorted(f for f in (etf_dir / info["etf"]).glob("[0-9]*.csv"))
+        if not fs:
+            continue
+        k0 = max(0, next((i for i, f in enumerate(fs) if f.name >= lo), len(fs)) - 1)
+        fs = fs[k0:]
+        dates = [date_of(f) for f in fs]
+        clean = set()
+        h0 = read_holdings(fs[0])
+        for f, d0, d1 in zip(fs[1:], dates, dates[1:]):
+            h1 = read_holdings(f)
+            if d1 in want and prev.get(d1) == d0:
+                clean.add(d1)
+                px, s = prices.get(d1), 0.0
+                for c in set(h0) | set(h1):
+                    if not tw.match(c):
+                        continue
+                    a, b = (h0.get(c) or {}).get("sh"), (h1.get(c) or {}).get("sh")
+                    if (c in h0 and a is None) or (c in h1 and b is None) or not px.get(c):
+                        continue
+                    s += ((b or 0) - (a or 0)) * px[c]
+                amt[d1][info["kind"]] += s
+            h0 = h1
+        for d in want:
+            if d > dates[0] and d not in clean:
+                miss[d].append(info["etf"])
+    out = {}
+    for f in files[1:]:
+        d = date_of(f)
+        px = prices.get(d)
+        tot = 0.0
+        with f.open(encoding="utf-8") as fp:
+            for r in csv.DictReader(fp):
+                t = _num(r.get("t_net"))
+                if t and tw.match(r["code"]) and px.get(r["code"]):
+                    tot += t * px[r["code"]]
+        p, a = amt[d]["passive"], amt[d]["active"]
+        out[d] = [round(tot / 1e8, 2), round(p / 1e8, 2), round(a / 1e8, 2), round((tot - p - a) / 1e8, 2), sorted(miss[d])]
+    return out
