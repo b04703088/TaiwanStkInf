@@ -6,12 +6,12 @@
  "mops": {
   "fetched_days": 7,
   "left_days": 0,
-  "events": 787,
+  "events": 788,
   "details": {
-   "fetched": 226,
-   "left": 117
+   "fetched": 118,
+   "left": 0
   }
  },
- "generated": "2026-11-16 15:21",
+ "generated": "2026-11-16 18:34",
  "errors": []
 }
