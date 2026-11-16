@@ -1,13 +1,17 @@
 {
  "sfb": [
   "114:1141231626申報案件彙總表.ods:136",
-  "115:1151113申報v1.ods:147"
+  "115:1151116申報v1.ods:147"
  ],
  "mops": {
   "fetched_days": 7,
   "left_days": 0,
-  "events": 769
+  "events": 787,
+  "details": {
+   "fetched": 226,
+   "left": 117
+  }
  },
- "generated": "2026-11-13 18:47",
+ "generated": "2026-11-16 15:21",
  "errors": []
 }
