@@ -139,7 +139,7 @@
       <div class="chips" id="revf" hidden>
         <button data-n="3" aria-pressed="false">3 項全中</button><button data-n="2" aria-pressed="true">中 2 項以上</button><button data-n="0" aria-pressed="false">全部</button>
       </div>
-      <label class="chk-in" id="thr-l" hidden>倍數門檻 <select class="filter" id="thr"><option value="0.2">≥ 0.2×</option><option value="0.3" selected>≥ 0.3×</option><option value="0.5">≥ 0.5×</option></select></label>
+      <label class="chk-in" id="thr-l" hidden>倍數門檻 <select class="filter" id="thr"><option value="0.5">≥ 0.5×</option><option value="1" selected>≥ 1×</option><option value="2">≥ 2×</option><option value="3">≥ 3×</option></select></label>
       <label class="chk-in"><input type="checkbox" id="noetf" checked> 排除 ETF</label>
       <label class="chk-in"><input type="checkbox" id="both"> 只看像套利</label>
       <label class="chk-in"><input type="checkbox" id="mine"> 只看自選</label>
@@ -171,7 +171,7 @@ const mult = v => v == null ? "–" : v >= 0.5 ? `<b class="warn">${v.toFixed(2)
 const sgn = v => v == null ? "–" : `<span class="${cls(v)}">${sint(v)}</span>`;
 const md = d => d ? d.slice(5).replace("-", "/") : "–";
 
-const S = {tab: "rev", min: 2, thr: 0.3, noetf: true, both: false, mine: false, q: "", limit: 100, open: null};
+const S = {tab: "rev", min: 2, thr: 1, noetf: true, both: false, mine: false, q: "", limit: 100, open: null};
 let D, R = [];
 
 /* 同向：空方＝特法淨空 + 自營商累積買超（現貨多、期貨空）；多方＝特法淨多 + 自營商累積賣超 */
@@ -186,18 +186,30 @@ const arb = (r, L) => {
 };
 const arbTag = a => a.lv === 2 ? '<span class="tag ath">像套利</span>' : a.lv === 1 ? '<span class="tag">部分</span>' : "";
 /* 可能反解：① 特法淨部位 ÷ 5 日量 ≥ 門檻　② 自營商累積同向（空方＝買超、多方＝賣超）÷ 5 日量 ≥ 門檻
-   ③ 今天有同向價差（空方正價差、多方逆價差），而且自營商這個週期的買（賣）超有 ≥70% 發生在同向價差日＝跟套利有關
+   ③ 今天有同向價差（空方正價差、多方逆價差），而且自營商同向買（賣）超張數加權有 ≥70% 在同向價差日＝跟套利有關
    方向看特法淨部位：淨空＝正價差套利、結算賣現貨；淨多＝逆價差套利、結算買回 */
+/* 分母＝尾盤量：近 5 日「均」量（成交量 − 當沖）× 0.3（結算價取收盤前 60 分鐘，只有尾盤會反解）
+   → 倍數 ＝ 部位 ÷ （5 日合計 ÷ 5 × 0.3）＝ 原本 ÷ 5 日合計 的倍數 × 5 ÷ 0.3 */
+const TAIL = 0.3, TK = 5 / TAIL;
 const rev = r => {
   const L = r.nl_r > 0, t = S.thr;
-  const fr = L ? r.nl_r : r.ns_r, dr = r.d_r == null ? null : L ? -r.d_r : r.d_r;
+  const fr = (L ? r.nl_r : r.ns_r) * TK, dr = r.d_r == null ? null : (L ? -r.d_r : r.d_r) * TK;
   const net = L ? r.l10 - r.s10 : r.s10 - r.l10, dc = r.d_cum == null ? 0 : L ? -r.d_cum : r.d_cum;
   const a = arb(r, L);
+  /* 自營商同向買（賣）超的日子，用張數加權，看有幾成落在同向價差日（大買賣超權重大） */
+  let bw = 0, bp = 0, bn = 0;
+  for (const [, bz, dn] of D.detail[r.code] || []) {
+    const v = dn == null ? 0 : L ? -dn : dn;
+    if (v <= 0 || bz == null) continue;
+    bw += v; bn++; if (L ? bz < 0 : bz > 0) bp += v;
+  }
+  const bs = bw > 0 ? Math.round(bp / bw * 100) : null;
   const bOk = r.basis != null && (L ? r.basis < 0 : r.basis > 0);
-  const c = [fr >= t, dr != null && dr >= t, bOk && dc > 0 && a.d != null && a.d >= 70];  /* 自營商累積方向要對，才算跟套利有關 */
+  const c = [fr >= t, dr != null && dr >= t, bOk && dc > 0 && bs != null && bs >= 70];  /* 自營商累積方向要對，才算跟套利有關 */
   const q = Math.max(0, Math.min(net, dc));  /* 特法淨部位和自營商同向累積重疊的張數＝最可能是套利、結算要反解的量 */
-  return {L, fr, dr, a, bOk, c, n: c.filter(Boolean).length, q, qr: r.v5 ? q / r.v5 : 0};
+  return {L, fr, dr, a, bs, bn, bOk, c, n: c.filter(Boolean).length, q, qr: r.v5 ? q / (r.v5 / 5 * TAIL) : 0};
 };
+const tm = v => v >= S.thr ? `<b class="warn">${v.toFixed(1)}×</b>` : v >= 1 ? `<span class="warn">${v.toFixed(1)}×</span>` : `${v.toFixed(1)}×`;
 const ck = (ok, html) => ok ? `<span class="warn">✓</span> ${html}` : `<span class="faint">${html}</span>`;
 const shareCell = v => v == null ? '<span class="faint">–</span>' : v >= 70 ? `<span class="warn">${v}%</span>` : `${v}%`;
 const bz = v => v == null ? "–" : `<span class="${cls(v)}">${v > 0 ? "+" : ""}${v.toFixed(2)}%</span>`;
@@ -232,28 +244,30 @@ function render(){
   const baseH = `<th>股票</th><th class="n">收盤</th><th class="n hide-s">漲跌</th><th class="n" title="近 5 個交易日成交量合計，扣掉現股當沖">近 5 日量</th>`;
   let head, row;
   if (S.tab === "rev") {
-    $("hint").innerHTML = `三個條件：<b>①</b> 十大特法淨部位 ÷ 近 5 日量（扣當沖）≥ ${S.thr}×；<b>②</b> 自營商從上次結算（${md(D.last_settle)}）隔天累積的同向買賣超 ÷ 近 5 日量 ≥ ${S.thr}×（空方看買超、多方看賣超）；<b>③</b> 今天（${md(D.date)}）有同向價差，自營商累積方向對，而且這個週期的買（賣）超有 ≥70% 發生在同向價差日。方向看特法淨部位：淨空＝正價差套利、結算日賣現貨；淨多＝逆價差套利、結算日買回。先排中幾項，再排「可能反解量 ÷ 5 日量」。`;
+    $("hint").innerHTML = `三個條件：<b>①</b> 十大特法淨部位 ÷ 尾盤量 ≥ ${S.thr}×；<b>②</b> 自營商從上次結算（${md(D.last_settle)}）隔天累積的同向買賣超 ÷ 尾盤量 ≥ ${S.thr}×（空方看買超、多方看賣超）；<b>③</b> 今天（${md(D.date)}）有同向價差，自營商累積方向對，而且自營商同向買（賣）超用張數加權有 ≥70% 落在同向價差日。方向看特法淨部位：淨空＝正價差套利、結算日賣現貨；淨多＝逆價差套利、結算日買回。先排中幾項，再排「可能反解量 ÷ 尾盤量」。<br><b>尾盤量</b>＝近 5 日均量（成交量 − 當沖）× 0.3：結算價取收盤前 60 分鐘均價，只有這段時間會反解，抓一天量的三成。1× 就是部位等於一個尾盤的量。<br><b>價差</b>：③ 看兩件事，最新一天（${md(D.date)}）的價差方向，以及週期內（${md(D.cycle_start)} 起）每天的價差，用自營商買（賣）超張數加權，大買賣超的日子權重大。點一列可看每天價差。`;
     head = `<tr><th>股票</th><th>方向</th><th class="n">中幾項</th>
-      <th class="n" title="十大特法淨空（多）單 ÷ 近 5 日量（扣當沖）">① 特法淨部位 ÷ 5 日量</th>
-      <th class="n" title="自營商從上次結算隔天累積的買賣超，空方看買超、多方看賣超，÷ 近 5 日量（扣當沖）">② 自營商累積 ÷ 5 日量</th>
+      <th class="n" title="十大特法淨空（多）單 ÷ 尾盤量（近 5 日均量扣當沖 × 0.3）">① 特法淨部位 ÷ 尾盤量</th>
+      <th class="n" title="自營商從上次結算隔天累積的買賣超，空方看買超、多方看賣超，÷ 尾盤量（近 5 日均量扣當沖 × 0.3）">② 自營商累積 ÷ 尾盤量</th>
       <th class="n" title="最新一天：（期貨收盤 − 現貨收盤）÷ 現貨收盤">③ 今天價差</th>
-      <th class="n" title="自營商這個週期的買超（多方看賣超）張數裡，發生在同向價差日的比例">③ 自營商在同向價差</th>
+      <th class="n" title="自營商同向買（賣）超的日子，用張數加權，落在同向價差日的比例；括號是同向買（賣）超天數">③ 自營商在同向價差</th>
       <th class="n" title="特法淨部位和自營商同向累積取小的那個（張）＝兩邊都對得上、最可能是套利部位的量">可能反解量</th>
-      <th class="n" title="可能反解量 ÷ 近 5 日量（扣當沖）">反解量 ÷ 5 日量</th>
+      <th class="n" title="可能反解量 ÷ 尾盤量（近 5 日均量扣當沖 × 0.3）">反解量 ÷ 尾盤量</th>
       <th class="n hide-s">特法淨部位</th><th class="n hide-s">自營商累積</th>
-      <th class="n" title="近 5 個交易日成交量合計，扣掉現股當沖">近 5 日量</th>
+      <th class="n" title="近 5 個交易日平均每天成交量，扣掉現股當沖">5 日均量</th>
+      <th class="n" title="5 日均量 × 0.3：收盤前 60 分鐘大約的成交量">尾盤量</th>
       <th class="n">收盤</th><th class="n hide-s">漲跌</th></tr>`;
     row = r => { const x = rev(r), net = x.L ? r.l10 - r.s10 : r.s10 - r.l10;
       return `<tr class="click${S.open === r.code ? " on" : ""}" data-code="${esc(r.code)}"><td>${sname(r)}</td>
       <td>${x.L ? '<span class="down">多方・買回</span>' : '<span class="up">空方・賣壓</span>'}</td>
       <td class="n mono" data-v="${x.n}">${x.n === 3 ? `<b class="warn">3／3</b>` : `${x.n}／3`}</td>
-      <td class="n mono" data-v="${x.fr}">${ck(x.c[0], `${x.fr.toFixed(2)}×`)}</td>
-      <td class="n mono" data-v="${x.dr ?? ""}">${ck(x.c[1], x.dr == null ? "–" : `${x.dr.toFixed(2)}×`)}</td>
+      <td class="n mono" data-v="${x.fr}">${ck(x.c[0], `${x.fr.toFixed(1)}×`)}</td>
+      <td class="n mono" data-v="${x.dr ?? ""}">${ck(x.c[1], x.dr == null ? "–" : `${x.dr.toFixed(1)}×`)}</td>
       <td class="n mono" data-v="${r.basis ?? ""}">${x.bOk ? bz(r.basis) : `<span class="faint">${r.basis == null ? "–" : (r.basis > 0 ? "+" : "") + r.basis.toFixed(2) + "%"}</span>`}</td>
-      <td class="n mono" data-v="${x.a.d ?? ""}">${ck(x.c[2], x.a.d == null ? "–" : x.a.d + "%")}</td>
-      <td class="n mono" data-v="${x.q}">${int(x.q)}</td><td class="n mono" data-v="${x.qr}">${mult(x.qr)}</td>
+      <td class="n mono" data-v="${x.bs ?? ""}">${ck(x.c[2], x.bs == null ? "–" : `${x.bs}%<span class="faint">（${x.bn} 天）</span>`)}</td>
+      <td class="n mono" data-v="${x.q}">${int(x.q)}</td><td class="n mono" data-v="${x.qr}">${tm(x.qr)}</td>
       <td class="n mono hide-s">${int(net)}</td><td class="n mono hide-s" data-v="${r.d_cum ?? ""}">${sgn(r.d_cum)}</td>
-      <td class="n mono">${int(r.v5)}</td><td class="n mono">${num(r.close)}</td><td class="n mono hide-s" data-v="${r.chg ?? ""}">${pct(r.chg)}</td></tr>` + detail(r, x.L); };
+      <td class="n mono">${int(r.v5 / 5)}</td><td class="n mono">${int(r.v5 / 5 * TAIL)}</td>
+      <td class="n mono">${num(r.close)}</td><td class="n mono hide-s" data-v="${r.chg ?? ""}">${pct(r.chg)}</td></tr>` + detail(r, x.L); };
   } else if (S.tab === "dealer") {
     $("hint").innerHTML = `自營商（自行＋避險）從 ${md(D.cycle_start)} 累積到 ${md(D.date)} 的買賣超（張）÷ 近 5 日量。正數＝現貨累積買超，配特法淨空像正價差套利；負數配特法淨多像逆價差套利。點「自營商 ÷ 5 日量」標題可反過來看賣超最多的。`;
     head = `<tr>${baseH}<th class="n">自營商累積</th><th class="n">自營商 ÷ 5 日量</th><th class="n">特法淨空 ÷ 5 日量</th><th class="n">特法淨多 ÷ 5 日量</th><th class="n">價差</th><th>判定</th></tr>`;
