@@ -2,7 +2,7 @@
 
   data/digest/index.json        {dates: [{date, note, am, pts}]}  由新到舊，最近 N 天
   data/digest/<日期>.md          數字摘要（給每晚判讀用，網頁不顯示）
-  data/digest/points/<日期>.md   重點：資金流向、CB 詢圈、ETF 調整、內部人（scripts/digest_points.py）
+  data/digest/points/<日期>.md   重點：新公告／新事件七段（scripts/digest_points.py）
   data/digest/notes/<日期>.md    判讀（有才有）
   data/digest/notes/<日期>-am.md 隔天早上 8 點的早盤更新（美股、Fed、夜盤；有才有）
 """

@@ -2,7 +2,7 @@
 
   data/digest/YYYYMMDD.md   當天摘要
   data/digest/latest.md     最新一份（同內容）
-  data/digest/points/YYYYMMDD.md  網頁顯示的重點（資金流向、CB 詢圈、ETF 調整、內部人；見 digest_points.py）
+  data/digest/points/YYYYMMDD.md  網頁顯示的重點（新公告／新事件七段；見 digest_points.py）
 
 內容：加權指數位置與均線、外資／投信現貨買賣超（近 10 日）、台指期外資未平倉、P/C、
 前十大交易人、融資餘額、資金水龍頭燈號（見 liquidity.py）、處置／注意股熱度、族群（官方產業與產業鏈節點）5／20 日強弱與
