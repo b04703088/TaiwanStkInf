@@ -196,8 +196,8 @@
     <div class="block-head"><h2>各履約價未平倉</h2><span class="hint" id="exp-hint"></span></div>
     <div class="grp"><span class="lbl">契約</span><div class="chips exp" id="exp"></div></div>
     <div class="grp"><span class="lbl">範圍</span><div class="chips" id="rg">
-      <button data-v="1500" aria-pressed="false">現價 ±1,500 點</button>
-      <button data-v="3000" aria-pressed="true">±3,000 點</button>
+      <button data-v="1500" aria-pressed="true">現價 ±1,500 點</button>
+      <button data-v="3000" aria-pressed="false">±3,000 點</button>
       <button data-v="0" aria-pressed="false">全部有未平倉</button>
     </div></div>
     <div class="ladder" id="ladder"></div>
@@ -229,6 +229,7 @@
     <div class="chart" id="chart"></div>
     <div class="legend"><span><i style="background:var(--rise)"></i>壓力：買權未平倉最大的履約價</span><span><i style="background:var(--fall)"></i>支撐：賣權未平倉最大的履約價</span>
       <span><i style="background:var(--brass)"></i>台指期近月收盤</span><span id="lg-pain"><i style="background:var(--text-muted)"></i>最大痛點</span></div>
+    <p class="hint" style="margin-top:6px">履約價資料從 2026/6 起。離台指期超過 15% 的深價外履約價會被截在圖的上下緣，滑過圖可看實際數字。</p>
   </section>
 
   <p class="note">
@@ -248,11 +249,11 @@ const dTxt = d => d ? `${+d.slice(5, 7)}/${+d.slice(8)}` : "";
 const WHO = {foreign: "外資", trust: "投信", dealer: "自營商"};
 const WK = "日一二三四五六";
 let D, E = [], H = [];
-const S = {exp: null, rg: 3000, hn: 66, hs: "m"};
+const S = {exp: null, rg: 1500, hn: 66, hs: "m"};
 
 function expLabel(e){
   if (e.exp === "ALL") return "全部合計";
-  const w = WK[new Date(e.exp_date + "T00:00:00+08:00").getDay()];
+  const w = WK[new Date(e.exp_date + "T12:00:00Z").getUTCDay()];
   const k = e.kind === "月" ? `${+e.exp.slice(4, 6)}月選` : `${e.kind}週選 ${e.exp.slice(6)}`;
   return `${dTxt(e.exp_date)}（${w}）${k}`;
 }
@@ -315,8 +316,11 @@ function chart(){
   const p = S.hs, pts = H.slice(-S.hn).map(r => ({d: r.date, px: r.tx, c: r[p + "_c"], pu: r[p + "_p"], pain: p === "m" ? r.m_pain : null, exp: r.m_exp}));
   $("lg-pain").style.display = p === "m" ? "" : "none";
   const W = $("chart").clientWidth - 16 || 900, Ht = 280, L = 56, Rr = 14, T = 16, B = 22, pw = W - L - Rr, ph = Ht - T - B;
-  const all = pts.flatMap(x => [x.px, x.c, x.pu, x.pain]).filter(v => v != null);
-  if (!all.length) { $("chart").innerHTML = `<div class="empty">沒有資料</div>`; return; }
+  // 刻度以台指期為準：離現價超過 15% 的深價外履約價不撐開刻度，畫到邊界截掉
+  const pxs = pts.map(x => x.px).filter(v => v != null);
+  if (!pxs.length) { $("chart").innerHTML = `<div class="empty">沒有資料</div>`; return; }
+  const pmin = Math.min(...pxs) * .85, pmax = Math.max(...pxs) * 1.15;
+  const all = pts.flatMap(x => [x.px, x.c, x.pu, x.pain]).filter(v => v != null && v >= pmin && v <= pmax);
   let lo = Math.min(...all), hi = Math.max(...all); const pad = (hi - lo) * .06 || 100; lo -= pad; hi += pad;
   const Y = v => T + (hi - v) / (hi - lo) * ph, bw = pw / pts.length, X = k => L + (k + .5) * bw;
   let g = "";
@@ -328,8 +332,9 @@ function chart(){
     pts.forEach((x, k) => { const v = x[key]; if (v == null) { prev = null; return; }
       const x0 = L + k * bw, x1 = x0 + bw; s += prev == null ? `M${x0},${Y(v)}` : `L${x0},${Y(prev)}L${x0},${Y(v)}`; s += `L${x1},${Y(v)}`; prev = v; });
     return `<path d="${s}" fill="none" stroke="${col}" stroke-width="2" ${dash ? 'stroke-dasharray="4 3"' : ""}/>`; };
+  g = `<defs><clipPath id="cp"><rect x="${L}" y="${T}" width="${pw}" height="${ph}"/></clipPath></defs>` + g + `<g clip-path="url(#cp)">`;
   g += step("c", "var(--rise)") + step("pu", "var(--fall)") + (p === "m" ? step("pain", "var(--text-muted)", 1) : "");
-  g += `<polyline fill="none" stroke="var(--brass)" stroke-width="1.8" points="${pts.map((x, k) => x.px == null ? "" : `${X(k)},${Y(x.px)}`).join(" ")}"/>`;
+  g += `<polyline fill="none" stroke="var(--brass)" stroke-width="1.8" points="${pts.map((x, k) => x.px == null ? "" : `${X(k)},${Y(x.px)}`).join(" ")}"/></g>`;
   g += `<line id="hv" y1="${T}" y2="${T + ph}" stroke="var(--text-faint)" style="display:none"/><rect x="${L}" y="${T}" width="${pw}" height="${ph}" fill="transparent" id="hz"/>`;
   $("chart").innerHTML = `<svg viewBox="0 0 ${W} ${Ht}">${g}</svg><div class="tip" id="tip"></div>`;
   const svg = $("chart").querySelector("svg"), tip = $("tip");

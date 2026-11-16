@@ -94,6 +94,11 @@ def summary(e):
             "top_c": top(s, 0), "top_p": top(s, 1), "pain": max_pain(s)}
 
 
+def live(day, d):
+    """今天（含）以前結算的契約拿掉"""
+    return {x: e for x, e in day.items() if not e["exp_date"] or e["exp_date"] > d}
+
+
 def near_month(day, d):
     ms = sorted((e["exp_date"], x) for x, e in day.items() if x.isdigit() and e["exp_date"] > d)
     return ms[0][1] if ms else None
@@ -109,7 +114,7 @@ def build(data_dir, n=N):
 
     hist, prev, cur = [], None, None
     for i, (d, p) in enumerate(days):
-        day = load_day(p)
+        day = live(load_day(p), d)
         m = near_month(day, d)
         ms = summary(day[m]) if m else {}
         al = summary(merge_all(day))
@@ -119,18 +124,17 @@ def build(data_dir, n=N):
                      ms.get("pc"), ms.get("pain"),
                      al["top_c"][0][0] if al["top_c"] else None, al["top_p"][0][0] if al["top_p"] else None, al["pc"]])
         if i == len(days) - 2:
-            prev = day
+            prev = load_day(p)
         cur = day
     d = days[-1][0]
     prev = prev or {}
+    prev_all = merge_all(live(prev, d)) if prev else None
 
     exps = []
     order = sorted(cur, key=lambda x: (cur[x]["exp_date"], x))
     for x in order + ["ALL"]:
         e = merge_all(cur) if x == "ALL" else cur[x]
-        if x != "ALL" and e["exp_date"] and e["exp_date"] <= d:   # 今天結算的已經沒有意義
-            continue
-        pe = (merge_all(prev) if prev else None) if x == "ALL" else prev.get(x)
+        pe = prev_all if x == "ALL" else prev.get(x)
         rows = []
         for k in sorted(e["s"]):
             v = e["s"][k]
