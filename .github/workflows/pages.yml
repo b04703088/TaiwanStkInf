@@ -46,6 +46,7 @@ on:
       - "scripts/trust_site.py"
       - "scripts/futures_site.py"
       - "scripts/settle_site.py"
+      - "scripts/txo_site.py"
       - "scripts/insider_site.py"
       - "scripts/insider_broker.py"
       - "scripts/stock_site.py"

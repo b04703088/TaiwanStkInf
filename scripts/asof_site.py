@@ -146,7 +146,7 @@ PAGES = {
     "market": ["price", "margin", "futures"], "daytrade": ["chips", "broker"], "etfcrowd": ["etf", "price"], "capital": ["mops", "price"], "memo": ["mops", "price"], "ranking": ["price"], "flow": ["price"], "rotation": ["price"], "newhigh": ["price"], "limitup": ["price"],
     "industry": ["price", "industry"], "kline": ["price", "chips", "broker"],
     "screen": ["price", "chips", "revenue", "quarterly"],
-    "chips": ["chips", "sbl", "tdcc"], "trust": ["chips", "price"], "futures": ["futures"], "settle": ["futures", "price"],
+    "chips": ["chips", "sbl", "tdcc"], "trust": ["chips", "price"], "futures": ["futures"], "settle": ["futures", "price"], "txo": ["futures"],
     "broker": ["broker"], "local": ["broker"], "watch": ["watch"],
     "margin": ["margin", "pledge"], "cost": ["etf", "margin", "pledge", "price"], "heavy": ["etf", "margin", "pledge", "price"],
     "insider": ["insider_m", "insider_t"], "news": ["mops"], "alert": ["alert"],
