@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """把外部整理的 ETF 每日持股 Excel 匯入 data/etf/<代號>/<日期>.csv（補官網查不到的歷史）。
 
-Excel 格式（第一張工作表）：基金碼（'00405A 主動富邦臺灣龍耀'）、日期、標的類型、標的名稱（'3653 健策'）、股數、金額。
+Excel 格式（第一張工作表）：基金碼（'00405A 主動富邦臺灣龍耀'）、日期、標的類型、標的名稱（'3653 健策'）、股數、金額（可省略）。
   · 只取標的類型＝股票；期貨、選擇權略過。
   · 只補「本站最早一份之前」的日期，不覆寫既有資料。
   · 台股代號但名稱是外文、且和行情檔的名稱對不上的列（例：'2360 CLOUDFLARE INC'，海外股被配錯代號）略過。
   · 權重＝該股金額 ÷ 當日股票部位總金額（不是佔淨值）；沒有金額時留空。
 
-用法: python import_etf_xlsx.py 檔案.xlsx [--dry-run]
+用法: python import_etf_xlsx.py 檔案.xlsx [檔案2.xlsx ...] [--dry-run]
 """
 import argparse
 import csv
@@ -47,17 +47,19 @@ def read_xlsx(path):
         d = r[1].date().isoformat() if hasattr(r[1], "date") else str(r[1])[:10]
         m = re.match(r"^(\S+)\s+(.*)$", str(r[3]).strip())
         code, name = (m.group(1), m.group(2).strip()) if m else (str(r[3]).strip(), "")
-        out[(etf, d)][code] = (name, r[4], r[5])
+        out[(etf, d)][code] = (name, r[4], r[5] if len(r) > 5 else None)
     return out
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("xlsx")
+    ap.add_argument("xlsx", nargs="+")
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
     names = tw_names(ETF_DIR.parent)
-    data = read_xlsx(a.xlsx)
+    data = {}
+    for x in a.xlsx:
+        data.update(read_xlsx(x))
     stats, skipped = defaultdict(list), set()
     first = {}  # 匯入前本站最早一份（先算好，免得剛寫的檔案被當成既有資料）
     for etf in {k[0] for k in data}:
