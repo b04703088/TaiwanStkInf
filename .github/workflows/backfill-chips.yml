@@ -1,0 +1,58 @@
+name: Backfill chips
+
+# 一次性回補 data/chips（三大法人、借券賣出、現股當沖）2023-01 起的歷史，給當沖頁、法人頁等算長期百分位用。
+# 每年一個 job 平行跑（不同 runner、不同 IP，不會互相吃證交所流量限制）；已有的日期跳過，可重跑續補。
+# 資料直接 commit 到 main 的 data/chips/<年>（跟每日爬蟲一樣），只加資料檔。
+on:
+  push:
+    branches: [claude/project-thread-246dyf]
+    paths: [.github/workflows/backfill-chips.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: backfill-chips
+  cancel-in-progress: true
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {year: "2023", start: "2023-01-01", end: "2023-12-31"}
+          - {year: "2024", start: "2024-01-01", end: "2024-12-31"}
+          - {year: "2025", start: "2025-01-01", end: "2025-09-30"}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Backfill ${{ matrix.year }}
+        timeout-minutes: 320  # 留時間給下一步把已補到的 commit
+        run: python -u fetch_chips.py --start ${{ matrix.start }} --end ${{ matrix.end }} --max-minutes 300
+
+      - name: Commit data
+        if: always()  # 中途逾時或部分失敗，已補到的也要存
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          mkdir -p /tmp/keep && cp -r data/chips/${{ matrix.year }} /tmp/keep/ 2>/dev/null || { echo "No data"; exit 0; }
+          for i in 1 2 3 4 5; do
+            git fetch -q origin main && git reset -q --hard origin/main
+            mkdir -p data/chips && cp -r /tmp/keep/${{ matrix.year }} data/chips/
+            git add data/chips/${{ matrix.year }}
+            if git diff --cached --quiet; then echo "No new data"; exit 0; fi
+            git commit -q -m "data: 回補 ${{ matrix.year }} 三大法人／借券／當沖"
+            git push origin HEAD:main && exit 0
+            sleep $((10 * i))
+          done
+          exit 1
