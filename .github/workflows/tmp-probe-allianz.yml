@@ -1,0 +1,13 @@
+name: tmp probe allianz (delete before merge)
+on:
+  push:
+    branches: [claude/project-thread-6frnf8]
+    paths: [".github/workflows/tmp-probe-allianz.yml", "tmp/**"]
+jobs:
+  p:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: python tmp/probe_allianz.py
