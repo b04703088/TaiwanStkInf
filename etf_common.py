@@ -115,6 +115,13 @@ def holding(code, name, shares, weight):
             "weight": None if weight is None else round(float(weight), 4)}
 
 
+def announce_days(n=10):
+    """PCF「公告日」查詢用的日期（新到舊）。公告日＝持股基準日的下一個工作天，所以週五的持股掛在下週一、
+    連假前最後一天的持股掛在收假那天。從今天往後 4 天開始往回試，週五晚上、週末也能抓到最新一份
+    （以前從明天開始，週五晚上明天是週六被跳過，整個週末都停在週四的持股）。未來日期查不到會直接略過。"""
+    return recent_days(n + 3, datetime.now(TPE).date() + timedelta(days=4))
+
+
 def recent_days(n=10, start=None):
     """今天（台北）往前 n 天，週末略過。投信的 API 常要求「剛好是公告日」，要逐日往回試。"""
     d = start or datetime.now(TPE).date()

@@ -293,7 +293,7 @@ NOMURA = "https://www.nomurafunds.com.tw/API/ETFAPI/api/Fund/GetFundTradeInfo"
 
 @adapter("nomura")
 def nomura(code, name=""):
-    for d in C.recent_days(10, datetime.now(C.TPE).date() + timedelta(days=1)):
+    for d in C.announce_days(10):
         r = C.http(NOMURA, body={"Type": 1, "Keyword": "", "FundNo": code, "Date": d.isoformat()})
         e = C.find_key(r, "Entries")
         if isinstance(e, list):
@@ -335,7 +335,7 @@ def allianz(code, name=""):
     fno = _allianz["map"].get(code)
     if not fno:
         raise AdapterError(f"allianz {code}: 基金清單找不到這檔")
-    for d in C.recent_days(10, datetime.now(C.TPE).date() + timedelta(days=1)):
+    for d in C.announce_days(10):
         r = _allianz_post("Fund/GetFundTradeInfo", {"Type": 1, "Keyword": "", "FundNo": fno, "Date": d.isoformat()})
         tables = C.find_key(r, "DynamicTableData") or []
         stock = next((t for t in tables if str(t.get("TableTitle", "")).startswith("股票")), None)
@@ -640,7 +640,7 @@ def esun(code, name=""):
     if not fno:
         raise AdapterError(f"esun {code}: 基金清單找不到「{name}」")
     SOURCE_IDS.setdefault("esun", {})[code] = fno
-    for d in C.recent_days(10, datetime.now(C.TPE).date() + timedelta(days=1)):
+    for d in C.announce_days(10):
         r = C.http(ESUN + "GetFundTradeInfo", body={"Type": 1, "Keyword": "", "FundNo": fno, "Date": d.isoformat()})
         e = C.find_key(r, "Entries")
         if not isinstance(e, dict):
