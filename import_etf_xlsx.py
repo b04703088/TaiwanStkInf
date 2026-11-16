@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """把外部整理的 ETF 每日持股 Excel 匯入 data/etf/<代號>/<日期>.csv（補官網查不到的歷史）。
 
-Excel 格式（第一張工作表）：基金碼（'00405A 主動富邦臺灣龍耀'）、日期、標的類型、標的名稱（'3653 健策'）、股數、金額。
+Excel 格式（第一張工作表）：基金碼（'00405A 主動富邦臺灣龍耀'）、日期、標的類型、標的名稱（'3653 健策'）、股數、金額（可省略）。
   · 只取標的類型＝股票；期貨、選擇權略過。
   · 只補「本站最早一份之前」的日期，不覆寫既有資料。
   · 台股代號但名稱是外文、且和行情檔的名稱對不上的列（例：'2360 CLOUDFLARE INC'，海外股被配錯代號）略過。
-  · 權重＝該股金額 ÷ 當日股票部位總金額（不是佔淨值）；沒有金額時留空。
+  · 權重＝該股金額 ÷ 當日股票部位總金額（不是佔淨值）；Excel 沒有金額時用 股數×當日收盤價（data/YYYY/YYYYMMDD.csv）。
 
-用法: python import_etf_xlsx.py 檔案.xlsx [--dry-run]
+用法: python import_etf_xlsx.py 檔案.xlsx [檔案2.xlsx ...] [--dry-run]
 """
 import argparse
 import csv
@@ -32,6 +32,32 @@ def tw_names(data_dir):
         return {r["code"]: r["name"] for r in csv.DictReader(fp)}
 
 
+def closes(data_dir, d):
+    """當日收盤價 {代號: 收盤}。"""
+    f = Path(data_dir) / d[:4] / f"{d.replace('-', '')}.csv"
+    if not f.exists():
+        return {}
+    out = {}
+    with f.open(encoding="utf-8") as fp:
+        for r in csv.DictReader(fp):
+            try:
+                out[r["code"]] = float(r["close"].replace(",", ""))
+            except (ValueError, AttributeError):
+                pass
+    return out
+
+
+def last_close(data_dir, d, code, back=60):
+    """d 之前最近一天的收盤價（停牌股用）。"""
+    files = sorted(p for p in Path(data_dir).glob(f"{int(d[:4]) - 1}/[0-9]*.csv") if p.stem < d.replace("-", ""))
+    files += sorted(p for p in Path(data_dir).glob(f"{d[:4]}/[0-9]*.csv") if p.stem < d.replace("-", ""))
+    for f in reversed(files[-back:]):
+        c = closes(data_dir, f"{f.stem[:4]}-{f.stem[4:6]}-{f.stem[6:]}").get(code)
+        if c:
+            return c
+    return None
+
+
 def _norm(s):
     return re.sub(r"[\s\-*]", "", str(s or "")).upper()
 
@@ -47,17 +73,19 @@ def read_xlsx(path):
         d = r[1].date().isoformat() if hasattr(r[1], "date") else str(r[1])[:10]
         m = re.match(r"^(\S+)\s+(.*)$", str(r[3]).strip())
         code, name = (m.group(1), m.group(2).strip()) if m else (str(r[3]).strip(), "")
-        out[(etf, d)][code] = (name, r[4], r[5])
+        out[(etf, d)][code] = (name, r[4], r[5] if len(r) > 5 else None)
     return out
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("xlsx")
+    ap.add_argument("xlsx", nargs="+")
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
     names = tw_names(ETF_DIR.parent)
-    data = read_xlsx(a.xlsx)
+    data = {}
+    for x in a.xlsx:
+        data.update(read_xlsx(x))
     stats, skipped = defaultdict(list), set()
     first = {}  # 匯入前本站最早一份（先算好，免得剛寫的檔案被當成既有資料）
     for etf in {k[0] for k in data}:
@@ -66,12 +94,17 @@ def main():
     for (etf, d), rows in sorted(data.items()):
         if d >= first[etf]:
             continue
-        hs = []
+        hs, px = [], None
         for code, (name, sh, amt) in rows.items():
             if TW.match(code) and not CJK.search(name) and code in names and _norm(names[code]) != _norm(name):
                 skipped.add((etf, code, name))
                 continue
-            hs.append({"code": code, "name": name, "shares": int(round(float(sh))), "amt": float(amt) if amt else None})
+            sh = int(round(float(sh)))
+            if not amt:
+                px = closes(ETF_DIR.parent, d) if px is None else px
+                c = px.get(code) or last_close(ETF_DIR.parent, d, code)  # 停牌（如減資）用之前最後收盤
+                amt = sh * c if c else None
+            hs.append({"code": code, "name": name, "shares": sh, "amt": float(amt) if amt else None})
         tot = sum(h["amt"] or 0 for h in hs)
         rows_out = [{"code": h["code"], "name": h["name"], "shares": h["shares"],
                      "weight": round(h["amt"] / tot * 100, 4) if tot and h["amt"] else None} for h in hs]
