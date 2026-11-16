@@ -102,7 +102,8 @@
   }
   select.filter{width:auto;}
   .tabs{display:flex; gap:0; border-bottom:1px solid var(--line); margin-top:36px;}
-  .tabs button{background:none; border:none; border-bottom:2px solid transparent; color:var(--text-muted); padding:10px 16px; cursor:pointer; font:inherit; font-size:15px;}
+  .tabs{overflow-x:auto; scrollbar-width:none;}
+  .tabs button{white-space:nowrap; background:none; border:none; border-bottom:2px solid transparent; color:var(--text-muted); padding:10px 16px; cursor:pointer; font:inherit; font-size:15px;}
   .tabs button[aria-pressed="true"]{color:var(--text); border-bottom-color:var(--brass);}
   tr.sub-row td{background:var(--panel-2); font-size:12.5px; color:var(--text-muted);}
   .warn{color:var(--brass);}
