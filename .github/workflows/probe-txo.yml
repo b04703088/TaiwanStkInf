@@ -1,0 +1,11 @@
+name: probe txo
+on:
+  push:
+    branches: [claude/project-thread-w4klgq]
+    paths: [".github/workflows/probe-txo.yml", "probe_txo.py"]
+jobs:
+  p:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python -u probe_txo.py
