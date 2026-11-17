@@ -41,6 +41,8 @@
   .block-head{display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin-bottom:14px; flex-wrap:wrap;}
   .hint{font-size:12.5px; color:var(--text-faint);}
   .up{color:var(--rise);} .down{color:var(--fall);} .flat{color:var(--text-muted);}
+  .lots{font-size:11px; color:var(--text-faint); white-space:nowrap; font-weight:400; font-family:'Noto Sans TC',sans-serif;}
+  @media (max-width:600px){ .lots{display:none;} }
   .faint{color:var(--text-faint);} .muted{color:var(--text-muted);}
 
   .tbl-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius-m);}
@@ -167,6 +169,12 @@ const sint = v => v == null ? "–" : (v > 0 ? "+" : "") + Math.round(v).toLocal
 const cls = v => v == null ? "faint" : v > 0 ? "up" : v < 0 ? "down" : "flat";
 const pct = (v, d = 2) => `<span class="${cls(v)}">${v == null ? "–" : `${v > 0 ? "+" : ""}${(+v).toFixed(d)}%`}</span>`;
 const obj = (cols, rows) => rows.map(r => Object.fromEntries(cols.map((k, i) => [k, r[i]])));
+/* 特法口數明細：一般／小型分開，口數 × 每口張數 */
+const kname = x => x[1] < 1000 ? "小型" : "一般";
+const ztz = sz => (sz / 1000).toLocaleString("zh-TW", {maximumFractionDigits: 3});
+const lots = (r, L) => (r.k || []).filter(x => (L ? x[3] : x[2]) > 0).map(x => `${kname(x)} ${int(L ? x[3] : x[2])} 口×${ztz(x[1])}`).join("＋") || "0 口";
+const lotsLine = (r, L) => `特法${L ? "多" : "空"}單：${(r.k || []).map(x => `${kname(x)}（${esc(x[0])}，每口 ${ztz(x[1])} 張）${int(L ? x[3] : x[2])} 口`).join("＋")}＝<b>${int(L ? r.l10 : r.s10)} 張</b>`;
+const posCell = (r, L, cls = "") => `<td class="n mono${cls}" data-v="${L ? r.l10 : r.s10}">${int(L ? r.l10 : r.s10)}<div class="lots">${lots(r, L)}</div></td>`;
 const sname = r => `<span class="sname"><a href="stock.html#s=${encodeURIComponent(r.code)}">${esc(r.name)}</a><span class="mono">${esc(r.code)}</span></span>`;
 const Watch = window.TideWatch || {list: () => []};
 /* 倍數：≥0.5 標黃粗體、≥0.3 標黃 */
@@ -258,11 +266,11 @@ function render(){
       <th class="n" title="自營商同向買（賣）超的日子，用張數加權，落在同向價差日的比例；括號是同向買（賣）超天數">③ 自營商在同向價差</th>
       <th class="n" title="特法部位和自營商同向累積取小的那個（張）＝兩邊都對得上、最可能是套利部位的量">可能反解量</th>
       <th class="n" title="可能反解量 ÷ 尾盤量（近 5 日均量扣當沖 × 0.3）">反解量 ÷ 尾盤量</th>
-      <th class="n hide-s">特法部位</th><th class="n hide-s">自營商累積</th>
+      <th class="n hide-s" title="十大特法空單（多方看多單），口數換算成現貨張數；下面小字是一般／小型股期各幾口 × 每口張數">特法部位（張）</th><th class="n hide-s">自營商累積</th>
       <th class="n" title="近 5 個交易日平均每天成交量，扣掉現股當沖">5 日均量</th>
       <th class="n" title="5 日均量 × 0.3：收盤前 60 分鐘大約的成交量">尾盤量</th>
       <th class="n">收盤</th><th class="n hide-s">漲跌</th></tr>`;
-    row = r => { const x = rev(r), net = x.L ? r.l10 : r.s10;
+    row = r => { const x = rev(r);
       return `<tr class="click${S.open === r._k ? " on" : ""}" data-code="${esc(r._k)}"><td>${sname(r)}</td>
       <td>${x.L ? '<span class="down">多方・買回</span>' : '<span class="up">空方・賣壓</span>'}</td>
       <td class="n mono" data-v="${x.n}">${x.n === 3 ? `<b class="warn">3／3</b>` : `${x.n}／3`}</td>
@@ -271,7 +279,7 @@ function render(){
       <td class="n mono" data-v="${r.basis ?? ""}">${x.bOk ? bz(r.basis) : `<span class="faint">${r.basis == null ? "–" : (r.basis > 0 ? "+" : "") + r.basis.toFixed(2) + "%"}</span>`}</td>
       <td class="n mono" data-v="${x.bs ?? ""}">${ck(x.c[2], x.bs == null ? "–" : `${x.bs}%<span class="faint">（${x.bn} 天）</span>`)}</td>
       <td class="n mono" data-v="${x.q}">${int(x.q)}</td><td class="n mono" data-v="${x.qr}">${tm(x.qr)}</td>
-      <td class="n mono hide-s">${int(net)}</td><td class="n mono hide-s" data-v="${r.d_cum ?? ""}">${sgn(r.d_cum)}</td>
+      ${posCell(r, x.L, " hide-s")}<td class="n mono hide-s" data-v="${r.d_cum ?? ""}">${sgn(r.d_cum)}</td>
       <td class="n mono">${int(r.v5 / 5)}</td><td class="n mono">${int(r.v5 / 5 * TAIL)}</td>
       <td class="n mono">${num(r.close)}</td><td class="n mono hide-s" data-v="${r.chg ?? ""}">${pct(r.chg)}</td></tr>` + detail(r, x.L); };
   } else if (S.tab === "dealer") {
@@ -288,7 +296,7 @@ function render(){
       ? `逆價差套利（借券／融券賣現貨＋買期貨，常見於除權息季）在結算時要把現貨買回，尾盤偏撐。多空兩邊都很大的多半是對做，看「淨多」比較準。`
       : `正價差套利（買現貨＋空期貨）在結算時要把現貨賣掉，尾盤偏壓。多空兩邊都很大的多半是對做，看「淨空」比較準。`;
     const X = L ? "逆" : "正";
-    head = `<tr><th>股票</th><th class="n">特法${w}單</th><th class="n">${w}單 ÷ 5 日量</th><th class="n">淨${w} ÷ 5 日量</th>
+    head = `<tr><th>股票</th><th class="n" title="十大特法${w}單口數換算成現貨張數；下面小字是一般／小型股期各幾口 × 每口張數（一般 2 張、小型 0.1 張）">特法${w}單（張）</th><th class="n">${w}單 ÷ 5 日量</th><th class="n">淨${w} ÷ 5 日量</th>
       <th class="n" title="最新一天：（期貨收盤 − 現貨收盤）÷ 現貨收盤">價差</th>
       <th class="n" title="自營商${L ? "賣超" : "買超"}的張數裡，發生在${X}價差日的比例">自營${L ? "賣" : "買"}在${X}價差</th>
       <th class="n" title="特法${w}單增加的張數裡，發生在${X}價差日的比例">特法加${w}在${X}價差</th><th>判定</th>
@@ -297,7 +305,7 @@ function render(){
       <th class="n hide-s" title="這個結算週期裡${X}價差的天數 ／ 有價差資料的天數">${X}價差日</th>
       <th class="n" title="近 5 個交易日成交量合計，扣掉現股當沖">近 5 日量</th><th class="n hide-s">近月未平倉</th><th class="n hide-s">佔未平倉</th>
       <th class="n">收盤</th><th class="n hide-s">漲跌</th></tr>`;
-    row = r => `<tr class="click${S.open === r.code ? " on" : ""}" data-code="${esc(r.code)}"><td>${sname(r)}</td><td class="n mono">${int(pos(r))}</td>
+    row = r => `<tr class="click${S.open === r.code ? " on" : ""}" data-code="${esc(r.code)}"><td>${sname(r)}</td>${posCell(r, L)}
       <td class="n mono" data-v="${rr(r)}">${mult(rr(r))}</td><td class="n mono" data-v="${nr(r)}">${mult(nr(r))}</td>
       <td class="n mono" data-v="${r.basis ?? ""}">${bz(r.basis)}</td>
       ${(a => `<td class="n mono" data-v="${a.d ?? ""}">${shareCell(a.d)}</td><td class="n mono" data-v="${a.f ?? ""}">${shareCell(a.f)}</td><td>${arbTag(a)}</td>`)(arb(r, L))}
@@ -312,7 +320,7 @@ function render(){
   $("body").innerHTML = rs.slice(0, S.limit).map(row).join("") || `<tr><td colspan="17" class="empty">沒有符合條件的股票</td></tr>`;
   $("more").hidden = rs.length <= S.limit;
   $("note").innerHTML = `<b>十大特法</b>：期交所「期貨大額交易人未沖銷部位」裡，近月合約前十大交易人中屬於特定法人（自營商、外資、投信等）的多／空單。
-    同一檔的一般股期（每口 2,000 股）、小型股期（每口 100 股）合併；ETF 期貨依契約股數。全部換算成現貨張數。除權息後的調整型契約（代號後面多個 1）期交所已併在一起，但每口股數不同，這裡用標準股數換算，會有小誤差。
+    同一檔的一般股期（每口 2,000 股）、小型股期（每口 100 股）合併；ETF 期貨依契約股數。全部換算成現貨張數（表格大字是張數，下面小字是各契約口數 × 每口張數，例如「一般 225 口×2＋小型 3,279 口×0.1」＝778 張；點一列看完整算式）。除權息後的調整型契約（代號後面多個 1）期交所已併在一起，但每口股數不同，這裡用標準股數換算，會有小誤差。
     <b>÷ 5 日量</b>＝部位張數 ÷ 近 5 個交易日成交量合計（扣現股當沖，${D.v5_days.map(md).join("、")}）。<span class="warn">≥0.3 標黃、≥0.5 粗體</span>：結算時要平的現貨約當近一週真實換手的三成、一半以上。
     <b>週期增減</b>：近月特法部位從 ${md(D.base_day)} 到現在的變化，正數＝結算前還在建倉。
     <b>自營商累積</b>：上次結算日（${md(D.last_settle)}）隔天起累加的自營商買賣超（自行＋避險合計，拆不出套利部位）。
@@ -330,6 +338,7 @@ function detail(r, L = S.tab === "long"){
   const hl = x => x.basis == null ? "" : (L ? x.basis < 0 : x.basis > 0) ? "" : ' style="opacity:.55"';
   return `<tr class="sub-row"><td colspan="17" style="padding:10px 12px">
     <div style="position:sticky; left:12px; display:inline-block; max-width:calc(100vw - 72px); white-space:normal">
+    <div style="margin-bottom:2px">${lotsLine(r, false)}</div><div style="margin-bottom:6px">${lotsLine(r, true)}</div>
     <div class="faint" style="margin-bottom:4px">${esc(r.name)}：這個結算週期每天（張）。${L ? "逆" : "正"}價差的日子正常顯示，其他日子變淡</div>
     <table data-nosort style="width:auto; font-size:12.5px"><thead><tr><th>日期</th><th class="n">價差</th><th class="n">自營商買賣超</th><th class="n">特法空單增減</th><th class="n">特法多單增減</th></tr></thead>
     <tbody>${rows.map(x => `<tr${hl(x)}><td class="mono">${md(x.date)}</td><td class="n mono">${bz(x.basis)}</td><td class="n mono">${sgn(x.d_net)}</td><td class="n mono">${sgn(x.s_chg)}</td><td class="n mono">${sgn(x.l_chg)}</td></tr>`).join("")}</tbody></table>
