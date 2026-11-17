@@ -130,8 +130,8 @@
   </section>
 
   <div class="tabs" id="tabs">
-    <button data-v="rev" aria-pressed="true">可能反解</button>
-    <button data-v="pos" aria-pressed="false">多空部位</button>
+    <button data-v="pos" aria-pressed="true">多空部位</button>
+    <button data-v="rev" aria-pressed="false">可能反解</button>
     <button data-v="dealer" aria-pressed="false">自營商累積</button>
   </div>
 
@@ -173,9 +173,12 @@ const obj = (cols, rows) => rows.map(r => Object.fromEntries(cols.map((k, i) => 
 /* 特法口數明細：一般／小型分開，口數 × 每口張數 */
 const kname = x => x[1] < 1000 ? "小型" : "一般";
 const ztz = sz => (sz / 1000).toLocaleString("zh-TW", {maximumFractionDigits: 3});
-const lots = (r, L) => (r.k || []).filter(x => (L ? x[3] : x[2]) > 0).map(x => `${kname(x)} ${int(L ? x[3] : x[2])} 口×${ztz(x[1])}`).join("＋") || "0 口";
-const lotsLine = (r, L) => `特法${L ? "多" : "空"}單：${(r.k || []).map(x => `${kname(x)}（${esc(x[0])}，每口 ${ztz(x[1])} 張）${int(L ? x[3] : x[2])} 口`).join("＋")}＝<b>${int(L ? r.l10 : r.s10)} 張</b>`;
-const posCell = (r, L, cls = "") => `<td class="n mono${cls}" data-v="${L ? r.l10 : r.s10}">${int(L ? r.l10 : r.s10)}<div class="lots">${lots(r, L)}</div></td>`;
+/* L：false＝特法空單、true＝特法多單、"oi"＝全市場未平倉 */
+const kv = (x, L) => L === "oi" ? x[4] : L ? x[3] : x[2];
+const kt = (r, L) => L === "oi" ? r.oi : L ? r.l10 : r.s10;
+const lots = (r, L) => (r.k || []).filter(x => kv(x, L) > 0).map(x => `${kname(x)} ${int(kv(x, L))} 口×${ztz(x[1])}`).join("＋") || "0 口";
+const lotsLine = (r, L) => `${L === "oi" ? "市場總未平倉" : `特法${L ? "多" : "空"}單`}：${(r.k || []).map(x => `${kname(x)}（${esc(x[0])}，每口 ${ztz(x[1])} 張）${x[4] == null && L === "oi" ? "–" : int(kv(x, L))} 口`).join("＋")}＝<b>${int(kt(r, L))} 張</b>`;
+const posCell = (r, L, cls = "") => `<td class="n mono${cls}" data-v="${kt(r, L)}">${int(kt(r, L))}<div class="lots">${lots(r, L)}</div></td>`;
 const sname = r => `<span class="sname"><a href="stock.html#s=${encodeURIComponent(r.code)}">${esc(r.name)}</a><span class="mono">${esc(r.code)}</span></span>`;
 const Watch = window.TideWatch || {list: () => []};
 /* 倍數：≥0.5 標黃粗體、≥0.3 標黃 */
@@ -183,7 +186,7 @@ const mult = v => v == null ? "–" : v >= 0.5 ? `<b class="warn">${v.toFixed(2)
 const sgn = v => v == null ? "–" : `<span class="${cls(v)}">${sint(v)}</span>`;
 const md = d => d ? d.slice(5).replace("-", "/") : "–";
 
-const S = {tab: "rev", den: "v5", dir: "all", min: 2, thr: 1, noetf: true, both: false, mine: false, q: "", limit: 100, open: null};
+const S = {tab: "pos", den: "v5", dir: "all", min: 2, thr: 1, noetf: true, both: false, mine: false, q: "", limit: 100, open: null};
 let D, R = [];
 
 /* 同向：空方＝特法淨空 + 自營商累積買超（現貨多、期貨空）；多方＝特法淨多 + 自營商累積賣超 */
@@ -298,7 +301,7 @@ function render(){
     const pair = (v, r) => { const x = rt(v, r); return `<td class="n mono" data-v="${x ?? ""}">${mx(x)}</td>`; };
     $("hint").innerHTML = `四個數字各自換算成現貨張數，再各自 ÷ ${T ? "尾盤量（近 5 日均量扣當沖 × 0.3）" : "近 5 日成交量合計（扣當沖）"}，不扣對向、不做判斷。<b>市場總未平倉</b>＝近月股期全市場未沖銷口數（一般＋小型）換算張數；<b>特法多單／空單</b>＝十大特定法人多、空未平倉，下面小字是口數 × 每口張數；<b>期間自營買賣超</b>＝${md(D.cycle_start)} 到 ${md(D.date)}（上次結算 ${md(D.last_settle)} 隔天起）自營商自行＋避險累積買賣超。點一列看每天明細。`;
     head = `<tr><th>股票</th>
-      <th class="n" title="近月股票期貨全市場未沖銷口數（一般＋小型）換算現貨張數">市場總未平倉（張）</th><th class="n">總未平倉 ÷ ${dl}</th>
+      <th class="n" title="近月股票期貨全市場未沖銷口數（一般＋小型）換算現貨張數；小字是一般／小型各幾口 × 每口張數">市場總未平倉（張）</th><th class="n">總未平倉 ÷ ${dl}</th>
       <th class="n" title="十大特法多單口數換算現貨張數；小字是一般／小型各幾口 × 每口張數">特法多單（張）</th><th class="n">多單 ÷ ${dl}</th>
       <th class="n" title="十大特法空單口數換算現貨張數；小字是一般／小型各幾口 × 每口張數">特法空單（張）</th><th class="n">空單 ÷ ${dl}</th>
       <th class="n" title="${md(D.cycle_start)} 到 ${md(D.date)} 自營商（自行＋避險）累積買賣超，正＝買超">期間自營買賣超（張）</th><th class="n">自營 ÷ ${dl}</th>
@@ -306,7 +309,7 @@ function render(){
       <th class="n" title="${T ? "近 5 日均量（扣當沖）× 0.3" : "近 5 個交易日成交量合計，扣掉現股當沖"}">${dl}</th>
       <th class="n">收盤</th><th class="n hide-s">漲跌</th></tr>`;
     row = r => `<tr class="click${S.open === r.code ? " on" : ""}" data-code="${esc(r.code)}"><td>${sname(r)}</td>
-      <td class="n mono">${int(r.oi)}</td>${pair(r.oi, r)}
+      ${posCell(r, "oi")}${pair(r.oi, r)}
       ${posCell(r, true)}${pair(r.l10, r)}
       ${posCell(r, false)}${pair(r.s10, r)}
       <td class="n mono" data-v="${r.d_cum ?? ""}">${sgn(r.d_cum)}</td>${pair(r.d_cum, r)}
@@ -336,7 +339,7 @@ function detail(r, L = false){
   const hl = x => x.basis == null || L == null ? "" : (L ? x.basis < 0 : x.basis > 0) ? "" : ' style="opacity:.55"';
   return `<tr class="sub-row"><td colspan="17" style="padding:10px 12px">
     <div style="position:sticky; left:12px; display:inline-block; max-width:calc(100vw - 72px); white-space:normal">
-    <div style="margin-bottom:2px">${lotsLine(r, false)}</div><div style="margin-bottom:6px">${lotsLine(r, true)}</div>
+    <div style="margin-bottom:2px">${lotsLine(r, "oi")}</div><div style="margin-bottom:2px">${lotsLine(r, false)}</div><div style="margin-bottom:6px">${lotsLine(r, true)}</div>
     <div class="faint" style="margin-bottom:4px">${esc(r.name)}：這個結算週期每天（張）。${L == null ? "" : `${L ? "逆" : "正"}價差的日子正常顯示，其他日子變淡`}</div>
     <table data-nosort style="width:auto; font-size:12.5px"><thead><tr><th>日期</th><th class="n">價差</th><th class="n">自營商買賣超</th><th class="n">特法空單增減</th><th class="n">特法多單增減</th></tr></thead>
     <tbody>${rows.map(x => `<tr${hl(x)}><td class="mono">${md(x.date)}</td><td class="n mono">${bz(x.basis)}</td><td class="n mono">${sgn(x.d_net)}</td><td class="n mono">${sgn(x.s_chg)}</td><td class="n mono">${sgn(x.l_chg)}</td></tr>`).join("")}</tbody></table>
