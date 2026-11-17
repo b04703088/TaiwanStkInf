@@ -36,7 +36,7 @@ import futures_site
 COLS = ["code", "name", "market", "etf", "close", "chg", "v5", "oi",
         "s10", "l10", "s_r", "ns_r", "l_r", "nl_r", "s_d", "l_d", "d_cum", "d_r",
         "basis", "pos_days", "neg_days", "d_buy_pos", "d_buy", "d_sell_neg", "d_sell", "s_add_pos", "s_add", "l_add_neg", "l_add", "k"]
-# k＝各契約口數明細 [[期貨代號, 每口股數, 特法空單口數, 特法多單口數], ...]（一般、小型分開，網頁標「口數 × 每口張數」）
+# k＝各契約口數明細 [[期貨代號, 每口股數, 特法空單口數, 特法多單口數, 全市場未平倉口數], ...]（一般、小型分開，網頁標「口數 × 每口張數」）
 # 每檔每天的明細（點列展開）：日期、價差%、自營商買賣超（張）、特法空單增減、特法多單增減
 DCOLS = ["date", "basis", "d_net", "s_chg", "l_chg"]
 
@@ -105,7 +105,7 @@ def build(data_dir, holidays=()):
             m = lst[r["product"]]
             size = _f(m["size"]) or 2000
             o = out.setdefault(m["code"], {"name": m["name"], "s": 0.0, "l": 0.0, "oi": 0.0, "k": []})
-            o["k"].append([r["product"], int(size), int(_f(r["top10_short"]) or 0), int(_f(r["top10_long"]) or 0)])
+            o["k"].append([r["product"], int(size), int(_f(r["top10_short"]) or 0), int(_f(r["top10_long"]) or 0), int(_f(r["oi"]) or 0)])
             o["s"] += (_f(r["top10_short"]) or 0) * size
             o["l"] += (_f(r["top10_long"]) or 0) * size
             o["oi"] += (_f(r["oi"]) or 0) * size
