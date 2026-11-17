@@ -129,23 +129,17 @@
     <div class="stats" id="stats"></div>
   </section>
 
-  <div class="tabs" id="tabs">
-    <button data-v="pos" aria-pressed="true">多空部位</button>
-    <button data-v="rev" aria-pressed="false">可能反解</button>
-    <button data-v="dealer" aria-pressed="false">自營商累積</button>
-  </div>
 
   <section class="block" style="margin-top:20px">
     <div class="toolbar" style="margin:0 0 12px">
       <div id="liq"></div>
-      <div class="chips" id="revd" hidden>
+      <div class="chips" id="revd">
         <button data-d="all" aria-pressed="true">多空都看</button><button data-d="S" aria-pressed="false">只看空方</button><button data-d="L" aria-pressed="false">只看多方</button>
       </div>
-      <div class="chips" id="revf" hidden>
+      <div class="chips" id="revf">
         <button data-n="3" aria-pressed="false">3 項全中</button><button data-n="2" aria-pressed="true">中 2 項以上</button><button data-n="0" aria-pressed="false">全部</button>
       </div>
-      <label class="chk-in" id="thr-l" hidden>倍數門檻 <select class="filter" id="thr"><option value="0.5">≥ 0.5×</option><option value="1" selected>≥ 1×</option><option value="2">≥ 2×</option><option value="3">≥ 3×</option></select></label>
-      <label class="chk-in" id="den-l" hidden>倍數分母 <select class="filter" id="den"><option value="v5" selected>近 5 日量</option><option value="tail">尾盤量</option></select></label>
+      <label class="chk-in" id="thr-l">倍數門檻 <select class="filter" id="thr"><option value="0.5">≥ 0.5×</option><option value="1" selected>≥ 1×</option><option value="2">≥ 2×</option><option value="3">≥ 3×</option></select></label>
       <label class="chk-in"><input type="checkbox" id="noetf" checked> 排除 ETF</label>
       <label class="chk-in" id="both-l"><input type="checkbox" id="both"> 只看像套利</label>
       <label class="chk-in"><input type="checkbox" id="mine"> 只看自選</label>
@@ -186,7 +180,7 @@ const mult = v => v == null ? "–" : v >= 0.5 ? `<b class="warn">${v.toFixed(2)
 const sgn = v => v == null ? "–" : `<span class="${cls(v)}">${sint(v)}</span>`;
 const md = d => d ? d.slice(5).replace("-", "/") : "–";
 
-const S = {tab: "pos", den: "v5", dir: "all", min: 2, thr: 1, noetf: true, both: false, mine: false, q: "", limit: 100, open: null};
+const S = { dir: "all", min: 2, thr: 1, noetf: true, both: false, mine: false, q: "", limit: 100, open: null};
 let D, R = [];
 
 /* 同向：空方＝特法淨空 + 自營商累積買超（現貨多、期貨空）；多方＝特法淨多 + 自營商累積賣超 */
@@ -221,7 +215,9 @@ const rev = r => {
   const bOk = r.basis != null && (L ? r.basis < 0 : r.basis > 0);
   const c = [fr >= t, dr != null && dr >= t, bOk && dc > 0 && bs != null && bs >= 70];  /* 自營商累積方向要對，才算跟套利有關 */
   const q = Math.max(0, Math.min(net, dc));  /* 特法部位和自營商同向累積重疊的張數＝最可能是套利、結算要反解的量 */
-  return {L, fr, dr, a, bs, bn, bOk, c, n: c.filter(Boolean).length, q, qr: r.v5 ? q / (r.v5 / 5 * TAIL) : 0};
+  const tl = r.v5 ? r.v5 / 5 * TAIL : 0;
+  const u = Math.max(0, Math.min(r.oi || 0, dc));  /* 上限反解量：市場總未平倉和自營商同向累積取小＝套利最多可能反解的量 */
+  return {L, fr, dr, a, bs, bn, bOk, c, n: c.filter(Boolean).length, q, qr: tl ? q / tl : 0, u, ur: tl ? u / tl : 0, or: tl ? (r.oi || 0) / tl : 0};
 };
 const tm = v => v >= S.thr ? `<b class="warn">${v.toFixed(1)}×</b>` : v >= 1 ? `<span class="warn">${v.toFixed(1)}×</span>` : `${v.toFixed(1)}×`;
 const ck = (ok, html) => ok ? `<span class="warn">✓</span> ${html}` : `<span class="faint">${html}</span>`;
@@ -242,34 +238,32 @@ function stats(){
 const split = rs => rs.flatMap(r => [{...r, _L: false, _k: r.code + ":S"}, {...r, _L: true, _k: r.code + ":L"}]);
 function rowsFor(){
   const mine = new Set(Watch.list()), q = S.q.trim().toLowerCase();
-  const k = {rev: r => { const x = rev(r); return -(x.n * 1000 + x.qr); }, pos: r => -Math.max(r.s_r, r.l_r), dealer: r => -(r.d_r ?? -1e9)}[S.tab];
-  const ok = r => S.tab === "rev" ? rev(r).c[2] : S.tab === "dealer" ? arb(r, false).lv === 2 || arb(r, true).lv === 2 : true;
-  return (S.tab === "rev" ? split(R).filter(r => S.dir === "all" || (S.dir === "L") === r._L) : R).filter(r => (!S.noetf || !r.etf || q) && (q || TideLiq.pass(r.code)) && (!S.mine || mine.has(r.code)) && (S.tab !== "rev" || q || rev(r).n >= S.min) && (!S.both || ok(r))
+  const k = r => { const x = rev(r); return -(x.n * 1e6 + x.ur); };
+  const ok = r => rev(r).c[2];
+  return split(R).filter(r => S.dir === "all" || (S.dir === "L") === r._L).filter(r => (!S.noetf || !r.etf || q) && (q || TideLiq.pass(r.code)) && (!S.mine || mine.has(r.code)) && (q || rev(r).n >= S.min) && (!S.both || ok(r))
       && (!q || r.code.toLowerCase().includes(q) || r.name.toLowerCase().includes(q)))
     .sort((a, b) => k(a) - k(b));
 }
 
 function render(){
-  document.querySelectorAll("#tabs button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === S.tab));
-  $("revf").hidden = $("revd").hidden = $("thr-l").hidden = S.tab !== "rev";
-  $("den-l").hidden = S.tab !== "pos"; $("both-l").hidden = S.tab === "pos";
   document.querySelectorAll("#revd button").forEach(b => b.setAttribute("aria-pressed", b.dataset.d === S.dir));
   document.querySelectorAll("#revf button").forEach(b => b.setAttribute("aria-pressed", +b.dataset.n === S.min));
   const rs = rowsFor();
-  const base = r => `<td>${sname(r)}</td><td class="n mono">${num(r.close)}</td><td class="n mono hide-s" data-v="${r.chg ?? ""}">${pct(r.chg)}</td>
-    <td class="n mono">${int(r.v5)}</td>`;
-  const baseH = `<th>股票</th><th class="n">收盤</th><th class="n hide-s">漲跌</th><th class="n" title="近 5 個交易日成交量合計，扣掉現股當沖">近 5 日量</th>`;
   let head, row;
-  if (S.tab === "rev") {
-    $("hint").innerHTML = `三個條件：<b>①</b> 十大特法空單（多方看多單）÷ 尾盤量 ≥ ${S.thr}×；<b>②</b> 自營商從上次結算（${md(D.last_settle)}）隔天累積的同向買賣超 ÷ 尾盤量 ≥ ${S.thr}×（空方看買超、多方看賣超）；<b>③</b> 今天（${md(D.date)}）有同向價差，自營商累積方向對，而且自營商同向買（賣）超用張數加權有 ≥70% 落在同向價差日。多方、空方分開列，不扣對向部位：空方＝特法空單、正價差套利、結算日賣現貨；多方＝特法多單、逆價差套利、結算日買回。同一檔兩邊都可能上榜。先排中幾項，再排「可能反解量 ÷ 尾盤量」。<br><b>尾盤量</b>＝近 5 日均量（成交量 − 當沖）× 0.3：結算價取收盤前 60 分鐘均價，只有這段時間會反解，抓一天量的三成。1× 就是部位等於一個尾盤的量。<br><b>價差</b>：③ 看兩件事，最新一天（${md(D.date)}）的價差方向，以及週期內（${md(D.cycle_start)} 起）每天的價差，用自營商買（賣）超張數加權，大買賣超的日子權重大。點一列可看每天價差。`;
+  {
+    $("hint").innerHTML = `三個條件：<b>①</b> 十大特法空單（多方看多單）÷ 尾盤量 ≥ ${S.thr}×；<b>②</b> 自營商從上次結算（${md(D.last_settle)}）隔天累積的同向買賣超 ÷ 尾盤量 ≥ ${S.thr}×（空方看買超、多方看賣超）；<b>③</b> 今天（${md(D.date)}）有同向價差，自營商累積方向對，而且自營商同向買（賣）超用張數加權有 ≥70% 落在同向價差日。多方、空方分開列，不扣對向部位：空方＝特法空單、正價差套利、結算日賣現貨；多方＝特法多單、逆價差套利、結算日買回。同一檔兩邊都可能上榜。先排中幾項，再排「上限反解量 ÷ 尾盤量」。<br><b>市場總未平倉</b>＝近月股期全市場未沖銷（一般＋小型，小字是口數 × 每口張數），是套利部位的總上限；<b>上限反解量</b>＝市場總未平倉和自營商同向累積取小的那個，結算最多可能反解這麼多；<b>可能反解量</b>＝改用十大特法部位算的保守版。<br><b>尾盤量</b>＝近 5 日均量（成交量 − 當沖）× 0.3：結算價取收盤前 60 分鐘均價，只有這段時間會反解，抓一天量的三成。1× 就是部位等於一個尾盤的量。<br><b>價差</b>：③ 看兩件事，最新一天（${md(D.date)}）的價差方向，以及週期內（${md(D.cycle_start)} 起）每天的價差，用自營商買（賣）超張數加權，大買賣超的日子權重大。點一列可看每天價差。`;
     head = `<tr><th>股票</th><th>方向</th><th class="n">中幾項</th>
+      <th class="n" title="近月股票期貨全市場未沖銷口數（一般＋小型）換算現貨張數；小字是一般／小型各幾口 × 每口張數">市場總未平倉（張）</th>
+      <th class="n" title="市場總未平倉 ÷ 尾盤量（近 5 日均量扣當沖 × 0.3）">總未平倉 ÷ 尾盤量</th>
+      <th class="n" title="市場總未平倉和自營商同向累積（空方看買超、多方看賣超）取小的那個（張）＝結算最多可能反解的量">上限反解量</th>
+      <th class="n" title="上限反解量 ÷ 尾盤量（近 5 日均量扣當沖 × 0.3）">上限 ÷ 尾盤量</th>
       <th class="n" title="十大特法空單（多方看多單）÷ 尾盤量（近 5 日均量扣當沖 × 0.3）">① 特法部位 ÷ 尾盤量</th>
       <th class="n" title="自營商從上次結算隔天累積的買賣超，空方看買超、多方看賣超，÷ 尾盤量（近 5 日均量扣當沖 × 0.3）">② 自營商累積 ÷ 尾盤量</th>
       <th class="n" title="最新一天：（期貨收盤 − 現貨收盤）÷ 現貨收盤">③ 今天價差</th>
       <th class="n" title="自營商同向買（賣）超的日子，用張數加權，落在同向價差日的比例；括號是同向買（賣）超天數">③ 自營商在同向價差</th>
       <th class="n" title="特法部位和自營商同向累積取小的那個（張）＝兩邊都對得上、最可能是套利部位的量">可能反解量</th>
       <th class="n" title="可能反解量 ÷ 尾盤量（近 5 日均量扣當沖 × 0.3）">反解量 ÷ 尾盤量</th>
-      <th class="n hide-s" title="十大特法空單（多方看多單），口數換算成現貨張數；下面小字是一般／小型股期各幾口 × 每口張數">特法部位（張）</th><th class="n hide-s">自營商累積</th>
+      <th class="n" title="十大特法空單（多方看多單），口數換算成現貨張數；下面小字是一般／小型股期各幾口 × 每口張數">特法部位（張）</th><th class="n">自營商累積</th>
       <th class="n" title="近 5 個交易日平均每天成交量，扣掉現股當沖">5 日均量</th>
       <th class="n" title="5 日均量 × 0.3：收盤前 60 分鐘大約的成交量">尾盤量</th>
       <th class="n">收盤</th><th class="n hide-s">漲跌</th></tr>`;
@@ -277,45 +271,16 @@ function render(){
       return `<tr class="click${S.open === r._k ? " on" : ""}" data-code="${esc(r._k)}"><td>${sname(r)}</td>
       <td>${x.L ? '<span class="down">多方・買回</span>' : '<span class="up">空方・賣壓</span>'}</td>
       <td class="n mono" data-v="${x.n}">${x.n === 3 ? `<b class="warn">3／3</b>` : `${x.n}／3`}</td>
+      ${posCell(r, "oi")}<td class="n mono" data-v="${x.or}">${tm(x.or)}</td>
+      <td class="n mono" data-v="${x.u}"><b>${int(x.u)}</b></td><td class="n mono" data-v="${x.ur}">${tm(x.ur)}</td>
       <td class="n mono" data-v="${x.fr}">${ck(x.c[0], `${x.fr.toFixed(1)}×`)}</td>
       <td class="n mono" data-v="${x.dr ?? ""}">${ck(x.c[1], x.dr == null ? "–" : `${x.dr.toFixed(1)}×`)}</td>
       <td class="n mono" data-v="${r.basis ?? ""}">${x.bOk ? bz(r.basis) : `<span class="faint">${r.basis == null ? "–" : (r.basis > 0 ? "+" : "") + r.basis.toFixed(2) + "%"}</span>`}</td>
       <td class="n mono" data-v="${x.bs ?? ""}">${ck(x.c[2], x.bs == null ? "–" : `${x.bs}%<span class="faint">（${x.bn} 天）</span>`)}</td>
       <td class="n mono" data-v="${x.q}">${int(x.q)}</td><td class="n mono" data-v="${x.qr}">${tm(x.qr)}</td>
-      ${posCell(r, x.L, " hide-s")}<td class="n mono hide-s" data-v="${r.d_cum ?? ""}">${sgn(r.d_cum)}</td>
+      ${posCell(r, x.L)}<td class="n mono" data-v="${r.d_cum ?? ""}">${sgn(r.d_cum)}</td>
       <td class="n mono">${int(r.v5 / 5)}</td><td class="n mono">${int(r.v5 / 5 * TAIL)}</td>
       <td class="n mono">${num(r.close)}</td><td class="n mono hide-s" data-v="${r.chg ?? ""}">${pct(r.chg)}</td></tr>` + detail(r, x.L); };
-  } else if (S.tab === "dealer") {
-    $("hint").innerHTML = `自營商（自行＋避險）從 ${md(D.cycle_start)} 累積到 ${md(D.date)} 的買賣超（張）÷ 近 5 日量。正數＝現貨累積買超，配特法淨空像正價差套利；負數配特法淨多像逆價差套利。點「自營商 ÷ 5 日量」標題可反過來看賣超最多的。`;
-    head = `<tr>${baseH}<th class="n">自營商累積</th><th class="n">自營商 ÷ 5 日量</th><th class="n">特法淨空 ÷ 5 日量</th><th class="n">特法淨多 ÷ 5 日量</th><th class="n">價差</th><th>判定</th></tr>`;
-    row = r => `<tr class="click${S.open === r.code ? " on" : ""}" data-code="${esc(r.code)}">${base(r)}<td class="n mono" data-v="${r.d_cum ?? ""}">${sgn(r.d_cum)}</td><td class="n mono" data-v="${r.d_r ?? ""}">${mult(r.d_r)}</td>
-      <td class="n mono" data-v="${r.ns_r}">${mult(r.ns_r)}</td><td class="n mono" data-v="${r.nl_r}">${mult(r.nl_r)}</td>
-      <td class="n mono" data-v="${r.basis ?? ""}">${bz(r.basis)}</td>
-      <td>${arb(r, false).lv === 2 ? '<span class="tag ath">空方套利</span>' : arb(r, true).lv === 2 ? '<span class="tag">多方套利</span>' : ""}</td></tr>` + detail(r);
-  } else {
-    /* 多空部位：市場總未平倉、特法多單、特法空單、期間自營買賣超，各自除以同一個分母，不做判斷 */
-    const T = S.den === "tail", dn = r => r.v5 ? (T ? r.v5 / 5 * TAIL : r.v5) : null;
-    const dl = T ? "尾盤量" : "5 日量";
-    const rt = (v, r) => { const d = dn(r); return v == null || !d ? null : v / d; };
-    const mx = v => v == null ? "–" : T ? tm(v) : mult(v);
-    const pair = (v, r) => { const x = rt(v, r); return `<td class="n mono" data-v="${x ?? ""}">${mx(x)}</td>`; };
-    $("hint").innerHTML = `四個數字各自換算成現貨張數，再各自 ÷ ${T ? "尾盤量（近 5 日均量扣當沖 × 0.3）" : "近 5 日成交量合計（扣當沖）"}，不扣對向、不做判斷。<b>市場總未平倉</b>＝近月股期全市場未沖銷口數（一般＋小型）換算張數；<b>特法多單／空單</b>＝十大特定法人多、空未平倉，下面小字是口數 × 每口張數；<b>期間自營買賣超</b>＝${md(D.cycle_start)} 到 ${md(D.date)}（上次結算 ${md(D.last_settle)} 隔天起）自營商自行＋避險累積買賣超。點一列看每天明細。`;
-    head = `<tr><th>股票</th>
-      <th class="n" title="近月股票期貨全市場未沖銷口數（一般＋小型）換算現貨張數；小字是一般／小型各幾口 × 每口張數">市場總未平倉（張）</th><th class="n">總未平倉 ÷ ${dl}</th>
-      <th class="n" title="十大特法多單口數換算現貨張數；小字是一般／小型各幾口 × 每口張數">特法多單（張）</th><th class="n">多單 ÷ ${dl}</th>
-      <th class="n" title="十大特法空單口數換算現貨張數；小字是一般／小型各幾口 × 每口張數">特法空單（張）</th><th class="n">空單 ÷ ${dl}</th>
-      <th class="n" title="${md(D.cycle_start)} 到 ${md(D.date)} 自營商（自行＋避險）累積買賣超，正＝買超">期間自營買賣超（張）</th><th class="n">自營 ÷ ${dl}</th>
-      <th class="n" title="最新一天：（期貨收盤 − 現貨收盤）÷ 現貨收盤">價差</th>
-      <th class="n" title="${T ? "近 5 日均量（扣當沖）× 0.3" : "近 5 個交易日成交量合計，扣掉現股當沖"}">${dl}</th>
-      <th class="n">收盤</th><th class="n hide-s">漲跌</th></tr>`;
-    row = r => `<tr class="click${S.open === r.code ? " on" : ""}" data-code="${esc(r.code)}"><td>${sname(r)}</td>
-      ${posCell(r, "oi")}${pair(r.oi, r)}
-      ${posCell(r, true)}${pair(r.l10, r)}
-      ${posCell(r, false)}${pair(r.s10, r)}
-      <td class="n mono" data-v="${r.d_cum ?? ""}">${sgn(r.d_cum)}</td>${pair(r.d_cum, r)}
-      <td class="n mono" data-v="${r.basis ?? ""}">${bz(r.basis)}</td>
-      <td class="n mono">${int(dn(r))}</td>
-      <td class="n mono">${num(r.close)}</td><td class="n mono hide-s" data-v="${r.chg ?? ""}">${pct(r.chg)}</td></tr>` + detail(r, null);
   }
   $("head").innerHTML = head;
   $("body").innerHTML = rs.slice(0, S.limit).map(row).join("") || `<tr><td colspan="17" class="empty">沒有符合條件的股票</td></tr>`;
@@ -351,15 +316,11 @@ async function init(){
   if (!D) { $("sub").textContent = "資料載入失敗"; return; }
   R = obj(D.cols, D.rows);
   const h = new URLSearchParams(location.hash.slice(1));
-  const t0 = h.get("t") === "short" || h.get("t") === "long" ? "pos" : h.get("t");  /* 舊連結：空方／多方分頁已合併 */
-  if (["rev", "pos", "dealer"].includes(t0)) S.tab = t0;
   if (h.get("s")) { S.q = h.get("s"); $("q").value = S.q; }
   stats(); render();
-  $("tabs").onclick = e => { const b = e.target.closest("button"); if (!b) return; S.tab = b.dataset.v; S.limit = 100; history.replaceState(null, "", "#t=" + S.tab); render(); };
   $("revd").onclick = e => { const b = e.target.closest("button"); if (!b) return; S.dir = b.dataset.d; S.limit = 100; render(); };
   $("revf").onclick = e => { const b = e.target.closest("button"); if (!b) return; S.min = +b.dataset.n; S.limit = 100; render(); };
   $("thr").onchange = e => { S.thr = +e.target.value; S.limit = 100; stats(); render(); };
-  $("den").onchange = e => { S.den = e.target.value; render(); };
   $("noetf").onchange = e => { S.noetf = e.target.checked; render(); };
   TideLiq.mount("liq", () => { S.limit = 100; render(); });
   $("both").onchange = e => { S.both = e.target.checked; render(); };
