@@ -626,9 +626,87 @@
   var isChild = function (tr) {
     return /(^|\s)(sub-row|detail|child)(\s|$)/.test(tr.className) || (tr.cells.length === 1 && tr.cells[0].colSpan > 1);
   };
+  // 有「顯示更多」的表：排序時先把頁面自己的「顯示更多」按到底（全部列都進表格），排完只顯示頁面原本的前 N 列，
+  // 下面換成共用的「顯示更多」接著往下開。這樣排的是全部資料，不是只有畫面上那幾列。
+  var LIMS = {}, TPL = {};
+  // 頁面按「顯示更多」時可能整張表重畫（換成新的 <table>），用 sortKey 找回同一張表
+  var tableByKey = function (key) {
+    var p = key.lastIndexOf(":"), id = key.slice(0, p), i = +key.slice(p + 1);
+    var a = id ? document.getElementById(id) : document.body;
+    return a ? a.querySelectorAll("table")[i] || null : null;
+  };
+  var isMoreBtn = function (b) { return !b.classList.contains("ts-more") && /^\s*顯示更多/.test(b.textContent); };
+  var visible = function (el) { return el.isConnected && !el.hidden && !el.closest("[hidden]") && el.offsetParent !== null; };
+  var after = function (a, b) { return !!(a.compareDocumentPosition(b) & 4); };
+  var findMore = function (tb) {
+    if (!tb.isConnected) return null;
+    for (var el = tb.parentElement; el && el !== document.body; el = el.parentElement) {
+      var bs = Array.prototype.filter.call(el.querySelectorAll("button"), isMoreBtn), ts = el.querySelectorAll("table");
+      for (var i = 0; i < bs.length; i++) {
+        if (!after(tb, bs[i])) continue;
+        var ok = true;  // 表格和按鈕中間不能隔著另一張表
+        for (var j = 0; j < ts.length; j++) if (ts[j] !== tb && !tb.contains(ts[j]) && after(tb, ts[j]) && after(ts[j], bs[i])) { ok = false; break; }
+        if (ok) return bs[i];
+      }
+      if (el.tagName === "MAIN") break;
+    }
+    return null;
+  };
+  var groupCount = function (tb) {
+    var n = 0, body = tb.tBodies[0];
+    if (body) for (var i = 0; i < body.rows.length; i++) { var r = body.rows[i]; if (!isChild(r) && !/(^|\s)(sum|total)(\s|$)/.test(r.className) && r.style.display !== "none") n++; }
+    return n;
+  };
+  var expanding = false;
+  var expand = function (tb, key) {
+    if (expanding) return tb;
+    var b = findMore(tb);
+    if (!b || !visible(b)) return tb;
+    LIMS[key] = groupCount(tb);  // 頁面原本顯示幾列
+    var w = b.parentElement && b.parentElement.classList.contains("more") && b.parentElement.tagName !== "BUTTON" ? b.parentElement : b;
+    TPL[key] = w.cloneNode(true);
+    expanding = true;
+    try {
+      for (var n = 0; n < 300 && b && visible(b); n++) {
+        b.click();
+        if (!tb.isConnected) tb = tableByKey(key) || tb;
+        b = findMore(tb);
+      }
+    } finally { expanding = false; }
+    return tb;
+  };
+  var cut = function (tb, key, groups) {
+    var lim = LIMS[key];
+    if (lim == null) return;
+    var hid = 0;
+    groups.forEach(function (g, i) {
+      var h = i >= lim;
+      if (h) hid++;
+      g.forEach(function (r) { var d = h ? "none" : ""; if (r.style.display !== d) r.style.display = d; });
+    });
+    var m = tb._tsMore;
+    if (!m || !m.wrap.isConnected) {
+      var a = TPL[key];
+      var wrap = a ? a.cloneNode(true) : document.createElement("button");
+      if (!a) { wrap.className = "more"; wrap.type = "button"; }
+      [wrap].concat(Array.prototype.slice.call(wrap.querySelectorAll("*"))).forEach(function (e) { e.removeAttribute("id"); e.hidden = false; });
+      var btn = wrap.tagName === "BUTTON" ? wrap : wrap.querySelector("button") || wrap;
+      btn.classList.add("ts-more");
+      btn.type = "button";
+      btn.addEventListener("click", function () { LIMS[key] += 200; applySort(tb, SORTS[key] || null); });
+      var at = tb.closest(".tbl-wrap, .table-wrap, .ts-wrap") || tb;
+      at.parentNode.insertBefore(wrap, at.nextSibling);
+      m = tb._tsMore = { wrap: wrap, btn: btn };
+    }
+    if (m.wrap.hidden !== !hid) m.wrap.hidden = !hid;
+    if (m.wrap.style.display !== (hid ? "" : "none")) m.wrap.style.display = hid ? "" : "none";
+    var txt = "顯示更多（還有 " + hid + " 列）";
+    if (hid && m.btn.textContent !== txt) m.btn.textContent = txt;  // 只在變了才寫，避免觸發 MutationObserver 無限迴圈
+  };
   var applySort = function (tb, st) {
     var ths = sortHead(tb), body = tb.tBodies[0];
     if (!ths || !body) return;
+    var key = sortKey(tb);
     for (var i = 0; i < ths.length; i++) {
       ths[i].removeAttribute("aria-sort");
       ths[i].classList.toggle("ts-on", st && i === st.col);
@@ -660,6 +738,7 @@
       });
       groups = idx.map(function (i) { return groups[i]; });
     }
+    cut(tb, key, groups);
     var want = [];
     head.concat.apply(head, groups).concat(tail).forEach(function (r) { want.push(r); });
     for (var k = 0; k < want.length; k++) if (want[k] !== body.rows[k]) break;
@@ -678,8 +757,8 @@
         if (!th.title) th.title = "點一下排序";
       }
       var st = SORTS[sortKey(tb)];
-      if (st && ths[st.col] && ths[st.col].textContent.trim() === st.name) applySort(tb, st);
-      else if (tb._ts) { tb._ts = 0; applySort(tb, null); }
+      if (st && ths[st.col] && ths[st.col].textContent.trim() === st.name) { tb = expand(tb, sortKey(tb)); applySort(tb, st); }
+      else if (tb._ts || LIMS[sortKey(tb)] != null) { tb._ts = 0; applySort(tb, null); }
       tb._ts = st ? 1 : 0;
     });
   };
@@ -700,6 +779,8 @@
       var first = vals.length && nums >= vals.length * 0.6 && !/^(#|No\.?|名次|排名)$/i.test(th.textContent.trim()) ? -1 : 1;
       st = SORTS[key] = { col: col, name: th.textContent.trim(), dir: first, first: first };
     }
+    tb._ts = 1;
+    tb = expand(tb, key);
     tb._ts = 1;
     applySort(tb, st);
   };
