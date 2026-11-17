@@ -1,0 +1,496 @@
+[p.1]
+  Confidential
+6949
+沛爾生技醫藥股份有限公司
+  法人說明會 Nov 11 2026
+  1
+
+[p.2]
+  沛爾生醫  •  設立時間：2017/3/30
+  •  登記資本額10億; 實收資本額6.56億
+  台北總公司  •  集團員工人數: 135人(博/碩士 62.5%)
+  tcmc  •  市值：新台幣520-550億元
+  •  主要業務:
+  ✓  癌症之免疫基因工程療法
+  ✓  細胞基因治療相關技術與產品
+  ✓  專利小肽治療中樞神經退化疾病
+  •  總公司及分公司
+  ✓  台北總公司(內湖)
+  ✓  高雄分公司(左營)
+  ✓  子公司--台灣細胞製造股份有限
+  公司 (tcmc) --
+  CGT PIC/S GMP廠
+高雄分公司
+  竹北生醫園區廠房面積 1,000坪
+  CAR-T產能規劃 300例/年
+  ✓  沛肽(上海)醫藥科技有限公司
+  2
+
+[p.3]
+集團架構
+  2026/3/31
+  沛爾生技醫藥股份有限公司
+  Pell BMT
+ 66.88%  100%  100%
+台灣細胞製造股份有限  沛肽(上海)醫藥科技有
+  鉑森生技股份有限公司
+  公司  限公司
+  Passion
+  tcmc  Pelltide
+  3
+
+[p.4]
+2026/H1 Milestone
+  現金增資  • 完成18.6億元現金增資
+  • 第二期臨床試驗，IDMC審查期中分析數據，療
+  PL001  效達統計上顯著意義
+  PL002  • 治療實體腫瘤之多鏈CAR-T
+  PP021  • IND申請，進行人體試驗
+  股票面額調整  • 董事會及股東會通過面額調整為0.5元/股
+  4
+
+[p.5]
+  沛爾二大核心技術
+  1-1 CD19 CAR-T (PL001)
+1-1 CD19 CAR-T
+  -- B細胞淋巴癌
+ • 第2期臨床試驗，療效通過期中分析標準。
+• 專利保護的 CAR-T 臨床生產製程，可產出超高 Tscm
+  (stem central memory T cells) 比例，並僅需7日即可完
+  成生產，為最先進之製程
+1-2 多鏈 CAR-T 治療實體癌
+1-3  In vivo CAR-T  5
+
+[p.6]
+  一般無基改之T細胞
+  •  接合力不高
+  •  效力低  •  接合力高
+  •  效力強  毒殺溶解
+  腫瘤細胞
+  抗原
+  HLA
+  複合  複核體
+  體
+  一般T細胞  CAR-T細胞  癌細胞
+癌細胞
+  6
+
+[p.7]
+CAR-T
+  • Kymriah (Novartis) 為全球首例獲美國 FDA 核可上市，成為常規療法。
+  一劑價格 47.5 萬美元
+  • Kite Pharma 治療「瀰漫性大B細胞淋巴瘤」(Diffuse Large B Cell Lymphoma,
+  一劑價格 37.3 萬美元
+  Global Data統計:
+  ✓ 2024年全球細胞治療市場規模為73.1億美元，預計2033年為1,888.4億美元
+  https://www.polarismarketresearch.com/industry-analysis/car-t-cell-therapy-
+  market
+  7
+
+[p.8]
+  沛爾核心技術
+  慢病毒
+CAR-T生產之門  CAR平台具專利限  LV 病毒製造不易  製程耗時長  CAR-T生產品質
+  檻與困難  制且效能仍需改善  且成本高昂  不佳
+  新穎之次世代CAR-T  專利之新型慢病  獨家7天短  特殊製程產出高
+核心突破技術  天期製程  比例Tscm之CAR-T
+  平台  毒(LV)製造工藝
+  8
+
+[p.9]
+  PL001 BOR in Phase I + Phase II data  Confidential
+  Summary of Best Overall Response Rate of Recommended Dose in Pooled Phase 1 and Phase 2 -
+  Evaluated by Investigator (Evaluable for Response Set)
+  As of IA on 10 Apr 2026
+  PL001 1-9 × 106
+  CAR positive T-cells/kg (N=25)
+  Best overall response, n (%)
+  Complete response (CR)  10 (40.0)
+  Partial response (PR)  11 (44.0)
+  Stable disease (SD)  2 (8.0)
+  Progression disease (PD)  2 (8.0)
+  Best overall response of CR and PR
+  n  18*  21**
+  PL-001 Rate % (95% exact CI) (a)  72.0 (50.61, 87.93)  84.0 (63.92, 95.46)
+  p-value compared to 0.26 (SCHOLAR-1 response rate) (b)  0.000001970  0.000000002097  vs no CAR-T
+  p-value compared to 0.82 (ZUMA-1 response rate) (c)  0.8512  0.5228  vs Yescarta
+  p-value compared to 0.52 (JULIET response rate) (d)  0.03424  0.0008956  vs Kymriah
+*3 patients (Subject 801017 (PR at Month 1), Subject 801034 (CR at Month 1), and Subject 801035 (PR at Month 1)) were considered non-responders, all of whom lacked any subsequent tumor assessment
+(a) 95% exact CI of rate is calculated using Clopper-Pearson exact method.
+(b) p-value is calculated using one-sided exact binomial test with null hypothesis BOR=0.26 based on the protocol.
+(c) p-value is calculated using one-sided exact binomial test with null hypothesis BOR=0.82 based on ZUMA-1 (2017).
+(d) p-value is calculated using one-sided exact binomial test with null hypothesis BOR=0.52 based on JULIET (2019).
+** No non-responders exclusion.
+  Confidential  9
+
+[p.10]
+  DOR Comparing  Confidential
+  with ZUMA-1(2017) and JULIET(2019)
+  Median (95% CI)
+PL001
+  10.5 (2.56, 10.51)
+  Median (95% CI)
+ZUMA-1(2017)
+  11.1 (3.9, NC)
+  Median (95% CI)
+JULIET(2019)  NC (NC, NC)
+  Confidential  10
+
+[p.11]
+  PFS Comparing  Confidential
+  with ZUMA-1(2017) and JULIET(2019)
+  Median (95% CI)
+PL001
+  11.3 (1.4, 11.3)
+  Median (95% CI)
+ZUMA-1(2017)
+  5.8 (3.3, NC)
+  Median (95% CI)
+JULIET(2019)  2.9 (2.3, 5.2)
+  Confidential  11
+
+[p.12]
+  PL001 CRS/ICANS  Confidential
+Dose Level  Subject  Day 0  1  2  3  4  5  6  7  8  9  10  11  12  13  14  Duration
+  801001  2022-07-15  5
+  DL1  801002  2022-08-12  6
+  801003  2022-09-15  7
+  801004  2022-12-30  4
+  801009  2023-05-26  5
+  DL2
+  801011  2023-06-16  4
+  804001  2023-05-23  3
+  801012  2024-04-10  1
+  801015  2024-05-24  11
+  801016  2024-06-20  7
+  801017  2024-06-27  2
+  801021  2024-10-08  3
+  801022  2024-10-25  4
+  806001  2025-02-13  1
+  801025  2025-04-29  8
+  801026  2025-04-30  6
+ Phase 2
+  806002  2025-04-25  1
+  801027  2025-06-12  4
+  801028  2025-06-10  14
+  802001  2025-07-07  1
+  802002  2025-10-29  9
+  801032  2025-11-20  7
+  801034  2026-02-04  5
+  801035  2026-03-04  6
+  802005  2026-03-23  3
+  CRS Grade  1  2  3  4
+Dose Level  Subject  Day 0  1  2  3  4  5  6  7  8  9  10  11  12  13  14  15  16  Duration
+  801028  2025/6/10  12+
+ Phase 2
+  801035  2026/3/4  3
+  ICANS Grade  1  2  3  4
+  Confidential  12
+
+[p.13]
+  沛爾二大核心技術
+  1-2 多鏈 CAR-T 治療實體癌
+1-1  CD19 CAR-T
+NDA Accelerated Approval/Conditional Approval
+1-2 多鏈 CAR-T 治療實體癌
+1-3  In vivo CAR-T
+  13
+
+[p.14]
+  多鏈CAR-T平台 PL002
+• PL002 專利保護多鏈 CAR-T平台優於傳統單鏈
+  適應症
+  針對實體腫瘤
+  辨識
+  能力  多鏈多靶點，
+  提升抗原辨識力
+  免疫
+  突觸  結合緊密，毒殺
+  較強、可針對表
+  現弱之抗原
+  專利
+  專利審查
+  14
+
+[p.15]
+間皮素多鏈CAR-T可有效治療卵巢癌
+  腫瘤完全消失
+  15
+
+[p.16]
+  間皮素多鏈CAR-T可治療多種癌症
+  間皮素表現於多種常見、高死亡率之癌別  • 除卵巢癌外，間皮素高表
+  現的癌症包括胰臟癌、胃
+ 胰  卵  癌、肺癌、肝癌及大腸癌，
+ 臟  巢
+ 癌  癌  皆為常見且高死亡率的惡
+  性腫瘤
+  胃
+  癌  肺  大
+  肝
+  • 胰臟癌與卵巢癌表現率
+  癌  腸
+  癌
+  癌
+  高達70%以上
+  • 開發抗間皮素多鏈CAR-T
+  用於治療其它實體癌症，
+  可望縮短研發時程、降低
+圖. 間皮素蛋白於不同類型癌症，於病患中出現的百分比  研發成本、加速進入臨床
+  試驗階段
+  16
+  資料來源：Protein Atlas, https://www.proteinatlas.org/ENSG00000102854-MSLN/pathology
+
+[p.17]
+  沛爾二大核心技術
+  1-3 in vivo CAR-T
+1-1 CD19 CAR-T
+  -- B細胞淋巴癌
+1-2  多鏈 CAR-T 治療實體癌
+1-3  In vivo CAR-T
+  1
+  7
+
+[p.18]
+
+
+[p.19]
+  沛爾二大核心技術
+  2. Peptide drug PL021
+PP021專利口服新型小肽治療
+  帕金森氏症
+  和阿茲海默症
+
+[p.20]
+病人數 2025/6  市場 2030
+
+[p.21]
+中樞神經退化性疾病
+ 神經元異常蛋白堆積
+ 先天性(非特異性)免疫
+  中樞神經
+  重度炎性反應
+  神經元死亡
+  帕金森氏症
+  阿茲海默症
+  漸凍人….
+  21
+
+[p.22]
+  17年前找到兔源性酵素之片段
+PP021
+  22
+
+[p.23]
+  PP021 可穿過血腦屏障
+PP021 (10 mg/Kg, p.o., 30 min) in Mouse Brain Homogenate Samples –
+  crossing BBB
+  20140227_SteveLin_PO_4  2014/2/27 下午 03:48:09
+  RT: 0.00 - 60.00
+  13.86  NL:
+  100  4.08E6
+  90  m/z=
+  607.25-
+  80  607.26
+  MS
+  70
+  Relative Abundance
+  20140227_
+  60  SteveLin_P
+  O_4
+  50
+  40
+  30
+  20
+  20.98
+  10  14.87 17.78  22.97
+  2.56  5.13 6.98  12.89  24.00  28.64  31.31  35.57  42.53
+  血管腔
+  0
+  0  5  10  15  20  25  30  35  40  45  50  55  60
+  Time (min)
+  20140227_SteveLin_PO_4 #1872 RT: 13.86 AV: 1 NL: 4.07E6
+  T: FTMS + p NSI Full ms [100.00-2000.00]
+  607.25092
+  z=2
+  100
+  90
+  80
+  607.75256
+  Relative Abundance
+  70
+  z=2
+  60
+  50
+  40
+  腦組織  30
+  20  605.94897 606.28442
+  z=?
+  608.25342
+  z=2
+  608.59821
+  z=?
+  609.26752  610.24658
+  610.66058
+  z=?  z=?  611.82166
+  10  z=2  z=?  z=?
+  0
+  605.0  605.5  606.0  606.5  607.0  607.5  608.0  608.5  609.0  609.5  610.0  610.5  611.0  611.5
+  m/z
+
+[p.24]
+  通過血腦屏障 (BBB)
+Control-Blank  5 min  10 min  15 min  20 min
+  IVIS: Cy5.5-PP021 (20 ug/mouse, i.v.)
+  Cy5.5-PP021 (30 min) TISSUE DISTRIBUTION
+  brain  liver  brain
+  (dorsal)  (ventral)
+  heart
+  spinal
+  lung
+  cord  spleen
+  kidney
+
+[p.25]
+  單次口服PP021 後，腦組織和腦脊髓液之濃度
+Paired
+measurement  Time  Paired brain-to-plasma  Paired CSF-to-plasma
+  concentration ratio (mean; n)a concentration ratio (mean; n
+  )b
+  20 mins  0.0511 (n=2)  0.0044 (n=6)
+  1 hr  0.2300 (n=5)  0.0085 (n=3)
+  1.5 hrs  0.5659 (n=3)  0.0058 (n=4)
+  4 hrs  8.4584 (n=1)  0 (n=6)
+  CSF
+  腦脊髓液
+Non-paired  (mean)
+measurement  Brain
+  腦組織
+  (mean)
+
+[p.26]
+  帕金氏症治療效果 (動物模型)
+Parkinson's disease animal models
+(Subacute & Chronic MPTP models)
+  26
+
+[p.27]
+亞急性 Subacute MPTP model
+  PP021: 1, 10, 50 mg/kg; BID; 10 days
+  27
+
+[p.28]
+  慢性 – 爬竿速度
+  Climbing pole test (Chronic PD)
+  Madopar  PP021
+  Sham group  Model group
+  group  50 mg/kg group
+Dosing
+Week 4
+
+[p.29]
+  爬竿時間 Time of climbing pole
+亞急性  Subacute model  慢性  Chronic model
+  29
+
+[p.30]
+  Rotarod test 滾輪測試(Chronic PD)
+  Sham group  Model group
+Dosing
+Week 4
+  Madopar group  PP021 50 mg/kg group
+
+[p.31]
+  爬竿步態 Gait scores of climbing
+亞急性 Subacute model  慢性  Chronic model
+  31
+
+[p.32]
+  握力 Grip Strength
+亞急性  Subacute model  慢性  Chronic model
+  32
+
+[p.33]
+  顫抖評分
+  Chronic model
+Scoring Criteria for Tremor and Paralysis
+•Score 1: Normal; no observable clinical
+symptoms.
+•Score 2: Mild; presentation of piloerection
+(bristling hair), kyphosis (hunched back), and
+intermittent fine tremors.
+•Score 3: Moderate; frequent swallowing,
+frequent tremors, hindlimb splaying, tail tremors,
+and progressive impairment of locomotor activity.
+•Score 4: Severe; excessive salivation (drooling),
+continuous/persistent tremors, generalized limb
+rigidity, and severely restricted movement.
+•Score 5: Death; mortality resulting from
+generalized paralysis.
+  33
+
+[p.34]
+IHC Staining of Whole-Brain Coronal Sections and
+  TH⁺ Cell Expression in the Substantia Nigra
+  -- PP021 effectively preserve Th(+) cells in
+  substantial nigra of subacute MPTP-treated
+  mice in a dose-dependent manner  34
+
+[p.35]
+  阿茲海默症
+Group  Animal  Na  Treatment  Dosage (mg/kg)  Routine  Regimen
+  3個月給藥期結束後:
+  1  Sham  16  Vehicle  -  PO  QD / 3 months
+  ⚫ Morris水迷宮測試
+  PO  QD / 3 months  ⚫ 築巢實驗
+  2  Model  16  Vehicle  -
+  ⚫ 腦組織免疫組織免
+  Model + Donepezil  Positive  PO  QD / 3 months  疫染色檢測指標Aβ
+  3  16  1.67 mg/kg  沉澱斑塊、p-Tau
+  Hydrochloride
+  Test article  PO  （n=10）
+  4  Model + PP022 (high)  16  75 mg/kg  QD / 3 months  ⚫ 腦組織勻漿檢測發
+  炎因子TNF-α、IL-
+  Model + PP022  Test article  PO
+  5  16  15 mg/kg  QD / 3 months  1β、IL-6（n=6）
+  (medium)
+  Test article  PO
+  6  Model + PP022 (low)  16  1.5 mg/kg  QD / 3 months
+Donepezil Hydrochloride: Acetylcholinesterase Inhibitor (AChEI)
+APP/PS1/Tau小鼠(雄)購入飼養至約5週齡時，選擇健康狀態良好的小鼠入組，依體重隨機分組法分組，每組16隻。
+
+[p.36]
+Nest Building Behavior (築巢實驗)
+
+[p.37]
+Morris Water Maze, MWM
+  (水迷宮測試)
+  穿越次數
+  站
+  台
+  穿
+  越
+  次
+  數
+ ## P<0.01 vs 正常對照組, *P<0.05, **P<0.01 vs 模型對照組
+
+[p.38]
+## P<0.01 vs 正常對照組, *P<0.05, **P<0.01 vs 模型對照組
+
+[p.39]
+  PP021
+• ”Right-To-Try” 法案進入美國
+• 2027Q2 第二期人體試驗 Parkinson’s
+  Disease
+• 2027Q4 第二期人體試驗 Alzheimer’s
+  Disease
+
+[p.40]
+  USA
+  Japan
+  China
+Thai/Malaysia
+
+[p.41]
+Thank You
+  41
