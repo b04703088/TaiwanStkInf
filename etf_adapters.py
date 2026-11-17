@@ -598,6 +598,8 @@ def franklin(code, name=""):
 # ---------------- 大華銀 ----------------
 # /api/WebSite/pcf?fundID=<數字代碼>&pcfDate=YYYY/MM/DD：result[] 中 kind=stock 為實際持股（qty 股數、weight 權重），
 # datadate 為持股基準日。網站憑證鏈不完整（缺中繼憑證），用 insecure 連線讀公開資料。
+# pcfDate 是「申購交易日」（T+1）：今天下午公布的 PCF（datadate=今天）要用明天查；帶未來日會回最新一份，
+# 所以從一週後開始往回試（之前從今天開始，永遠只拿到前一天的持股）。
 UOB = "https://www.uobam.com.tw/api/WebSite/pcf"
 UOB_IDS = {"00918": "88329556"}  # 官網 ETF 頁連結中的 fundID
 
@@ -607,7 +609,7 @@ def uob(code, name=""):
     fid = SOURCE_IDS.get("uob", {}).get(code) or UOB_IDS.get(code)
     if not fid:
         raise AdapterError(f"uob {code}: 沒有基金代碼")
-    for d in C.recent_days(8, datetime.now(C.TPE).date()):
+    for d in C.recent_days(8, datetime.now(C.TPE).date() + timedelta(days=7)):
         try:
             r = C.http(UOB, {"fundID": fid, "pcfDate": d.strftime("%Y/%m/%d")}, insecure=True, retries=2)
         except AdapterError:
