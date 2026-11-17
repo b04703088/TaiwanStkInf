@@ -49,7 +49,7 @@ def http(url, params=None, body=None, form=None, as_json=True, raw=False,
                 content = resp.read(max_bytes) if max_bytes else resp.read()
             if raw:
                 return content
-            text = content.decode("utf-8", errors="replace")
+            text = content.decode("utf-8-sig", errors="replace")
             if not as_json:
                 return text
             d = json.loads(text)
