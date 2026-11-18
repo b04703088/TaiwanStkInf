@@ -1,0 +1,288 @@
+[p.1]
+  巨有科技(股)公司
+  公司簡報
+  PGC Company Profile
+  2026 年 11 月
+股票代號: 8227
+
+[p.3]
+  公司簡介
+•  成立於 1991 年 8 月，總部位於台北市內湖科技園區
+  –  董事長賴志賢先生，股本新台幣3.95億 (USD 13M)
+  –  台灣第一家ASIC設計服務公司 (櫃買中心掛牌，股票代號 8227)
+  –  客戶遍布全球：歐洲、美國、日本、以色列、韓國、 新加坡、越南、中國及台灣...等
+  –  主要應用：AI/HPC、Edge AI、AoT/5G、電動車、機器人、高壓應用、影像處理、工控IC、類比IC…
+  –  提供一站式ASIC統包服務 (ASIC Turnkey Service)
+•  台積電設計中心聯盟成員 (Member of TSMC DCA, Design Center Alliance)
+  –  在台積電成功完成超過1,500件設計定案 (tape-out)
+  –  每年成功完成超過100個專案 (tape-out)
+  –  專注於6nm/5nm/4nm/3nm…等先進製程的設計服務
+  –  提供台積電 CoWoS 統包服務，並與日月光 (ASE) 合作提供先進封裝服務
+•  新思科技 (Synopsys) IP OEM Program 合作夥伴
+  –  為客戶提供新思科技矽智財 (PCIe, DDR, MIPI, USB, SerDes, and Die-to-Die) 解決方案
+•  與國內外 IP 及 EDA 公司建立長期穩定的合作關係
+  –  全球合作夥伴包括新思科技(Synopsys), 益華 (Cadence), 西門子 (Siemens), M31, Rambus, TCI…等
+  tsmc
+  3
+
+[p.4]
+巨有科技 ASIC 設計統包服務
+  4
+
+[p.5]
+  巨有科技 IP 解決方案
+  與國際級 IP公司建立長期穩定的合作關係 (新思科技 Synopsys IP OEM Program)
+  提供應用最廣泛、最全面的高速介面IP解決方案, 如PCI Express, DDR, USB, MIPI, SerDes...等
+  高效能、低功耗、高信賴度、低風險
+  所有介面 IP 解決方案皆奠基於標準的台積電邏輯製程
+  5
+
+[p.6]
+  巨有科技 IP 解決方案
+ASIC 設計服務產業
+的先進技術提供者
+  台積電先進製程 TSMC 6/5/4/3nm FinFET Process Turnkey Services
+  Synopsys
+  IP OEM  台積電先進封裝 TSMC CoWoS Advanced Packaging Services
+  Program
+  新思科技 Synopsys IP OEM Program Services
+  新思科技 Synopsys APR Layout Services
+  世界先進 VIS HV/BCD Process Turnkey Services
+  30+  100+  1500+  100M+
+超過30年設計服務經驗  每年成功完成超過100個  在台積電成功完成超過  在日月光量產出貨已達
+  tape-out 專案  1,500件設計定案  數億顆 IC
+  6
+
+[p.7]
+  巨有科技統包服務項目
+  ASIC 設計服務  ASIC Turnkey  矽智財服務  客製化類比 IP
+  (NRE)  量產服務 (MP)  (IP)  (Analog)
+PGC provides PDK,  PGC provides turnkey  PGC collaborates  PGC collaborates
+Cell Library, Memory,  services to  with IP partners such  with IP partners to
+I/O, various IPs, and  customers, including  as Synopsys IP OEM  customize analog IP
+supports customer  mask, wafer, testing  Program and third  based on specific
+with APR layout  and packaging. PGC  party IP partners to  customer
+service for PPA  delivers GDSII to  deliver a fully  requirements,
+(Performance, Power,  TSMC/VIS, CP, FT  integrated IP solution  including ADC, DAC,
+Area), tape-out to  testing, and package  and licensing. To  AFE, LDO, and more.
+TSMC/VIS for  to ASE. PGC has  meet customer  Some of which are
+Cybershuttle/MPW/  long-term  requirements, we  awarded U.S. patents.
+Prototype or Full  cooperation with  provide customized  With over 30 years
+Mask, CP/FT testing  supply chain partners  IP solutions to  experience, PGC can
+and package to ASE.  to provide the shorter  enhance product  provide customized
+  lead-time and  differentiation and  analog IP solutions to
+  support special MoQ  accelerate time-to-  meet specific
+  for our customers.  market for our  application needs.
+  customers.
+  7
+
+[p.8]
+  巨有科技里程碑 (1/2)
+  2024.08  2024.08  2025.02  2026.04  2026.06
+  CP, FT  Became the  Successfully taped  TSMC 4nm  ISO27001
+  Consign and  Synopsys IP OEM  out the first 6nm  Design-In  Information Security
+  Outsourcing to Vate  Program Partner  ASIC project  Management System
+  2023.05  2022.12  2022  2021.11  2021.07  2018~2020
+Provided TSMC  TPEx-listed  Provided TSMC  Successfully  Registered on  Successfully taped
+CoWoS(Chip-  Company  5nm/6nm/7nm  taped out the  Taiwan’s  out the first 16mn,
+on-Wafer-on-  (TPEx: 8227)  ASIC turnkey  first 12nm ASIC  Emerging Stock  22nm, and 28nm
+Substrate)  service  project  Board  ASIC project
+turnkey service
+  2008  2009  2010  2012  2013  2016  2017
+Successfully  Became ANDES  Successfully  Successfully  Successfully  Successfully  Adopted Synopsys (ICC2)
+completed SiP  design service  taped out the  taped out over  taped out the  taped out the  Design-Flow for TSMC
+ASIC project  partner and  first 65nm ultra  1000 ASIC/SoC  first 55nm SoC  first 40nm low  5nm process
+  Successfully  low power SoC  projects at  project  power SoC
+  taped out the  project  TSMC  project
+  first 90nm SoC
+  project
+  8
+
+[p.9]
+  巨有科技里程碑 (2/2)
+  2006  2003  2002  2001  2000.09  2000.01
+  Adopted Synopsys (ICC1)  Qualified as a  Became the  Became the  Received the  Became an
+  Design-Flow for TSMC  ARM Approved  VIS IC design  TSMC DCA  9th National  official
+  40nm process  Design Center  service  (Design Center  Award for  member of
+  strategy  Alliance) certified  Outstanding  the Taiwan
+  partner  strategy partner  Small and  Semiconduct
+  Medium  or Industry
+  Enterprises  Association
+  (TSIA)
+1991  1992  1993  1994  1998  1998.08  1998.09
+PGC ASIC design  Became the  Adopted  Offered TSMC  Qualified for  Set up corporate  ASIC Testing Factory
+service company  TSMC ASIC  Synopsys(Avanti)  0.5um/0.35um  the ISO9001,  headquarters in  established. Installed
+was founded  Service strategic  EDA Design-Flow  Gate Array ASIC QC080000  Taipei (Neihu  Agilent 93000, Credence
+  partner  for TSMC Gate  design service  certification  Technology Park)  D10 and Chroma 3650
+  Array & Standard  testers for High/Low
+  Cell processes  temperature CP and FT
+  tests. Created ASIC
+  testing flows to fully
+  support high production
+  capacity on demand
+  9
+
+[p.10]
+  2023~2025 三年度損益表 (Income Statement)
+  年度 / 季度 (Period)  CY2023  CY2024  CY2025
+  主要損益表科目  金額  YoY  金額  YoY  金額  YoY
+  ％  ％  ％
+  (Major I/S Items)  (NT$ M)  Change  (NT$ M)  Change  (NT$ M)  Change
+營業收入 / Sales / (%)  1,104.74 100.0%  18.2%  682.23 100.0% -38.2% 1,349.27 100.0%  97.8%
+營業毛利 Gross Margin% / (ppts)  323.13  29.2%  2.6%  192.76  28.3%  -1.0%  262.80  19.5%  -8.8%
+營業費用 / OPEX % / (ppts)  -129.48  -11.7%  -2.5%  -151.41  -22.2%  10.5%  -165.02  -12.2%  -10.0%
+營業利益 / OPM% / (ppts)  193.65  17.5%  5.1%  41.35  6.1% -11.5%  97.79  7.2%  1.2%
+營業外收支 / Non-OP% / (ppts)  6.15  0.6%  3.1%  37.44  5.5%  4.9%  9.88  0.7%  -4.8%
+稅前淨利 Income Before Tax / (ppts)  199.80  18.1%  8.3%  78.79  11.5%  -6.5%  107.67  8.0%  -3.6%
+所得稅費用 Income Tax / (ppts)  -39.69  -3.6%  1.6%  -16.07  -2.4%  -1.2%  -26.28  -1.9%  -0.4%
+稅後淨利 / Net Income / (ppts)  160.11  14.5%  6.7%  62.73  9.2%  -5.3%  81.39  6.0%  -3.2%
+每股稅後盈餘(元) / EPS (NT$)  4.29  -  1.65  -  2.06  -
+  10
+
+[p.11]
+  2026Q3/Q1-Q3 損益表 (Income Statement)
+  年度 / 季度 (Period)  2025Q3  2025Q1-Q3  2026Q2  2026Q3  2026Q1-Q3
+  主要損益表科目  金額  QoQ  YoY  金額  YoY  金額  QoQ  YoY  金額  QoQ  YoY  金額  YoY
+  ％  ％  ％  ％  ％
+  (Major I/S Items)  (NT$ M)  Change Change (NT$ M)  Change (NT$ M)  Change Change (NT$ M)  Change Change  (NT$ M)  Change
+營業收入 / Sales / (%)  461.77 100.0%  67.0%  210.4%  934.43 100.0%  93.9%  613.02 100.0%  65.9%  121.7%  436.89 100.0%  -28.7%  -5.4%  1,419.49 100.0%  51.9%
+營業毛利 Gross Margin% / (ppts)  88.96  19.3%  -7.0%  -15.5%  198.26  21.2%  -6.6%  104.69  17.1%  -1.8%  -9.2%  84.35  19.3%  2.2%  0.0%  258.83  18.2%  -3.0%
+營業費用 / OPEX % / (ppts)  -42.83  -9.3%  -4.2%  -21.1%  -117.11  -12.5%  -10.5%  -58.37  -9.5%  -2.6%  -4.0%  -48.79  -11.2%  1.6%  1.9%  -151.97  -10.7%  -1.8%
+營業利益 / OPM% / (ppts)  46.13  10.0%  -2.8%  5.6%  81.15  8.7%  3.9%  46.32  7.6%  0.8%  -5.2%  35.56  8.1%  0.6%  -1.9%  106.87  7.5%  -1.2%
+營業外收支 / Non-OP% / (ppts)  22.44  4.9%  18.3%  6.2%  -5.34  -0.6%  -5.3%  66.82  10.9%  9.1%  24.3%  -6.01  -1.4%  -12.3%  -6.2%  67.62  4.8%  5.3%
+稅前淨利 Income Before Tax / (ppts)  68.56  14.8%  15.5%  11.7%  75.81  8.1%  -1.4%  113.15  18.5%  9.9%  19.1%  29.55  6.8%  -11.7%  -8.1%  174.49  12.3%  4.2%
+所得稅費用 Income Tax / (ppts)  -18.59  -4.0%  3.8%  3.5%  -20.59  -2.2%  0.1%  -10.64  -1.7%  -0.1%  1.5%  -6.69  -1.5%  -0.2%  -2.5%  -23.99  -1.7%  -0.5%
+稅後淨利 / Net Income / (ppts)  49.98  10.8%  11.7%  8.2%  55.22  5.9%  -1.5%  102.51  16.7%  9.9%  17.6%  22.86  5.2%  -11.5%  -5.6%  150.49  10.6%  4.7%
+每股稅後盈餘(元) / EPS (NT$)  1.26  -  1.40  -  2.59  -  0.58  -  3.81  -
+  11
+
+[p.12]
+  2023~2025 三年度資產負債表 (Balance Sheet)
+  年度 (Period)  2023/12/31  2024/12/31  2025/12/31
+  主要資產負債科目  金額  金額  YoY  金額  YoY
+  ％  ％  ％
+  (Major B/S Items)  (NT$ M)  (NT$ M)  Change  (NT$ M)  Change
+現金及約當現金
+  565.87  52.2%  921.57  63.0%  62.9%  829.29  45.5%  -10.0%
+(Cash and cash equivalents)
+透過損益按公允價值衡量之金融資產
+  33.28  3.1%  126.04  8.6%  278.7%  164.33  9.0%  30.4%
+(Financial assets at fair value)
+應收帳款 (Accounts receivable)  146.56  13.5%  73.35  5.0%  -50.0%  70.69  3.9%  -3.6%
+存貨 (Inventories)  104.38  9.6%  58.65  4.0%  -43.8%  80.77  4.4%  37.7%
+預付款項 (Prepayments)  17.23  1.6%  12.03  0.8%  -30.2%  423.71  23.2%  3421.5%
+  流動資產合計 (Total current assets)  941.81  86.9%  1,217.87  83.3%  29.3%  1,617.55  88.7%  32.8%
+不動產、廠房及設備
+  121.57  11.2%  122.31  8.4%  0.6%  122.42  6.7%  0.1%
+(Property, plant and equipment)
+無形資產 (Intangible assets)  0.23  0.0%  102.96  7.0% 44667.0%  58.91  3.2%  -42.8%
+  非流動資產合計 (Total non-current assets)  141.52  13.1%  244.28  16.7%  72.6%  207.03  11.3%  -15.3%
+資產總計 (Total Assets)  1,083.34  100.0%  1,462.16  100.0%  35.0%  1,824.58  100.0%  24.8%
+合約負債 (Contract liabilities)  123.46  11.4%  153.90  10.5%  24.7%  466.12  25.5%  202.9%
+應付帳款 (Accounts payable)  79.81  7.4%  49.10  3.4%  -38.5%  66.74  3.7%  35.9%
+其他應付款 (Other payables)  35.06  3.2%  71.39  4.9%  103.6%  74.88  4.1%  4.9%
+負債合計 (Total Liabilities)  284.73  26.3%  340.06  23.3%  19.4%  685.52  37.6%  101.6%
+股  本 (Share capital)  373.43  34.5%  395.43  27.0%  5.9%  395.43  21.7%  0.0%
+資本公積 (Capital surplus)  253.21  23.4%  575.07  39.3%  127.1%  575.07  31.5%  0.0%
+權益合計 (Total Equity)  798.61  73.7%  1,122.09  76.7%  40.5%  1,139.06  62.4%  1.5%
+負債及權益總計 (Total Liabilities & Equity)  1,083.34  100.0%  1,462.16  100.0%  35.0%  1,824.58  100.0%  24.8%
+  12
+
+[p.13]
+  2026/09/30 資產負債表 (Balance Sheet)
+  年度 (Period)  2025/09/30  2026/06/30  2026/09/30
+  主要資產負債科目  金額  QoQ  YoY  金額  QoQ  YoY  金額  QoQ  YoY
+  ％  ％  ％
+  (Major B/S Items)  (NT$ M)  Change  Change  (NT$ M)  Change  Change  (NT$ M)  Change  Change
+現金及約當現金
+  836.66  49.0%  5.1%  -4.4%  791.25  41.3%  -0.3%  -0.6%  892.09  40.3%  12.7%  6.6%
+(Cash and cash equivalents)
+透過損益按公允價值衡量之金融資產
+  140.11  8.2%  10.1%  43.5%  233.48  12.2%  21.0%  83.4%  176.35  8.0%  -24.5%  25.9%
+(Financial assets at fair value)
+應收帳款 (Accounts receivable)  80.96  4.7%  -61.7%  -17.1%  70.69  3.7%  -62.1%  -66.5%  267.63  12.1%  278.6%  230.6%
+存貨 (Inventories)  63.17  3.7%  -6.1%  44.1%  83.78  4.4%  14.9%  24.5%  115.43  5.2%  37.8%  82.7%
+預付款項 (Prepayments)  339.91  19.9%  39.0%  7742.8%  399.99  20.9%  -29.6%  63.6%  542.75  24.5%  35.7%  59.7%
+  流動資產合計 (Total current assets)  1,491.54  87.4%  0.8%  29.5%  1,722.94  89.9%  -7.4%  16.4%  2,033.16  91.9%  18.0%  36.3%
+不動產、廠房及設備
+  120.11  7.0%  -0.5%  -1.6%  130.87  6.8%  1.6%  8.4%  129.93  5.9%  -0.7%  8.2%
+(Property, plant and equipment)
+無形資產 (Intangible assets)  69.47  4.1%  -13.8%  -5.4%  36.62  1.9%  -23.5%  -54.6%  25.47  1.2%  -30.4%  -63.3%
+  非流動資產合計 (Total non-current assets)  215.45  12.6%  -7.7%  -0.1%  192.61  10.1%  -4.8%  -17.5%  178.59  8.1%  -7.3%  -17.1%
+資產總計 (Total Assets)  1,706.99  100.0%  -0.3%  24.9%  1,915.55  100.0%  -7.1%  11.8%  2,211.75  100.0%  15.5%  29.6%
+合約負債 (Contract liabilities)  368.89  21.5%  -21.2%  185.4%  506.72  26.5%  -32.8%  8.3%  846.15  38.3%  67.0%  129.4%
+應付帳款 (Accounts payable)  73.58  4.3%  300.5%  64.8%  63.11  3.3%  -3.6%  243.6%  65.44  3.0%  3.7%  -11.1%
+其他應付款 (Other payables)  65.61  3.8%  -47.5%  31.7%  115.76  6.0%  214.9%  -7.3%  46.20  2.1%  -60.1%  -29.6%
+負債合計 (Total Liabilities)  592.94  34.6%  -8.6%  115.8%  715.67  37.4%  -20.4%  10.3%  986.60  44.6%  37.9%  66.4%
+股  本 (Share capital)  395.43  23.1%  0.0%  0.0%  395.43  20.6%  0.0%  0.0%  395.43  17.9%  0.0%  0.0%
+資本公積 (Capital surplus)  575.07  33.6%  0.0%  0.0%  575.07  30.0%  0.0%  0.0%  575.07  26.0%  0.0%  0.0%
+權益合計 (Total Equity)  1,114.05  65.0%  4.7%  2.0%  1,199.88  62.6%  3.0%  12.8%  1,225.15  55.4%  2.1%  10.0%
+負債及權益總計 (Total Liabilities & Equity)  1,706.99  99.7%  -0.3%  24.9%  1,915.55  100.0%  -7.1%  11.8%  2,211.75  100.0%  15.5%  29.6%
+  13
+
+[p.14]
+  CY2024、2025 & 2026Q1~Q3
+  營收類別占比 (Sales Categories)
+年度 / 季度 (Period)  CY2024  CY2025  2026/Q2  2026/Q3  2026/Q1-Q3
+  收入類別  金額  占比  金額  占比  金額  占比  金額  占比  金額  占比
+(Sales Categories)  (NT$ 千元/000)  (%)  (NT$ 千元/000)  (%)  (NT$ 千元/000)  (%)  (NT$ 千元/000)  (%)  (NT$ 千元/000)  (%)
+  量產收入
+  422,955  62%  519,497  39%  374,408  61%  252,604  58%  872,740  62%
+  (MP)
+  工程收入
+  239,578  35%  813,095  60%  237,593  39%  180,376  41%  540,839  38%
+  (NRE)
+  其他收入
+  19,702  3%  16,674  1%  1,021  0%  3,913  1%  5,913  0%
+  (Other)
+  合計
+  682,235  100%  1,349,266  100%  613,022  100%  436,892  100%  1,419,493  100%
+  (TOTAL)
+  14
+
+[p.15]
+  CY2024、2025 & 2026Q1~Q3
+  營收製程占比 (Sales by Technology)
+ 年度 / 季度 (Period)  CY2024  CY2025  2026/Q2  2026/Q3  2026/Q1-Q3
+  收入類別  金額  占比  金額  占比  金額  占比  金額  占比  金額  占比
+(Sales by Technology)  (NT$ 千元/000)  (%)  (NT$ 千元/000)  (%)  (NT$ 千元/000)  (%)  (NT$ 千元/000)  (%)  (NT$ 千元/000)  (%)
+  6nm~28nm  150,092  22%  744,501  55%  475,092  78%  274,368  63%  956,424  67%
+  40nm~90nm  218,315  32%  305,842  23%  45,364  7%  52,427  12%  138,444  10%
+  um  313,828  46%  298,923  22%  92,566  15%  110,097  25%  324,624  23%
+  合計
+  682,235  100%  1,349,266  100%  613,022  100%  436,892  100%  1,419,493  100%
+  (TOTAL)
+  15
+
+[p.16]
+  CY2024、2025 & 2026Q1~Q3
+  NRE營收製程占比 (NRE Sales by Technology)
+年度 / 季度 (Period)  CY2024  CY2025  2026/Q2  2026/Q3  2026/Q1-Q3
+  工程收入類別  金額  占比  金額  占比  金額  占比  金額  占比  金額  占比
+(NRE by Technology)  (NT$ 千元/000)  (%)  (NT$ 千元/000)  (%)  (NT$ 千元/000)  (%)  (NT$ 千元/000)  (%)  (NT$ 千元/000)  (%)
+  6nm~28nm  103,019  43%  581,061  71%  211,458  89%  123,918  69%  409,098  76%
+  40nm~90nm  59,895  25%  160,090  20%  9,504  4%  25,794  14%  58,643  11%
+  um  76,665  32%  71,943  9%  16,632  7%  30,664  17%  73,098  13%
+  合計
+  239,578  100%  813,095  100%  237,593  100%  180,376  100%  540,839  100%
+  (TOTAL)
+  16
+
+[p.17]
+  CY2024、2025 & 2026Q1~Q3
+  MP營收製程占比 (MP Sales by Technology)
+年度 / 季度 (Period)  CY2024  CY2025  2026/Q2  2026/Q3  2026/Q1-Q3
+  量產收入類別  金額  占比  金額  占比  金額  占比  金額  占比  金額  占比
+(MP by Technology)  (NT$ 千元/000)  (%)  (NT$ 千元/000)  (%)  (NT$ 千元/000)  (%)  (NT$ 千元/000)  (%)  (NT$ 千元/000)  (%)
+  6nm~28nm  46,525  11%  156,810  30%  262,460  70%  146,510  58%  539,206  62%
+  40nm~90nm  139,575  33%  130,958  25%  29,953  8%  27,786  11%  62,654  7%
+  um  236,855  56%  231,729  45%  81,995  22%  78,307  31%  270,880  31%
+  合計
+  422,955  100%  519,497  100%  374,408  100%  252,604  100%  872,740  100%
+  (TOTAL)
+  17
+
+[p.18]
+Thank you!
+  謝謝您!
+  18
