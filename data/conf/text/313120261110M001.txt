@@ -1,0 +1,182 @@
+[p.1]
+Honsu Group 2026Q4
+  Business Update
+
+[p.3]
+  P-3
+I、Company
+II、Performance
+III、R&D Investment
+IV、Product Strategy
+V、Dividend Policy
+
+[p.4]
+  P-4
+I、Company
+II、Performance
+III、R&D Investment
+IV、Product Strategy
+V、Dividend Policy
+
+[p.5]
+Group Member  P-5
+  •  Excluding subcontractors
+  •  As of July 31, 2026
+  Y1993 Founded  Y2013 Merged  Y2019 Merged  Y2018 Merged
+  Y2011 IPO (3131)  Y2002 Founded  Y1987 Founded  Y2002 Founded
+  Employee : 382  Employee : 110  Employee : 123  Employee : 25
+  Main Product:   Main Product:   Main Product:   Main Product:
+ Wet Process  Wet Process  Agent Metrology(X-  Software System
+ Equipment (Etch  Chemistry  Ray、CSAM、EPD )、  Design(EDA、
+ /PR Strip/ Cleaner)、  (Etchant、 PR  Inspection 、 Wafer  SPC、FDC、Big
+ Chemical Deliver  Stripper、  Transfer 、 Robot 、  data) Service
+ System  Plating Additive)  pump Overhaul  As of July 31, 2026
+
+[p.6]
+  P-6
+I、Company
+II、Performance
+III、R&D Investment
+IV、Product Strategy
+V、Dividend Policy
+
+[p.7]
+Income Statement(By Quarter)
+  P-7
+
+[p.8]
+Income Statement  P-8
+
+[p.9]
+  P-9
+I、Company
+II、Performance
+III、R&D Investment
+IV、Product Strategy
+V、Dividend Policy
+
+[p.10]
+R&D Expense Investment  P-10
+  弘塑科技研發費用及營收佔比( Group)
+  390,000  14.00%
+  360,000
+  330,000  12.00%
+  占比  研發費用
+  300,000
+  研發費用 (KNTD)
+  10.00%
+  270,000
+  研發營收佔比%
+  240,000
+  8.00%
+  210,000
+  180,000
+  11.78%  6.00%
+  150,000
+  9.85%
+  9.30%  9.23%
+  120,000  8.50%
+  8.01%  7.82%  7.87%  7.95%  4.00%
+  7.34%  7.54%
+  90,000
+  5.30%
+  60,000  2.00%
+  30,000
+  0  0.00%
+  2014  2015  2016  2017  2018  2019  2020  2021  2022  2023  2024  2025
+  占比  9.30%  9.85%  8.01%  9.23%  11.78%  8.50%  7.82%  7.34%  7.87%  7.54%  7.95%  5.30%
+  研發費用 149,689 196,894 173,334 195,616 174,876 175,148 194,497 268,481 292,966 267,088 323,851 345,318
+
+[p.11]
+  P-11
+I、Company
+II、Performance
+III、R&D Investment
+IV、Product Strategy
+V、Dividend Policy
+
+[p.12]
+Recent Key Activities  P-12
+  01  02  03
+  Expanding  Strengthening  Driving
+  Production Capacity  Global Operations  Productivity Gains
+  擴充產能  強化全球營運  提升生產力
+
+[p.13]
+Process Application Opp.  P-13
+  2D to 3D
+  Structure
+  Fan-In /  Fan-Out /  Package on  2.5D  3D
+  WL-CSP  WLP/PLP  package  Packaging  Hybrid Bond
+  Wide Range
+  75mm  Wafer Size
+  100mm
+  125mm  310*310 mm
+  150mm  510*515 mm
+  200mm  600*600 mm
+  300mm  Multi-
+  Application
+  Advanced Package  Compounded  Automotive  Others
+  •  CuP, FO  • Semi
+  SiC  •  Diode  •  Bio Chip
+  •  2.5D  •  GaAs/GaN  •  CIS  •  Crystal element
+  •  3D、CPO  •  InP  •  Micro LED  •  IC Substrate
+  •  HBM
+
+[p.14]
+  P-14
+I、Company
+II、Performance
+III、R&D Investment
+IV、Product Strategy
+V、Dividend Policy
+
+[p.15]
+EPS History  P-15
+  歷年EPS趨勢
+  50.00
+  45.48
+  45.00
+  40.00
+  35.00
+  29.07
+  30.00
+  25.32
+  23.47
+  25.00  21.56
+  20.30
+  20.00
+  16.41 15.90
+  15.22
+  13.92
+  15.00  12.46  11.90  11.29 11.11
+  8.82
+  10.00
+  5.00
+  0.00
+  2011 2012 2013 2014 2015 2016 2017 2018 2019 2020 2021 2022 2023 2024 2025
+
+[p.16]
+Dividend History  P-16
+  歷年股利配發率趨勢
+  120.00%
+  101.63%
+  100.00%
+  90.07%
+  83.87%
+  79.64%  80.98%
+  80.00%  73.13%
+  75.40%  74.18% 72.83% 75.84% 75.68%
+  65.71%
+  63.04%  62.88%
+  59.31%
+  60.00%
+  40.00%
+  20.00%
+  0.00%
+  2011  2012  2013  2014  2015  2016  2017  2018  2019  2020  2021  2022  2023  2024  2025
+
+[p.17]
+  P-17
+THANKS
+感謝聆聽

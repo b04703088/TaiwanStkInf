@@ -1,0 +1,573 @@
+[p.1]
+晶心科技股份有限公司
+2026Q3 11月 公開法人說明會
+  晶心科技股份有限公司115年11月13日
+  1
+  1
+
+[p.3]
+報告內容
+晶心科技股份有限公司簡介
+財務與經營狀況
+關鍵應用與趨勢
+研發暨技術能量
+  3
+  3
+
+[p.4]
+晶心科技股份有限公司
+簡介 TWSE: 6533
+  4
+
+[p.5]
+公司簡介
+  Highlights
+ • Founded in March 2005 in Hsinchu Science Park, Taiwan, ROC.
+ • Well-established high technology IPO company
+ • Around 320 people; 80% are engineers.
+ • TSMC OIP Award “Partner of the Year” for New IP (2015)
+ • Founding Premier membership in the RISC-V International Association (RISC-V Foundation) (2020)
+ • Al Global Media Award “Most Outstanding Embedded Processor IP Supplier” (2020)
+ • EE Awards - “Taiwan-Product Award” & ”Asia-Company Award” (2021)
+ • Top 500 High-Growth Companies Asia-Pacific (2023)
+  Mission
+ • Innovate performance-efficient processor solution for low-power SoC
+  Emerging Opportunities
+ • Smart and Green electronic devices
+ • Cloud Computing and Internet of Things and Machine Learning
+  Taking  Mainstream  5
+
+[p.6]
+  Taking  Mainstream  6
+
+[p.7]
+全球RISC-V 晶片出貨量預測  By 2030 it will be over 16B
+SHD Group 市場研究報告  units per year!
+  7
+
+[p.8]
+  晶心科技於RISC-V 晶片市場的市占率預估
+  SHD Group 市場分析
+晶心科技憑藉深厚的技術積累、完整的產品線，以及卓越的客戶服務，在全球RISC-V CPU IP市場中占據重要地位。隨
+  著RISC-V生態系統的蓬勃發展，晶心科技的市占率預期將持續成長，成為推動產業創新的關鍵力量。
+  8
+
+[p.9]
+商業模式
+  Taking  Mainstream  9
+
+[p.10]
+財務與經營狀況
+2026H1年營運績效與財務表現分析
+  10
+
+[p.11]
+晶心科技2025年12期營收表現
+  單位: 新台幣千元
+  11
+
+[p.12]
+晶心科技最近12期營收表現
+  單位: 新台幣千元
+  營業收入  累計營業收入
+  年  月
+  度  份  去年同月增減  前期比較增減
+  當月營收  去年當月營收  當月累計營收  去年累計營收
+  (%)  (%)
+ 2026  10  197,976  150,377  31.65%  1,517,838  1,167,678  29.99%
+ 2026  9  192,943  214,636  -10.11%  1,319,862  1,017,301  29.74%
+ 2026  8  114,014  153,503  -25.73%  1,126,919  802,665  40.40%
+ 2026  7  120,282  98,395  22.24%  1,012,905  649,162  56.03%
+ 2026  6  372,169  107,240  247.04%  892,623  550,767  62.07%
+ 2026  5  87,236  85,291  2.28%  520,454  443,527  17.34%
+ 2026  4  106,862  86,974  22.87%  433,218  358,236  20.93%
+ 2026  3  133,545  95,726  39.51%  326,356  271,262  20.31%
+ 2026  2  89,855  80,040  12.26%  192,811  175,536  9.84%
+ 2026  1  102,956  95,496  7.81%  102,956  95,496  7.81%
+ 2025  12  201,051  155,847  29.01%  1,478,187  1,381,507  7.00%
+ 2025  11  109,458  152,257  -28.11%  1,277,136  1,225,660  4.20%
+  12
+
+[p.13]
+2026 Q1-Q3 整體營收分析
+  YoY  QoQ
+  -24.6 %  YoY
+  -8.4 %
+  +29.7 %
+  (NTD ’000)  (NTD ’000)
+  Taking  Mainstream  13
+
+[p.14]
+2026 Q1-Q3 授權金營收分析
+  YoY  QoQ
+  -41.9 %  YoY
+  -28.2 %
+  +30.9 %
+  (NTD ’000)  (NTD ’000)
+  Taking  Mainstream  14
+
+[p.15]
+2026 Q1-Q3 權利金營收分析
+  YoY  QoQ
+  +23.0 %  YoY
+  +21.1 %
+  +16.6 %
+  (NTD ’000)  (NTD ’000)
+  Taking  Mainstream  15
+
+[p.16]
+2026 Q1-Q3 營收商業模式分析
+  2026 Q1-Q3
+  Taking  Mainstream  16
+
+[p.17]
+2026 Q1-Q3 區域別營收分析
+  2026 Q1-Q3
+  Taking  Mainstream  17
+
+[p.18]
+2026 Q1-Q3 應用類別營收分析
+  Taking  Mainstream  18
+
+[p.19]
+2021 to 2026Q1-Q3 應用類別營收分析
+  (NTD ’000)
+  Taking  Mainstream  19
+
+[p.20]
+歷年授權金結構與比較
+  License Revenue
+  (NTD ’000)
+  Taking  Mainstream  20
+
+[p.21]
+歷年權利金結構與比較
+(NTD ’000)
+  Royalty Revenue
+  Taking  Mainstream  21
+
+[p.22]
+2026 Q3 營業費用分析
+  QoQ
+  YoY
+  -34.1%
+  -10.0 %
+  (NTD ’000)
+  Taking  Mainstream  22
+
+[p.23]
+2026 Q3 淨利(損)分析
+  QoQ  2026 Q3 EPS: (0.58)
+  YoY
+  -
+  +56.5 %  2026 Q2 EPS: (1.34)
+  2026 Q1 EPS: (3.28)
+  (單位:新台幣千元)
+  2025 Q4 EPS: (0.52)
+  2025 Q3 EPS: 0.17
+  2025 Q2 EPS: (5.58)
+  Taking  Mainstream  23
+
+[p.24]
+關鍵應用與趨勢
+  24
+  24
+
+[p.25]
+The Key Applications & The Trend
+  The market size in the Artificial
+ The global Automotive market size  Intelligence market is projected to
+ was valued at USD 341255.0 million  The global Internet of Things (IoT)
+  reach US$305.90bn in 2024.
+ in 2024 and is expected to expand  market size is projected to grow
+  The market size is expected to
+ at a CAGR of 16.4% during the  from $714.48 billion in 2024 to
+  show an annual growth rate (CAGR
+ forecast period, reaching USD  $4,062.34 billion by 2032, at a
+  2024-2030) of 15.83%, resulting in
+ 848836.0 million by 2031.  CAGR of 24.3%...
+  a market volume of US$738.80bn
+  by 2030.
+  RISC-V-based AI SoCs will grow 73.6%
+RISC-V will capture  RISC-V will command 28% of the IoT
+  CAGR to 25B units and $291B in revenue
+10% of the Automotive market by 2025  market by 2025
+  by 2027
+Counterpoint, Sept 2021  Counterpoint, Sept 2021
+  Semico Research, Dec 2021
+  25
+
+[p.26]
+Andes Successful Story in Automotive
+  26
+
+[p.27]
+MTIA: Meta Training / Inference Accelerator
+ Powered by Andes AX25-V100 + ACE
+ •  ISCA 2023 paper, “MTIA: First Generation Silicon Targeting Meta’s
+  Recommendation Systems”
+ •  Proc-A/B: AX25-V100, an early version of the popular NX27V
+ •  Andes Custom Extensions: for new interfaces, instructions and registers
+ •  Performs quite well on low and medium complexity models
+  27
+
+[p.28]
+d-Matrix: Raptor Accelerator for Data-Center
+ Powered by Andes: AX46MPV
+ •  The Raptor accelerator under development by d-Matrix will be the first to feature d-Matrix’s revolutionary 3D In-Memory Compute
+  (3DIMC ) technology. A highly efficient chiplet-based approach and the world’s first 3D DRAM solution for AI inference at scale,
+  3DIMC stacks compute and memory to reduce the energy and latency of data movement by ten-fold, addressing the “memory wall”
+  that limits conventional AI inference systems.
+ •  By integrating the Andes’ AX46MPV as both the orchestration and vector compute engine, Raptor gains the performance headroom
+  and efficiency needed to push past traditional memory and power bottlenecks. Early results already show up to 2.3x performance
+  improvement on key transformer kernels compared to our previous-generation core.
+ •  “Raptor’s innovative design is pushing inference efficiency and scalability far beyond what conventional architectures can achieve,”
+  said Sid Sheth, Founder and CEO of d-Matrix. “The AX46MPV’s RISC-V architecture provides the ideal CPU for our 3DIMC
+  approach, allowing us to deliver datacenter-scale inference with unprecedented performance per watt.”
+  28
+
+[p.29]
+Fractile.ai: Compute-In-Memory
+Powered by Andes AX45MPV + ACE
+•  Performing 100% of the operations needed to run model inference in memory
+•  Blast through the memory bottleneck
+•  Creative micro-architecture, support high performance multi-vector
+  processors
+•  By using Andes AX45MPV and ACE, it can achieve the goal of accelerating  100% In-Memory Inference
+  mathematical computations  → 200× Faster Memory Access
+  IMC in HVM (High-Bandwidth Vector Memory)
+  Core 0
+  Core 0
+  Core 0
+  Core n
+  AX45MPV  VPU
+  Core  AX45MPV  VPU
+  Core
+  ACE
+  ACE
+  AX45MPV Core_cluster  29
+
+[p.30]
+Edge AI with Computing In-Memory
+  • Axelera Metis SoC Targeting Computer Vision applications
+  • 4 powerful PE’s, each with digital In-Memory Computing (D-IMC)
+  • RISC-V processors for both PE control as well as system control under Linux
+  Powerful  4MB L1  4MB L1  Competitive
+  214 TOPS/chip , best in class  Best performance/price
+  RISC-V  RISC-V
+  performance, 2x-5x thruhput  RISC-V  AX25  AX25  up to 10x vs. GPU
+  vs. new entrants*  D-IMC  D-IMC
+  AX25
+  Scalable & Future Proof  Uncore  VEC  AUX  Uncore  VEC  AUX
+  Efficient
+  Programmable architecture
+  and scalable multicore  4MB L1  4MB L1  15 TOPs/W, up to 5x
+  technology to support future  vs. GPU and market
+  workload such as  RISC-V  RISC-V  leaders*
+  NLP & Generative AI  AX25  AX25
+  Root of Trust  D-IMC  D-IMC
+  Compatible  Plug & Play
+  Uncore  VEC  AUX  Uncore  VEC  AUX
+  Working with any CPU or  Compatible with AI
+  operating system for  frameworks, any OS, for
+  fast hardware  32MB L2  PCIe  LPDDR4x  fast software integration
+  integration
+  30
+
+[p.31]
+Edge AI with Analog Computing In-Memory
+•  TetraMem Analog Computing-In-Memory MX200 (RRAM-based)
+•  8-bit 256x256 (64K) MAC Engines, >30 TOPS/W performance
+•  ML core operators (conv, gemm) processed in NPU
+•  Remaining operations processed in RISC-V Vector processors and control CPU
+  8 bits multi-level
+  RRAM device
+  31
+
+[p.32]
+Endpoint AI Application
+■ Renesas R9A06G150 Voice-Control ASSP
+  • With 100MHz DSP-capable D25F processor
+  • ML-based voice recognition gets >50% speedup by using P-extension
+  32
+
+[p.33]
+Endpoint AI
+ Spacetouch SPV60 Intelligent audio
+ processor
+  ● High performance for customer
+  development  NPU
+  • 100 GOPS NPU for noise reduction, echo  (100
+  D25F  GOPS)
+  cancellation,  (400 MHz)
+  howling suppression
+  • uDSP for FFT/IFFT, atan, log, etc.
+  • 400MHz D25F with ID caches/Local
+  Memory
+  ● Rich audio interfaces and other peripherals
+  ● Applications:
+  • Intelligent voice, smart earphone,
+  professional audio
+  33
+
+[p.34]
+Infineon AURIX RC1
+Ready for the next generation of vehicles
+Vehicles are becoming smarter, more connected and more software-driven. At the same time, vehicle architectures are shifting from
+distributed electronic control units toward more zonal and centralized architectures. This transition increases the demand for scalable
+computing, reusable software and deterministic real-time control across vehicle platforms. Despite these changes, deterministic real-
+time performance, functional safety, cybersecurity, reliability and long-term availability remain essential.
+With AURIX RC1, we combine the flexibility of the open RISC-V architecture with decades of automotive expertise. The result is a
+trusted foundation for real-time compute and control across software-defined vehicles, Software-Defined Everything (SDX) and
+Physical AI.
+Advancing automotive
+microcontrollers AURIX RC1
+has been designed to help manufacturers accelerate
+innovation while simplifying development across vehicle
+platforms. Bringing the next-level of performance, scalability,
+safety, and security, power efficiency, connectivity and
+edge AI to automotive electronics.
+  ✓ Simplified development and software reuse
+  ✓ Reduced system cost
+  ✓ Improved vehicle efficiency
+  ✓ Future-proof performance
+  34
+
+[p.35]
+Allwinner Camera SoC
+■ The Avaota F1 is an ultra-small, open-source hardware Linux SBC powered by an Allwinner V821
+  32-bit RISC-V camera SoC with 64MB on-chip DDR2 and built-in 2.4 GHz WiFi 4, and designed for
+  camera applications with a MIPI CSI connector.
+■ 1.2 GHz Andes A27L2 RISC-V CPU is designed to handle features such as DRAM and storage,
+  the 600 MHz RISC-V MCU manages WiFi and an optional 4G LTE module. Other features like
+  H.264 VPU, cameras, GPIO, SPI, audio, etc.
+  35
+
+[p.36]
+研發暨技術能量
+  36
+  36
+
+[p.37]
+Andes RISC-V Processors to Fit Your AI
+  Data center
+  >100 TOPS
+  Automotive
+  Mobile
+  AR/VR  >10 TOPS
+  Surveillance
+  •  ADAS, HDR
+  >1 TOPS
+  •  > 10 cameras
+  Smart Home
+  Andes Custom Extension (ACE)
+  •  Face unlock
+  •  Bokeh  Andes V-Series
+  •  Avatar  RV64GCPV  >1 GOPS
+  Smart Camera
+  •  Gesture recognition
+  •  Intelligent HMI•  SLAM
+  •  Barge-in  •  High resolution
+  Smart IoT Devices  >100 MOPS
+  AnDLA
+  •  Beamforming  •  > 1 camera
+  •  Speech to text  Andes D/A-Series
+  •  Face trigger  •  Natural language  RV32/64GCP
+  •  Object detection •  Sensor fusion
+  •  Pose detection  >10 MOPS
+  I-Series
+  •  Voice trigger •  Positioning system
+  •  Voice command •  Sensor fusion  Andes N-Series
+  •  Motor control  RV32/64GC
+  •  Always-on
+  37
+
+[p.38]
+AndesCore RISC-V CPU
+  General Purpose/Linux CPU  Vector/FuSa CPU
+  32-bit  64-bit
+  D- DSP
+  A- MMU, Linux AP  AX- MMU, Linux AP  Vector Accelerated  FuSa Functional
+  SIMD
+  N- Baseline  MP- SMP Muti-core NX- Baseline MP- SMP Muti-core  Computing  Safety
+  Accelerated
+  4/8/16 core  4/8/16 core  VLEN up to 512/1024/2048  ASIL-B/ D
+  Computing
+  Cuzco Series  Cuzco  Cuzco-SE
+  Multiple execution pipeline  RVA23+
+  60 Series  AX65/AX66
+  13-stage Out of Order  Specint 2K6 (8.78 / 9.5)
+  A46MPV  AX46MPV-SE
+  46 Series  A46MP  AX46MP  (VLEN up to 256 bit)
+  8-stage Superscalar  (up to 16 cores)  (up to 16 cores)  AX46MPV  AX46-SE
+  (ASIL-B)
+  (VLEN up to 2048 bit)
+  45 Series  N45  D45  A45(MP)  NX45  AX45(MP)  AX45MPV  D45-SE
+  8-stage Superscalar  (VLEN up to 1024 bit)  (ASIL-B/D)
+  25/27 Series  A27(L2)  AX27(L2)  NX27V  N/D25F-SE
+  N25F  D25F  NX25F
+  5-stage Fast& Compact  A25(MP)  AX25MP  (VLEN up to 512 bit)  (ASIL-B)
+  22/23 Series  N225  D23  D23-SE
+  3-stage Fast& Compact  (ASIL-B/D)
+  Taking  Mainstream  38
+
+[p.39]
+Andes’ Advanced AndesCore AX66
+ AX66 Feature Overview
+ ● 64-bit out-of-order 4 wide decode 13-stage CPU core with 128
+  reordering buffers and 8 functional pipelines
+ ● Symmetric multiprocessing up to 8 cores
+ ● Private L2 cache support
+ ● Level-3 shared cache and coherence support
+ ● AndeStar V5 Instruction Set Architecture (ISA)
+ ● Compliant to RISC-V GCBV and Vector Cryptography
+ ● Hypervisor(RVH)
+ ● RVA23 profile compliant
+ ● 64-bit architecture for memory space over 4GB
+ ● TAGE Branch predication for highly accurate prediction
+ ● Linux-capable Memory Management Unit (MMU)
+ ● Physical Memory Protection (PMP) and latest architecture enhancement
+  extension (ePMP) for access permission controls
+ ● AIA with APLIC and IMSIC support  Key applications for the AX66 include:
+ ● ECC or Parity for SRAM error protection  1. Networking and Communications
+  2. Android Devices (including wearables, POS terminals, digital
+ ● StackSafe hardware to help measuring stack size, and detecting  signage, and TV set-top boxes)
+  runtime overflow/underflow  3. Video and Multimedia Processing
+  4. SmartNIC or DPU (Data Processing Units)
+ ● PowerBrake and WFI (Wait for Interrupt) for different power saving  5. AI SoC (Systems on Chip)
+  occasions  6. Edge Servers
+  7. Edge/Data Center AI/ML Inference
+  8. Vision and Camera Applications
+  Taking  Mainstream  39
+
+[p.40]
+晶心可擴展 RISC-V AI 子系統
+• Extend with Andes Custom Extension (ACE), ACE-RVV and ACE Streaming
+  Port (ASP)
+• COPILOT powerful tool for customers to define their own ISA
+• AnDLA: Andes I-series Deep Learning Accelerator
+  擴展 1.
+  計算能力
+  擴展 2.
+  數據移動效率
+  擴展 3.
+  控制信號
+  40
+
+[p.41]
+Safety Mechanisms Andes FuSA cores
+  Common Safety Features
+  • Advanced ECC: address decoder, white-noise
+  protection, error status
+  • Core trap status bus interface
+  • Stack protection: StackSafe
+  Mainstream  Mainstream
+  • NMI (non-maskable interrupt)
+  • PMP
+  External Mechanisms
+  • WDT (watchdog timer)
+  • Software test library (STL)
+  • Partner: Resiltech —
+  Mission-Critical  Low Power & Security
+  41
+
+[p.42]
+Safety Mechanisms Andes FuSA cores
+  Applied on D45-SE & D23-SE
+  Mission-Critical  Low Power & Security  • Dual-core lockstep (DCLS)
+  • Bus protection:
+  • Information redundancy
+  • Frame counter
+  • Timeout detection
+  42
+
+[p.43]
+AnDLA I-Series : I350 & I370
+  I370
+  v1.0
+  I350
+  •  CNN, RNN (new OPs)
+  •  CNN  •  i8i8 64/256/1024 MAC
+  •  i8i8 64/256/1024 MAC  •  i8i16 MAC = i8i8 / 2
+  (i8i8 = weight INT8, activation INT8
+  •  AXI-64/128/256
+  •  AXI-64  •  AHB-64
+  •  16KB-4MB SHRAM  •  16KB-4MB SHRAM
+  Logic Area
+  FPS  FPS  Dynamic
+  IP  Config  um2  Logic Area
+  @500MHz  IP  Config  @500MH  Power
+  @28nm  um2 @12nm
+  z  (uW/MHz)
+ Ethos-  • 256 MAC  278,000  91.3
+ U55  • Local SRAM 48KB  • 64 MAC
+  • System SRAM MB-  Neo110  • Local SRAM  370,000  800.0  96.3
+  level  128KB
+ AnDLA  • 256 MAC  283,708  117.5  • 64 MAC
+  AnDLA
+ I350  • Local SRAM 256KB  • Local SRAM  227,083  4784.7  30.4
+  I370
+  • No system SRAM  128KB
+  ✔ Performance higher: 1.3x  ✔ Performance higher: 6.0x
+1.
+2.
+  AnDLA I350 v1.0 official configuration: 2 EDP, SHRAM 16 banks, 40T DDR latency
+  The power is based on simulation measurements with Cadence Genusv 20.11, averaged analysis.  ✔ Power lower: 3.2x
+3.
+  To achieve lower power consumption, the HVT process is recommended.
+  The performance is estimated on FPGA
+  Note
+  ✔ Area smaller: 1.6x
+4.  The area is with scan_factor:1.33, zwl_comb_scaling: 1.23, zwl_flop_scaling: 1.05, utilization 65%
+  1) AnDLA I370 configuration: 8 banks, 40T DDR latency
+5.  Area Proc: 28nm, HVT, SS, 0.81V, 0C @ 500MHz
+  2) Area estimation based on 12nm, SS 9T 0.9V SVT -40C @1.2GHz, zwl_scaling: 1.25, scan_factor: 1.25, utilization 60%
+  4) The cycle counts are estimated results based on architectural considerations of mixed FPGA
+  43
+
+[p.44]
+AndeSight Software Components
+  standard features
+  Optimizing Compilers  Meta Linker Script Editors  Advanced SoC Debug  Analysis
+•  GCC and LLVM optimized for  Support  •  Function profiling
+  AndesCores  •  Bit field display  •  Code size analysis
+  •  Exception handing
+  •  Instruction tracer
+  Advanced Libraries  AndesCore Simulators  RTOS/Linux Support  Sample Projects
+•  DSP and math functions  •  AndeSim  •  OS-aware debugging  •  Demonstrate features for RISC-
+  optimized for RVV and RVP  •  QEMU  •  Device Drivers  V ISA and AndesCores
+  advanced features
+  (separately licensable)
+  AutoOPTune  AndeSysC  AndesClarity  Andes Custom Extensions
+•  Automatic compiler flag  •  AndesCore SystemC library  •  Processor pipeline  (ACE)
+  tuner  and sample SoC  analyzer/visualizer  •  Automated generation of
+  toolchains, ISS and RTL for user
+  extensions
+  44
+
+[p.45]
+RISC-V International 主要會員
+  45
+
+[p.46]
+Andes Automotive Ecosystem
+  Safety RTOS & STL  AUTOSAR  Security / HSM  Compiler / Debugger / Tool
+  46
+
+[p.47]
+Andes Partners and RISC-V Ecosystem
+  Category  Partners
+  IP
+  SW and Dev
+  Env.
+ Design Service,
+  Foundries,
+ EDA and others
+  47
+
+[p.48]
+  48
+
+[p.49]
+Thank you
+  49
