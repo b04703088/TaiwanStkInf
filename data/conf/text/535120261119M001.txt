@@ -1,0 +1,394 @@
+[p.1]
+  Etron Technology, Inc. Since 1991
+鈺創科技股份有限公司
+2026年第三季法人說明會
+  Nov. 19, 2026
+
+[p.3]
+Agenda
+1. 2026年前三季財務績效
+2. 營運狀況
+3. 市場與營運展望
+4. Q&A
+  3
+
+[p.4]
+1. 2026年前三季財務績效
+  4
+
+[p.5]
+合併營業收入
+  NT$M
+  20,000
+  14,426
+  15,000
+  10,000
+  4,685  4,037
+  5,000  2,662  3,473
+  0
+  2022  2023  2024  2025  2026前三季
+  5
+
+[p.6]
+合併營業毛利
+ NT$M  26%  (3%)  13%  15%  52%
+ 9,000
+  7,484
+ 7,000
+ 5,000
+ 3,000
+  1,200
+ 1,000  443  618
+  (83)
+ (1,000)  2022  2023  2024  2025  2026前三季
+  6
+
+[p.7]
+合併綜合損益表
+單位:新台幣百萬元  3Q26  2Q26  3Q25
+營業收入淨額  6,792  4,899  1,070
+營業毛利  3,926  2,555  135
+營業毛利率  58%  52%  13%
+營業費用  (1,161)  (847)  (332)
+營業淨利(損)  2,782  1,725  (180)
+營業外收入及支出  21  8  16
+歸屬於母公司業主之本期淨利(損)  2,493  1,580  (141)
+每股盈餘(虧損)(新台幣元)  7.59  4.81  (0.43)
+息前稅前折舊攤銷前利益(損失)  2,903  1,823  (91)
+  7
+
+[p.8]
+合併資產負債表
+  Sep.30 ,26  Jun.30 ,26  Dec.31 ,25
+單位:新台幣百萬元
+  金額  %  金額  %  金額  %
+ 現金及約當現金  5,243  32  3,168  26  874  11
+ 應收帳款  2,431  15  1,855  15  1,034  14
+ 存貨  4,518  28  3,443  28  2,702  35
+ 流動資產合計  12,462  76  8,639  70  5,137  67
+ 非流動資產合計  3,890  24  3,645  30  2,579  33
+資產總計  16,352  100  12,284  100  7,716  100
+ 應付帳款  2,191  13  1,660  14  872  11
+ 其他流動負債  2,980  19  1,893  15  1,330  17
+ 流動負債合計  5,171  32  3,553  29  2,202  28
+ 長期負債  1,357  8  1,433  12  1,522  20
+負債總計  6,528  40  4,986  41  3,724  48
+股東權益總計  9,824  60  7,298  59  3,992  52
+重要財務指標
+  流動比率(倍)  2.41  2.43  2.33
+  負債比率  40%  41%  48%
+  8
+
+[p.9]
+合併現金流量表
+單位:新台幣百萬元  2026第三季  2026第二季  2026第一季  2025
+期初現金及約當現金餘額  3,168  1,532  874  785
+  營運活動現金流量  2,440  1,771  465  (437)
+  資本支出  (103)  (51)  (138)  (273)
+  籌資活動現金流量及其他  (262)  (84)  331  799
+期末現金及約當現金餘額  5,243  3,168  1,532  874
+  9
+
+[p.10]
+2. 營運狀況
+  10
+
+[p.11]
+DRAM營收-應用別
+  4%  4%  4%  3%  5%
+  10%  13%  8%
+  16%  16%
+  11%  13%
+  9%  11%  12%
+  13%
+  20%  19%  23%
+  18%
+  36%  16%
+  21%
+  26%  29%
+  35%
+  30%
+  25%  25%  24%
+  2022  2023  2024  2025  2026 Q1-Q3
+  Networking & Communication  Automotive & Industrial  HDD & SSD & Printer  Display  Others  STB
+  11
+
+[p.12]
+記憶體營收- 2026前三季終端用戶區域別
+  JP & KR  TW
+  10%  KGD 16%
+  TW
+ 記憶體營收68%來自海外  US & EU
+  32%
+  Discrete 16%
+  CN
+  CN
+  KGD 21%
+  Discrete
+  5%
+  12
+
+[p.13]
+記憶體Discrete營收-2026前三季終端用戶區域別
+  JP/KR, 16%
+  TW, 25%
+記憶體Discrete營收67%來自歐美日韓
+  CN, 8%
+  US/EU, 51%
+  13
+
+[p.14]
+從生成式 AI 到代理式 AI：
+更高的工作負載與記憶體系統需求
+  14
+
+[p.15]
+透過鈺創MemorAiLink整合式記憶體平台，探索 Edge AI
+在效能、功耗、尺寸與成本之間的最佳平衡
+  15
+
+[p.16]
+鈺創記憶體解決方案為廣大全球多元應用客戶創造長期價值
+多元記憶體產品、長期支援與 AI 創新
+以長期產品支援為基礎，提供差異化記憶體解決方案
+ 多元記憶體產品組合  長期產品支援  差異化記憶體解決方案
+ 涵蓋多種記憶體產品類型  支援產品生命週期各階段  因應多元應用需求
+  SDR、DDR、DDR2、DDR3、DDR4  長期產品供應與延續性  MemorAiLink 整合式解決方案
+  LPDDR2、LPDDR4/4X
+  穩定的製造支援  RPC/DWB DRAM 及客製化AI memory 技術
+  RPC DRAM、SPI NAND、e.MMC
+  DWB &客製化AI memory  從設計導入到量產的支援  記憶體與系統整合能力
+  16
+
+[p.17]
+持續拓展記憶體產品組合，滿足多元市場需求
+  17
+
+[p.18]
+集團轉投資布局
+  主要資產  主要股東
+  NPU IP
+  Perception & Decision  視覺處理單元 IP
+  RISC架構 IP
+  次系統設計 IP
+  傳輸介面 IP
+  次系統軟硬技術
+  USB IP
+  RISC CPU IP
+ Connectivity & Interface  Serdes IP
+  PD Controller
+  Audio/ Video Signal Processing
+  Serdes 設計能力
+  整合傳輸介面能力
+  eMarker Controller
+  Privacy Processing Unit (PPU) and IP
+ Privacy & Intelligence  Privacy Image Processing System and IP
+  GPS De-identification Software and IP
+  In-vehicle Privacy Processing IP
+  De-identification Technology System and IP
+  Robotic Control System and IP
+  18
+
+[p.19]
+轉投資公司系統設計平台對本公司的價值
+  Sensing, Processing, Decision
+  加速生態系對接
+  累積IP
+  快速整合連接、感測和人工智慧，從概念到可量產的原型。
+  接觸應用市場
+  Connectivity, Interface
+  利用多元的合作夥伴網路觸角達陣終端市場，
+  開展業務成功建立商務合作關係。
+  探索應用
+  累積IP資產
+  將專案成長轉化為可重複使用的IP模組，
+  積累長期價值，降低未來開發成本。
+  Privacy, Software, Intelligence
+  19
+
+[p.20]
+  Perception & Decision
+20
+
+[p.21]
+21
+
+[p.22]
+22
+
+[p.23]
+  Connectivity & Interface
+大功率PD Control進軍Edge AI Server
+  低功率 PD  240 W PD
+  類別
+  控制器應用  控制器應用
+  工業  USB 供電  Edge AI 伺服器
+  電腦  IoT 模組  HPC 模組  •  PD3.2控制IC全系列榮獲
+  USB-IF PD認證
+  主機供電  •  業界唯一支援USB4™及
+  車載  機器人底盤 電源  DisplayPort2.1傳輸線專用
+  周邊充電  PD3.2控制晶片– EJ732D
+  機器人  匯流
+提供機器人與邊緣AI伺服器PD控制器方案
+  23
+
+[p.24]
+24
+
+[p.25]
+25
+
+[p.26]
+  Privacy & Intelligence
+AipA 隱私強化 AI 五大產品線
+ 𝐃𝐞𝐂𝐥𝐨𝐚𝐤𝐕𝐢𝐬𝐢𝐨𝐧TM  𝐃𝐞𝐂𝐥𝐨𝐚𝐤𝐅𝐚𝐜𝐞TM  𝐃𝐞𝐂𝐥𝐨𝐚𝐤𝐁𝐫𝐚𝐢𝐧TM  𝐃𝐞𝐂𝐥𝐨𝐚𝐤𝐀𝐯𝐚𝐭𝐚𝐫 TM  𝐃𝐞𝐂𝐥𝐨𝐚𝐤𝐏𝐞𝐫𝐬𝐨𝐧𝐚TM
+  智慧醫療照護系統  無個資影像辨識引擎  隱私安全機器人智慧決策系統  數位孿生代理人  隱私資料去識別化引擎
+  20+ 醫療機構採用  FIDO2 認證  CES 2026 創新獎  數位孿生 × 機器人協作  個資不可逆去識別
+ 相容 99% 以上 IPCAM  醫療・半導體・日本零售  人形・四足機器人  LLM＋RAG 即時語音  資料可用、不可識
+  CES 創新獎 2023・2024・2026  件全球專利申請
+  COMPUTEX 2025 Best Choice 金獎・國家新創獎・VivaTech Tech
+  For Change  47  17 件已獲證・TW/US/CN/JP/KR/EU
+  26
+
+[p.27]
+  Privacy & Intelligence
+隱私技術的智慧醫療落地案例
+  𝐃𝐞𝐂𝐥𝐨𝐚𝐤𝐕𝐢𝐬𝐢𝐨𝐧TM
+  20+
+  醫療機構採用
+  家  AipA 智慧醫療照護系統
+  AipA Smart Healthcare System performs
+  臺大醫院全體系・臺中榮總・奇美醫院・長照日照  automated, irreversible de-identification at the
+  edge while detecting and alerting on bed exits, falls,
+  physical conflicts and unplanned extubation,
+  相容 99% 以上 IPCAM  helping frontline staff manage patient safety
+  without exposing personal data. Its privacy
+  既有 RTSP攝影機直接 AI 升級，免更換硬體  protection algorithms are designed in alignment
+  with U.S. NIST SP 800-226.
+  四類高風險事件即時告警
+  離床預警・跌倒・肢體衝突・拔管，夜間亦  合作場域｜臺大醫院全體系・成大醫院・臺中榮
+  可運作  總・奇美醫院・輔大醫學院，以及多家長照機構
+  輔助照護定位，快速部署
+  非醫療器材，協助第一線醫護守護病人安全
+  AipA
+  Smart Healthcare System
+  27
+
+[p.28]
+  Privacy & Intelligence
+隱私技術的人臉辨識落地案例
+  𝐃𝐞𝐂𝐥𝐨𝐚𝐤𝐅𝐚𝐜𝐞TM
+  10+
+  落地場域
+  處  AipA 無個資影像辨識引擎
+  All image processing runs on local devices, so facial
+  醫療・半導體・日本智慧零售  photos are never uploaded to the cloud. The front-
+  end applies real-time de-identification masking
+  against screen capture and biometric leakage; the
+  前端即時去識別遮罩  back-end matches identities only on de-identified
+  features, so even compromised data cannot be
+  畫面即時遮蔽臉部，防止截圖外洩生物特徵  misused.
+  本地處理・去識別比對
+  影像不上雲，外洩也無法還原或濫用  標竿客戶｜鈺創・濾能・醫院・各大上市公司
+  國際資安認證
+  FIDO2 Server 認證・ISO/IEC 27001・
+  AipA
+  CNS 27001  Privacy-Preserving Face Engine
+  28
+
+[p.29]
+  Privacy & Intelligence
+隱私技術的機器人智慧決策
+  𝐃𝐞𝐂𝐥𝐨𝐚𝐤𝐁𝐫𝐚𝐢𝐧TM
+  3  屆 CES 創新獎
+  2023・2024・2026 三度獲獎
+  AipA 隱私安全機器人智慧決策系統
+  DeCloakBrain is a privacy-secure general decision
+  2026 由 DeCloakBrain 獲獎  system for robots. Its differential-privacy engine de-
+  identifies faces and bodies at the moment of
+  capture, so no downstream AI ever processes
+  擷取即去識別  identifiable images. Running on an edge module, it
+  powers humanoid and quadruped robots for safety
+  擷取當下即去識別，AI 不碰可識別影像  inspection, hospital guidance and high-risk
+  behavior recognition.
+  機器人隱私安全保護與協作
+  工安巡檢・醫院導引・高風險行為辨識  國際夥伴｜California Robotics（美國）・大
+  學研究計畫
+  CES 2026  國際法規就緒
+  Innovation Awards  支援 EU AI Act 與 HIPAA 隱私要求
+  AipA
+  Privacy-Intelligent Robot General Decision-
+  Making System
+  29
+
+[p.30]
+  Privacy & Intelligence
+隱私技術的數位孿生與機器人協作
+人機協作流程
+  𝐃𝐞𝐂𝐥𝐨𝐚𝐤𝐀𝐯𝐚𝐭𝐚𝐫 TM
+  2026
+  國際論壇亮相展示
+  玉山論壇  AipA 數位孿生 × 機器人協作
+  DeCloakAvatar is a digital-twin agent: an AI persona
+  在地民主：全球協作下的城市創新治理論壇  of a person or a place that can appear on screens,
+  kiosks and other devices. Beyond conversation, it
+  acts as the hub between people and robots: users
+  數位孿生分身  give instructions by voice, and the Avatar
+  coordinates robot dogs and robots to carry out
+ 管理者  Avatar  機器狗・機器人  為人員或場域建立 AI 分身，跨螢幕與載具  tasks, with LLM, speech and RAG grounding every
+自然語音下令  數位孿生分身  協作執行任務  出現  response in real-time data.
+  ＊示意圖
+  指揮機器人協作
+  以對話下令，Avatar 協調機器狗與機器人  產品定位｜數位孿生代理人，連結人、AI 與機
+  機器人巡檢協作  智慧城市導覽  執行任務  器人
+  即時語音＋RAG 知識
+  企業品牌大使  公共事務諮詢  LLM・語音辨識・語音合成，串接即時資料
+  AipA
+  Digital Twin Agent for Human-Robot Teaming
+  30
+
+[p.31]
+  Privacy & Intelligence
+隱私技術的資料去識別化應用
+  𝐃𝐞𝐂𝐥𝐨𝐚𝐤𝐏𝐞𝐫𝐬𝐨𝐧𝐚TM
+  47  件
+  AipA 核心技術全球專利申請
+  AipA 隱私資料去識別化引擎
+  DeCloakPersona (formerly DataCloaker) irreversibly
+  17 件已獲證・TW/US/CN/JP/KR/EU  de-identifies personal data before it is used for AI
+  training, analytics or cross-organization sharing,
+  preserving the value of the data while removing the
+  不可逆去識別化  risk of re-identification.
+應用場景  個資處理後無法還原，從源頭降低外洩風險
+  保留資料可用價值
+  去識別後仍可用於 AI 訓練與統計分析  核心價值｜讓資料「可用、不可識」
+  法規合規加速器
+AI 模型訓練  統計分析研究  跨機構共享
+  協助符合個資法與 GDPR 等隱私法規要求
+  AipA
+  Privacy-Preserving Data Engine
+  31
+
+[p.32]
+3. 市場與營運展望
+  32
+
+[p.33]
+市場與營運展望
+  AI 產業驅動記憶體產業結構轉變，尤其隨著生成式 AI 發展也帶動代理式 AI興
+  起，將觸發更多對記憶體的需求，然而2027年新增產能仍有限，供需緊張態勢
+  預期將延續至2027年下半年。
+  隨著 AI 工作負載日益複雜，市場對記憶體配置、資料存取效率與系統整合的
+  需求更加多元。鈺創將持續深化 MemorAiLink 平台布局，結合記憶體技術與
+  系統整合能力，拓展更多元的 Edge AI 推理應用市場，並切入AI基礎設施周邊
+  包括網通設備、伺服器管理晶片、企業級SSD快取等。
+  面對記憶體市場供需緊張及產業產能配置持續調整，鈺創將持續強化與供應鏈
+  夥伴的協作，提升供應協調與資源調度能力，增強供應韌性；同時持續拓展產
+  品組合，以更全面的產品布局回應市場變化與客戶需求，支持公司營運的穩健
+  發展
+  33
+
+[p.34]
+Q&A
+www.etron.com
+  34
