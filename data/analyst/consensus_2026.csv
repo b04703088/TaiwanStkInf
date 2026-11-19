@@ -1,4 +1,6 @@
 date,time,news_id,code,name,kind,year,analysts,prev,value,chg_pct,high,low,target,bull,neutral,bear,close,url
+2026-11-19,20:11,6667876,6409,旭隼,eps,2026,7,31.64,30.79,-2.69,45.72,27.79,1050,,,,,https://news.cnyes.com/news/id/6667876
+2026-11-19,20:11,6667875,9914,美利達,eps,2026,10,4.38,4.21,-3.88,5.13,3.08,91,,,,,https://news.cnyes.com/news/id/6667875
 2026-11-19,14:10,6667525,2610,華航,eps,2026,8,2.13,2.19,2.82,2.43,1.75,25,,,,,https://news.cnyes.com/news/id/6667525
 2026-11-19,14:10,6667524,4958,臻鼎-KY,eps,2026,7,14.18,14.07,-0.78,15.18,12.65,700,,,,,https://news.cnyes.com/news/id/6667524
 2026-11-19,14:10,6667523,4958,臻鼎-KY,tp,,8,679,700,3.09,1070,575,700,8,0,0,344,https://news.cnyes.com/news/id/6667523
