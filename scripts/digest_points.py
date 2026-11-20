@@ -346,13 +346,14 @@ def etf(iso, prev_iso, names):
                 act[c] += d * px[c] / 1e8
                 act_name[c] = nm
         big = None
-        if info["kind"] == "active":   # 主動式：扣除申購贖回後的雙向換手 ≥ 門檻 → 標「主動大幅調倉」（etf_site.shift_score）
-            u0, u1 = units.get((code, etf_site.date_of(files[-2]))), units.get((code, etf_site.date_of(files[-1])))
-            sc = etf_site.shift_score(prev, cur, (u1 / u0) if u0 and u1 else None)
-            if sc and sc["score"] >= etf_site.SHIFT_BIG:
-                big = f"主動式，雙向換手 {sc['score']:.1f}%（續抱 {sc['cont']} 檔中加碼 {sc['up']}、減碼 {sc['dn']}）"
+        if info["kind"] == "active":   # 主動式：扣除申購贖回後有加碼也有減碼就標「主動調倉」，不設門檻（Leo 2026-11-20；etf_site.latest_shift）
+            sc = etf_site.latest_shift(code, files, units)
+            if sc and sc["two"]:
+                days = f"，分 {sc['days']} 天" if sc.get("days", 1) > 1 else ""
+                big = f"主動式，雙向換手 {sc['score']:.1f}%{days}（續抱 {sc['cont']} 檔中加碼 {sc['up']}、減碼 {sc['dn']}）"
+                lvl = "主動大幅調倉" if sc["score"] >= etf_site.SHIFT_BIG else "主動調倉"
         if big or ((new or gone) and len(new) + len(gone) <= 30):
-            out.append(["主動大幅調倉" if big else "持股異動", f"{code} {info['name']}", "、".join(sorted(new)) or "無",
+            out.append([lvl if big else "持股異動", f"{code} {info['name']}", "、".join(sorted(new)) or "無",
                         "、".join(sorted(gone)) or "無", big or ("主動式" if info["kind"] == "active" else "被動式")])
     res_out = ["## ETF 調整重點", ""]
     if out:

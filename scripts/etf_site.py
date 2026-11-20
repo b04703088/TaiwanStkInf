@@ -20,6 +20,7 @@ import csv
 import re
 import json
 from pathlib import Path
+from datetime import date, timedelta
 
 COLS = ["e", "code", "name", "sh", "w", "psh", "pw", "px", "cls", "d"]
 
@@ -523,6 +524,8 @@ def write_active(data_dir, out_path, root=None):
 # 回測（2025/05～2026/11 全部主動式 ETF、約 5,600 次持股公布）：≥ 10% 約 45 次，幾乎都是
 # 00984A 每月初、00993A 雙週的換股，以及 00404A／00980A 的大換股；5～10% 是較小的調整。
 SHIFT_BIG, SHIFT_MID, SHIFT_MOVE = 10.0, 5.0, 0.02
+# 分段換股：連續每次公布雙向換手都 ≥ 2%（最多 5 次）就合起來算；回測 00982A 2025/11/18–20 三天各 < 10%、合計 29%。
+SHIFT_RUN, SHIFT_RUN_MAX, SHIFT_RUN_GAIN = 2.0, 5, 2.0
 
 
 def _median(xs):
@@ -557,12 +560,64 @@ def shift_score(h0, h1, units_ratio=None, tw_only=True):
     score = min(buy, sell)
     return {"score": round(score, 1), "buy": round(buy, 1), "sell": round(sell, 1), "ratio": round(r, 4), "src": src,
             "cont": len(both), "up": sum(1 for m in moves if m[2] > 0), "dn": sum(1 for m in moves if m[2] < 0),
+            "two": bool((adds or any(m[2] > 0 for m in moves)) and (drops or any(m[2] < 0 for m in moves))),
             "adds": sorted(adds, key=lambda a: -(a[2] or 0)), "drops": sorted(drops, key=lambda a: -(a[2] or 0)),
             "moves": sorted(moves, key=lambda m: -abs(m[2] * (m[3] or 0)))}
 
 
-def build_shift(data_dir, min_score=SHIFT_MID, max_moves=16):
-    """每檔主動式 ETF 全部歷史持股逐次比較：雙向換手 ≥ min_score 的列為事件，另附每檔最新一次的分數。"""
+def _shift_runs(dates, steps, pair_score):
+    """把「連續幾天都在調倉」合併成一次事件：有些 ETF（如 00982A、00985A、00993A）會把一次換股分 2～4 天做，
+    每天的雙向換手都不到門檻，合起來才看得出來。
+    dates[i] 是第 i 份持股日期，steps[i] 是第 i−1 → i 份的 shift_score（steps[0] 為 None），
+    pair_score(i, j) 算第 i 份 → 第 j 份的分數。連續每天 ≥ SHIFT_RUN 的公布（最多 SHIFT_RUN_MAX 次）算一段，
+    整段的分數 ≥ SHIFT_MID 且比段內單日最高多 SHIFT_RUN_GAIN 以上才合併。回傳 [(起 i, 迄 j, 分數 dict)]。"""
+    runs, i, n = [], 1, len(steps)
+    while i < n:
+        if not (steps[i] and steps[i]["score"] >= SHIFT_RUN):
+            i += 1
+            continue
+        j = i
+        while j + 1 < n and steps[j + 1] and steps[j + 1]["score"] >= SHIFT_RUN and j + 1 - i < SHIFT_RUN_MAX:
+            j += 1
+        if j > i:
+            m = pair_score(i - 1, j)
+            top = max(steps[k]["score"] for k in range(i, j + 1))
+            if m and m["score"] >= SHIFT_MID and m["score"] >= top + SHIFT_RUN_GAIN:
+                m["days"] = j - i + 1
+                m["parts"] = [[dates[k], steps[k]["score"]] for k in range(i, j + 1)]
+                runs.append((i, j, m))
+        i = j + 1
+    return runs
+
+
+def etf_shift_steps(code, files, units):
+    """一檔 ETF 的持股檔（已排序）→ (日期, 單日分數, 兩份比較函式)。"""
+    hs = [(date_of(f), read_holdings(f)) for f in files]
+
+    def pair(i, j):
+        u0, u1 = units.get((code, hs[i][0])), units.get((code, hs[j][0]))
+        return shift_score(hs[i][1], hs[j][1], (u1 / u0) if u0 and u1 else None)
+    dates = [d for d, _ in hs]
+    return dates, [None] + [pair(k - 1, k) for k in range(1, len(hs))], pair
+
+
+def latest_shift(code, files, units, back=SHIFT_RUN_MAX + 1):
+    """最新一次公布的調倉分數；若最近幾天是分段換股，回傳合併後的分數（帶 days、parts）。"""
+    files = files[-(back + 1):]
+    if len(files) < 2:
+        return None
+    dates, steps, pair = etf_shift_steps(code, files, units)
+    runs = _shift_runs(dates, steps, pair)
+    if runs and runs[-1][1] == len(steps) - 1:
+        return runs[-1][2]
+    return steps[-1]
+
+
+def build_shift(data_dir, min_score=SHIFT_MID, max_moves=16, two_days=92):
+    """每檔主動式 ETF 全部歷史持股逐次比較：雙向換手 ≥ min_score 的列為事件，另附每檔最新一次的分數。
+    Leo 2026-11-20：同一次公布「有加碼也有減碼」（扣除申贖後偏離 > 2% 或新增／剔除，two=True）就要提醒、不設門檻，
+    所以最近 two_days 天內這種都列入事件；更早的只留 ≥ min_score（控制檔案大小）。
+    分幾天做完的換股（見 _shift_runs）合併成一筆事件（days > 1，prev 是開始換股前那份持股），段內的單日事件不另列。"""
     data_dir = Path(data_dir)
     etf_dir = data_dir / "etf"
     with (etf_dir / "etf_list.csv").open(encoding="utf-8") as fp:
@@ -574,27 +629,28 @@ def build_shift(data_dir, min_score=SHIFT_MID, max_moves=16):
         files = sorted((etf_dir / code).glob("[0-9]*.csv"))
         if len(files) < 2:
             continue
-        n_big, last, n_cmp = 0, None, 0
-        prev = (date_of(files[0]), read_holdings(files[0]))
-        for f in files[1:]:
-            cur = (date_of(f), read_holdings(f))
-            u0, u1 = units.get((code, prev[0])), units.get((code, cur[0]))
-            s = shift_score(prev[1], cur[1], (u1 / u0) if u0 and u1 else None)
-            if s is not None:
-                n_cmp += 1
-                last = (prev[0], cur[0], s)
-                if s["score"] >= min_score:
-                    s["moves"] = s["moves"][:max_moves]  # 只留影響最大（權重 × 偏離）的幾檔，控制檔案大小
-                    events.append(dict(etf=code, date=cur[0], prev=prev[0], **s))
-                    n_big += s["score"] >= SHIFT_BIG
-            prev = cur
+        dates, steps, pair = etf_shift_steps(code, files, units)
+        runs = _shift_runs(dates, steps, pair)
+        in_run = {k for i, j, _ in runs for k in range(i, j + 1)}
+        cut = (date.fromisoformat(dates[-1]) - timedelta(days=two_days)).isoformat()
+        keep = lambda k, s: s["score"] >= min_score or (s["two"] and dates[k] >= cut)
+        mine = [(k, k, s) for k, s in enumerate(steps) if s is not None and k not in in_run and keep(k, s)]
+        mine += [r for r in runs if keep(r[1], r[2])]
+        for i, j, s in sorted(mine, key=lambda x: x[1]):
+            s["moves"] = s["moves"][:max_moves]  # 只留影響最大（權重 × 偏離）的幾檔，控制檔案大小
+            events.append(dict(etf=code, date=dates[j], prev=dates[i - 1], **s))
+        n_cmp = sum(1 for s in steps if s is not None)
         if n_cmp:
+            last_k = max(k for k, s in enumerate(steps) if s is not None)
+            last = next((s for i, j, s in runs if j == last_k), steps[last_k])
+            last_i = next((i for i, j, _ in runs if j == last_k), last_k)
             ev_big = [e["date"] for e in events if e["etf"] == code and e["score"] >= SHIFT_BIG]
-            etfs.append({"code": code, "name": info["name"], "issuer": info["issuer_name"], "since": date_of(files[0]),
-                         "n": n_cmp, "big": n_big, "last_big": ev_big[-1] if ev_big else None,
-                         "date": last[1], "prev": last[0], "score": last[2]["score"]})
+            etfs.append({"code": code, "name": info["name"], "issuer": info["issuer_name"], "since": dates[0],
+                         "n": n_cmp, "big": len(ev_big), "last_big": ev_big[-1] if ev_big else None,
+                         "date": dates[last_k], "prev": dates[last_i - 1], "score": last["score"],
+                         "days": last.get("days", 1), "two": last["two"]})
     events.sort(key=lambda e: (e["date"], e["score"]), reverse=True)
-    return {"big": SHIFT_BIG, "mid": SHIFT_MID, "move": SHIFT_MOVE * 100,
+    return {"big": SHIFT_BIG, "mid": SHIFT_MID, "move": SHIFT_MOVE * 100, "run": SHIFT_RUN, "two_from": (date.fromisoformat(max((e["date"] for e in etfs), default="2000-01-01")) - timedelta(days=two_days)).isoformat(),
             "latest": max((e["date"] for e in etfs), default=None), "etfs": etfs, "events": events}
 
 
