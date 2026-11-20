@@ -1,11 +1,11 @@
 {
- "generated": "2026-11-20 18:26",
+ "generated": "2026-11-20 18:40",
  "fetched_days": 2,
  "left_days": 0,
- "news": 339,
+ "news": 341,
  "cats": {
-  "other": 67,
-  "call": 101,
+  "other": 68,
+  "call": 102,
   "capital": 32,
   "ma": 36,
   "div": 12,
@@ -20,7 +20,7 @@
  },
  "exright": 276,
  "calls": 919,
- "events": 73,
+ "events": 74,
  "unparsed": [],
  "errors": []
 }
