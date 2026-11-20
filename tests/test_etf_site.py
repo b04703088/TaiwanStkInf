@@ -131,3 +131,30 @@ class ShiftScoreTest(unittest.TestCase):
     def test_no_shares(self):
         h0 = self.h({f"{1101 + i}": (None, 10.0) for i in range(10)})
         self.assertIsNone(E.shift_score(h0, h0))
+        self.assertFalse(E.shift_score(self.base(), self.base())["two"])
+
+    def test_two_flag_without_threshold(self):
+        h0 = self.base()
+        d = {c: (1000, 10.0) for c in h0}
+        d["1101"], d["1102"] = (1050, 10.0), (950, 10.0)   # 各動 5%，雙向換手只有 0.5%
+        s = E.shift_score(h0, self.h(d), units_ratio=1.0)
+        self.assertLess(s["score"], E.SHIFT_MID)
+        self.assertTrue(s["two"])
+
+    def test_multi_day_run_merged(self):
+        # 00982A 式：換股分兩天，每天只換一半（各 < 門檻），合起來才大
+        h0 = self.base()
+        day1 = {c: (1000, 10.0) for c in h0}
+        day1["1101"], day1["1102"] = (1400, 10.0), (600, 10.0)
+        day2 = dict(day1)
+        day2["1103"], day2["1104"] = (1400, 10.0), (600, 10.0)
+        hs = [h0, self.h(day1), self.h(day2)]
+        pair = lambda i, j: E.shift_score(hs[i], hs[j], units_ratio=1.0)
+        steps = [None, pair(0, 1), pair(1, 2)]
+        self.assertTrue(all(s["score"] < E.SHIFT_BIG for s in steps[1:]))
+        runs = E._shift_runs(["d0", "d1", "d2"], steps, pair)
+        self.assertEqual(len(runs), 1)
+        i, j, m = runs[0]
+        self.assertEqual((i, j, m["days"]), (1, 2, 2))
+        self.assertAlmostEqual(m["score"], 8.0)
+        self.assertEqual([p[0] for p in m["parts"]], ["d1", "d2"])

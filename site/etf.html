@@ -559,12 +559,15 @@
         先用受益單位數的變化（沒有就用續抱股股數變化的中位數）把前一次持股等比例換算，每檔剩下的偏離才算經理人的加減碼。
         <b>加碼側</b>＝加碼股的「前次權重 × 偏離幅度」加總＋新增股的權重；<b>減碼側</b>＝減碼股同樣加總＋剔除股的權重；
         <b>雙向換手</b>＝兩側取小的那邊（佔基金規模 %）。只有一邊動（申購的錢還沒買完、只賣不買）不會被標出。
+        <b>有買有賣</b>＝扣掉申贖後同時有加碼和減碼（偏離 &gt; 2% 或新增／剔除），不設門檻，列近 3 個月。
+        有些 ETF 會把一次換股分 2～5 天做（如 00982A），連續每天雙向換手 ≥ 2% 會合併成一筆、標「分 N 天」，從開始換股前那份持股比起。
         <span id="shTh"></span>只公布權重、沒有股數的 ETF 無法計算。點一列看新增、剔除與主要加減碼。</p>
       <div class="stats" id="shStats"></div>
       <div class="toolbar">
         <div class="seg" id="shLvl" role="group" aria-label="門檻">
-          <button type="button" data-v="big" aria-pressed="true">大幅</button>
-          <button type="button" data-v="mid" aria-pressed="false">含中幅</button>
+          <button type="button" data-v="two" aria-pressed="true">有買有賣</button>
+          <button type="button" data-v="mid" aria-pressed="false">中幅以上</button>
+          <button type="button" data-v="big" aria-pressed="false">大幅</button>
         </div>
         <div class="seg" id="shWhen" role="group" aria-label="期間">
           <button type="button" data-v="60" aria-pressed="true">近 3 個月</button>
@@ -925,7 +928,7 @@ function renderChange(query = state.query) {
     $("changeMeta").textContent = (e.prev ? `${fmtDate(e.prev)} → ${fmtDate(e.date)} · ${e.issuer}${e.kind === "active" ? " · 主動式" : ""}` : `${fmtDate(e.date)} · 尚無前一份可比較`)
       + (weightOnly ? " · 投信只公布權重，僅列新增／剔除" : "");
     const se = typeof sh !== "undefined" && sh.data && e.kind === "active" ? sh.data.etfs.find(x => x.code === e.code && x.date === e.date) : null;
-    if (se && se.score >= sh.data.mid) $("changeMode").innerHTML = `ETF<a href="#shift" class="sh-tag ${se.score >= sh.data.big ? "big" : "mid"}" style="text-decoration:none" title="扣除申購贖回後的雙向換手 ${se.score}%">${se.score >= sh.data.big ? "大幅" : "中幅"}調倉 ${fmtN(se.score, 1)}%</a>`;
+    if (se && (se.two || se.score >= sh.data.mid)) $("changeMode").innerHTML = `ETF<a href="#shift" class="sh-tag ${se.score >= sh.data.big ? "big" : "mid"}" style="text-decoration:none" title="扣除申購贖回後的雙向換手 ${se.score}%${se.days > 1 ? `，${fmtDate(se.prev)} 起分 ${se.days} 天合計` : ""}">${se.score >= sh.data.big ? "大幅" : se.score >= sh.data.mid ? "中幅" : ""}調倉 ${fmtN(se.score, 1)}%${se.days > 1 ? `（分${se.days}天）` : ""}</a>`;
     const amt = xs.reduce((s, x) => s + (amount(x) || 0), 0);
     $("changeStats").innerHTML = `
       <div class="stat"><span>增加 / 新增</span><b class="mono up">${xs.filter(up).length}</b><small>檔（新增 ${xs.filter(x => x.cls === "new").length}）</small></div>
@@ -1387,9 +1390,11 @@ fetch("data/etf/rebalance.json", { cache: "no-cache" }).then(r => r.json()).then
   .catch(e => { console.error(e); $("rbRows").innerHTML = `<tr><td colspan="6" class="empty">讀取調整時長失敗</td></tr>`; });
 
 /* ---------- 主動調倉 ---------- */
-var sh = { data: null, lvl: "big", when: "60", q: "", open: null, etf: null };
+var sh = { data: null, lvl: "two", when: "60", q: "", open: null, etf: null };
 const shMd = d => d ? `${+d.slice(5, 7)}/${+d.slice(8, 10)}` : "—";
 const shTag = (D, v) => v >= D.big ? '<span class="sh-tag big">大幅</span>' : v >= D.mid ? '<span class="sh-tag mid">中幅</span>' : "";
+const shDays = x => x.days > 1 ? `<span class="sh-tag mid" title="${(x.parts || []).map(p => `${shMd(p[0])} ${fmtN(p[1], 1)}%`).join("、")}">分 ${x.days} 天</span>` : "";
+const shPass = (D, x, lvl) => lvl === "big" ? x.score >= D.big : lvl === "mid" ? x.score >= D.mid : (x.two || x.score >= D.mid);
 const SH_GET = {
   date: x => x.date + String(x.score).padStart(6, "0"), etf: x => x.etf, score: x => x.score, buy: x => x.buy,
   moved: x => x.up + x.dn, nd: x => x.adds.length + x.drops.length, ratio: x => x.ratio,
@@ -1401,7 +1406,8 @@ function shDetail(D, x) {
   const list = (xs, f) => xs.length ? `<ul>${xs.map(f).join("")}</ul>` : '<p class="meta">無</p>';
   const ups = x.moves.filter(m => m[2] > 0), dns = x.moves.filter(m => m[2] < 0);
   const mv = m => `<li>${stk(m[0], m[1])}<span class="v mono"><span class="${cls(m[2])}">${m[2] > 0 ? "+" : ""}${fmtN(m[2], 0)}%</span> · ${w(m[3])}→${w(m[4])}</span></li>`;
-  return `<p class="meta">${shMd(x.prev)} → ${shMd(x.date)}・申贖比例 ${x.src === "units" ? "依受益單位數" : "依續抱股中位數"} ${fmtN((x.ratio - 1) * 100, 2)}%・
+  const parts = x.days > 1 ? `分 ${x.days} 天換股（每天：${x.parts.map(p => `${shMd(p[0])} ${fmtN(p[1], 1)}%`).join("、")}），以下是合計・` : "";
+  return `<p class="meta">${parts}${shMd(x.prev)} → ${shMd(x.date)}・申贖比例 ${x.src === "units" ? "依受益單位數" : "依續抱股中位數"} ${fmtN((x.ratio - 1) * 100, 2)}%・
     續抱 ${x.cont} 檔中加碼 ${x.up}、減碼 ${x.dn} 檔（偏離 > ${D.move}%）。加減碼百分比是扣掉申贖後的股數變化，後面是權重變化。</p>
     <div class="sh-grid">
       <div><h4 class="up">新增 ${x.adds.length} 檔</h4>${list(x.adds, a => `<li>${stk(a[0], a[1])}<span class="v mono">${w(a[2])}</span></li>`)}</div>
@@ -1414,24 +1420,24 @@ function renderShift() {
   const q = sh.q.trim().toLowerCase();
   const names = Object.fromEntries(D.etfs.map(e => [e.code, e.name]));
   const cut = sh.when === "all" ? "" : new Date(Date.parse((D.latest || "2000-01-01") + "T00:00:00Z") - 92 * 864e5).toISOString().slice(0, 10);
-  let list = D.events.filter(x => x.score >= (sh.lvl === "big" ? D.big : D.mid) && x.date >= cut
+  let list = D.events.filter(x => shPass(D, x, sh.lvl) && x.date >= cut
     && (!sh.etf || x.etf === sh.etf)
     && (!q || x.etf.toLowerCase().includes(q) || (names[x.etf] || "").toLowerCase().includes(q)));
-  const today = D.events.filter(x => x.date === D.latest);
+  const today = D.events.filter(x => x.date === D.latest && shPass(D, x, "two"));
   const todayBig = today.filter(x => x.score >= D.big);
   const recent = D.events.filter(x => x.score >= D.big && x.date >= cut);
   $("shTh").textContent = `門檻：雙向換手 ≥ ${D.big}% 為「大幅」、${D.mid}～${D.big}% 為「中幅」（回測全部主動式 ETF 歷史持股，≥ ${D.big}% 的幾乎都是同時有新增、剔除並大量加減碼的換股）。`;
   const nm = x => `${esc(x.etf)} ${esc(names[x.etf] || "")}`;
   $("shStats").innerHTML = `
     <div class="stat"><span>最新公布日 ${shMd(D.latest)} 大幅調倉</span><b class="mono">${todayBig.length}</b><small>${todayBig.length ? todayBig.map(nm).join("、") : "檔"}</small></div>
-    <div class="stat"><span>同日中幅</span><b class="mono">${today.length - todayBig.length}</b><small>${today.filter(x => x.score < D.big).map(x => esc(x.etf)).join("、") || "檔"}</small></div>
+    <div class="stat"><span>同日有買有賣（未達大幅）</span><b class="mono">${today.length - todayBig.length}</b><small>${today.filter(x => x.score < D.big).map(x => esc(x.etf) + (x.days > 1 ? `（分${x.days}天）` : "")).join("、") || "檔"}</small></div>
     <div class="stat"><span>近 3 個月大幅調倉</span><b class="mono">${recent.length}</b><small>次・${new Set(recent.map(x => x.etf)).size} 檔 ETF</small></div>
     <div class="stat"><span>追蹤的主動式 ETF</span><b class="mono">${D.etfs.length}</b><small>檔</small></div>`;
   list = applySort("shTable", list, SH_GET);
   $("shRows").innerHTML = list.length ? list.map(x => {
     const key = x.etf + x.date, open = sh.open === key;
     return `<tr class="clickable" data-sh="${esc(key)}">
-      <td class="l mono">${x.date.slice(0, 4) === (D.latest || "").slice(0, 4) ? shMd(x.date) : x.date.replaceAll("-", "/")}</td>
+      <td class="l mono">${x.date.slice(0, 4) === (D.latest || "").slice(0, 4) ? shMd(x.date) : x.date.replaceAll("-", "/")}${shDays(x)}</td>
       <td class="l"><span class="stock-name">${esc(names[x.etf] || x.etf)}</span><span class="stock-code mono">${esc(x.etf)}</span></td>
       <td class="mono"><span class="sh-bar" style="width:${Math.min(60, x.score * 1.6)}px"></span>${fmtN(x.score, 1)}%${shTag(D, x.score)}</td>
       <td class="mono col-hide"><span class="up">${fmtN(x.buy, 1)}</span> / <span class="down">${fmtN(x.sell, 1)}</span></td>
@@ -1439,7 +1445,7 @@ function renderShift() {
       <td class="mono"><span class="up">${x.adds.length}</span> / <span class="down">${x.drops.length}</span></td>
       <td class="mono col-hide ${cls(x.ratio - 1)}">${(x.ratio > 1 ? "+" : "") + fmtN((x.ratio - 1) * 100, 1)}%</td>
     </tr>${open ? `<tr><td colspan="7" class="sh-det"><div class="sh-in">${shDetail(D, x)}</div></td></tr>` : ""}`;
-  }).join("") : `<tr><td colspan="7" class="empty">這段期間沒有${sh.lvl === "big" ? "大幅" : "中幅以上的"}調倉${sh.etf ? `（${esc(sh.etf)}，點下方同一列取消篩選）` : ""}</td></tr>`;
+  }).join("") : `<tr><td colspan="7" class="empty">這段期間沒有${sh.lvl === "big" ? "大幅" : sh.lvl === "mid" ? "中幅以上的" : "有買有賣的"}調倉${sh.etf ? `（${esc(sh.etf)}，點下方同一列取消篩選）` : ""}</td></tr>`;
   document.querySelectorAll("#shRows tr[data-sh]").forEach(tr => tr.onclick = e => {
     if (e.target.closest("a")) return;
     sh.open = sh.open === tr.dataset.sh ? null : tr.dataset.sh; renderShift();
@@ -1447,7 +1453,7 @@ function renderShift() {
   const es = applySort("shEtfTable", [...D.etfs], SH_ETF_GET);
   $("shEtfRows").innerHTML = es.map(e => `<tr class="clickable${sh.etf === e.code ? " sel" : ""}" data-she="${esc(e.code)}"${sh.etf === e.code ? ' style="background:var(--active)"' : ""}>
       <td class="l"><span class="stock-name">${esc(e.name)}</span><span class="stock-code mono">${esc(e.code)}</span></td>
-      <td class="mono">${fmtN(e.score, 1)}%${shTag(D, e.score)}<small class="flat"> ${shMd(e.date)}</small></td>
+      <td class="mono">${fmtN(e.score, 1)}%${shTag(D, e.score)}${shDays(e)}<small class="flat"> ${shMd(e.date)}</small></td>
       <td class="mono">${e.big || '<span class="flat">0</span>'}</td>
       <td class="mono col-hide flat">${e.n}</td>
       <td class="l mono">${e.last_big ? e.last_big.replaceAll("-", "/") : '<span class="flat">—</span>'}</td>

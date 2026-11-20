@@ -428,7 +428,7 @@
       </div>
 
       <div class="bw" id="shiftHome" hidden>
-        <p class="bw-head"><b>主動式 ETF 大幅調倉</b><span id="shiftSub"></span><a href="etf.html#shift" style="margin-left:auto;font-size:12.5px;color:var(--text-muted)">看明細 →</a></p>
+        <p class="bw-head"><b>主動式 ETF 調倉</b><span id="shiftSub"></span><a href="etf.html#shift" style="margin-left:auto;font-size:12.5px;color:var(--text-muted)">看明細 →</a></p>
         <div id="shiftList"></div>
       </div>
 
@@ -553,13 +553,15 @@
     if (!d.latest) return;
     const from = new Date(Date.parse(d.latest + "T00:00:00Z") - 4 * 864e5).toISOString().slice(0, 10);
     const names = Object.fromEntries(d.etfs.map(e => [e.code, e.name]));
-    const xs = d.events.filter(x => x.score >= d.big && x.date >= from);
+    // Leo 2026-11-20：最新公布日只要有買有賣就列（不設門檻）；前幾天只列大幅
+    const xs = d.events.filter(x => x.date === d.latest ? (x.two || x.score >= d.mid) : (x.score >= d.big && x.date >= from))
+      .sort((a, b) => b.date.localeCompare(a.date) || b.score - a.score);
     if (!xs.length) return;
     const nm = a => a.slice(0, 6).map(x => esc(x[1])).join("、") + (a.length > 6 ? ` 等 ${a.length} 檔` : "");
-    $("shiftSub").textContent = `扣除申購贖回後，同時大量加碼與減碼（雙向換手 ≥ ${d.big}%）・近 5 天`;
+    $("shiftSub").textContent = `扣除申購贖回後同時有加碼與減碼・${md(d.latest)} 全列、近 5 天另列大幅（雙向換手 ≥ ${d.big}%）`;
     $("shiftList").innerHTML = xs.map(x => `<a class="sh-row" href="etf.html#shift">
       <span>${esc(names[x.etf] || x.etf)}<b>${esc(x.etf)}</b></span>
-      <span class="sc">${md(x.date)}・${x.score.toFixed(1)}%</span>
+      <span class="sc">${md(x.date)}・${x.score.toFixed(1)}%${x.days > 1 ? `・分${x.days}天` : ""}</span>
       <span class="ad">${x.adds.length ? `<span class="a">新增 ${x.adds.length}</span> ${nm(x.adds)}　` : ""}${x.drops.length ? `<span class="d">剔除 ${x.drops.length}</span> ${nm(x.drops)}` : ""}${!x.adds.length && !x.drops.length ? `續抱 ${x.cont} 檔中加碼 ${x.up}、減碼 ${x.dn}` : ""}</span></a>`).join("");
     $("shiftHome").hidden = false;
   } catch (e) {
