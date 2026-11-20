@@ -3193,6 +3193,6 @@ date,series,value,source
 2026-11-19,us10y,5.052,yahoo:^TNX
 2026-11-19,usdtwd,32.9299,yahoo:TWD=X
 2026-11-19,vix,28.44,yahoo:^VIX
-2026-11-20,dxy,103.874,yahoo:DX-Y.NYB
-2026-11-20,usdtwd,32.923,yahoo:TWD=X
-2026-11-20,vix,29.57,yahoo:^VIX
+2026-11-20,dxy,103.65,yahoo:DX-Y.NYB
+2026-11-20,usdtwd,32.904,yahoo:TWD=X
+2026-11-20,vix,30.92,yahoo:^VIX

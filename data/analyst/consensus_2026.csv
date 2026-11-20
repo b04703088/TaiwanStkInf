@@ -1,4 +1,5 @@
 date,time,news_id,code,name,kind,year,analysts,prev,value,chg_pct,high,low,target,bull,neutral,bear,close,url
+2026-11-20,20:11,6669385,6669,緯穎,eps,2026,18,136.67,135.82,-0.62,153.23,116.71,2594,,,,,https://news.cnyes.com/news/id/6669385
 2026-11-20,16:11,6669075,2884,玉山金,eps,2026,8,2.53,2.52,-0.4,2.75,2.33,47,,,,,https://news.cnyes.com/news/id/6669075
 2026-11-20,16:11,6669074,2881,富邦金,eps,2026,10,11.31,11.04,-2.39,11.7,9.94,155.3,,,,,https://news.cnyes.com/news/id/6669074
 2026-11-20,16:10,6669073,2881,富邦金,tp,,11,147.9,155.3,5,175,106,155.3,5,5,0,136.5,https://news.cnyes.com/news/id/6669073
