@@ -89073,7 +89073,13 @@ date,key,close,source
 2026-11-19,wti,83.21,yahoo
 2026-11-19,zinc,3549.5,sinag
 2026-11-20,aluminum,2847.0,sinag
+2026-11-20,bci,4502.0,cnyes
+2026-11-20,bcti,2581.0,cnyes
+2026-11-20,bdi,2898.0,cnyes
+2026-11-20,bdti,5081.0,cnyes
+2026-11-20,bpi,2140.0,cnyes
 2026-11-20,brent,89.87,yahoo
+2026-11-20,bsi,1810.0,cnyes
 2026-11-20,ccfi,1923.21,sse
 2026-11-20,ccfi_eu,1856.56,sse
 2026-11-20,ccfi_usw,1777.95,sse
