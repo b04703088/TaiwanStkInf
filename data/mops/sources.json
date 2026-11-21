@@ -1,8 +1,8 @@
 {
- "generated": "2026-11-21 05:31",
+ "generated": "2026-11-21 08:30",
  "fetched_days": 2,
  "left_days": 0,
- "news": 213,
+ "news": 217,
  "cats": {
   "buyback": 10,
   "ma": 18,
@@ -11,7 +11,7 @@
   "capital": 26,
   "div": 8,
   "fin": 12,
-  "other": 34,
+  "other": 38,
   "call": 60,
   "attn": 12,
   "clarify": 3,
