@@ -58,6 +58,8 @@
   .md tr:last-child td{border-bottom:none;}
   #pts .md td.t{white-space:normal; min-width:6.5em; line-height:1.55;}
   #pts .md p{margin:8px 0;}
+  #mkt .md .tbl{max-width:640px;}
+  #mkt .md p{font-size:12.5px; color:var(--text-faint); margin:8px 0 0;}
   .faint{color:var(--text-faint);}
   .up{color:var(--rise);} .dn{color:var(--fall);}
   .sec-t{font-size:13px; color:var(--text-faint); margin:0 0 6px;}
@@ -89,6 +91,8 @@
     <select id="day" aria-label="日期"></select>
     <button id="next" aria-label="後一天">›</button>
   </div>
+  <div id="mktWrap" hidden><p class="sec-t">三大法人・融資</p>
+  <div class="card" id="mkt"></div></div>
   <div id="amWrap" hidden><p class="sec-t">盤前更新（隔天 08:00；週五資料在週日晚上）</p>
   <div class="card" id="am"></div></div>
   <p class="sec-t">新聞與現象</p>
@@ -160,8 +164,11 @@ async function show(d){
   document.getElementById("next").disabled = k <= 0;
   try { history.replaceState(null, "", "#" + d); } catch (e) {}
   const get = u => fetch(u, {cache:"no-cache"}).then(r => r.ok ? r.text() : null).catch(() => null);
-  const [pts, note, am] = await Promise.all([days[k].pts ? get(`data/digest/points/${d}.md`) : null,
-    days[k].note ? get(`data/digest/notes/${d}.md`) : null, days[k].am ? get(`data/digest/notes/${d}-am.md`) : null]);
+  const [pts, note, am, mkt] = await Promise.all([days[k].pts ? get(`data/digest/points/${d}.md`) : null,
+    days[k].note ? get(`data/digest/notes/${d}.md`) : null, days[k].am ? get(`data/digest/notes/${d}-am.md`) : null,
+    days[k].mkt ? get(`data/digest/mkt/${d}.md`) : null]);
+  document.getElementById("mktWrap").hidden = !mkt;
+  document.getElementById("mkt").innerHTML = mkt ? `<div class="md">${md(mkt)}</div>` : "";
   document.getElementById("amWrap").hidden = !am;
   document.getElementById("am").innerHTML = am ? `<div class="md">${md(am)}</div>` : "";
   const p = document.getElementById("pts");

@@ -953,6 +953,54 @@ def disposal_now(iso, names):
     return out + ["", "觸發價、後天名單、對帳在 [處置股](alert.html#near)。"]
 
 
+def market_totals(day, px_files, chip_files):
+    """每天三大法人買賣超＋融資增減（上市／上櫃／合計，億）。
+    法人金額＝個股股數 × 當日收盤價加總（估算，含 ETF；跟交易所公布的買賣金額會差一點）。
+    融資增減＝data/margin/summary.csv 融資餘額金額 − 前一個交易日。"""
+    iso = _iso(day)
+    cf = next((f for f in chip_files if Path(f).stem == day), None)
+    pf = next((f for f in px_files if Path(f).stem == day), None)
+    if not cf or not pf:
+        return []
+    c = pd.read_csv(cf, dtype={"code": str})
+    px = pd.read_csv(pf, dtype={"code": str})[["code", "close"]]
+    px["close"] = pd.to_numeric(px.close, errors="coerce")
+    c = c.merge(px, on="code", how="left")
+    for k in ("f_net", "fd_net", "t_net", "d_net"):
+        c[k] = pd.to_numeric(c[k], errors="coerce").fillna(0) * c.close / 1e8
+    c["foreign"] = c.f_net + c.fd_net
+    keys = [("外資", "foreign"), ("投信", "t_net"), ("自營商", "d_net")]
+    g = c.groupby("market")[[k for _, k in keys]].sum()
+    mk = ("TWSE", "TPEx")
+    val = lambda m, k: float(g.loc[m, k]) if m in g.index else 0.0
+    rows = []
+    for lab, k in keys:
+        a, b = val("TWSE", k), val("TPEx", k)
+        rows.append([lab, _n(a), _n(b), _n(a + b)])
+    tot = [sum(val(m, k) for _, k in keys) for m in mk]
+    rows.append(["**三大法人合計**", _n(tot[0]), _n(tot[1]), _n(sum(tot))])
+
+    sm = pd.read_csv(D / "margin" / "summary.csv")
+    sm = sm[sm.date <= iso]
+    fin = {}
+    for m in mk:
+        x = sm[sm.market == m].sort_values("date")
+        if len(x) >= 2 and x.date.iloc[-1] == iso:
+            fin[m] = ((x.fin_amount.iloc[-1] - x.fin_amount.iloc[-2]) / 1e8, x.fin_amount.iloc[-1] / 1e8)
+    out = []
+    if fin:
+        d = [fin[m][0] if m in fin else None for m in mk]
+        rows.append(["**融資增減**"] + [_n(v) if v is not None else "—" for v in d] +
+                    [_n(sum(v for v in d if v is not None))])
+        bal = [fin[m][1] if m in fin else None for m in mk]
+        rows.append(["融資餘額"] + [f"{v:,.0f}" if v is not None else "—" for v in bal] +
+                    [f"{sum(v for v in bal if v is not None):,.0f}"])
+    out += _tbl(["億元", "上市", "上櫃", "合計"], rows)
+    if not fin:
+        out += ["", "融資資料還沒公布（證交所約 21:30 後）。"]
+    return out + ["", "法人金額＝個股買賣超股數 × 收盤價加總（估算、含 ETF，和交易所公布的金額會有小差距）；外資含外資自營商。"]
+
+
 SECTIONS = ("etf_heavy", "insider_month_new", "insider_pledge_transfer", "cb_recent", "treasury_new", "capital_new", "disposal_now")
 
 
@@ -992,7 +1040,17 @@ def write(day, px_files, chip_files, out_dir):
     out_dir.mkdir(parents=True, exist_ok=True)
     text = "\n".join(lines).rstrip() + "\n"
     (out_dir / f"{day}.md").write_text(text, encoding="utf-8")
-    return lines[2:]
+    # 三大法人＋融資：網頁另一張卡片（放在最上面），數字摘要也接著給判讀用
+    try:
+        mk = market_totals(day, px_files, chip_files)
+    except Exception as e:
+        print(f"digest_points.market_totals: {e!r}")
+        mk = []
+    if mk:
+        mdir = out_dir.parent / "mkt"
+        mdir.mkdir(parents=True, exist_ok=True)
+        (mdir / f"{day}.md").write_text("\n".join(mk).rstrip() + "\n", encoding="utf-8")
+    return mk + [""] + lines[2:] if mk else lines[2:]
 
 
 if __name__ == "__main__":
