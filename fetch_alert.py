@@ -280,7 +280,9 @@ def main():
     today = datetime.now(C.TPE).date()
     end = date.fromisoformat(a.end) if a.end else today
     start = date.fromisoformat(a.start) if a.start else end - timedelta(days=a.days)
-    disp, att, near, errors = fetch(start, end)
+    # 證交所／櫃買處置公告是依「處置期間」篩選：今天公布、明天（週五公布則下週一）才開始處置的，
+    # 迄日只查到今天會漏掉，要等處置開始那天的批次才抓得到。查詢迄日往後多抓 14 天。
+    disp, att, near, errors = fetch(start, end + timedelta(days=14) if not a.end else end)
     save(OUT, disp, att, near)
     if errors and not (disp or att):
         sys.exit(1)
