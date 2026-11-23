@@ -1,0 +1,184 @@
+[p.1]
+  景 碩 科技股 份有限公 司
+  Kinsus Interconnect Technology Corp.
+  Nov 2026
+Kinsus Interconnect Technology, Corp.  Confidential / All rights reserved by Kinsus Interconnect Technology, Corp.
+
+[p.2]
+  IC 封裝技術
+  IC Packaging Technology
+Kinsus Interconnect Technology, Corp.  1  Confidential / All rights reserved by Kinsus Interconnect Technology, Corp.
+
+[p.3]
+  電子產品構裝的各個層次
+  最終組裝與測試
+  軟板模組
+  系統級組裝
+  硬板組裝
+  IC 封裝  PCB 空板
+  系統級封裝模組
+Kinsus Interconnect Technology, Corp.  2  Confidential / All rights reserved by Kinsus Interconnect Technology, Corp.
+
+[p.4]
+  Levels of Assembly
+  FATP for end device
+  FPCB assembly
+  System level
+  PCB assembly
+  IC packaging  Bare PCB
+  Module (SiP)
+Kinsus Interconnect Technology, Corp.  3  Confidential / All rights reserved by Kinsus Interconnect Technology, Corp.
+
+[p.5]
+  各種形式的IC 封裝
+  DIP  QFP  PLCC
+  TSOP
+  PBGA/
+  Flip-Chip BGA  CSP  WLP  TSV
+  QFN  DFN  Ceramic BGA  Ceramic chip
+  BGA 封裝 市場規模: 2023 年828 億顆, 產值 161億美元
+Kinsus Interconnect Technology, Corp.  4  Confidential / All rights reserved by Kinsus Interconnect Technology, Corp.
+
+[p.6]
+  Different types of IC packaging
+  DIP  QFP  PLCC
+  TSOP
+  PBGA/
+  Flip-Chip BGA  CSP  WLP  TSV
+  QFN  DFN  Ceramic BGA  Ceramic chip
+  BGA Market size : 82 Billion units, 16 Billion US$ in 2023
+Kinsus Interconnect Technology, Corp.  5  Confidential / All rights reserved by Kinsus Interconnect Technology, Corp.
+
+[p.7]
+  IC 結構
+Kinsus Interconnect Technology, Corp.  6  Confidential / All rights reserved by Kinsus Interconnect Technology, Corp.
+
+[p.8]
+  What Substrate Makers do?
+Kinsus Interconnect Technology, Corp.  7  Confidential / All rights reserved by Kinsus Interconnect Technology, Corp.
+
+[p.9]
+  先進封裝結構
+Kinsus Interconnect Technology, Corp.  8  Confidential / All rights reserved by Kinsus Interconnect Technology, Corp.
+
+[p.10]
+  Advanced Packaging
+Kinsus Interconnect Technology, Corp.  9  Confidential / All rights reserved by Kinsus Interconnect Technology, Corp.
+
+[p.11]
+  IC 半導體上下游供應鏈關係
+  IC 設計
+  IC
+  專業封裝廠
+  封裝
+  晶圓製造廠  載板廠
+  晶圓  載板
+Kinsus Interconnect Technology, Corp.  10  Confidential / All rights reserved by Kinsus Interconnect Technology, Corp.
+
+[p.12]
+  IC Manufacturing Supply Chain
+  IC Design (Fabless)
+  IC
+  OSAT
+  Packaging
+  Foundry  Substrate house
+  Wafer  Substrate
+Kinsus Interconnect Technology, Corp.  11  Confidential / All rights reserved by Kinsus Interconnect Technology, Corp.
+
+[p.13]
+  光學共構封裝
+Kinsus Interconnect Technology, Corp.  12  Confidential / All rights reserved by Kinsus Interconnect Technology, Corp.
+
+[p.14]
+  Co-Packaged Optics
+Kinsus Interconnect Technology, Corp.  13  Confidential / All rights reserved by Kinsus Interconnect Technology, Corp.
+
+[p.15]
+  About Kinsus
+Kinsus Interconnect Technology, Corp.  14  Confidential / All rights reserved by Kinsus Interconnect Technology, Corp.
+
+[p.16]
+  基本資料
+  • 公司成立  2000
+  台股上市掛牌 2004
+  • 資本額 :  新台幣 52 億元
+  • 廠區 :  總部  - 新屋 / 台灣
+  IC 載板  - ㇐廠 及 二廠
+  - 五廠 及 六廠
+  Kinsus USA  - Santa Clara / California
+  統碩科技  - 蘇州 / 中國
+  晶碩光學  - 桃園 / 台灣
+Kinsus Interconnect Technology, Corp.  15  Confidential / All rights reserved by Kinsus Interconnect Technology, Corp.
+
+[p.17]
+  Basic Information
+  • Established in September 2000
+  IPO at TWSE in November 2004
+  • Capital : US$ 170 Million (NT$ 5.2 Billion)
+  • Campus :  Headquarters  - Xin Wu / Taiwan
+  IC substrates  - Plant 1 & 2
+  - Plant 5 & 6
+  Kinsus USA  - Santa Clara / California
+  Kinsus China  - Suzhou / China
+  PegaVision  - Taoyuan / Taiwan
+Kinsus Interconnect Technology, Corp.  16  Confidential / All rights reserved by Kinsus Interconnect Technology, Corp.
+
+[p.18]
+  位置
+  美國子公司
+  台灣㇐廠
+  Kinsus Suzhou (統碩)  台灣二廠
+  台灣五廠
+  台灣六廠
+  晶碩光學
+Kinsus Interconnect Technology, Corp.  17  Confidential / All rights reserved by Kinsus Interconnect Technology, Corp.
+
+[p.19]
+  Locations
+  Kinsus USA
+  Taiwan plant 1
+  Taiwan plant 2
+  Kinsus Suzhou (統碩)  Taiwan plant 5
+  Taiwan plant 6
+  PegaVision
+Kinsus Interconnect Technology, Corp.  18  Confidential / All rights reserved by Kinsus Interconnect Technology, Corp.
+
+[p.20]
+  每月合併營業額
+Kinsus Interconnect Technology, Corp.  19  Confidential / All rights reserved by Kinsus Interconnect Technology, Corp.
+
+[p.21]
+  Monthly Consolidated Revenue
+Kinsus Interconnect Technology, Corp.  20  Confidential / All rights reserved by Kinsus Interconnect Technology, Corp.
+
+[p.22]
+  產品組合
+Kinsus Interconnect Technology, Corp.  21  Confidential / All rights reserved by Kinsus Interconnect Technology, Corp.
+
+[p.23]
+  Product mix
+Kinsus Interconnect Technology, Corp.  22  Confidential / All rights reserved by Kinsus Interconnect Technology, Corp.
+
+[p.24]
+  競爭格局
+  BT-Flip Chip
+  Kinsus
+  ASEM
+  BT-wire bond
+  ABF-Flip Chip
+  BGA  SiP  CSP/PBGA
+Kinsus Interconnect Technology, Corp.  23  Confidential / All rights reserved by Kinsus Interconnect Technology, Corp.
+
+[p.25]
+  Competition Landscape
+  BT-Flip Chip
+  Kinsus
+  ASEM
+  BT-wire bond
+  ABF-Flip Chip
+  BGA  SiP  CSP/PBGA
+Kinsus Interconnect Technology, Corp.  24  Confidential / All rights reserved by Kinsus Interconnect Technology, Corp.
+
+[p.26]
+  Thank you
+Kinsus Interconnect Technology, Corp.  25  Confidential / All rights reserved by Kinsus Interconnect Technology, Corp.
