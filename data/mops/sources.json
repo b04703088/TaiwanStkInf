@@ -1,12 +1,12 @@
 {
- "generated": "2026-11-24 06:24",
+ "generated": "2026-11-24 08:32",
  "fetched_days": 2,
  "left_days": 0,
- "news": 210,
+ "news": 214,
  "cats": {
-  "other": 24,
+  "other": 27,
   "ma": 30,
-  "call": 65,
+  "call": 66,
   "capital": 18,
   "hr": 18,
   "board": 6,
@@ -18,8 +18,8 @@
   "shm": 3
  },
  "exright": 280,
- "calls": 982,
- "events": 54,
+ "calls": 983,
+ "events": 55,
  "unparsed": [],
  "errors": []
 }
