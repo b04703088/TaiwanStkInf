@@ -50,10 +50,13 @@ DEFAULT_CONFIG = {
     "group_min_count": 3,       # 族群同步：幾檔以上
     "watch_factor": 0.6,        # 自選股門檻打幾折
     "cooldown_min": 15,         # 同一檔同一種警示多久內不重複
+    "etf_premium_pct": 1.0,     # ETF 折溢價 |%| 超過多少就警示
+    "etf_liq_min_yi": 0.1,      # ETF 警示只看近5日均成交值 >= 幾億（etf.html 表格另外可切換）
+    "etf_every_sec": 30,        # ETF 預估淨值多久問一次
     "beep": True,
     "telegram_token": "",       # 選用：Telegram bot token
     "telegram_chat_id": "",     # 選用：你的 chat id
-    "telegram_types": ["急拉", "急殺", "爆量", "漲停打開", "鎖漲停", "再鎖回", "跌停打開", "族群急拉", "族群急殺"],
+    "telegram_types": ["急拉", "急殺", "爆量", "漲停打開", "鎖漲停", "再鎖回", "跌停打開", "族群急拉", "族群急殺", "ETF溢價", "ETF折價"],
 }
 
 
@@ -128,8 +131,6 @@ def load_universe(cfg):
     for rows in days:
         for r in rows:
             c = r["code"]
-            if not (len(c) == 4 and c.isdigit()):
-                continue
             x = info.setdefault(c, {"name": r["name"], "mkt": "tse" if r["market"] == "TWSE" else "otc", "vol": [], "val": []})
             try:
                 x["vol"].append(float(r["volume"]) / 1000)
@@ -313,6 +314,51 @@ class Detector:
         return out
 
 
+# ---------- ETF 折溢價（證交所 ETF 即時預估淨值） ----------
+
+class EtfNav:
+    URL = MIS + "data/all_etf.txt"
+
+    def __init__(self, cfg, info):
+        self.cfg, self.info = cfg, info
+        self.last = 0
+        self.side = {}                          # code -> "溢價"/"折價"/None
+        self.rows = []
+
+    def poll(self, opener):
+        out = []
+        if time.time() - self.last < self.cfg["etf_every_sec"]:
+            return None
+        self.last = time.time()
+        data = json.loads(fetch(self.URL + "?_=%d" % (time.time() * 1000), opener,
+                                headers={"Referer": MIS + "etf_nav.jsp?ex=tse"}))
+        rows, ts = {}, time.time()
+        for blk in data.get("a1") or []:
+            for m in blk.get("msgArray") or []:
+                code = str(m.get("a") or "").strip()
+                px, nav = num(m.get("e")), num(m.get("f"))
+                prem = None
+                try:
+                    prem = float(str(m.get("g")).replace(",", ""))
+                except (TypeError, ValueError):
+                    pass
+                if not code or px is None or nav is None or prem is None:
+                    continue
+                x = self.info.get(code, {})
+                rows[code] = {"code": code, "name": x.get("name") or str(m.get("b") or "").strip(),
+                              "px": px, "nav": nav, "prem": prem, "liq": x.get("avg_val", 0)}
+        self.rows = sorted(rows.values(), key=lambda r: -abs(r["prem"]))
+        th = self.cfg["etf_premium_pct"]
+        for r in self.rows:
+            side = "溢價" if r["prem"] >= th else "折價" if r["prem"] <= -th else None
+            prev = self.side.get(r["code"], "init")
+            self.side[r["code"]] = side
+            if side and side != prev and r["liq"] >= self.cfg["etf_liq_min_yi"]:
+                out.append({"code": r["code"], "name": r["name"], "price": r["px"], "chg": 0, "ts": ts,
+                            "type": "ETF" + side, "detail": f"市價 {r['px']:g}／預估淨值 {r['nav']:g}，{side} {r['prem']:+.2f}%"})
+        return out
+
+
 # ---------- 輸出 ----------
 
 class Output:
@@ -341,9 +387,10 @@ class Output:
             self.rows.append([str(v) for v in row])
             with open(self.csv, "a", encoding="utf-8-sig", newline="") as f:
                 csv.writer(f).writerow(row)
-            say(f"{t} {star}【{a['type']}】{a['code']} {a['name']} {a['price']} ({chg}%) {a['detail']}")
+            head = f"{star}【{a['type']}】{a['code']} {a['name']}" + (f" {a['price']:g} ({chg}%)" if a["code"] and a["chg"] else f" {a['price']:g}" if a["code"] else "")
+            say(f"{t} {head} {a['detail']}")
             if a["type"] in self.cfg["telegram_types"] or star:
-                self.telegram(f"{star}【{a['type']}】{a['code']} {a['name']} {a['price']} ({chg}%)\n{a['detail']}")
+                self.telegram(f"{head}\n{a['detail']}")
         if self.cfg["beep"] and sys.platform == "win32":
             try:
                 import winsound
@@ -351,6 +398,36 @@ class Output:
             except Exception:
                 pass
         self.write_html()
+
+    def write_etf(self, rows):
+        if not rows:
+            return
+        t = now().strftime("%H:%M:%S")
+        trs = "".join(
+            f'<tr data-liq="{r["liq"]:.2f}"><td>{html.escape(r["code"])}</td><td>{html.escape(r["name"])}</td>'
+            f'<td>{r["px"]:g}</td><td>{r["nav"]:g}</td>'
+            f'<td style="color:{"#e5484d" if r["prem"] > 0 else "#30a46c"}">{r["prem"]:+.2f}%</td><td>{r["liq"]:.2f}</td></tr>'
+            for r in rows)
+        page = f"""<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="15">
+<title>ETF 折溢價</title><style>
+body{{background:#111;color:#ddd;font:14px/1.5 system-ui,"Microsoft JhengHei",sans-serif;margin:16px}}
+table{{border-collapse:collapse}}td,th{{padding:4px 10px;border-bottom:1px solid #333;text-align:right}}
+td:nth-child(-n+2),th:nth-child(-n+2){{text-align:left}}th{{color:#888;font-weight:normal}}
+button{{background:#222;color:#ddd;border:1px solid #444;padding:3px 10px;margin-right:4px;cursor:pointer}}button.on{{background:#3e63dd}}</style>
+<h3>ETF 盤中折溢價（{t}，每 15 秒更新，依 |折溢價| 排序）</h3>
+<p>近5日均成交值：<span id=f></span></p>
+<table><tr><th>代號</th><th>名稱</th><th>市價</th><th>預估淨值</th><th>折溢價</th><th>近5日均成交值(億)</th></tr>{trs}</table>
+<script>
+var opts=[["不限",0],["≥1億",1],["≥5億",5],["≥20億",20]],cur=1;
+try{{cur=+localStorage.getItem("etfliq");if(isNaN(cur)||localStorage.getItem("etfliq")===null)cur=1}}catch(e){{}}
+function apply(){{document.querySelectorAll("tr[data-liq]").forEach(function(r){{r.style.display=+r.dataset.liq>=cur?"":"none"}});
+document.getElementById("f").innerHTML=opts.map(function(o){{return '<button class="'+(o[1]==cur?"on":"")+'" onclick="cur='+o[1]+';try{{localStorage.setItem(\'etfliq\',cur)}}catch(e){{}};apply()">'+o[0]+'</button>'}}).join("")}}
+apply();
+</script>"""
+        path = os.path.join(LOGS, "etf.html")
+        with open(path + ".tmp", "w", encoding="utf-8") as f:
+            f.write(page)
+        os.replace(path + ".tmp", path)
 
     def telegram(self, text):
         tok, chat = self.cfg.get("telegram_token"), self.cfg.get("telegram_chat_id")
@@ -398,7 +475,8 @@ def main():
     info = load_universe(cfg)
     groups = load_groups()
     watch = load_watch()
-    scan = sorted(c for c, x in info.items() if x["avg_val"] >= cfg["liq_min_yi"] or c in watch)
+    stock = lambda c: len(c) == 4 and c.isdigit()
+    scan = sorted(c for c, x in info.items() if stock(c) and (x["avg_val"] >= cfg["liq_min_yi"] or c in watch))
     keys = [f"{info[c]['mkt']}_{c}.tw" for c in scan]
     for c in watch - set(info):
         keys.append(f"tse_{c}.tw")
@@ -408,9 +486,11 @@ def main():
     say(f"每輪 {len(batches)} 次請求，約 {len(batches) * cfg['request_gap_sec']:.0f} 秒掃一輪。")
 
     det = Detector(cfg, info, groups, watch)
+    etf = EtfNav(cfg, info)
     out = Output(cfg, watch)
     out.write_html()
     say(f"警示表：{out.html}（用瀏覽器打開）")
+    say(f"ETF 折溢價表：{os.path.join(LOGS, 'etf.html')}")
     mis, rounds, fails = None, 0, 0
     while True:
         t = now()
@@ -440,6 +520,14 @@ def main():
                 mis = None
                 time.sleep(wait)
             time.sleep(cfg["request_gap_sec"])
+            try:
+                if mis is not None:
+                    alerts = etf.poll(mis.opener)
+                    if alerts is not None:
+                        out.write_etf(etf.rows)
+                        out.emit(alerts)
+            except Exception as e:
+                say(f"{now():%H:%M:%S} ETF 預估淨值抓取失敗（{e}）")
         out.emit(det.group_check(time.time()))
         rounds += 1
         if rounds == 1 or rounds % 20 == 0:
