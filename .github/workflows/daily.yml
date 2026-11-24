@@ -50,6 +50,11 @@ jobs:
           # 回補最多跑 320 分鐘，留時間 commit；沒抓完再按一次 Run workflow 會接著抓
           python fetch_daily.py --max-minutes 320 "${args[@]}"
 
+      - name: 加權／櫃買指數開高低收（大盤頁跟著股價一起先更新）
+        if: always()
+        continue-on-error: true
+        run: python -u fetch_market.py --only index
+
       - name: Commit data
         if: always()  # 就算部分日期失敗，已抓到的資料也要存
         run: |

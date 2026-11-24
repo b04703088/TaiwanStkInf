@@ -233,6 +233,12 @@ jobs:
         continue-on-error: true
         run: python fetch_futures.py
 
+      - name: 大盤指數開高低收、大盤估值、法人買賣金額、台指 VIX
+        if: always() && steps.s.outputs.chips == '1'
+        continue-on-error: true
+        # 大盤頁用（data/market/）；近兩個月指數／VIX、近 5 個交易日估值與法人金額每次重抓
+        run: python -u fetch_market.py
+
       - name: 匯率、美債、美元、VIX、信用利差
         if: always() && steps.s.outputs.macro == '1'
         continue-on-error: true

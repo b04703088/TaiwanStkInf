@@ -69,6 +69,14 @@ def _taiex(data_dir, dates):
                     m[r["date"]] = float(r["taiex"])
                 except (TypeError, ValueError):
                     pass
+    q = Path(data_dir) / "market" / "taiex.csv"   # fetch_market.py：跟股價同時更新，融資檔還沒出來的當天也有指數
+    if q.exists():
+        with q.open(encoding="utf-8") as fp:
+            for r in csv.DictReader(fp):
+                try:
+                    m.setdefault(r["date"], float(r["close"]))
+                except (TypeError, ValueError):
+                    pass
     out, last = [], None
     for d in dates:
         last = m.get(d, last)
