@@ -9,6 +9,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: backfill-market
+  cancel-in-progress: true
+
 jobs:
   backfill:
     runs-on: ubuntu-latest
@@ -42,7 +46,7 @@ jobs:
           mkdir -p /tmp/keep && cp data/market/*.csv /tmp/keep/ 2>/dev/null || { echo "No data"; exit 0; }
           for i in 1 2 3 4 5 6; do
             git fetch -q origin main && git reset -q --hard origin/main
-            python /tmp/fetch_market.py --merge-from /tmp/keep
+            cp /tmp/fetch_market.py fetch_market.py && python fetch_market.py --merge-from /tmp/keep && rm fetch_market.py
             git add data/market
             if git diff --cached --quiet; then echo "No new data"; exit 0; fi
             git commit -q -m "data: 回補大盤資料 ${{ matrix.name }}"
