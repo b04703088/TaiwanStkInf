@@ -207,6 +207,7 @@ class Detector:
         self.last_alert = {}                    # (code, type) -> ts
         self.limit_state = {}                   # code -> "up"/"down"/None
         self.was_locked = set()
+        self.init_locked = []
         self.day_vol_done = set()
         self.recent = defaultdict(deque)        # "急拉"/"急殺" -> deque[(ts, code)]
         self.code_groups = defaultdict(list)
@@ -290,7 +291,9 @@ class Detector:
             if state == "up":
                 typ = "再鎖回" if code in self.was_locked else "鎖漲停"
                 self.was_locked.add(code)
-                if prev != "init" or typ == "鎖漲停":
+                if prev == "init":                # 程式剛開就已鎖住：不逐檔警示，開場摘要會列
+                    self.init_locked.append(f"{code}{name}")
+                else:
                     out.append({**base, "type": typ, "detail": f"委買 {bidq} 張" if bid1 == up else ""})
             elif prev == "up":
                 out.append({**base, "type": "漲停打開", "detail": f"委買 {bid1 or '-'}（{bidq} 張）"})
@@ -358,8 +361,8 @@ class EtfNav:
             side = "溢價" if r["prem"] >= th else "折價" if r["prem"] <= -th else None
             prev = self.side.get(r["code"], "init")
             self.side[r["code"]] = side
-            if side and side != prev and r["liq"] >= self.cfg["etf_liq_min_yi"]:
-                out.append({"code": r["code"], "name": r["name"], "price": r["px"], "chg": 0, "ts": ts,
+            if side and side != prev and prev != "init" and r["liq"] >= self.cfg["etf_liq_min_yi"]:
+                out.append({"code": r["code"], "name": r["name"], "price": r["px"], "chg": None, "ts": ts,
                             "type": "ETF" + side, "detail": f"市價 {r['px']:g}／預估淨值 {r['nav']:g}，{side} {r['prem']:+.2f}%"})
         return out
 
@@ -387,7 +390,7 @@ class Output:
         for a in alerts:
             t = dt.datetime.fromtimestamp(a["ts"], TZ).strftime("%H:%M:%S")
             star = "★" if a["code"] in self.watch else ""
-            chg = f"{a['chg']:+.2f}" if a["code"] else ""
+            chg = f"{a['chg']:+.2f}" if a["code"] and a["chg"] is not None else ""
             row = [t, a["type"], a["code"], a["name"], a["price"], chg, a["detail"], star]
             self.rows.append([str(v) for v in row])
             with open(self.csv, "a", encoding="utf-8-sig", newline="") as f:
@@ -535,6 +538,12 @@ def main():
                 say(f"{now():%H:%M:%S} ETF 預估淨值抓取失敗（{e}）")
         out.emit(det.group_check(time.time()))
         rounds += 1
+        if rounds == 1:
+            if det.init_locked:
+                say(f"開場時已鎖漲停 {len(det.init_locked)} 檔：" + "、".join(det.init_locked))
+            n = sum(1 for r in etf.rows if abs(r["prem"]) >= cfg["etf_premium_pct"] and r["liq"] >= cfg["etf_liq_min_yi"])
+            if n:
+                say(f"目前折溢價超過 ±{cfg['etf_premium_pct']}% 的 ETF {n} 檔（見 etf.html），之後新跨過門檻的才會警示")
         if rounds == 1 or rounds % 20 == 0:
             say(f"{now():%H:%M:%S} 第 {rounds} 輪，收到 {got} 檔報價，耗時 {time.time() - start:.0f} 秒")
         if test and rounds >= max_rounds:
