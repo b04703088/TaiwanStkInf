@@ -150,15 +150,15 @@
     <h1>大盤：誰在推、誰在跑、位階在哪</h1>
     <p class="desc" id="sub">載入中…</p>
     <nav class="jump" aria-label="本頁區塊">
-      <a href="#who">誰在推指數</a><a href="#futures">期貨籌碼</a><a href="#flow">資金</a><a href="#sector">類股輪動</a><a href="#tech">技術線圖</a><a href="#breadth">市場寬度</a><a href="#fear">恐慌度</a>
+      <a href="#who">誰在推指數</a><a href="#futures">期貨籌碼</a><a href="#flow">資金</a><a href="#sector">類股輪動</a><a href="#tech">技術線圖</a><a href="#breadth">市場寬度</a><a href="#val">估值</a><a href="#fear">恐慌度</a>
     </nav>
     <div class="stats k8" id="stats"></div>
   </section>
 
   <section class="block" id="who">
     <div class="block-head"><h2>誰在推指數</h2><span class="hint" id="c-hint"></span></div>
-    <p class="why">每檔貢獻點數＝前一日加權指數 × 前一日市值權重 × 當日漲跌幅，期間內逐日加總（只算上市）。「前十大」＝最新市值前十大。</p>
-    <div class="toolbar"><div class="chips" id="c-per"></div></div>
+    <p class="why">每檔貢獻點數＝前一日加權指數 × 前一日市值權重 × 當日漲跌幅，期間內逐日加總（加權指數只算上市、櫃買指數只算上櫃）。「前十大」＝最新市值前十大。</p>
+    <div class="toolbar"><div class="chips" id="c-idx"><button data-v="contrib" aria-pressed="true">加權指數</button><button data-v="contrib_otc" aria-pressed="false">櫃買指數</button></div><div class="chips" id="c-per"></div></div>
     <div id="c-split"></div>
     <div class="toolbar" style="margin-top:18px"><div id="liq"></div></div>
     <div class="two">
@@ -184,12 +184,14 @@
   <section class="block" id="flow">
     <div class="block-head"><h2>資金</h2><span class="hint">上市＋上櫃合計，單位億元</span></div>
     <p class="why"><span class="sec-links">看更多：<a href="chips.html">三大法人</a>・<a href="margin.html">融資融券</a>・<a href="trust.html">投信明細</a></span></p>
-    <div class="ct">三大法人買賣超（近 120 日，估算金額）</div>
+    <div class="ct">三大法人買賣超（近 120 日）</div>
     <div class="chart" id="fl-chart"></div>
     <div class="charts2">
       <div><div class="ct">融資餘額（2025-07 起）</div><div class="chart" id="mg-chart"></div></div>
       <div><div class="ct">成交金額（近一年，含 ETF）</div><div class="chart" id="val-chart"></div></div>
     </div>
+    <div class="ct" style="margin-top:16px">集保大戶動向（每週，1000 張以上大戶持股比例增減 ≥ 1 個百分點的檔數）</div>
+    <div class="chart" id="big-chart"></div>
   </section>
 
   <section class="block" id="sector">
@@ -205,9 +207,10 @@
 
   <section class="block" id="tech">
     <div class="block-head"><h2>技術線圖</h2><span class="hint" id="t-hint"></span></div>
-    <p class="why">加權指數收盤與均線；副圖的法人、融資是全市場金額。<span class="sec-links">個股 K 線請到 <a href="kline.html">K 線</a></span></p>
+    <p class="why">日 K 與均線（2010 年起）；副圖的成交金額、法人、融資是上市＋上櫃合計。<span class="sec-links">個股 K 線請到 <a href="kline.html">K 線</a></span></p>
     <div class="toolbar">
-      <div class="chips" id="t-rng"><button data-v="60">3 個月</button><button data-v="120">6 個月</button><button data-v="250" aria-pressed="true">1 年</button><button data-v="500">2 年</button><button data-v="9999">全部</button></div>
+      <div class="chips" id="t-idx"><button data-v="taiex_all" aria-pressed="true">加權指數</button><button data-v="tpex_all" aria-pressed="false">櫃買指數</button></div>
+      <div class="chips" id="t-rng"><button data-v="60">3 個月</button><button data-v="120">6 個月</button><button data-v="250" aria-pressed="true">1 年</button><button data-v="500">2 年</button><button data-v="1250">5 年</button><button data-v="9999">全部</button></div>
       <div class="chips" id="t-ma"></div>
     </div>
     <div class="chart" id="t-chart"></div>
@@ -215,7 +218,7 @@
     <div class="chart" id="t-sub-chart"></div>
     <div class="ct" style="margin-top:24px">位階</div>
     <div class="tbl-wrap"><table>
-      <thead><tr><th>位階</th><th class="n">加權指數</th><th class="hide-s">怎麼算</th></tr></thead>
+      <thead><tr><th>位階</th><th class="n">加權指數</th><th class="n">櫃買指數</th><th class="hide-s">怎麼算</th></tr></thead>
       <tbody id="t-body"></tbody>
     </table></div>
   </section>
@@ -233,6 +236,14 @@
       <div><div class="ct">騰落線 vs 加權指數（近一年）</div><div class="chart" id="adl-chart"></div></div>
       <div><div class="ct">52 週新高／新低家數（近一年）</div><div class="chart" id="nh-chart"></div></div>
     </div>
+  </section>
+
+  <section class="block" id="val">
+    <div class="block-head"><h2>估值</h2><span class="hint" id="v-hint"></span></div>
+    <p class="why">上市普通股、市值加權；本益比只算有獲利的公司（證交所每日個股本益比、淨值比、殖利率）。百分位和近 10 年每週比。</p>
+    <div class="tiles" id="v-tiles"></div>
+    <div class="ct">大盤本益比（每週）</div>
+    <div class="chart" id="v-chart"></div>
   </section>
 
   <section class="block" id="fear">
@@ -254,9 +265,9 @@
     </table></div>
     <div class="note">
       <p>誰在推指數：股數用最新一份集保股權分散表的集保總股數（近似發行股數），分割／減資前的日子按參考價換算回當時股數；新上市前 5 日（無漲跌幅限制）不計。權重是推估，所以「推估合計」和實際漲跌點數會有差，期間越長差越多。</p>
-      <p>三大法人金額：每檔買賣超股數 × 當日收盤加總（含 ETF），是估算，和交易所公布的買賣金額會有幾十億的差。外資含外資自營商。外資台指淨部位＝大台＋小台 ÷ 4＋微台 ÷ 20（大台約當口數）。</p>
+      <p>三大法人金額：用證交所、櫃買中心公布的買賣金額（外資含外資自營商、自營商含避險）；還沒抓到官方數字的日子用「每檔買賣超股數 × 收盤」估算，圖上標「估」。大盤估值的市值用最新集保總股數 × 當日收盤，早年的權重是近似值。集保大戶從 2026-10 開始每週累積，略過股數變動超過 5% 的股票（增減資、分割）。外資台指淨部位＝大台＋小台 ÷ 4＋微台 ÷ 20（大台約當口數）。</p>
       <p>恐慌度指標：加權指數近 20 日實際波動（年化）、離近 250 日最高收盤、跌停家數比例與創 52 週新低家數比例（5 日平均）、站上 200 日線比例、大盤估計融資維持率（同融資融券頁算法）。每個指標和自己過去最多 5 年比，至少 4 個指標有值才算分數。股價資料 2022 年起、融資餘額 2025-07 起。</p>
-      <p>資料來源：證交所、櫃買中心每日收盤行情、三大法人與融資融券；臺灣期貨交易所；集保結算所股權分散表；櫃買中心產業價值鏈平台。</p>
+      <p>資料來源：證交所、櫃買中心每日收盤行情、指數歷史、三大法人買賣金額、個股本益比與融資融券；臺灣期貨交易所（含臺指選擇權波動率指數）；集保結算所股權分散表；櫃買中心產業價值鏈平台。</p>
     </div>
   </section>
 </main>
@@ -301,17 +312,17 @@ const yi = v => fx(v, 0);  // 億
 function draw(box, rows, S, o = {}) {
   if (!rows.length) { box.innerHTML = `<p class="empty">還沒有資料</p>`; return; }
   const W = o.W ?? 1000, L = o.L ?? 56, R = S.some(s => s.ax === "R") ? 64 : 16, T = 10, H1 = o.H ?? 200, B = 22, H = T + H1 + B;
-  const n = rows.length, hasBar = S.some(s => s.type !== "line");
+  const n = rows.length, hasBar = S.some(s => s.type !== "line"), zeroBar = S.some(s => s.type === "bar" || s.type === "stack");
   const X = hasBar ? i => L + (i + 0.5) / n * (W - L - R) : i => L + (n < 2 ? 0 : i / (n - 1) * (W - L - R));
   const lv = [];
   S.filter(s => s.ax !== "R" && s.type === "line").forEach(s => rows.forEach(r => lv.push(s.get(r))));
   S.filter(s => s.type === "bar").forEach(s => rows.forEach(r => lv.push(s.get(r))));
   const st = S.filter(s => s.type === "stack");
   if (st.length) rows.forEach(r => { let p = 0, q = 0; st.forEach(s => { const v = s.get(r) || 0; v > 0 ? p += v : q += v; }); lv.push(p, q); });
-  if (hasBar || o.zero) lv.push(0);
+  if (zeroBar || o.zero) lv.push(0);
   if (o.band) lv.push(...o.band);
   let [a, b] = o.dom || extent(lv, 0.06);
-  if (!o.dom && hasBar && Math.min(...lv.filter(v => v != null)) >= 0) a = 0;
+  if (!o.dom && zeroBar && Math.min(...lv.filter(v => v != null)) >= 0) a = 0;
   const Y = v => T + H1 - (v - a) / (b - a || 1) * H1;
   const rv = S.filter(s => s.ax === "R").flatMap(s => rows.map(r => s.get(r)));
   const [ra, rb] = extent(rv), YR = v => T + H1 - (v - ra) / (rb - ra || 1) * H1;
@@ -325,6 +336,8 @@ function draw(box, rows, S, o = {}) {
     return `<rect x="${(X(i) - bw / 2).toFixed(1)}" y="${Math.min(Y(y0), Y(y1)).toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(.5, Math.abs(Y(y0) - Y(y1))).toFixed(1)}" fill="${s.color}" opacity=".85"/>`; }).join(""); }).join("");
   S.filter(s => s.type === "bar").forEach(s => { body += rows.map((r, i) => { const v = s.get(r); if (v == null) return ""; const c = typeof s.color === "function" ? s.color(v) : s.color;
     return `<rect x="${(X(i) - bw / 2).toFixed(1)}" y="${Math.min(Y(0), Y(v)).toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(.5, Math.abs(Y(v) - Y(0))).toFixed(1)}" fill="${c}" opacity="${s.op ?? .75}"/>`; }).join(""); });
+  S.filter(s => s.type === "candle").forEach(s => { body += rows.map((r, i) => { const q = s.get(r); if (!q || q[3] == null) return ""; const [o, h, l, c] = q, col = c >= o ? "var(--rise)" : "var(--fall)";
+    return `<line x1="${X(i).toFixed(1)}" x2="${X(i).toFixed(1)}" y1="${Y(h).toFixed(1)}" y2="${Y(l).toFixed(1)}" stroke="${col}" stroke-width="1"/><rect x="${(X(i) - bw / 2).toFixed(1)}" y="${Math.min(Y(o), Y(c)).toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(.8, Math.abs(Y(o) - Y(c))).toFixed(1)}" fill="${col}"/>`; }).join(""); });
   S.filter(s => s.type === "line").forEach(s => { const YY = s.ax === "R" ? YR : Y; body += `<path d="${pathOf(rows.map(s.get), X, YY)}" fill="none" stroke="${s.color}" stroke-width="${s.w || 1.6}"${s.dash ? ` stroke-dasharray="${s.dash}"` : ""}/>`; });
   const lg = S.filter(s => !s.nolg).map(s => `<span><i style="background:${typeof s.color === "function" ? "var(--rise)" : s.color};${s.type !== "line" ? "height:8px" : ""}"></i>${s.name}${s.ax === "R" ? "（右軸）" : ""}</span>`).join("") + (o.lg || "");
   box.innerHTML = `<div class="legend">${lg}</div><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.label || "")}">${g}${body}${xlabels(rows.map(r => [r.d]), X, H)}
@@ -340,41 +353,43 @@ Promise.all([fetch("data/market.json").then(r => r.ok ? r.json() : null).catch((
   if (!j || !j.ov) { $("sub").textContent = "還沒有資料。"; return; }
   J = j; RT = rt;
   const run = f => { try { f(); } catch (e) { console.error(e); } };
-  [renderTop, renderContrib, renderEW, renderFut, renderRetail, renderFlow, renderSector, renderTech, renderBreadth, renderFear, renderFearChart].forEach(run);
+  [renderTop, renderContrib, renderEW, renderFut, renderRetail, renderFlow, renderSector, renderTech, renderBreadth, renderVal, renderFear, renderFearChart].forEach(run);
   if (window.TideLiq) TideLiq.mount($("liq"), renderContribTables);
 });
 
 const MK = () => J.ov.mk.map(r => Object.fromEntries(J.ov.cols.map((k, i) => [k === "date" ? "d" : k, r[i]])));
 
 function renderTop() {
-  const k = J.ov.kpi, f = J.fear, r = J.retail, bt = J.ov.bt;
-  $("sub").textContent = `資料到 ${k.date}。先看今天誰在推指數，再看期貨散戶、法人與融資的錢往哪走、哪些族群在跑，最後用均線、寬度、恐慌度看大盤位階。`;
+  const k = J.ov.kpi, f = J.fear, r = J.retail, bt = J.ov.bt, v = J.ov.val, tp = k.tpex;
+  $("sub").textContent = `資料到 ${k.date}。先看今天誰在推指數，再看期貨散戶、法人與融資的錢往哪走、哪些族群在跑，最後用均線、寬度、估值、恐慌度看大盤位階。`;
   const bi = bandIdx(f.score);
   const prevTx = k.taiex - k.chg;
   const st = [
     ["加權指數", `<span class="${cls(k.chg)}">${fx(k.taiex, 2)}</span>`, `<span class="${cls(k.chg)}">${sg(k.chg, 2)}（${pc(k.chg / prevTx * 100, 2)}）</span>・距歷史高點 ${pc((k.taiex / k.ath - 1) * 100)}`],
+    ["櫃買指數", tp ? `<span class="${cls(tp[2])}">${fx(tp[1], 2)}</span>` : "–", tp ? `<span class="${cls(tp[2])}">${sg(tp[2], 2)}（${pc(tp[2] / (tp[1] - tp[2]) * 100, 2)}）</span>・距歷史高點 ${pc((tp[1] / tp[3] - 1) * 100)}` : "還沒有資料"],
     ["成交金額（上市＋上櫃）", `${fx(k.val)}<small>億</small>`, k.v20 ? `20 日均的 ${fx(k.val / k.v20, 2)} 倍` : ""],
     ["上漲／下跌家數", `<span class="up">${fx(k.up)}</span> / <span class="down">${fx(k.dn)}</span>`, `漲停 ${k.lu}・跌停 ${k.ld}・平盤 ${k.flat}（普通股）`],
     ["站上季線的股票", `${fx(bt.a60[0], 0)}<small>%</small>`, bt.a60[1] == null ? "" : `${bt.since.slice(0, 4)} 年以來第 ${bt.a60[1]} 百分位`],
-    ["恐慌度", f.score == null ? "–" : `<span style="color:${BC[bi]}">${f.score}</span><small>${BN[bi] || ""}</small>`, `前一日 ${f.prev ?? "–"}・一週前 ${f.week ?? "–"}`],
-    ["散戶台指多空比", r ? `<span class="${cls(r.now)}">${pc(r.now)}</span>` : "–", r ? `前一日 ${pc(r.prev)}・近一年第 ${r.p1y} 百分位` : ""],
-    ["外資買賣超（估）", k.fnet == null ? "–" : `<span class="${cls(k.fnet)}">${sg(k.fnet, 0)}</span><small>億</small>`, k.fnet5 == null ? "" : `近 5 日 <span class="${cls(k.fnet5)}">${sg(k.fnet5, 0)}</span> 億`],
+    ["上市大盤本益比", v ? `${fx(v.pe, 1)}<small>倍</small>` : "–", v ? `近 10 年第 ${v.p_pe ?? "–"} 百分位` : "還沒有資料"],
+    [k.fnet_off ? "外資買賣超" : "外資買賣超（估）", k.fnet == null ? "–" : `<span class="${cls(k.fnet)}">${sg(k.fnet, 0)}</span><small>億</small>`, k.fnet5 == null ? "" : `近 5 日 <span class="${cls(k.fnet5)}">${sg(k.fnet5, 0)}</span> 億`],
     ["融資餘額", k.mg ? `${fx(k.mg[1], 0)}<small>億</small>` : "–", k.mg ? `較前一日 <span class="${cls(k.mg_chg)}">${sg(k.mg_chg, 0)}</span> 億（${k.mg[0].slice(5)}）` : ""],
   ];
   $("stats").innerHTML = st.map(([a, v, s]) => `<div class="stat"><div class="k">${a}</div><div class="v mono">${v}</div><div class="s">${s}</div></div>`).join("");
 }
 
 /* ── 誰在推指數 ── */
-let PER = null;
+let PER = null, CK = "contrib";
+$("c-idx").addEventListener("click", e => { const b = e.target.closest("button"); if (!b || !J) return;
+  CK = b.dataset.v; $("c-idx").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); $("c-chart").dataset.done = ""; renderContrib(); });
 function renderContrib() {
-  const c = J.contrib;
+  const c = J[CK];
   if (!c) { $("c-split").innerHTML = `<p class="empty">還沒有資料</p>`; return; }
-  if (!PER) PER = c.periods[0].k;
+  if (!PER || !c.periods.some(x => x.k === PER)) PER = c.periods[0].k;
   $("c-per").innerHTML = c.periods.map(p => `<button data-v="${p.k}" aria-pressed="${p.k === PER}">${p.lab}</button>`).join("");
   $("c-per").onclick = e => { const b = e.target.closest("button"); if (!b) return; PER = b.dataset.v; renderContrib(); };
   const p = c.periods.find(x => x.k === PER);
   $("c-hint").textContent = `${p.from === p.to ? p.to : p.from + " ～ " + p.to}　實際 ${sg(p.act, 1)} 點・推估合計 ${sg(p.est, 1)} 點・計算差 ${sg(p.act - p.est, 1)}`;
-  const parts = [["台積電", p.tsmc, "#C6A15B"], ["其他前十大權值股", p.top10, "#7FA8D6"], ["其餘上市股票", p.rest, "#8B95A0"]];
+  const otc = CK === "contrib_otc", parts = (otc ? [] : [["台積電", p.tsmc, "#C6A15B"]]).concat([[otc ? "前十大權值股" : "其他前十大權值股", p.top10, "#7FA8D6"], [otc ? "其餘上櫃股票" : "其餘上市股票", p.rest, "#8B95A0"]]);
   const tot = parts.reduce((s, x) => s + Math.abs(x[1]), 0) || 1;
   $("c-split").innerHTML = `<div class="split">${parts.map(([n, v, col]) => `<div style="flex:${Math.abs(v) / tot};background:${col}" title="${n} ${sg(v, 1)} 點">${Math.abs(v) / tot > .14 ? `${n} ${sg(v, 0)}` : ""}</div>`).join("")}</div>
     <div class="legend" style="margin-left:0">${parts.map(([n, v, col]) => `<span><i style="background:${col};height:8px"></i>${n} <b class="mono ${cls(v)}">${sg(v, 1)}</b> 點（${fx(Math.abs(v) / tot * 100, 0)}%）</span>`).join("")}</div>`;
@@ -382,7 +397,7 @@ function renderContrib() {
   if (!$("c-chart").dataset.done) { renderContribChart(); $("c-chart").dataset.done = 1; }
 }
 function renderContribTables() {
-  const c = J.contrib; if (!c) return;
+  const c = J[CK]; if (!c) return;
   const p = c.periods.find(x => x.k === PER), tot = Math.abs(p.act) || 1;
   const all = p.rows.map(r => ({code: r[0], name: r[1], w: r[2], pts: r[3]})).filter(r => !window.TideLiq || TideLiq.pass(r.code));
   const row = r => `<tr><td><a href="stock.html#s=${esc(r.code)}" class="sname" style="text-decoration:none">${esc(r.name)}<span class="mono">${esc(r.code)}</span></a></td><td class="n mono" data-v="${r.w}">${fx(r.w, 2)}%</td><td class="n mono ${cls(r.pts)}" data-v="${r.pts}">${sg(r.pts, 1)}</td><td class="n mono faint" data-v="${Math.abs(r.pts) / tot * 100}">${fx(Math.abs(r.pts) / tot * 100, 1)}%</td></tr>`;
@@ -390,11 +405,11 @@ function renderContribTables() {
   $("c-dn").innerHTML = all.filter(r => r.pts < 0).sort((a, b) => a.pts - b.pts).slice(0, 10).map(row).join("") || `<tr><td colspan="4" class="empty">沒有</td></tr>`;
 }
 function renderContribChart() {
-  const rows = J.contrib.series.map(r => ({d: r[0], t: r[1], t10: r[2], rest: r[3], act: r[4]}));
+  const rows = J[CK].series.map(r => ({d: r[0], t: r[1], t10: r[2], rest: r[3], act: r[4]}));
   draw($("c-chart"), rows, [
-    {name: "台積電", get: r => r.t, type: "stack", color: "#C6A15B", signed: 1, dp: 1},
-    {name: "其他前十大", get: r => r.t10, type: "stack", color: "#7FA8D6", signed: 1, dp: 1},
-    {name: "其餘上市", get: r => r.rest, type: "stack", color: "#8B95A0", signed: 1, dp: 1},
+    ...(CK === "contrib" ? [{name: "台積電", get: r => r.t, type: "stack", color: "#C6A15B", signed: 1, dp: 1}] : []),
+    {name: CK === "contrib" ? "其他前十大" : "前十大", get: r => r.t10, type: "stack", color: "#7FA8D6", signed: 1, dp: 1},
+    {name: CK === "contrib" ? "其餘上市" : "其餘上櫃", get: r => r.rest, type: "stack", color: "#8B95A0", signed: 1, dp: 1},
     {name: "實際漲跌", get: r => r.act, type: "line", color: "var(--text)", w: 1.2, signed: 1, dp: 1},
   ], {label: "近 60 日指數漲跌拆解", fL: v => sg(v, 0)});
 }
@@ -411,12 +426,12 @@ function renderEW() {
 /* ── 期貨籌碼 ── */
 function renderFut() {
   const r = J.retail, f = J.ov.fut, l = f[f.length - 1], p = f[f.length - 2] || [];
-  const rr = r ? r.rows[r.rows.length - 1] : null, rp = r ? r.rows[r.rows.length - 2] : null;
+  const rr = r ? r.rows[r.rows.length - 1] : null, vx = J.ov.vix;
   const t = [
-    ["散戶台指多空比（小台＋微台）", r ? `<span class="${cls(r.now)}">${pc(r.now, 2)}</span>` : "–", r ? `前一日 ${pc(r.prev, 2)}・近一年第 ${r.p1y} 百分位<br>小台 ${pc(rr[2], 2)}・微台 ${pc(rr[3], 2)}` : ""],
-    ["散戶淨部位（小台約當）", rr ? `<span class="${cls(rr[6])}">${sg(rr[6], 0)}</span><small>口</small>` : "–", rp ? `前一日 ${sg(rp[6], 0)} 口` : ""],
+    ["散戶台指多空比（小台＋微台）", r ? `<span class="${cls(r.now)}">${pc(r.now, 2)}</span>` : "–", r ? `前一日 ${pc(r.prev, 2)}・近一年第 ${r.p1y} 百分位<br>小台 ${pc(rr[2], 2)}・微台 ${pc(rr[3], 2)}・淨 ${sg(rr[6], 0)} 口` : ""],
     ["外資台指淨部位（大台約當）", l && l[1] != null ? `<span class="${cls(l[1])}">${sg(l[1], 0)}</span><small>口</small>` : "–", p[1] != null ? `前一日 ${sg(p[1], 0)} 口・變化 <span class="${cls(l[1] - p[1])}">${sg(l[1] - p[1], 0)}</span>` : ""],
     ["Put/Call 比（未平倉）", l && l[2] != null ? `${fx(l[2], 2)}<small>%</small>` : "–", p[2] != null ? `前一日 ${fx(p[2], 2)}%` : ""],
+    ["台指 VIX", vx ? `${fx(vx.now, 2)}` : "–", vx ? `前一日 ${fx(vx.prev, 2)}・近一年第 ${vx.p1y} 百分位` : "還沒有資料"],
   ];
   $("fut-tiles").innerHTML = t.map(([a, v, s]) => `<div class="stat"><div class="k">${a}</div><div class="v mono">${v}</div><div class="s">${s}</div></div>`).join("");
 }
@@ -424,14 +439,21 @@ function renderFut() {
 /* ── 資金 ── */
 function renderFlow() {
   const tx = Object.fromEntries(J.ov.mk.map(r => [r[0], r[1]]));
-  const fl = J.ov.flow.slice(-120).map(r => ({d: r[0], f: r[1], t: r[2], dl: r[3], tx: tx[r[0]]}));
+  const fl = J.ov.flow.slice(-120).map(r => ({d: r[0], f: r[1], t: r[2], dl: r[3], off: r[4], tx: tx[r[0]]}));
+  const est = fl.filter(r => !r.off).length;
   const sum = (k, n) => fl.slice(-n).reduce((s, r) => s + (r[k] || 0), 0);
   draw($("fl-chart"), fl, [
     {name: "外資", get: r => r.f, type: "stack", color: "#7FA8D6", signed: 1, unit: " 億"},
     {name: "投信", get: r => r.t, type: "stack", color: "#C6A15B", signed: 1, unit: " 億"},
     {name: "自營商", get: r => r.dl, type: "stack", color: "#8B95A0", signed: 1, unit: " 億"},
     {name: "加權指數", get: r => r.tx, type: "line", ax: "R", color: "var(--text)", w: 1.2},
-  ], {label: "三大法人買賣超", fL: v => sg(v, 0), lg: `<span class="faint">近 5 日：外資 ${sg(sum("f", 5), 0)}・投信 ${sg(sum("t", 5), 0)}・自營 ${sg(sum("dl", 5), 0)} 億</span>`});
+  ], {label: "三大法人買賣超", fL: v => sg(v, 0), lg: `<span class="faint">近 5 日：外資 ${sg(sum("f", 5), 0)}・投信 ${sg(sum("t", 5), 0)}・自營 ${sg(sum("dl", 5), 0)} 億${est ? `・其中 ${est} 天為估算` : ""}</span>`,
+     tip: r => `外資 <span class="mono ${cls(r.f)}">${sg(r.f, 0)}</span> 億<br>投信 <span class="mono ${cls(r.t)}">${sg(r.t, 0)}</span> 億<br>自營商 <span class="mono ${cls(r.dl)}">${sg(r.dl, 0)}</span> 億<br>加權指數 <span class="mono">${fx(r.tx, 0)}</span>${r.off ? "" : '<br><span class="faint">估算（股數 × 收盤）</span>'}`});
+  const big = (J.ov.big || []).map(r => ({d: r[0], up: r[1], dn: -r[2], tx: tx[r[0]]}));
+  draw($("big-chart"), big, [{name: "大戶增加 ≥1 個百分點（檔）", get: r => r.up, type: "bar", color: "var(--rise)"}, {name: "大戶減少 ≥1 個百分點（檔）", get: r => r.dn, type: "bar", color: "var(--fall)"},
+    {name: "加權指數", get: r => r.tx, type: "line", ax: "R", color: "var(--text-muted)", w: 1.2}],
+    {label: "集保大戶動向", H: 150, fL: v => fx(Math.abs(v), 0), lg: big.length < 10 ? `<span class="faint">集保只公布最新一週，從 ${J.ov.big[0] ? J.ov.big[0][0] : "–"} 起每週累積</span>` : "",
+     tip: r => `大戶增加 <span class="mono up">${fx(r.up)}</span> 檔<br>大戶減少 <span class="mono down">${fx(-r.dn)}</span> 檔`});
   const mg = J.ov.margin.map(r => ({d: r[0], v: r[1], tx: tx[r[0]]}));
   draw($("mg-chart"), mg, [
     {name: "融資餘額（億）", get: r => r.v, type: "line", color: "var(--rise)", w: 2},
@@ -480,22 +502,40 @@ function renderSector() {
 const MAS = [[20, "#7FA8D6"], [60, "var(--brass)"], [120, "#E08A4F"], [200, "#B48EDB"]];
 let MAON = new Set([20, 60, 200]);
 function sma(a, n) { const o = Array(a.length).fill(null); let s = 0; a.forEach((v, i) => { s += v; if (i >= n) s -= a[i - n]; if (i >= n - 1) o[i] = s / n; }); return o; }
+let TK = "taiex_all";
+$("t-idx").addEventListener("click", e => { const b = e.target.closest("button"); if (!b || !J) return;
+  TK = b.dataset.v; $("t-idx").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); renderTech(); });
+function posStats(A) {
+  const c = A.map(r => r[4]), N = c.length, i = N - 1, last = c[i];
+  const ma = n => N >= n ? c.slice(-n).reduce((s, x) => s + x, 0) / n : null;
+  const w = c.slice(-250), hi = Math.max(...w), lo = Math.min(...w), ath = Math.max(...c);
+  let sk = 0; for (let j = i; j > 0 && Math.sign(c[j] - c[j - 1]) === Math.sign(c[i] - c[i - 1]) && c[i] !== c[i - 1]; j--) sk++;
+  const vol = j => { if (j < 20) return null; const lr = []; for (let x = j - 19; x <= j; x++) lr.push(Math.log(c[x] / c[x - 1])); const m = lr.reduce((s, x) => s + x, 0) / 20; return Math.sqrt(lr.reduce((s, x) => s + (x - m) ** 2, 0) / 19) * Math.sqrt(252) * 100; };
+  const vs = c.map((_, j) => vol(j)).filter(v => v != null), vn = vol(i);
+  return {last, up: c[i] > c[i - 1], ma, hi, lo, ath, sk, vn, vp: Math.round(vs.filter(v => v <= vn).length / vs.length * 100), since: A[0][0].slice(0, 4)};
+}
 function renderTech() {
-  const A = J.ov.taiex_all, c = A.map(r => r[1]), N = c.length;
+  const A = J.ov[TK] || [], N = A.length;
+  if (!N) { $("t-chart").innerHTML = `<p class="empty">還沒有資料</p>`; return; }
+  const c = A.map(r => r[4]), nm = TK === "taiex_all" ? "加權指數" : "櫃買指數";
   const ma = Object.fromEntries(MAS.map(([n]) => [n, sma(c, n)]));
   $("t-ma").innerHTML = MAS.map(([n, col]) => `<button data-v="${n}" aria-pressed="${MAON.has(n)}"><i style="display:inline-block;width:10px;height:3px;background:${col};vertical-align:middle;margin-right:5px"></i>MA${n}</button>`).join("");
   $("t-ma").onclick = e => { const b = e.target.closest("button"); if (!b) return; const n = +b.dataset.v; MAON.has(n) ? MAON.delete(n) : MAON.add(n); renderTech(); };
-  const k = Math.min(N, +getT()), s0 = N - k;
-  const rows = A.slice(s0).map((r, j) => { const i = s0 + j, o = {d: r[0], c: r[1], v: r[2]}; MAS.forEach(([n]) => o["m" + n] = ma[n][i]); return o; });
-  $("t-hint").textContent = `${rows[0].d} ～ ${rows[rows.length - 1].d}・${rows.length} 個交易日`;
-  draw($("t-chart"), rows, [{name: "加權指數", get: r => r.c, type: "line", color: "var(--text)", w: 1.6}].concat(MAS.filter(([n]) => MAON.has(n)).map(([n, col]) => ({name: "MA" + n, get: r => r["m" + n], type: "line", color: col, w: 1.2}))),
-    {label: "加權指數與均線", H: 260, dom: extent(rows.flatMap(r => [r.c].concat(MAS.filter(([n]) => MAON.has(n)).map(([n]) => r["m" + n]))), 0.04)});
+  const k = Math.min(N, +getT()), s0 = N - k, vmap = Object.fromEntries(J.ov.mk.map(r => [r[0], r[2]]).concat((J.ov.taiex_all || []).filter(r => r[5] != null).map(r => [r[0], r[5]])));
+  const rows = A.slice(s0).map((r, j) => { const i = s0 + j, o = {d: r[0], o: r[1], h: r[2], l: r[3], c: r[4], v: vmap[r[0]]}; MAS.forEach(([n]) => o["m" + n] = ma[n][i]); return o; });
+  $("t-hint").textContent = `${nm}・${rows[0].d} ～ ${rows[rows.length - 1].d}・${rows.length} 個交易日`;
+  const on = MAS.filter(([n]) => MAON.has(n)), candle = rows.length <= 600 && rows.every(r => r.o != null);
+  draw($("t-chart"), rows, [candle ? {name: nm + "（日 K）", get: r => [r.o, r.h, r.l, r.c], type: "candle", color: "var(--rise)"} : {name: nm, get: r => r.c, type: "line", color: "var(--text)", w: 1.4}]
+    .concat(on.map(([n, col]) => ({name: "MA" + n, get: r => r["m" + n], type: "line", color: col, w: 1.2}))),
+    {label: nm + "與均線", H: 280, dom: extent(rows.flatMap(r => [candle ? r.h : r.c, candle ? r.l : r.c].concat(on.map(([n]) => r["m" + n]))), 0.03),
+     tip: r => `開 <span class="mono">${fx(r.o, 2)}</span>　高 <span class="mono">${fx(r.h, 2)}</span><br>低 <span class="mono">${fx(r.l, 2)}</span>　收 <span class="mono">${fx(r.c, 2)}</span>` + on.map(([n]) => `<br>MA${n} <span class="mono">${fx(r["m" + n], 0)}</span>`).join("")});
   // 副圖
   const sub = getSub(), d0 = rows[0].d, inRng = r => r[0] >= d0;
   const box = $("t-sub-chart");
   if (sub === "val") {
-    const v20 = sma(A.map(r => r[2]), 20);
-    draw(box, rows.map((r, j) => ({d: r.d, v: r.v, ma: v20[s0 + j]})), [{name: "上市＋上櫃成交金額（億）", get: r => r.v, type: "bar", color: "#7FA8D6", op: .55}, {name: "20 日均", get: r => r.ma, type: "line", color: "var(--brass)", w: 1.6}], {H: 120, label: "成交金額"});
+    const vv = rows.filter(r => r.v != null), arr = vv.map(r => r.v), v20 = sma(arr, 20);
+    draw(box, vv.map((r, j) => ({d: r.d, v: r.v, ma: v20[j]})), [{name: "上市＋上櫃成交金額（億）", get: r => r.v, type: "bar", color: "#7FA8D6", op: .55}, {name: "20 日均", get: r => r.ma, type: "line", color: "var(--brass)", w: 1.6}],
+      {H: 120, label: "成交金額", lg: vv.length < rows.length ? `<span class="faint">成交金額從 ${vv[0] ? vv[0].d : "–"} 起</span>` : ""});
   } else if (sub === "inst") {
     draw(box, J.ov.flow.filter(inRng).map(r => ({d: r[0], f: r[1], t: r[2], dl: r[3]})), [
       {name: "外資", get: r => r.f, type: "stack", color: "#7FA8D6", signed: 1, unit: " 億"}, {name: "投信", get: r => r.t, type: "stack", color: "#C6A15B", signed: 1, unit: " 億"}, {name: "自營商", get: r => r.dl, type: "stack", color: "#8B95A0", signed: 1, unit: " 億"}],
@@ -510,22 +550,40 @@ function renderTech() {
       if (i <= 14) { g += up / 14; l += dn / 14; if (i === 14) rsi[i] = 100 - 100 / (1 + g / (l || 1e-9)); } else { g = (g * 13 + up) / 14; l = (l * 13 + dn) / 14; rsi[i] = 100 - 100 / (1 + g / (l || 1e-9)); } }
     draw(box, rows.map((r, j) => ({d: r.d, v: rsi[s0 + j]})), [{name: "RSI 14", get: r => r.v, type: "line", color: "var(--brass)", w: 1.6, dp: 1}], {H: 120, label: "RSI", dom: [0, 100], band: [30, 70], lg: `<span class="faint">陰影 30～70</span>`});
   }
-  // 位階表
-  const i = N - 1, last = c[i], dist = n => ma[n][i] ? (last / ma[n][i] - 1) * 100 : null;
-  const w = c.slice(-250), hi = Math.max(...w), lo = Math.min(...w), ath = Math.max(...c);
-  let sk = 0; for (let j = i; j > 0 && Math.sign(c[j] - c[j - 1]) === Math.sign(c[i] - c[i - 1]) && c[i] !== c[i - 1]; j--) sk++;
-  const vol = j => { if (j < 20) return null; const lr = []; for (let x = j - 19; x <= j; x++) lr.push(Math.log(c[x] / c[x - 1])); const m = lr.reduce((s, x) => s + x, 0) / 20; return Math.sqrt(lr.reduce((s, x) => s + (x - m) ** 2, 0) / 19) * Math.sqrt(252) * 100; };
-  const vs = c.map((_, j) => vol(j)).filter(v => v != null), vn = vol(i), vp = Math.round(vs.filter(v => v <= vn).length / vs.length * 100);
-  const v20 = A.slice(-21, -1).reduce((s, r) => s + r[2], 0) / 20;
+  // 位階表（加權、櫃買並列）
+  const P = [J.ov.taiex_all, J.ov.tpex_all].map(x => x && x.length > 30 ? posStats(x) : null);
+  const cell = f => P.map(p => `<td class="n mono">${p ? f(p) : "–"}</td>`).join("");
+  const dist = (p, n) => { const m = p.ma(n); return m ? `<span class="${cls(p.last - m)}">${pc((p.last / m - 1) * 100)}</span> <span class="faint">(${fx(m, 0)})</span>` : "–"; };
+  const tv = J.ov.mk.slice(-21), v20 = tv.slice(0, 20).reduce((s, r) => s + r[2], 0) / 20;
   const T = [
-    ...[20, 60, 120, 200].map(n => [`距 ${n} 日均線`, `<span class="${cls(dist(n))}">${pc(dist(n))}</span> <span class="faint">(${fx(ma[n][i], 0)})</span>`, `收盤 ÷ ${n} 日收盤平均 − 1`]),
-    ["52 週位置", `${fx((last - lo) / (hi - lo) * 100, 0)}% <span class="faint">(${fx(lo, 0)}–${fx(hi, 0)})</span>`, "0%＝一年最低、100%＝一年最高"],
-    ["距歷史最高收盤", `<span class="${cls(last / ath - 1)}">${pc((last / ath - 1) * 100)}</span> <span class="faint">(${fx(ath, 0)})</span>`, `${A[0][0].slice(0, 4)} 年以來最高收盤`],
-    ["連續漲／跌", sk ? `${c[i] > c[i - 1] ? '<span class="up">連漲' : '<span class="down">連跌'} ${sk} 天</span>` : "平盤", "收盤和前一日比"],
-    ["20 日波動（年化）", `${fx(vn, 1)}% <span class="faint">(第 ${vp} 百分位)</span>`, `日報酬標準差 × √252；百分位和 ${A[0][0].slice(0, 4)} 年以來比`],
-    ["成交金額 vs 20 日均", `${fx(A[i][2] / v20, 2)} 倍`, "今日 ÷ 前 20 日平均"],
+    ...[20, 60, 120, 200].map(n => [`距 ${n} 日均線`, cell(p => dist(p, n)), `收盤 ÷ ${n} 日收盤平均 − 1`]),
+    ["52 週位置", cell(p => `${fx((p.last - p.lo) / (p.hi - p.lo) * 100, 0)}% <span class="faint">(${fx(p.lo, 0)}–${fx(p.hi, 0)})</span>`), "0%＝一年最低、100%＝一年最高"],
+    ["距歷史最高收盤", cell(p => `<span class="${cls(p.last / p.ath - 1)}">${pc((p.last / p.ath - 1) * 100)}</span> <span class="faint">(${fx(p.ath, 0)})</span>`), `${P[0] ? P[0].since : ""} 年以來最高收盤`],
+    ["連續漲／跌", cell(p => p.sk ? `${p.up ? '<span class="up">連漲' : '<span class="down">連跌'} ${p.sk} 天</span>` : "平盤"), "收盤和前一日比"],
+    ["20 日波動（年化）", cell(p => `${fx(p.vn, 1)}% <span class="faint">(第 ${p.vp} 百分位)</span>`), "日報酬標準差 × √252；百分位和資料起始以來比"],
+    ["成交金額 vs 20 日均", `<td class="n mono" colspan="2">${fx(tv[20][2] / v20, 2)} 倍（上市＋上櫃）</td>`, "今日 ÷ 前 20 日平均"],
   ];
-  $("t-body").innerHTML = T.map(r => `<tr><td>${r[0]}</td><td class="n mono">${r[1]}</td><td class="hide-s muted">${r[2]}</td></tr>`).join("");
+  $("t-body").innerHTML = T.map(r => `<tr><td>${r[0]}</td>${r[1]}<td class="hide-s muted">${r[2]}</td></tr>`).join("");
+}
+
+/* ── 估值 ── */
+function renderVal() {
+  const v = J.ov.val;
+  if (!v) { $("v-tiles").innerHTML = `<p class="empty" style="padding:16px">還沒有資料</p>`; return; }
+  $("v-hint").textContent = `資料到 ${v.date}・百分位從 ${v.from10} 起`;
+  const t = [["本益比", `${fx(v.pe, 2)}<small>倍</small>`, `近 10 年第 ${v.p_pe ?? "–"} 百分位・中位數 ${fx(v.med, 1)} 倍`],
+    ["股價淨值比", `${fx(v.pb, 2)}<small>倍</small>`, `近 10 年第 ${v.p_pb ?? "–"} 百分位`],
+    ["殖利率", `${fx(v.dy, 2)}<small>%</small>`, `近 10 年第 ${v.p_dy ?? "–"} 百分位（越低越貴）`],
+    ["上市普通股總市值", `${fx(v.mcap / 1e4, 1)}<small>兆</small>`, v.date]];
+  $("v-tiles").innerHTML = t.map(([a, x, s]) => `<div class="stat"><div class="k">${a}</div><div class="v mono">${x}</div><div class="s">${s}</div></div>`).join("");
+  const rows = v.series.map(r => ({d: r[0], pe: r[1], pb: r[2], dy: r[3], tx: r[4], med: v.med}));
+  draw($("v-chart"), rows, [
+    {name: "本益比（倍）", get: r => r.pe, type: "line", color: "var(--brass)", w: 1.8, dp: 2},
+    {name: `近 10 年中位數 ${fx(v.med, 1)} 倍`, get: r => r.med, type: "line", color: "var(--text-faint)", w: 1, dash: "5 4", dp: 1},
+    {name: "加權指數", get: r => r.tx, type: "line", ax: "R", color: "var(--text-muted)", w: 1},
+  ], {label: "大盤本益比", H: 220, band: [v.mean - v.sd, v.mean + v.sd], fL: v => fx(v, 0),
+      lg: `<span><i style="background:var(--brass);opacity:.3;height:8px"></i>近 10 年平均 ±1 標準差（${fx(v.mean - v.sd, 1)}～${fx(v.mean + v.sd, 1)}）</span>`,
+      tip: r => `本益比 <span class="mono">${fx(r.pe, 2)}</span> 倍<br>淨值比 <span class="mono">${fx(r.pb, 2)}</span><br>殖利率 <span class="mono">${fx(r.dy, 2)}%</span><br>加權指數 <span class="mono">${fx(r.tx, 0)}</span>`});
 }
 
 /* ── 市場寬度 ── */

@@ -68,7 +68,20 @@ def band(s):
 
 def _taiex(data_dir):
     p = Path(data_dir) / "margin" / "index.csv"
-    return {r["date"]: _f(r["taiex"]) for r in _read(p)} if p.exists() else {}
+    out = {r["date"]: _f(r["taiex"]) for r in _read(p)} if p.exists() else {}
+    for r in _mkt(data_dir, "taiex"):   # fetch_market.py 的指數檔（2010 起，含開高低）
+        if _f(r["close"]):
+            out.setdefault(r["date"], _f(r["close"]))
+    return out
+
+
+def _mkt(data_dir, name):
+    p = Path(data_dir) / "market" / f"{name}.csv"
+    return _read(p) if p.exists() else []
+
+
+def _ohlc(data_dir, name):
+    return [[r["date"]] + [_f(r[k]) for k in ("open", "high", "low", "close")] for r in _mkt(data_dir, name) if _f(r["close"])]
 
 
 def _shares(data_dir):
@@ -130,8 +143,7 @@ def breadth(data_dir):
             while qmin and px[qmin[-1]] >= a:
                 qmin.pop()
             qmin.append(k)
-            if r["market"] == "TWSE":
-                twse.append((code, r["name"], c - ch, ret))
+            twse.append((code, r["name"], c - ch, ret, r["market"]))
         days.append((d, st, twse))
     return days
 
@@ -252,8 +264,8 @@ def retail(data_dir, taiex):
             "cols": ["date", "ratio", "mtx", "tmf", "fx_tx", "taiex", "net"], "rows": rows[-OUT_N:], "flips": flips}
 
 
-def contrib(days, taiex, shares):
-    """逐日貢獻點數；再依期間（1／5／20／60 日、今年）加總每檔。"""
+def contrib(days, taiex, shares, mkt="TWSE"):
+    """逐日貢獻點數；再依期間（1／5／20／60 日、今年）加總每檔。mkt＝TWSE（加權指數）或 TPEx（櫃買指數）。"""
     if len(days) < 2 or not shares:
         return None
     last_d = max((d for d, _, _ in days if taiex.get(d)), default=None)
@@ -265,7 +277,7 @@ def contrib(days, taiex, shares):
     # 股數只有最新一份；分割／減資（參考價和前一日收盤差 30% 以上）之前的日子要把股數換回當時的
     last_px, ev = {}, {}   # 停牌換股時中間會缺好幾天，所以用「最後一次收盤」比
     for i in range(start - 1, len(days)):
-        for c, _, pc, r in days[i][2]:
+        for c, _, pc, r, _ in days[i][2]:
             pv = last_px.get(c)
             if i >= start and pv and pc and not 0.7 <= pc / pv <= 1.3:
                 ev.setdefault(i, []).append((c, pc / pv))
@@ -278,6 +290,7 @@ def contrib(days, taiex, shares):
     out, names = [], {}
     for i in range(start, len(days)):
         d, _, tw = days[i]
+        tw = [x[:4] for x in tw if x[4] == mkt]
         pd_ = days[i - 1][0]
         pi, ci = taiex.get(pd_), taiex.get(d)
         if not pi or not ci:
@@ -356,6 +369,73 @@ def _chips_flow(data_dir, dates):
     return out
 
 
+def _inst_official(data_dir):
+    """交易所公布的三大法人買賣金額（億，上市＋上櫃）：外資含外資自營商、自營商＝自行＋避險。兩個市場都有才算。"""
+    by = {}
+    for r in _mkt(data_dir, "inst"):
+        f = (_f(r["f"]) or 0) + (_f(r["fd"]) or 0)
+        t = _f(r["t"]) or 0
+        dl = (_f(r["d_self"]) or 0) + (_f(r["d_hedge"]) or 0)
+        by.setdefault(r["date"], {})[r["market"]] = (f, t, dl)
+    return {d: [round(sum(v[k] for v in m.values()) / 1e8, 1) for k in range(3)] for d, m in by.items() if len(m) == 2}
+
+
+def _valuation(data_dir, taiex):
+    """大盤估值：每週取最後一筆（回補是每週一筆、之後每天一筆），百分位和近 10 年比。"""
+    rows = [[r["date"], _f(r["pe"]), _f(r["pb"]), _f(r["dy"]), _f(r["mcap"])] for r in _mkt(data_dir, "val") if _f(r["pe"])]
+    if not rows:
+        return None
+    from datetime import date as _d
+    wk = {}
+    for r in rows:
+        wk[_d.fromisoformat(r[0]).isocalendar()[:2]] = r
+    w = sorted(wk.values())
+    last = rows[-1]
+    ten = [r for r in w if r[0] >= f"{int(last[0][:4]) - 10}{last[0][4:]}"]
+
+    def stat(k, hi=True):
+        xs = [r[k] for r in ten if r[k] is not None]
+        if len(xs) < 50 or last[k] is None:
+            return None
+        return round(sum(1 for x in xs if x <= last[k]) / len(xs) * 100)
+    pes = sorted(r[1] for r in ten)
+    m = sum(pes) / len(pes)
+    sd = math.sqrt(sum((x - m) ** 2 for x in pes) / len(pes))
+    return {"date": last[0], "pe": last[1], "pb": last[2], "dy": last[3], "mcap": last[4],
+            "p_pe": stat(1), "p_pb": stat(2), "p_dy": stat(3), "med": round(pes[len(pes) // 2], 2), "mean": round(m, 2), "sd": round(sd, 2),
+            "since": w[0][0], "from10": ten[0][0] if ten else None,
+            "series": [[r[0], r[1], r[2], r[3], taiex.get(r[0])] for r in w if r[0] < last[0]] + [[last[0], last[1], last[2], last[3], taiex.get(last[0])]]}
+
+
+def _vix(data_dir):
+    rows = [[r["date"], _f(r["close"])] for r in _mkt(data_dir, "vix") if _f(r["close"])]
+    if not rows:
+        return None
+    y1 = [r[1] for r in rows[-250:]]
+    return {"date": rows[-1][0], "now": rows[-1][1], "prev": rows[-2][1] if len(rows) > 1 else None,
+            "p1y": round(sum(1 for x in y1 if x <= rows[-1][1]) / len(y1) * 100), "rows": rows[-OUT_N:]}
+
+
+def _big_holders(data_dir):
+    """集保大戶（1000 張以上）持股比例週變化：比上週增加／減少 ≥ 1 個百分點的檔數（普通股；總股數變動 >5% 的當作增減資略過）。"""
+    files = sorted((Path(data_dir) / "tdcc").glob("*.csv"))
+    out, prev = [], None
+    for f in files:
+        cur = {r["code"]: (_f(r["p1000"]), _f(r["shares"])) for r in _read(f) if STOCK.match(r["code"])}
+        if prev:
+            up = dn = 0
+            for c, (p, sh) in cur.items():
+                q = prev.get(c)
+                if p is None or not q or q[0] is None or not sh or not q[1] or abs(sh / q[1] - 1) > 0.05:
+                    continue
+                up += p - q[0] >= 1
+                dn += p - q[0] <= -1
+            d = f.stem
+            out.append([f"{d[:4]}-{d[4:6]}-{d[6:]}", up, dn])
+        prev = cur
+    return out
+
+
 def _margin_total(data_dir):
     p = Path(data_dir) / "margin" / "summary.csv"
     if not p.exists():
@@ -412,20 +492,33 @@ def overview(data_dir, days, taiex):
           "nhnl": [nhnl[-1], _pct_all(nhnl, nhnl[-1])],
           "band60": [q(0.1), q(0.9)], "since": next((r[0] for r in mk if r[10] is not None), None)}
     flow = _chips_flow(data_dir, dates[-250:])
+    off = _inst_official(data_dir)
+    flow = [[r[0]] + (off[r[0]] + [1] if r[0] in off else r[1:] + [0]) for r in flow]
+    for d in sorted(set(off) - {r[0] for r in flow}):
+        if d >= (flow[0][0] if flow else d):
+            flow.append([d] + off[d] + [1])
+    flow.sort()
     mg = _margin_total(data_dir)
     fut = _fut(data_dir)
     v20 = sum(r[2] for r in mk[-21:-1]) / 20 if n > 21 else None
     k = {"date": last[0], "taiex": last[1], "chg": round(last[1] - mk[-2][1], 2) if n > 1 else None,
-         "ath": max(r[1] for r in mk), "val": last[2], "v20": None if v20 is None else round(v20),
+         "ath": max(v for v in taiex.values() if v), "val": last[2], "v20": None if v20 is None else round(v20),
          "up": last[3], "dn": last[4], "lu": last[12], "ld": last[13], "flat": last[14]}
     if flow and flow[-1][0] == last[0]:
         k["fnet"] = flow[-1][1]
+        k["fnet_off"] = flow[-1][4]
         k["fnet5"] = round(sum(r[1] for r in flow[-5:]), 1)
+    tp = _ohlc(data_dir, "tpex")
+    if len(tp) > 1:
+        k["tpex"] = [tp[-1][0], tp[-1][4], round(tp[-1][4] - tp[-2][4], 2), max(r[4] for r in tp)]
     if mg:
         k["mg"] = mg[-1]
         k["mg_chg"] = round(mg[-1][1] - mg[-2][1], 1) if len(mg) > 1 else None
-    return {"cols": cols, "mk": mk[-750:], "taiex_all": [[r[0], r[1], r[2]] for r in mk], "bt": bt, "kpi": k,
-            "flow": flow, "margin": mg, "fut": fut}
+    val = {r[0]: r[2] for r in mk}
+    tx = _ohlc(data_dir, "taiex") or [[r[0], None, None, None, r[1]] for r in mk]
+    return {"cols": cols, "mk": mk[-750:], "taiex_all": [r + [val.get(r[0])] for r in tx], "tpex_all": tp, "bt": bt, "kpi": k,
+            "flow": flow, "margin": mg, "fut": fut, "val": _valuation(data_dir, taiex), "vix": _vix(data_dir),
+            "big": _big_holders(data_dir)}
 
 
 def build(data_dir):
@@ -437,6 +530,7 @@ def build(data_dir):
     return {"fear": fear(days, taiex, _margin_ratio(data_dir)),
             "retail": retail(data_dir, taiex),
             "contrib": contrib(days, taiex, _shares(data_dir)),
+            "contrib_otc": contrib(days, {r[0]: r[4] for r in _ohlc(data_dir, "tpex")}, _shares(data_dir), "TPEx"),
             "ov": overview(data_dir, days, taiex)}
 
 

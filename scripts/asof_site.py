@@ -119,6 +119,7 @@ def datasets():
     add("margin", "融資券", latest_file_date("margin/[0-9][0-9][0-9][0-9]/[0-9]*.csv"), daily=True)
     add("pledge", "擔保品", latest_file_date("pledge/*/[0-9]*.csv"), daily=True)
     add("futures", "期交所", max_col("futures/tx.csv"), daily=True)
+    add("mktval", "估值／VIX", max_col("market/val.csv"), daily=True)
     add("alert", "處置／注意", max(filter(None, [max_col("alert/attention.csv"),
                                                max_col("alert/disposal.csv", "ann_date")]), default=None), daily=True)
     d, note = etf_date()
@@ -143,7 +144,7 @@ def datasets():
 
 PAGES = {
     "index": ["price", "broker", "chips", "etf", "alert", "insider_t"],
-    "market": ["price", "margin", "futures", "chips"], "daytrade": ["chips", "broker"], "etfcrowd": ["etf", "price"], "capital": ["mops", "price"], "memo": ["mops", "price"], "ranking": ["price"], "flow": ["price"], "rotation": ["price"], "newhigh": ["price"], "limitup": ["price"],
+    "market": ["price", "margin", "futures", "chips", "mktval"], "daytrade": ["chips", "broker"], "etfcrowd": ["etf", "price"], "capital": ["mops", "price"], "memo": ["mops", "price"], "ranking": ["price"], "flow": ["price"], "rotation": ["price"], "newhigh": ["price"], "limitup": ["price"],
     "industry": ["price", "industry"], "kline": ["price", "chips", "broker"],
     "screen": ["price", "chips", "revenue", "quarterly"],
     "chips": ["chips", "sbl", "tdcc"], "chipdiff": ["chips", "margin", "pledge", "tdcc", "broker"], "trust": ["chips", "price"], "futures": ["futures"], "settle": ["futures", "price"], "txo": ["futures"],

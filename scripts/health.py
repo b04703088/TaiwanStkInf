@@ -60,6 +60,9 @@ SOURCES = {
               ("證交所 當沖", TWSE + "trading/day-trading/twtb4u.html"),
               ("櫃買中心 三大法人", "https://www.tpex.org.tw/www/zh-tw/insti/dailyTrade?type=Daily&sect=EW")],
     "futures": [("期交所 三大法人", "https://www.taifex.com.tw/cht/3/futContractsDate")],
+    "market": [("證交所 指數歷史", "https://www.twse.com.tw/zh/indices/taiex/mi-5min-hist.html"), ("櫃買指數歷史", "https://www.tpex.org.tw/zh-tw/mainboard/trading/info/index-history.html"),
+               ("證交所 個股本益比", "https://www.twse.com.tw/zh/trading/historical/bwibbu-day.html"), ("證交所 三大法人金額", "https://www.twse.com.tw/zh/trading/foreign/bfi82u.html"),
+               ("期交所 VIX", "https://www.taifex.com.tw/cht/7/vixMinNew")],
     "tdcc": [("集保 股權分散表", "https://opendata.tdcc.com.tw/getOD.ashx?id=1-5")],
 }
 # ETF 持股：各投信官網（{code} 會換成代號）
@@ -413,6 +416,18 @@ def check(data_dir=ROOT / "data", now=None):
         add("futures", "futures", "期貨選擇權籌碼", "warn" if (lg or 0) >= 2 else "ok", d,
             "三大法人未平倉" + (f"，落後 {lg} 個交易日" if lg else ""), lag=lg,
             path=data_dir / "futures" / "inst.csv")
+
+    # ---------- 大盤頁：指數、估值、法人金額、VIX（fetch_market.py） ----------
+    for key, name, src in (("taiex", "加權／櫃買指數開高低收", "taiex.csv"), ("val", "大盤估值（本益比等）", "val.csv"),
+                           ("inst", "三大法人買賣金額", "inst.csv"), ("vix", "台指 VIX", "vix.csv")):
+        p = data_dir / "market" / src
+        rows = _read(p) if p.exists() else []
+        if not rows:
+            add("market", key, name, "warn", None, "還沒有資料", path=p)
+            continue
+        d = max(r["date"] for r in rows)
+        lg = lag(d)
+        add("market", key, name, "warn" if (lg or 0) >= 2 else "ok", d, f"{len(rows)} 筆" + (f"，落後 {lg} 個交易日" if lg else ""), lag=lg, path=p)
 
     # ---------- 集保股權分散 ----------
     tdcc = sorted((data_dir / "tdcc").glob("[0-9]*.csv"))
