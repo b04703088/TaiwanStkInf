@@ -24,7 +24,7 @@
   data/insider/brokers.json          內部人分點比對：月報 × 分點進出、申報期間追蹤（見 scripts/insider_broker.py）
   data/mops/mops.json                重大訊息、股東會／法說會行事曆（見 scripts/mops_site.py）
   data/fin/index.json, s/<代號>.json  財報：月營收與季報（見 scripts/fin_site.py）
-  data/market.json                   大盤溫度：恐慌度、市場寬度、散戶台指多空比、誰在推指數（見 scripts/market_site.py）
+  data/market.json                   大盤：KPI、誰在推指數（多期間）、期貨籌碼、資金、技術位階、市場寬度、恐慌度（見 scripts/market_site.py）
   data/daytrade.json                 當沖與隔日沖：大盤當沖比重與損益、個股當沖、隔日沖分點買賣（見 scripts/daytrade_site.py）
   data/etf/crowd.json                ETF 擁擠度：個股被 ETF 合計持有比例、申贖帶動被動買賣、ETF 重疊度（見 scripts/etfcrowd_site.py）
   data/memo.json                     法說 memo：每晚排程寫的 data/conf/memo＋法說後超額（見 scripts/memo_site.py）
@@ -194,7 +194,7 @@ def build(out: Path, days: int) -> list[str]:
     industry_site.write_industry(ROOT / "data", out / "data" / "industry" / "industry.json")
     flow_site.write_flow(ROOT / "data", out / "data" / "flow.json")
     rotation_site.write(ROOT / "data", out / "data" / "rotation.json")  # 族群輪動頁
-    market_site.write(ROOT / "data", out / "data" / "market.json")  # 大盤溫度頁
+    market_site.write(ROOT / "data", out / "data" / "market.json")  # 大盤頁
     daytrade_site.write(ROOT / "data", out / "data" / "daytrade.json")  # 當沖與隔日沖頁
     etfcrowd_site.write(ROOT / "data", out / "data" / "etf" / "crowd.json")  # ETF 擁擠度頁
     capital_site.write(ROOT / "data", out / "data" / "capital.json")  # 現增／GDR 頁
