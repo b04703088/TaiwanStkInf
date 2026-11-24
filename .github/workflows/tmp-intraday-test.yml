@@ -14,7 +14,7 @@ jobs:
       - name: run monitor
         run: |
           cd local/intraday
-          python probe_mis.py; python monitor.py --test --rounds=6 2>&1 | tee run.log
+          python monitor.py --test --rounds=6 2>&1 | tee run.log
           echo ---- ; head -c 3000 logs/*.csv || true
       - uses: actions/upload-artifact@v4
         with: {name: intraday-test, path: local/intraday/logs}

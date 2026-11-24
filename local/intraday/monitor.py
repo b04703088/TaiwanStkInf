@@ -174,12 +174,15 @@ class Mis:
         self.warm()
 
     def warm(self):
-        fetch(MIS + "index.jsp", self.opener)
+        try:                                    # 拿 session cookie；API 沒有 cookie 也能用
+            fetch(MIS + "index", self.opener)
+        except Exception:
+            pass
 
     def quotes(self, keys):
         url = (MIS + "api/getStockInfo.jsp?json=1&delay=0&_=%d&ex_ch=" % (time.time() * 1000)
                + urllib.parse.quote("|".join(keys), safe="|_."))
-        data = json.loads(fetch(url, self.opener, headers={"Referer": MIS + "index.jsp"}))
+        data = json.loads(fetch(url, self.opener, headers={"Referer": MIS + "index"}))
         return data.get("msgArray", [])
 
 
@@ -233,6 +236,8 @@ class Detector:
                 price = up
             elif down and ask1 == down and not bid1:
                 price = down
+            elif self.hist[code]:               # 沿用上一筆成交價（量照樣更新）
+                price = self.hist[code][-1][1]
         if price is None or cumvol is None:
             return out
         ts = int(q.get("tlong", time.time() * 1000)) / 1000
