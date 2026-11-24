@@ -504,7 +504,8 @@ def overview(data_dir, days, taiex):
     k = {"date": last[0], "taiex": last[1], "chg": round(last[1] - mk[-2][1], 2) if n > 1 else None,
          "ath": max(v for v in taiex.values() if v), "val": last[2], "v20": None if v20 is None else round(v20),
          "up": last[3], "dn": last[4], "lu": last[12], "ld": last[13], "flat": last[14]}
-    if flow and flow[-1][0] == last[0]:
+    if flow:
+        k["fnet_d"] = flow[-1][0]
         k["fnet"] = flow[-1][1]
         k["fnet_off"] = flow[-1][4]
         k["fnet5"] = round(sum(r[1] for r in flow[-5:]), 1)

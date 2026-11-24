@@ -371,7 +371,7 @@ function renderTop() {
     ["上漲／下跌家數", `<span class="up">${fx(k.up)}</span> / <span class="down">${fx(k.dn)}</span>`, `漲停 ${k.lu}・跌停 ${k.ld}・平盤 ${k.flat}（普通股）`],
     ["站上季線的股票", `${fx(bt.a60[0], 0)}<small>%</small>`, bt.a60[1] == null ? "" : `${bt.since.slice(0, 4)} 年以來第 ${bt.a60[1]} 百分位`],
     ["上市大盤本益比", v ? `${fx(v.pe, 1)}<small>倍</small>` : "–", v ? `近 10 年第 ${v.p_pe ?? "–"} 百分位` : "還沒有資料"],
-    [k.fnet_off ? "外資買賣超" : "外資買賣超（估）", k.fnet == null ? "–" : `<span class="${cls(k.fnet)}">${sg(k.fnet, 0)}</span><small>億</small>`, k.fnet5 == null ? "" : `近 5 日 <span class="${cls(k.fnet5)}">${sg(k.fnet5, 0)}</span> 億`],
+    [k.fnet_off ? "外資買賣超" : "外資買賣超（估）", k.fnet == null ? "–" : `<span class="${cls(k.fnet)}">${sg(k.fnet, 0)}</span><small>億</small>`, k.fnet5 == null ? "" : `近 5 日 <span class="${cls(k.fnet5)}">${sg(k.fnet5, 0)}</span> 億${k.fnet_d !== k.date ? `（${k.fnet_d.slice(5)}）` : ""}`],
     ["融資餘額", k.mg ? `${fx(k.mg[1], 0)}<small>億</small>` : "–", k.mg ? `較前一日 <span class="${cls(k.mg_chg)}">${sg(k.mg_chg, 0)}</span> 億（${k.mg[0].slice(5)}）` : ""],
   ];
   $("stats").innerHTML = st.map(([a, v, s]) => `<div class="stat"><div class="k">${a}</div><div class="v mono">${v}</div><div class="s">${s}</div></div>`).join("");
