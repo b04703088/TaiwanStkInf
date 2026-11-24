@@ -1,22 +1,21 @@
 import urllib.request, json, re, sys
 UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126.0 Safari/537.36"}
-def get(u, n=900):
+def get(u, n=900, enc="utf-8"):
     try:
         with urllib.request.urlopen(urllib.request.Request(u, headers=UA), timeout=60) as r:
             b = r.read()
-        print("==", u, r.status, len(b)); t = b.decode("utf-8", "replace"); print(t[:n]); return t
+        print("==", u, r.status, len(b)); t = b.decode(enc, "replace"); print(t[:n]); return t
     except Exception as e:
         print("==", u, "ERR", repr(e)); return ""
-get("https://www.twse.com.tw/rwd/zh/indicesReport/MI_5MINS_HIST?date=20261101&response=json")
-get("https://www.twse.com.tw/rwd/zh/afterTrading/BWIBBU_d?date=20261120&selectType=ALL&response=json", 1500)
-get("https://www.twse.com.tw/rwd/zh/afterTrading/BWIBBU_d?date=20160108&selectType=ALL&response=json", 800)
-get("https://www.twse.com.tw/rwd/zh/fund/BFI82U?type=day&dayDate=20261120&response=json", 1500)
-get("https://www.tpex.org.tw/www/zh-tw/insti/summary?type=Daily&date=2026/11/20&response=json", 1500)
-get("https://www.tpex.org.tw/www/zh-tw/indexInfo/inx?date=2026/11/01&response=json", 1500)
-get("https://www.tpex.org.tw/www/zh-tw/indexInfo/inx?type=Monthly&date=2026/11/01&response=json", 1500)
-m = get("https://www.tpex.org.tw/www/zh-tw/menu.json", 0)
-for x in sorted(set(re.findall(r'"(/www/zh-tw/[^"]*(?:ind|inx|Ind|insti)[^"]*)"', m)))[:80]: print("menu", x)
-for x in sorted(set(re.findall(r'[^"]{0,40}指數[^"]{0,40}', m)))[:60]: print("menuz", x)
-get("https://www.taifex.com.tw/cht/7/vixMinNew", 3000)
-get("https://www.taifex.com.tw/file/taifex/Dailydownload/vix/log2data/20261120new.txt", 600)
-get("https://www.taifex.com.tw/cht/7/vixDaily", 1500)
+for u in ["https://www.twse.com.tw/rwd/zh/TAIEX/MI_5MINS_HIST?date=20261101&response=json",
+          "https://www.twse.com.tw/indicesReport/MI_5MINS_HIST?response=json&date=20261101",
+          "https://www.twse.com.tw/exchangeReport/MI_5MINS_HIST?response=json&date=20261101",
+          "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?date=20160108&type=ALLBUT0999&response=json",
+          "https://www.twse.com.tw/rwd/zh/afterTrading/BWIBBU_d?date=20100108&selectType=ALL&response=json",
+          "https://www.twse.com.tw/rwd/zh/afterTrading/BWIBBU_d?date=20050107&selectType=ALL&response=json",
+          "https://www.twse.com.tw/rwd/zh/fund/BFI82U?type=day&dayDate=20230105&response=json",
+          "https://www.tpex.org.tw/www/zh-tw/indexInfo/inx?date=2016/01/01&response=json"]:
+    get(u, 700)
+t = get("https://www.taifex.com.tw/cht/7/vixMinNew", 0)
+for x in sorted(set(re.findall(r'(?:href|value|onclick)=["\']([^"\']*(?:vix|VIX|txt|zip|csv)[^"\']*)', t)))[:40]: print("link", x)
+i = t.find("<table"); print(re.sub(r"\s+", " ", t[i:i+4000]))
