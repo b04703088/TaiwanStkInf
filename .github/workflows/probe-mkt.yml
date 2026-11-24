@@ -1,0 +1,12 @@
+name: Probe market sources (temporary)
+on:
+  push:
+    branches: [claude/project-thread-38gp3t]
+    paths: [.github/workflows/probe-mkt.yml, research/probe_mkt.py]
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - run: python -u research/probe_mkt.py
