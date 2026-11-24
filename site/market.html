@@ -4,11 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#101419">
-<title>大盤溫度｜潮汐</title>
+<title>大盤｜潮汐</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-<style>
 <style>
   :root{
     --ink:#101419; --panel:#171C22; --panel-2:#1E242B;
@@ -113,6 +112,28 @@
   .two{display:grid; grid-template-columns:1fr 1fr; gap:20px;}
   .two h3{font-size:14px; margin:0 0 8px; font-weight:500; color:var(--text-muted);}
   @media (max-width:860px){ .two{grid-template-columns:1fr;} }
+  section.block{scroll-margin-top:84px;}
+  .jump{display:flex; flex-wrap:wrap; gap:6px; margin-top:20px;}
+  .jump a{font-size:13px; color:var(--text-muted); text-decoration:none; border:1px solid var(--line-strong); padding:5px 12px; border-radius:var(--radius-s);}
+  .jump a:hover{color:var(--text); border-color:var(--text-faint);}
+  .stats.k8{grid-template-columns:repeat(4,1fr);}
+  .stat .v small{font-size:13px; color:var(--text-muted); margin-left:4px; font-family:'Noto Sans TC',sans-serif;}
+  .tiles{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden; margin-bottom:16px;}
+  .sec-links{font-size:12.5px; color:var(--text-faint);}
+  .sec-links a{color:var(--text-muted);}
+  .charts2{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px;}
+  .charts2 h3, .ct{font-size:14px; margin:0 0 8px; font-weight:500; color:var(--text-muted);}
+  td.hm{font-variant-numeric:tabular-nums;}
+  #sector th, #sector td{padding:8px 7px;}
+  tr.sum td{border-top:1px solid var(--line-strong); color:var(--text-muted);}
+  .qrow{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:14px;}
+  .qbox{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-m); padding:12px 14px; font-size:13px;}
+  .qbox h4{margin:0 0 4px; font-size:13.5px;}
+  .qbox .ns{color:var(--text-muted); line-height:1.7;}
+  .q-lead{color:#E1594F;} .q-weak{color:#C98500;} .q-lag{color:#3FAE72;} .q-imp{color:#3987E5;}
+  .subsel{display:flex; flex-wrap:wrap; gap:6px; margin:12px 0 8px;}
+  .todo{border:1px dashed var(--line-strong); border-radius:var(--radius-m); padding:14px 18px; font-size:13.5px; color:var(--text-muted);}
+  @media (max-width:860px){ .stats.k8, .tiles{grid-template-columns:repeat(2,1fr);} .charts2{grid-template-columns:1fr;} .qrow{grid-template-columns:repeat(2,1fr);} .stat .v{font-size:20px;} }
 </style>
 </head>
 <body>
@@ -126,9 +147,92 @@
 <main class="wrap">
   <section class="page-head">
     <div class="eyebrow">市場總覽</div>
-    <h1>大盤溫度：恐慌度、散戶多空、誰在推指數</h1>
+    <h1>大盤：誰在推、誰在跑、位階在哪</h1>
     <p class="desc" id="sub">載入中…</p>
-    <div class="stats" id="stats"></div>
+    <nav class="jump" aria-label="本頁區塊">
+      <a href="#who">誰在推指數</a><a href="#futures">期貨籌碼</a><a href="#flow">資金</a><a href="#sector">類股輪動</a><a href="#tech">技術線圖</a><a href="#breadth">市場寬度</a><a href="#fear">恐慌度</a>
+    </nav>
+    <div class="stats k8" id="stats"></div>
+  </section>
+
+  <section class="block" id="who">
+    <div class="block-head"><h2>誰在推指數</h2><span class="hint" id="c-hint"></span></div>
+    <p class="why">每檔貢獻點數＝前一日加權指數 × 前一日市值權重 × 當日漲跌幅，期間內逐日加總（只算上市）。「前十大」＝最新市值前十大。</p>
+    <div class="toolbar"><div class="chips" id="c-per"></div></div>
+    <div id="c-split"></div>
+    <div class="toolbar" style="margin-top:18px"><div id="liq"></div></div>
+    <div class="two">
+      <div><h3>推升最多</h3><div class="tbl-wrap"><table><thead><tr><th>股票</th><th class="n">權重</th><th class="n">貢獻點數</th><th class="n">占比</th></tr></thead><tbody id="c-up"></tbody></table></div></div>
+      <div><h3>拖累最多</h3><div class="tbl-wrap"><table><thead><tr><th>股票</th><th class="n">權重</th><th class="n">貢獻點數</th><th class="n">占比</th></tr></thead><tbody id="c-dn"></tbody></table></div></div>
+    </div>
+    <div class="ct" style="margin-top:24px">近 60 日每天的漲跌從哪裡來</div>
+    <div class="chart" id="c-chart"></div>
+    <div class="ct" style="margin-top:24px">加權指數 vs 全部股票等權平均（近一年累計）</div>
+    <div class="chart" id="ew-chart"></div>
+  </section>
+
+  <section class="block" id="futures">
+    <div class="block-head"><h2>期貨籌碼</h2><span class="hint" id="r-hint"></span></div>
+    <p class="why">期交所盤後資料。散戶＝小台＋微台全市場未平倉扣掉三大法人；正值＝散戶偏多。散戶通常是反向參考。<span class="sec-links">看更多：<a href="futures.html">台指期・選擇權</a>・<a href="txo.html">選擇權未平倉</a></span></p>
+    <div class="tiles" id="fut-tiles"></div>
+    <div class="toolbar"><div class="chips" id="r-rng">
+      <button data-v="60" aria-pressed="false">3 個月</button><button data-v="120" aria-pressed="false">半年</button><button data-v="250" aria-pressed="true">1 年</button><button data-v="500" aria-pressed="false">2 年</button>
+    </div></div>
+    <div class="chart" id="r-chart"></div>
+  </section>
+
+  <section class="block" id="flow">
+    <div class="block-head"><h2>資金</h2><span class="hint">上市＋上櫃合計，單位億元</span></div>
+    <p class="why"><span class="sec-links">看更多：<a href="chips.html">三大法人</a>・<a href="margin.html">融資融券</a>・<a href="trust.html">投信明細</a></span></p>
+    <div class="ct">三大法人買賣超（近 120 日，估算金額）</div>
+    <div class="chart" id="fl-chart"></div>
+    <div class="charts2">
+      <div><div class="ct">融資餘額（2025-07 起）</div><div class="chart" id="mg-chart"></div></div>
+      <div><div class="ct">成交金額（近一年，含 ETF）</div><div class="chart" id="val-chart"></div></div>
+    </div>
+  </section>
+
+  <section class="block" id="sector">
+    <div class="block-head"><h2>類股輪動</h2><span class="hint" id="s-hint"></span></div>
+    <p class="why">族群報酬＝成分股等權平均（同一檔可能在多個族群）。象限＝相對加權指數的強弱與動能（同族群輪動頁算法）。<span class="sec-links"><a href="rotation.html">看輪動軌跡圖 →</a></span></p>
+    <div class="toolbar"><div class="chips" id="s-set"><button data-v="theme" aria-pressed="true">AI 供應鏈族群</button><button data-v="chain" aria-pressed="false">產業鏈產業</button></div></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>族群</th><th class="n">檔數</th><th class="n">今日</th><th class="n">昨日</th><th class="n">5 日</th><th class="n">20 日</th><th class="n">60 日</th><th class="n">今年</th><th class="n">漲／跌</th><th class="n">一年新高</th><th class="n">成交值占比</th><th class="n">資金流向</th><th>象限</th></tr></thead>
+      <tbody id="s-body"></tbody>
+    </table></div>
+    <div class="qrow" id="s-quad"></div>
+  </section>
+
+  <section class="block" id="tech">
+    <div class="block-head"><h2>技術線圖</h2><span class="hint" id="t-hint"></span></div>
+    <p class="why">加權指數收盤與均線；副圖的法人、融資是全市場金額。<span class="sec-links">個股 K 線請到 <a href="kline.html">K 線</a></span></p>
+    <div class="toolbar">
+      <div class="chips" id="t-rng"><button data-v="60">3 個月</button><button data-v="120">6 個月</button><button data-v="250" aria-pressed="true">1 年</button><button data-v="500">2 年</button><button data-v="9999">全部</button></div>
+      <div class="chips" id="t-ma"></div>
+    </div>
+    <div class="chart" id="t-chart"></div>
+    <div class="subsel chips" id="t-sub"><button data-v="val" aria-pressed="true">成交金額</button><button data-v="inst">三大法人</button><button data-v="mg">融資餘額</button><button data-v="bias">乖離率（20 日）</button><button data-v="rsi">RSI 14</button></div>
+    <div class="chart" id="t-sub-chart"></div>
+    <div class="ct" style="margin-top:24px">位階</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>位階</th><th class="n">加權指數</th><th class="hide-s">怎麼算</th></tr></thead>
+      <tbody id="t-body"></tbody>
+    </table></div>
+  </section>
+
+  <section class="block" id="breadth">
+    <div class="block-head"><h2>市場寬度</h2><span class="hint" id="b-hint"></span></div>
+    <p class="why">上市櫃普通股，用還原價（除權息不算跌）。百分位＝和 <span id="b-since"></span> 以來每天比。指數往上但寬度往下，代表只剩少數股票在撐。</p>
+    <div class="tbl-wrap" style="margin-bottom:16px"><table>
+      <thead><tr><th>指標</th><th class="n">數值</th><th class="n">歷史位置</th><th class="hide-s">說明</th></tr></thead>
+      <tbody id="b-body"></tbody>
+    </table></div>
+    <div class="ct">站上均線的股票比例（近三年）</div>
+    <div class="chart" id="b-chart"></div>
+    <div class="charts2">
+      <div><div class="ct">騰落線 vs 加權指數（近一年）</div><div class="chart" id="adl-chart"></div></div>
+      <div><div class="ct">52 週新高／新低家數（近一年）</div><div class="chart" id="nh-chart"></div></div>
+    </div>
   </section>
 
   <section class="block" id="fear">
@@ -148,38 +252,11 @@
       <thead><tr><th>日期</th><th class="n">分數</th><th class="n">當時離一年高點</th></tr></thead>
       <tbody id="x-body"></tbody>
     </table></div>
-  </section>
-
-  <section class="block" id="breadth">
-    <div class="block-head"><h2>市場寬度</h2><span class="hint" id="b-hint"></span></div>
-    <p class="why">上市櫃普通股中，收盤站上 20／60／200 日均線的比例（用還原價，除權息不算跌）。指數創高但比例往下，代表只剩少數股票在撐。</p>
-    <div class="chart" id="b-chart"></div>
-  </section>
-
-  <section class="block" id="retail">
-    <div class="block-head"><h2>散戶台指多空比</h2><span class="hint" id="r-hint"></span></div>
-    <p class="why">小台＋微台全市場未平倉扣掉三大法人＝散戶。正值＝散戶偏多、負值＝偏空；散戶通常是反向參考。</p>
-    <div class="toolbar"><div class="chips" id="r-rng">
-      <button data-v="60" aria-pressed="false">3 個月</button><button data-v="120" aria-pressed="false">半年</button><button data-v="250" aria-pressed="true">1 年</button><button data-v="500" aria-pressed="false">2 年</button>
-    </div></div>
-    <div class="chart" id="r-chart"></div>
-  </section>
-
-  <section class="block" id="contrib">
-    <div class="block-head"><h2>誰在推指數</h2><span class="hint" id="c-hint"></span></div>
-    <p class="why">每檔貢獻點數＝前一日加權指數 × 前一日市值權重 × 今日漲跌幅（只算上市）。</p>
-    <div id="c-split"></div>
-    <div class="chart" id="c-chart" style="margin-top:14px"></div>
-    <div class="toolbar" style="margin-top:18px"><div id="liq"></div></div>
-    <div class="two">
-      <div><h3>推升最多</h3><div class="tbl-wrap"><table><thead><tr><th>股票</th><th class="n">漲跌</th><th class="n">權重</th><th class="n">貢獻點數</th></tr></thead><tbody id="c-up"></tbody></table></div></div>
-      <div><h3>拖累最多</h3><div class="tbl-wrap"><table><thead><tr><th>股票</th><th class="n">漲跌</th><th class="n">權重</th><th class="n">貢獻點數</th></tr></thead><tbody id="c-dn"></tbody></table></div></div>
-    </div>
     <div class="note">
-      <p>恐慌度指標：加權指數近 20 日實際波動（年化）、離近 250 日最高收盤、跌停家數比例與創 52 週新低家數比例（5 日平均）、站上 200 日線比例、大盤估計融資維持率（同融資融券頁算法）。每個指標和自己過去最多 5 年比（資料不足就用全部，少於 120 天不計入），至少 4 個指標有值才算分數。股價資料 2022 年起、融資維持率 2025-07 起，所以分數 2023 年中才開始有。</p>
-      <p>散戶多空比：散戶淨部位＝−（三大法人小台淨未平倉＋微台淨未平倉 ÷ 5），除以全市場未平倉（微台 5 口折 1 口小台）。微台 2024-07-29 上市，之前只算小台。</p>
-      <p>誰在推指數：股數用最新一份集保股權分散表的集保總股數（近似發行股數），權重是推估，合計和實際漲跌點數會有小誤差。</p>
-      <p>資料來源：證交所、櫃買中心每日收盤行情與融資融券；臺灣期貨交易所三大法人與期貨行情；集保結算所股權分散表。</p>
+      <p>誰在推指數：股數用最新一份集保股權分散表的集保總股數（近似發行股數），分割／減資前的日子按參考價換算回當時股數；新上市前 5 日（無漲跌幅限制）不計。權重是推估，所以「推估合計」和實際漲跌點數會有差，期間越長差越多。</p>
+      <p>三大法人金額：每檔買賣超股數 × 當日收盤加總（含 ETF），是估算，和交易所公布的買賣金額會有幾十億的差。外資含外資自營商。外資台指淨部位＝大台＋小台 ÷ 4＋微台 ÷ 20（大台約當口數）。</p>
+      <p>恐慌度指標：加權指數近 20 日實際波動（年化）、離近 250 日最高收盤、跌停家數比例與創 52 週新低家數比例（5 日平均）、站上 200 日線比例、大盤估計融資維持率（同融資融券頁算法）。每個指標和自己過去最多 5 年比，至少 4 個指標有值才算分數。股價資料 2022 年起、融資餘額 2025-07 起。</p>
+      <p>資料來源：證交所、櫃買中心每日收盤行情、三大法人與融資融券；臺灣期貨交易所；集保結算所股權分散表；櫃買中心產業價值鏈平台。</p>
     </div>
   </section>
 </main>
@@ -217,25 +294,258 @@ function hover(box, W, L, R, n, X, html) {
 const xlabels = (rows, X, H) => { const step = Math.max(1, Math.round(rows.length / 6)); return rows.map((r, i) => i % step ? "" : `<text x="${X(i).toFixed(1)}" y="${H - 4}" text-anchor="middle">${md(r[0])}</text>`).join(""); };
 const ticks = (a, b, Y, f, x, an, L, W, R, grid = true) => [0, 1, 2, 3].map(j => { const v = a + (b - a) * j / 3; return (grid ? `<line x1="${L}" x2="${W - R}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}" stroke="var(--line)"/>` : "") + `<text x="${x}" y="${(Y(v) + 4).toFixed(1)}" text-anchor="${an}">${f(v)}</text>`; }).join("");
 
-let J = null;
+const pc = (v, d = 1) => v == null || !isFinite(v) ? "–" : sg(v, d) + "%";
+const yi = v => fx(v, 0);  // 億
+
+/* 通用圖：rows=[{d,...}]；S=[{name,get,type:"line"|"bar"|"stack",ax:"L"|"R",color,w,dash}] */
+function draw(box, rows, S, o = {}) {
+  if (!rows.length) { box.innerHTML = `<p class="empty">還沒有資料</p>`; return; }
+  const W = o.W ?? 1000, L = o.L ?? 56, R = S.some(s => s.ax === "R") ? 64 : 16, T = 10, H1 = o.H ?? 200, B = 22, H = T + H1 + B;
+  const n = rows.length, hasBar = S.some(s => s.type !== "line");
+  const X = hasBar ? i => L + (i + 0.5) / n * (W - L - R) : i => L + (n < 2 ? 0 : i / (n - 1) * (W - L - R));
+  const lv = [];
+  S.filter(s => s.ax !== "R" && s.type === "line").forEach(s => rows.forEach(r => lv.push(s.get(r))));
+  S.filter(s => s.type === "bar").forEach(s => rows.forEach(r => lv.push(s.get(r))));
+  const st = S.filter(s => s.type === "stack");
+  if (st.length) rows.forEach(r => { let p = 0, q = 0; st.forEach(s => { const v = s.get(r) || 0; v > 0 ? p += v : q += v; }); lv.push(p, q); });
+  if (hasBar || o.zero) lv.push(0);
+  if (o.band) lv.push(...o.band);
+  let [a, b] = o.dom || extent(lv, 0.06);
+  if (!o.dom && hasBar && Math.min(...lv.filter(v => v != null)) >= 0) a = 0;
+  const Y = v => T + H1 - (v - a) / (b - a || 1) * H1;
+  const rv = S.filter(s => s.ax === "R").flatMap(s => rows.map(r => s.get(r)));
+  const [ra, rb] = extent(rv), YR = v => T + H1 - (v - ra) / (rb - ra || 1) * H1;
+  const bw = Math.max(1, (W - L - R) / n * 0.72);
+  let g = ticks(a, b, Y, o.fL || (v => fx(v, 0)), L - 6, "end", L, W, R);
+  if (rv.length) g += ticks(ra, rb, YR, o.fR || (v => fx(v, 0)), W - R + 6, "start", L, W, R, false);
+  if (a < 0 && b > 0) g += `<line x1="${L}" x2="${W - R}" y1="${Y(0).toFixed(1)}" y2="${Y(0).toFixed(1)}" stroke="var(--line-strong)"/>`;
+  if (o.band) g += `<rect x="${L}" width="${W - L - R}" y="${Y(o.band[1]).toFixed(1)}" height="${(Y(o.band[0]) - Y(o.band[1])).toFixed(1)}" fill="var(--brass)" opacity=".08"/>`;
+  let body = "";
+  if (st.length) body += rows.map((r, i) => { let p = 0, q = 0; return st.map(s => { const v = s.get(r); if (!v) return ""; const y0 = v > 0 ? p : q; v > 0 ? p += v : q += v; const y1 = v > 0 ? p : q;
+    return `<rect x="${(X(i) - bw / 2).toFixed(1)}" y="${Math.min(Y(y0), Y(y1)).toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(.5, Math.abs(Y(y0) - Y(y1))).toFixed(1)}" fill="${s.color}" opacity=".85"/>`; }).join(""); }).join("");
+  S.filter(s => s.type === "bar").forEach(s => { body += rows.map((r, i) => { const v = s.get(r); if (v == null) return ""; const c = typeof s.color === "function" ? s.color(v) : s.color;
+    return `<rect x="${(X(i) - bw / 2).toFixed(1)}" y="${Math.min(Y(0), Y(v)).toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(.5, Math.abs(Y(v) - Y(0))).toFixed(1)}" fill="${c}" opacity="${s.op ?? .75}"/>`; }).join(""); });
+  S.filter(s => s.type === "line").forEach(s => { const YY = s.ax === "R" ? YR : Y; body += `<path d="${pathOf(rows.map(s.get), X, YY)}" fill="none" stroke="${s.color}" stroke-width="${s.w || 1.6}"${s.dash ? ` stroke-dasharray="${s.dash}"` : ""}/>`; });
+  const lg = S.filter(s => !s.nolg).map(s => `<span><i style="background:${typeof s.color === "function" ? "var(--rise)" : s.color};${s.type !== "line" ? "height:8px" : ""}"></i>${s.name}${s.ax === "R" ? "（右軸）" : ""}</span>`).join("") + (o.lg || "");
+  box.innerHTML = `<div class="legend">${lg}</div><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.label || "")}">${g}${body}${xlabels(rows.map(r => [r.d]), X, H)}
+    <line class="cx" y1="${T}" y2="${T + H1}" stroke="var(--line-strong)" visibility="hidden"/><rect class="hit" x="${L}" y="${T}" width="${W - L - R}" height="${H1}" fill="transparent"/></svg><div class="tip"></div>`;
+  hover(box, W, L, R, n, X, i => { const r = rows[i]; return `<b class="mono">${r.d}</b><br>` + (o.tip ? o.tip(r) : S.map(s => { const v = s.get(r); return `${s.name} <span class="mono ${s.signed ? cls(v) : ""}">${v == null ? "–" : (s.signed ? sg(v, s.dp ?? 0) : fx(v, s.dp ?? 0))}${s.unit || ""}</span>`; }).join("<br>")); });
+}
+
+let J = null, RT = null;
 const getF = chips("f-rng", renderFearChart), getR = chips("r-rng", renderRetail);
-fetch("data/market.json").then(r => r.ok ? r.json() : null).catch(() => null).then(j => {
-  if (!j) { $("sub").textContent = "還沒有資料。"; return; }
-  J = j; renderTop(); renderFear(); renderFearChart(); renderBreadth(); renderRetail(); renderContrib();
-  if (window.TideLiq) TideLiq.mount($("liq"), renderContrib);
+const getS = chips("s-set", renderSector), getT = chips("t-rng", renderTech), getSub = chips("t-sub", renderTech);
+Promise.all([fetch("data/market.json").then(r => r.ok ? r.json() : null).catch(() => null),
+             fetch("data/rotation.json").then(r => r.ok ? r.json() : null).catch(() => null)]).then(([j, rt]) => {
+  if (!j || !j.ov) { $("sub").textContent = "還沒有資料。"; return; }
+  J = j; RT = rt;
+  const run = f => { try { f(); } catch (e) { console.error(e); } };
+  [renderTop, renderContrib, renderEW, renderFut, renderRetail, renderFlow, renderSector, renderTech, renderBreadth, renderFear, renderFearChart].forEach(run);
+  if (window.TideLiq) TideLiq.mount($("liq"), renderContribTables);
 });
 
+const MK = () => J.ov.mk.map(r => Object.fromEntries(J.ov.cols.map((k, i) => [k === "date" ? "d" : k, r[i]])));
+
 function renderTop() {
-  const f = J.fear, r = J.retail, c = J.contrib;
-  $("sub").textContent = `資料到 ${f.date}。恐慌度把波動、跌停、新低、均線、融資維持率合成一個 0～100 的分數；散戶多空比看期貨散戶站哪邊；最後拆解今天指數漲跌是誰推的。`;
+  const k = J.ov.kpi, f = J.fear, r = J.retail, bt = J.ov.bt;
+  $("sub").textContent = `資料到 ${k.date}。先看今天誰在推指數，再看期貨散戶、法人與融資的錢往哪走、哪些族群在跑，最後用均線、寬度、恐慌度看大盤位階。`;
   const bi = bandIdx(f.score);
+  const prevTx = k.taiex - k.chg;
   const st = [
-    ["恐慌度", f.score == null ? "–" : `<span style="color:${BC[bi]}">${f.score}</span><small>${BN[bi] || ""}</small>`, `前一日 ${f.prev ?? "–"}・一週前 ${f.week ?? "–"}・一個月前 ${f.month ?? "–"}`],
-    ["散戶台指多空比", r ? `<span class="${cls(r.now)}">${sg(r.now, 1)}%</span>` : "–", r ? `前一日 ${sg(r.prev, 1)}%・近一年第 ${r.p1y} 百分位（${r.date}）` : "還沒有資料"],
-    ["加權指數", c ? `<span class="${cls(c.act)}">${sg(c.act, 0)}</span><small>點</small>` : "–", c ? `收 ${fx(c.close, 0)}（${sg((c.close / c.prev - 1) * 100, 2)}%）` : ""],
-    ["台積電貢獻", c ? `<span class="${cls(c.tsmc)}">${sg(c.tsmc, 0)}</span><small>點</small>` : "–", c && c.act ? `占今天漲跌 ${fx(c.tsmc / c.act * 100, 0)}%` : ""],
+    ["加權指數", `<span class="${cls(k.chg)}">${fx(k.taiex, 2)}</span>`, `<span class="${cls(k.chg)}">${sg(k.chg, 2)}（${pc(k.chg / prevTx * 100, 2)}）</span>・距歷史高點 ${pc((k.taiex / k.ath - 1) * 100)}`],
+    ["成交金額（上市＋上櫃）", `${fx(k.val)}<small>億</small>`, k.v20 ? `20 日均的 ${fx(k.val / k.v20, 2)} 倍` : ""],
+    ["上漲／下跌家數", `<span class="up">${fx(k.up)}</span> / <span class="down">${fx(k.dn)}</span>`, `漲停 ${k.lu}・跌停 ${k.ld}・平盤 ${k.flat}（普通股）`],
+    ["站上季線的股票", `${fx(bt.a60[0], 0)}<small>%</small>`, bt.a60[1] == null ? "" : `${bt.since.slice(0, 4)} 年以來第 ${bt.a60[1]} 百分位`],
+    ["恐慌度", f.score == null ? "–" : `<span style="color:${BC[bi]}">${f.score}</span><small>${BN[bi] || ""}</small>`, `前一日 ${f.prev ?? "–"}・一週前 ${f.week ?? "–"}`],
+    ["散戶台指多空比", r ? `<span class="${cls(r.now)}">${pc(r.now)}</span>` : "–", r ? `前一日 ${pc(r.prev)}・近一年第 ${r.p1y} 百分位` : ""],
+    ["外資買賣超（估）", k.fnet == null ? "–" : `<span class="${cls(k.fnet)}">${sg(k.fnet, 0)}</span><small>億</small>`, k.fnet5 == null ? "" : `近 5 日 <span class="${cls(k.fnet5)}">${sg(k.fnet5, 0)}</span> 億`],
+    ["融資餘額", k.mg ? `${fx(k.mg[1], 0)}<small>億</small>` : "–", k.mg ? `較前一日 <span class="${cls(k.mg_chg)}">${sg(k.mg_chg, 0)}</span> 億（${k.mg[0].slice(5)}）` : ""],
   ];
-  $("stats").innerHTML = st.map(([k, v, s]) => `<div class="stat"><div class="k">${k}</div><div class="v mono">${v}</div><div class="s">${s}</div></div>`).join("");
+  $("stats").innerHTML = st.map(([a, v, s]) => `<div class="stat"><div class="k">${a}</div><div class="v mono">${v}</div><div class="s">${s}</div></div>`).join("");
+}
+
+/* ── 誰在推指數 ── */
+let PER = null;
+function renderContrib() {
+  const c = J.contrib;
+  if (!c) { $("c-split").innerHTML = `<p class="empty">還沒有資料</p>`; return; }
+  if (!PER) PER = c.periods[0].k;
+  $("c-per").innerHTML = c.periods.map(p => `<button data-v="${p.k}" aria-pressed="${p.k === PER}">${p.lab}</button>`).join("");
+  $("c-per").onclick = e => { const b = e.target.closest("button"); if (!b) return; PER = b.dataset.v; renderContrib(); };
+  const p = c.periods.find(x => x.k === PER);
+  $("c-hint").textContent = `${p.from === p.to ? p.to : p.from + " ～ " + p.to}　實際 ${sg(p.act, 1)} 點・推估合計 ${sg(p.est, 1)} 點・計算差 ${sg(p.act - p.est, 1)}`;
+  const parts = [["台積電", p.tsmc, "#C6A15B"], ["其他前十大權值股", p.top10, "#7FA8D6"], ["其餘上市股票", p.rest, "#8B95A0"]];
+  const tot = parts.reduce((s, x) => s + Math.abs(x[1]), 0) || 1;
+  $("c-split").innerHTML = `<div class="split">${parts.map(([n, v, col]) => `<div style="flex:${Math.abs(v) / tot};background:${col}" title="${n} ${sg(v, 1)} 點">${Math.abs(v) / tot > .14 ? `${n} ${sg(v, 0)}` : ""}</div>`).join("")}</div>
+    <div class="legend" style="margin-left:0">${parts.map(([n, v, col]) => `<span><i style="background:${col};height:8px"></i>${n} <b class="mono ${cls(v)}">${sg(v, 1)}</b> 點（${fx(Math.abs(v) / tot * 100, 0)}%）</span>`).join("")}</div>`;
+  renderContribTables();
+  if (!$("c-chart").dataset.done) { renderContribChart(); $("c-chart").dataset.done = 1; }
+}
+function renderContribTables() {
+  const c = J.contrib; if (!c) return;
+  const p = c.periods.find(x => x.k === PER), tot = Math.abs(p.act) || 1;
+  const all = p.rows.map(r => ({code: r[0], name: r[1], w: r[2], pts: r[3]})).filter(r => !window.TideLiq || TideLiq.pass(r.code));
+  const row = r => `<tr><td><a href="stock.html#s=${esc(r.code)}" class="sname" style="text-decoration:none">${esc(r.name)}<span class="mono">${esc(r.code)}</span></a></td><td class="n mono" data-v="${r.w}">${fx(r.w, 2)}%</td><td class="n mono ${cls(r.pts)}" data-v="${r.pts}">${sg(r.pts, 1)}</td><td class="n mono faint" data-v="${Math.abs(r.pts) / tot * 100}">${fx(Math.abs(r.pts) / tot * 100, 1)}%</td></tr>`;
+  $("c-up").innerHTML = all.filter(r => r.pts > 0).sort((a, b) => b.pts - a.pts).slice(0, 10).map(row).join("") || `<tr><td colspan="4" class="empty">沒有</td></tr>`;
+  $("c-dn").innerHTML = all.filter(r => r.pts < 0).sort((a, b) => a.pts - b.pts).slice(0, 10).map(row).join("") || `<tr><td colspan="4" class="empty">沒有</td></tr>`;
+}
+function renderContribChart() {
+  const rows = J.contrib.series.map(r => ({d: r[0], t: r[1], t10: r[2], rest: r[3], act: r[4]}));
+  draw($("c-chart"), rows, [
+    {name: "台積電", get: r => r.t, type: "stack", color: "#C6A15B", signed: 1, dp: 1},
+    {name: "其他前十大", get: r => r.t10, type: "stack", color: "#7FA8D6", signed: 1, dp: 1},
+    {name: "其餘上市", get: r => r.rest, type: "stack", color: "#8B95A0", signed: 1, dp: 1},
+    {name: "實際漲跌", get: r => r.act, type: "line", color: "var(--text)", w: 1.2, signed: 1, dp: 1},
+  ], {label: "近 60 日指數漲跌拆解", fL: v => sg(v, 0)});
+}
+function renderEW() {
+  const m = MK().slice(-250), t0 = m[0].taiex, e0 = m[0].ew;
+  const rows = m.map(r => ({d: r.d, tx: (r.taiex / t0 - 1) * 100, ew: (r.ew / e0 - 1) * 100}));
+  const l = rows[rows.length - 1];
+  draw($("ew-chart"), rows, [
+    {name: "加權指數", get: r => r.tx, type: "line", color: "var(--brass)", w: 2, signed: 1, dp: 1, unit: "%"},
+    {name: "全部普通股等權平均", get: r => r.ew, type: "line", color: "#7FA8D6", w: 2, signed: 1, dp: 1, unit: "%"},
+  ], {label: "加權指數與等權平均", fL: v => fx(v, 0) + "%", zero: 1, lg: `<span>差距 <b class="mono ${cls(l.tx - l.ew)}">${sg(l.tx - l.ew, 1)}</b> 個百分點（正＝權值股比較強）</span>`});
+}
+
+/* ── 期貨籌碼 ── */
+function renderFut() {
+  const r = J.retail, f = J.ov.fut, l = f[f.length - 1], p = f[f.length - 2] || [];
+  const rr = r ? r.rows[r.rows.length - 1] : null, rp = r ? r.rows[r.rows.length - 2] : null;
+  const t = [
+    ["散戶台指多空比（小台＋微台）", r ? `<span class="${cls(r.now)}">${pc(r.now, 2)}</span>` : "–", r ? `前一日 ${pc(r.prev, 2)}・近一年第 ${r.p1y} 百分位<br>小台 ${pc(rr[2], 2)}・微台 ${pc(rr[3], 2)}` : ""],
+    ["散戶淨部位（小台約當）", rr ? `<span class="${cls(rr[6])}">${sg(rr[6], 0)}</span><small>口</small>` : "–", rp ? `前一日 ${sg(rp[6], 0)} 口` : ""],
+    ["外資台指淨部位（大台約當）", l && l[1] != null ? `<span class="${cls(l[1])}">${sg(l[1], 0)}</span><small>口</small>` : "–", p[1] != null ? `前一日 ${sg(p[1], 0)} 口・變化 <span class="${cls(l[1] - p[1])}">${sg(l[1] - p[1], 0)}</span>` : ""],
+    ["Put/Call 比（未平倉）", l && l[2] != null ? `${fx(l[2], 2)}<small>%</small>` : "–", p[2] != null ? `前一日 ${fx(p[2], 2)}%` : ""],
+  ];
+  $("fut-tiles").innerHTML = t.map(([a, v, s]) => `<div class="stat"><div class="k">${a}</div><div class="v mono">${v}</div><div class="s">${s}</div></div>`).join("");
+}
+
+/* ── 資金 ── */
+function renderFlow() {
+  const tx = Object.fromEntries(J.ov.mk.map(r => [r[0], r[1]]));
+  const fl = J.ov.flow.slice(-120).map(r => ({d: r[0], f: r[1], t: r[2], dl: r[3], tx: tx[r[0]]}));
+  const sum = (k, n) => fl.slice(-n).reduce((s, r) => s + (r[k] || 0), 0);
+  draw($("fl-chart"), fl, [
+    {name: "外資", get: r => r.f, type: "stack", color: "#7FA8D6", signed: 1, unit: " 億"},
+    {name: "投信", get: r => r.t, type: "stack", color: "#C6A15B", signed: 1, unit: " 億"},
+    {name: "自營商", get: r => r.dl, type: "stack", color: "#8B95A0", signed: 1, unit: " 億"},
+    {name: "加權指數", get: r => r.tx, type: "line", ax: "R", color: "var(--text)", w: 1.2},
+  ], {label: "三大法人買賣超", fL: v => sg(v, 0), lg: `<span class="faint">近 5 日：外資 ${sg(sum("f", 5), 0)}・投信 ${sg(sum("t", 5), 0)}・自營 ${sg(sum("dl", 5), 0)} 億</span>`});
+  const mg = J.ov.margin.map(r => ({d: r[0], v: r[1], tx: tx[r[0]]}));
+  draw($("mg-chart"), mg, [
+    {name: "融資餘額（億）", get: r => r.v, type: "line", color: "var(--rise)", w: 2},
+    {name: "加權指數", get: r => r.tx, type: "line", ax: "R", color: "var(--text-muted)", w: 1.2},
+  ], {label: "融資餘額", H: 190, W: 560});
+  const m = MK(), v = m.map((r, i) => ({d: r.d, v: r.val, ma: i >= 19 ? m.slice(i - 19, i + 1).reduce((s, x) => s + x.val, 0) / 20 : null})).slice(-250);
+  draw($("val-chart"), v, [
+    {name: "成交金額（億）", get: r => r.v, type: "bar", color: "#7FA8D6", op: .55},
+    {name: "20 日均", get: r => r.ma, type: "line", color: "var(--brass)", w: 2},
+  ], {label: "成交金額", H: 190, W: 560});
+}
+
+/* ── 類股輪動 ── */
+const RS_MA = 50, MOM = 10, QN = {lead: "領先", weak: "轉弱", lag: "落後", imp: "改善"};
+const quad = (x, y) => x == null || y == null ? null : x >= 100 ? (y >= 100 ? "lead" : "weak") : (y >= 100 ? "imp" : "lag");
+function rrg(g, tx) {
+  const n = g.idx.length, ratio = g.idx.map((v, k) => v / tx[k]), rs = Array(n).fill(null), mom = Array(n).fill(null);
+  let s = 0;
+  for (let k = 0; k < n; k++) { s += ratio[k]; if (k >= RS_MA) s -= ratio[k - RS_MA]; if (k >= RS_MA - 1) rs[k] = ratio[k] / (s / RS_MA) * 100; if (k >= RS_MA - 1 + MOM && rs[k - MOM]) mom[k] = rs[k] / rs[k - MOM] * 100; }
+  return {rs, mom};
+}
+const heat = v => { if (v == null) return ""; const a = Math.min(.55, Math.abs(v) / 12 * .55 + .04); return `background:${v > 0 ? `rgba(225,89,79,${a.toFixed(2)})` : `rgba(63,174,114,${a.toFixed(2)})`}`; };
+function renderSector() {
+  if (!RT) { $("s-body").innerHTML = `<tr><td colspan="13" class="empty">還沒有資料</td></tr>`; return; }
+  const T = RT.days.length - 1, y = RT.days[T].slice(0, 4), YE = RT.days.findLastIndex(d => d.slice(0, 4) < y), tx = RT.taiex;
+  const ret = (s, n) => T - n < 0 ? null : (s[T] / s[T - n] - 1) * 100;
+  const G = RT.sets[getS()].map(g => {
+    const {rs, mom} = rrg(g, tx), sh = g.sh;
+    return {n: g.n, cnt: g.codes.length, r1: ret(g.idx, 1), r1y: (g.idx[T - 1] / g.idx[T - 2] - 1) * 100, r5: ret(g.idx, 5), r20: ret(g.idx, 20), r60: ret(g.idx, 60),
+      ytd: YE >= 0 ? (g.idx[T] / g.idx[YE] - 1) * 100 : null, up: g.up, dn: g.dn, nh: g.nh, sh: sh[sh.length - 1], fl: sh.length > 5 ? sh[sh.length - 1] - sh[sh.length - 6] : null,
+      q: quad(rs[T], mom[T]), qp: quad(rs[T - 5], mom[T - 5])};
+  });
+  $("s-hint").textContent = `資料到 ${RT.date}・資金流向＝成交值占比和 5 個交易日前比（百分點）`;
+  const td = v => `<td class="n mono hm" data-v="${v ?? ""}" style="${heat(v)}">${pc(v)}</td>`;
+  $("s-body").innerHTML = G.map(g => `<tr><td>${esc(g.n)}</td><td class="n mono">${g.cnt}</td>${td(g.r1)}${td(g.r1y)}${td(g.r5)}${td(g.r20)}${td(g.r60)}${td(g.ytd)}
+    <td class="n mono" data-v="${g.up - g.dn}"><span class="up">${g.up}</span>／<span class="down">${g.dn}</span></td><td class="n mono" data-v="${g.nh}">${g.nh || "–"}</td>
+    <td class="n mono" data-v="${g.sh}">${fx(g.sh, 2)}%</td><td class="n mono ${cls(g.fl)}" data-v="${g.fl ?? ""}">${g.fl == null ? "–" : sg(g.fl, 2)}</td>
+    <td>${g.q ? `<span class="q-${g.q}">${QN[g.q]}</span>${g.qp && g.qp !== g.q ? `<span class="faint" style="font-size:11.5px">←${QN[g.qp]}</span>` : ""}` : "–"}</td></tr>`).join("")
+    + `<tr class="sum"><td>加權指數</td><td></td>${[1, 2, 5, 20, 60].map(n => n === 2 ? td((tx[T - 1] / tx[T - 2] - 1) * 100) : td(ret(tx, n))).join("")}${td(YE >= 0 ? (tx[T] / tx[YE] - 1) * 100 : null)}<td></td><td></td><td></td><td></td><td></td></tr>`;
+  const by = {lead: [], imp: [], weak: [], lag: []};
+  G.forEach(g => g.q && by[g.q].push(g));
+  $("s-quad").innerHTML = ["lead", "imp", "weak", "lag"].map(q => `<div class="qbox"><h4 class="q-${q}">${QN[q]} <span class="mono faint">${by[q].length}</span></h4><div class="ns">${by[q].map(g => esc(g.n) + (g.qp && g.qp !== q ? `<span class="faint">（←${QN[g.qp]}）</span>` : "")).join("、") || "–"}</div></div>`).join("");
+}
+
+/* ── 技術線圖 ── */
+const MAS = [[20, "#7FA8D6"], [60, "var(--brass)"], [120, "#E08A4F"], [200, "#B48EDB"]];
+let MAON = new Set([20, 60, 200]);
+function sma(a, n) { const o = Array(a.length).fill(null); let s = 0; a.forEach((v, i) => { s += v; if (i >= n) s -= a[i - n]; if (i >= n - 1) o[i] = s / n; }); return o; }
+function renderTech() {
+  const A = J.ov.taiex_all, c = A.map(r => r[1]), N = c.length;
+  const ma = Object.fromEntries(MAS.map(([n]) => [n, sma(c, n)]));
+  $("t-ma").innerHTML = MAS.map(([n, col]) => `<button data-v="${n}" aria-pressed="${MAON.has(n)}"><i style="display:inline-block;width:10px;height:3px;background:${col};vertical-align:middle;margin-right:5px"></i>MA${n}</button>`).join("");
+  $("t-ma").onclick = e => { const b = e.target.closest("button"); if (!b) return; const n = +b.dataset.v; MAON.has(n) ? MAON.delete(n) : MAON.add(n); renderTech(); };
+  const k = Math.min(N, +getT()), s0 = N - k;
+  const rows = A.slice(s0).map((r, j) => { const i = s0 + j, o = {d: r[0], c: r[1], v: r[2]}; MAS.forEach(([n]) => o["m" + n] = ma[n][i]); return o; });
+  $("t-hint").textContent = `${rows[0].d} ～ ${rows[rows.length - 1].d}・${rows.length} 個交易日`;
+  draw($("t-chart"), rows, [{name: "加權指數", get: r => r.c, type: "line", color: "var(--text)", w: 1.6}].concat(MAS.filter(([n]) => MAON.has(n)).map(([n, col]) => ({name: "MA" + n, get: r => r["m" + n], type: "line", color: col, w: 1.2}))),
+    {label: "加權指數與均線", H: 260, dom: extent(rows.flatMap(r => [r.c].concat(MAS.filter(([n]) => MAON.has(n)).map(([n]) => r["m" + n]))), 0.04)});
+  // 副圖
+  const sub = getSub(), d0 = rows[0].d, inRng = r => r[0] >= d0;
+  const box = $("t-sub-chart");
+  if (sub === "val") {
+    const v20 = sma(A.map(r => r[2]), 20);
+    draw(box, rows.map((r, j) => ({d: r.d, v: r.v, ma: v20[s0 + j]})), [{name: "上市＋上櫃成交金額（億）", get: r => r.v, type: "bar", color: "#7FA8D6", op: .55}, {name: "20 日均", get: r => r.ma, type: "line", color: "var(--brass)", w: 1.6}], {H: 120, label: "成交金額"});
+  } else if (sub === "inst") {
+    draw(box, J.ov.flow.filter(inRng).map(r => ({d: r[0], f: r[1], t: r[2], dl: r[3]})), [
+      {name: "外資", get: r => r.f, type: "stack", color: "#7FA8D6", signed: 1, unit: " 億"}, {name: "投信", get: r => r.t, type: "stack", color: "#C6A15B", signed: 1, unit: " 億"}, {name: "自營商", get: r => r.dl, type: "stack", color: "#8B95A0", signed: 1, unit: " 億"}],
+      {H: 120, label: "三大法人", fL: v => sg(v, 0), lg: J.ov.flow[0][0] > d0 ? `<span class="faint">法人金額從 ${J.ov.flow[0][0]} 起</span>` : ""});
+  } else if (sub === "mg") {
+    draw(box, J.ov.margin.filter(inRng).map(r => ({d: r[0], v: r[1]})), [{name: "融資餘額（億）", get: r => r.v, type: "line", color: "var(--rise)", w: 1.8}], {H: 120, label: "融資餘額", lg: J.ov.margin[0][0] > d0 ? `<span class="faint">融資資料從 ${J.ov.margin[0][0]} 起</span>` : ""});
+  } else if (sub === "bias") {
+    draw(box, rows.map(r => ({d: r.d, b: r.m20 ? (r.c / r.m20 - 1) * 100 : null})), [{name: "乖離率（%）", get: r => r.b, type: "bar", color: v => v > 0 ? "var(--rise)" : "var(--fall)", signed: 1, dp: 2, unit: "%"}], {H: 120, label: "乖離率", fL: v => fx(v, 0) + "%"});
+  } else {
+    const rsi = Array(N).fill(null); let g = 0, l = 0;
+    for (let i = 1; i < N; i++) { const ch = c[i] - c[i - 1], up = Math.max(ch, 0), dn = Math.max(-ch, 0);
+      if (i <= 14) { g += up / 14; l += dn / 14; if (i === 14) rsi[i] = 100 - 100 / (1 + g / (l || 1e-9)); } else { g = (g * 13 + up) / 14; l = (l * 13 + dn) / 14; rsi[i] = 100 - 100 / (1 + g / (l || 1e-9)); } }
+    draw(box, rows.map((r, j) => ({d: r.d, v: rsi[s0 + j]})), [{name: "RSI 14", get: r => r.v, type: "line", color: "var(--brass)", w: 1.6, dp: 1}], {H: 120, label: "RSI", dom: [0, 100], band: [30, 70], lg: `<span class="faint">陰影 30～70</span>`});
+  }
+  // 位階表
+  const i = N - 1, last = c[i], dist = n => ma[n][i] ? (last / ma[n][i] - 1) * 100 : null;
+  const w = c.slice(-250), hi = Math.max(...w), lo = Math.min(...w), ath = Math.max(...c);
+  let sk = 0; for (let j = i; j > 0 && Math.sign(c[j] - c[j - 1]) === Math.sign(c[i] - c[i - 1]) && c[i] !== c[i - 1]; j--) sk++;
+  const vol = j => { if (j < 20) return null; const lr = []; for (let x = j - 19; x <= j; x++) lr.push(Math.log(c[x] / c[x - 1])); const m = lr.reduce((s, x) => s + x, 0) / 20; return Math.sqrt(lr.reduce((s, x) => s + (x - m) ** 2, 0) / 19) * Math.sqrt(252) * 100; };
+  const vs = c.map((_, j) => vol(j)).filter(v => v != null), vn = vol(i), vp = Math.round(vs.filter(v => v <= vn).length / vs.length * 100);
+  const v20 = A.slice(-21, -1).reduce((s, r) => s + r[2], 0) / 20;
+  const T = [
+    ...[20, 60, 120, 200].map(n => [`距 ${n} 日均線`, `<span class="${cls(dist(n))}">${pc(dist(n))}</span> <span class="faint">(${fx(ma[n][i], 0)})</span>`, `收盤 ÷ ${n} 日收盤平均 − 1`]),
+    ["52 週位置", `${fx((last - lo) / (hi - lo) * 100, 0)}% <span class="faint">(${fx(lo, 0)}–${fx(hi, 0)})</span>`, "0%＝一年最低、100%＝一年最高"],
+    ["距歷史最高收盤", `<span class="${cls(last / ath - 1)}">${pc((last / ath - 1) * 100)}</span> <span class="faint">(${fx(ath, 0)})</span>`, `${A[0][0].slice(0, 4)} 年以來最高收盤`],
+    ["連續漲／跌", sk ? `${c[i] > c[i - 1] ? '<span class="up">連漲' : '<span class="down">連跌'} ${sk} 天</span>` : "平盤", "收盤和前一日比"],
+    ["20 日波動（年化）", `${fx(vn, 1)}% <span class="faint">(第 ${vp} 百分位)</span>`, `日報酬標準差 × √252；百分位和 ${A[0][0].slice(0, 4)} 年以來比`],
+    ["成交金額 vs 20 日均", `${fx(A[i][2] / v20, 2)} 倍`, "今日 ÷ 前 20 日平均"],
+  ];
+  $("t-body").innerHTML = T.map(r => `<tr><td>${r[0]}</td><td class="n mono">${r[1]}</td><td class="hide-s muted">${r[2]}</td></tr>`).join("");
+}
+
+/* ── 市場寬度 ── */
+function renderBreadth() {
+  const bt = J.ov.bt, m = MK(), l = m[m.length - 1];
+  $("b-since").textContent = bt.since;
+  $("b-hint").textContent = `${l.d}：上漲 ${fx(l.up)}／下跌 ${fx(l.dn)} 家，52 週新高 ${fx(l.nh)}／新低 ${fx(l.nl)} 家`;
+  const P = p => p == null ? "–" : `<span class="pbar"><i style="width:${p}%;background:var(--brass)"></i></span>第 ${p} 百分位`;
+  const T = [["站上 20 日線", `${fx(bt.a20[0], 1)}%`, bt.a20[1], "短線多少股票在均線上"], ["站上 60 日線（季線）", `${fx(bt.a60[0], 1)}%`, bt.a60[1], "中期趨勢"], ["站上 200 日線（年線）", `${fx(bt.a200[0], 1)}%`, bt.a200[1], "長期趨勢"],
+    ["上漲家數占比", `${fx(bt.upr[0], 1)}%`, bt.upr[1], "上漲 ÷（上漲＋下跌＋平盤）"], ["新高 − 新低家數", `<span class="${cls(bt.nhnl[0])}">${sg(bt.nhnl[0], 0)}</span>`, bt.nhnl[1], "52 週新高家數 − 新低家數"]];
+  $("b-body").innerHTML = T.map(r => `<tr><td>${r[0]}</td><td class="n mono">${r[1]}</td><td class="n mono" data-v="${r[2] ?? ""}">${P(r[2])}</td><td class="hide-s muted">${r[3]}</td></tr>`).join("");
+  draw($("b-chart"), m.filter(r => r.a20 != null), [
+    {name: "站上 20 日線", get: r => r.a20, type: "line", color: "#7FA8D6", w: 1.2, dp: 1, unit: "%"},
+    {name: "站上 60 日線", get: r => r.a60, type: "line", color: "var(--brass)", w: 2, dp: 1, unit: "%"},
+    {name: "站上 200 日線", get: r => r.a200, type: "line", color: "#E1594F", w: 1.6, dp: 1, unit: "%"},
+  ], {label: "站上均線比例", dom: [0, 100], band: bt.band60, fL: v => fx(v, 0) + "%", lg: `<span><i style="background:var(--brass);opacity:.3;height:8px"></i>季線比例的 10～90 百分位（${fx(bt.band60[0], 0)}%～${fx(bt.band60[1], 0)}%）</span>`});
+  const y1 = m.slice(-250);
+  draw($("adl-chart"), y1, [{name: "騰落線（累計上漲−下跌）", get: r => r.adl, type: "line", color: "var(--brass)", w: 2}, {name: "加權指數", get: r => r.taiex, type: "line", ax: "R", color: "var(--text-muted)", w: 1.2}], {label: "騰落線", H: 190, W: 560});
+  draw($("nh-chart"), y1.map(r => ({d: r.d, nh: r.nh, nl: -r.nl})), [{name: "新高", get: r => r.nh, type: "bar", color: "var(--rise)"}, {name: "新低", get: r => r.nl, type: "bar", color: "var(--fall)"}],
+    {label: "新高新低家數", H: 190, W: 560, fL: v => fx(Math.abs(v), 0), tip: r => `新高 <span class="mono up">${fx(r.nh)}</span>　新低 <span class="mono down">${fx(-r.nl)}</span>`});
 }
 
 const HOW = {vol: "波動越大越恐慌", dd: "離高點越遠越恐慌", ld: "跌停越多越恐慌", nl: "創新低越多越恐慌", a200: "站上長均線越少越恐慌", mr: "維持率越低越接近斷頭"};
@@ -271,22 +581,6 @@ function renderFearChart() {
   hover($("f-chart"), W, L, R, rows.length, X, i => { const r = rows[i], b = bandIdx(r[1]); return `<b class="mono">${r[0]}</b><br>恐慌度 <b class="mono" style="color:${BC[b] || "inherit"}">${r[1] ?? "–"}</b> ${BN[b] || ""}<br>加權指數 <span class="mono">${fx(r[2], 0)}</span>`; });
 }
 
-function renderBreadth() {
-  const rows = J.fear.breadth.slice(-250), f = J.fear;
-  const W = 1000, L = 40, R = 64, T = 10, H1 = 200, B = 22, H = T + H1 + B;
-  const X = i => L + (rows.length < 2 ? 0 : i / (rows.length - 1) * (W - L - R));
-  const Y = v => T + H1 - v / 100 * H1;
-  const SR = [["站上 20 日線", 1, "#7FA8D6"], ["站上 60 日線", 2, "var(--brass)"], ["站上 200 日線", 3, "#E1594F"]];
-  const last = rows[rows.length - 1];
-  $("b-hint").textContent = `${last[0]}：上漲 ${fx(last[6])}／下跌 ${fx(last[7])} 家，52 週新高 ${fx(last[4])}／新低 ${fx(last[5])} 家`;
-  const grid = [0, 25, 50, 75, 100].map(v => `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${L - 6}" y="${Y(v) + 4}" text-anchor="end">${v}%</text>`).join("");
-  const ends = SR.map(([, k, c]) => last[k] == null ? "" : `<text x="${W - R + 6}" y="${(Y(last[k]) + 4).toFixed(1)}" style="fill:${c}">${fx(last[k], 0)}%</text>`).join("");
-  $("b-chart").innerHTML = `<div class="legend">${SR.map(([n, , c]) => `<span><i style="background:${c}"></i>${n}</span>`).join("")}</div>
-    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="站上均線比例">${grid}${SR.map(([, k, c]) => `<path d="${pathOf(rows.map(r => r[k]), X, Y)}" fill="none" stroke="${c}" stroke-width="1.6"/>`).join("")}${ends}${xlabels(rows, X, H)}
-    <line class="cx" y1="${T}" y2="${T + H1}" stroke="var(--line-strong)" visibility="hidden"/><rect class="hit" x="${L}" y="${T}" width="${W - L - R}" height="${H1}" fill="transparent"/></svg><div class="tip"></div>`;
-  hover($("b-chart"), W, L, R, rows.length, X, i => { const r = rows[i]; return `<b class="mono">${r[0]}</b><br>${SR.map(([n, k]) => `${n} <span class="mono">${fx(r[k], 1)}%</span>`).join("<br>")}<br>上漲 ${fx(r[6])}／下跌 ${fx(r[7])}<br>新高 ${fx(r[4])}／新低 ${fx(r[5])}`; });
-}
-
 function renderRetail() {
   const R0 = J.retail;
   if (!R0) { $("r-chart").innerHTML = `<p class="empty">還沒有資料</p>`; return; }
@@ -312,35 +606,6 @@ function renderRetail() {
   hover($("r-chart"), W, L, R, rows.length, X, i => { const r = rows[i]; return `<b class="mono">${r[0]}</b><br>散戶多空比 <span class="mono ${cls(r[1])}">${sg(r[1], 2)}%</span><br>小台 <span class="mono">${sg(r[2], 2)}%</span>　微台 <span class="mono">${sg(r[3], 2)}%</span><br>散戶淨部位 <span class="mono">${sg(r[6], 0)}</span> 口（小台計）<br>外資台指期 <span class="mono ${cls(r[4])}">${sg(r[4], 0)}</span> 口<br>加權指數 <span class="mono">${fx(r[5], 0)}</span>`; });
 }
 
-function renderContrib() {
-  const c = J.contrib;
-  if (!c) { $("c-split").innerHTML = `<p class="empty">還沒有資料</p>`; return; }
-  $("c-hint").textContent = `${c.date}　實際 ${sg(c.act, 2)} 點・推估合計 ${sg(c.est, 2)} 點`;
-  const rest = c.est - c.tsmc - c.top10, parts = [["台積電", c.tsmc, "#C6A15B"], ["其他前十大權值股", c.top10, "#7FA8D6"], ["其餘上市股票", rest, "#8B95A0"]];
-  const tot = parts.reduce((s, p) => s + Math.abs(p[1]), 0) || 1;
-  $("c-split").innerHTML = `<div class="split">${parts.map(([n, v, col]) => `<div style="flex:${Math.abs(v) / tot};background:${col}" title="${n} ${sg(v, 1)} 點">${Math.abs(v) / tot > .12 ? `${n} ${sg(v, 0)}` : ""}</div>`).join("")}</div>
-    <div class="legend" style="margin-left:0">${parts.map(([n, v, col]) => `<span><i style="background:${col};height:8px"></i>${n} <b class="mono ${cls(v)}">${sg(v, 1)}</b> 點（${fx(Math.abs(v) / tot * 100, 0)}%）</span>`).join("")}</div>`;
-  // 近 60 日堆疊
-  const rows = c.series, W = 1000, L = 52, R = 20, T = 10, H1 = 200, B = 22, H = T + H1 + B;
-  const X = i => L + (i + 0.5) / rows.length * (W - L - R);
-  let mx = 1; rows.forEach(r => { let p = 0, n = 0; [1, 2, 3].forEach(k => r[k] > 0 ? p += r[k] : n += r[k]); mx = Math.max(mx, p, -n); });
-  const Z = T + H1 / 2, Y = v => Z - v / mx * (H1 / 2 - 4), bw = (W - L - R) / rows.length * 0.7, COL = {1: "#C6A15B", 2: "#7FA8D6", 3: "#8B95A0"};
-  const bars = rows.map((r, i) => { let p = 0, n = 0; return [1, 2, 3].map(k => { const v = r[k]; if (!v) return ""; const y0 = v > 0 ? p : n; if (v > 0) p += v; else n += v; const y1 = v > 0 ? p : n;
-    return `<rect x="${(X(i) - bw / 2).toFixed(1)}" y="${Math.min(Y(y0), Y(y1)).toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(.5, Math.abs(Y(y0) - Y(y1))).toFixed(1)}" fill="${COL[k]}" opacity=".85"/>`; }).join("")
-    + `<circle cx="${X(i).toFixed(1)}" cy="${Y(r[4]).toFixed(1)}" r="2.2" fill="var(--text)"/>`; }).join("");
-  const gl = [-mx, -mx / 2, 0, mx / 2, mx].map(v => `<line x1="${L}" x2="${W - R}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}" stroke="${v ? "var(--line)" : "var(--line-strong)"}"/><text x="${L - 6}" y="${(Y(v) + 4).toFixed(1)}" text-anchor="end">${sg(v, 0)}</text>`).join("");
-  const step = Math.max(1, Math.round(rows.length / 6));
-  const xl = rows.map((r, i) => i % step ? "" : `<text x="${X(i).toFixed(1)}" y="${H - 4}" text-anchor="middle">${r[0].slice(5).replace("-", "/")}</text>`).join("");
-  $("c-chart").innerHTML = `<div class="legend"><span><i style="background:#C6A15B;height:8px"></i>台積電</span><span><i style="background:#7FA8D6;height:8px"></i>其他前十大</span><span><i style="background:#8B95A0;height:8px"></i>其餘上市</span><span>● 實際漲跌點數</span><span class="faint">近 ${rows.length} 個交易日</span></div>
-    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="近 60 日指數漲跌拆解">${gl}${bars}${xl}<line class="cx" y1="${T}" y2="${T + H1}" stroke="var(--line-strong)" visibility="hidden"/><rect class="hit" x="${L}" y="${T}" width="${W - L - R}" height="${H1}" fill="transparent"/></svg><div class="tip"></div>`;
-  const Xh = i => X(i);
-  hover($("c-chart"), W, L, R, rows.length, Xh, i => { const r = rows[i]; return `<b class="mono">${r[0]}</b><br>台積電 <span class="mono ${cls(r[1])}">${sg(r[1], 1)}</span><br>其他前十大 <span class="mono ${cls(r[2])}">${sg(r[2], 1)}</span><br>其餘上市 <span class="mono ${cls(r[3])}">${sg(r[3], 1)}</span><br>實際 <span class="mono ${cls(r[4])}">${sg(r[4], 1)}</span> 點`; });
-  // 推升／拖累表（套用日均成交值濾網）
-  const all = c.rows.map(r => ({code: r[0], name: r[1], ret: r[2], w: r[3], pts: r[4]})).filter(r => !window.TideLiq || TideLiq.pass(r.code));
-  const row = r => `<tr><td><a href="stock.html#s=${esc(r.code)}" class="sname" style="text-decoration:none">${esc(r.name)}<span class="mono">${esc(r.code)}</span></a></td><td class="n mono ${cls(r.ret)}" data-v="${r.ret}">${sg(r.ret, 2)}%</td><td class="n mono" data-v="${r.w}">${fx(r.w, 2)}%</td><td class="n mono ${cls(r.pts)}" data-v="${r.pts}">${sg(r.pts, 1)}</td></tr>`;
-  $("c-up").innerHTML = all.filter(r => r.pts > 0).sort((a, b) => b.pts - a.pts).slice(0, 10).map(row).join("") || `<tr><td colspan="4" class="empty">沒有</td></tr>`;
-  $("c-dn").innerHTML = all.filter(r => r.pts < 0).sort((a, b) => a.pts - b.pts).slice(0, 10).map(row).join("") || `<tr><td colspan="4" class="empty">沒有</td></tr>`;
-}
 </script>
 </body>
 </html>

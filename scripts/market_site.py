@@ -1,4 +1,4 @@
-"""大盤溫度頁（site/market.html）→ data/market.json
+"""大盤頁（site/market.html，版面參考 toalpha 市場頁）→ data/market.json
 
 三塊：
   fear     恐慌度：6 個指標各自換算成「近 5 年（資料不足就用全部）百分位」，0＝最平靜、100＝最恐慌，
@@ -31,7 +31,7 @@ STOCK = re.compile(r"^[1-9]\d{3}$")
 PCT_WIN = 1250      # 百分位回看（約 5 年）
 PCT_MIN = 120       # 少於這麼多天的歷史就不算百分位
 OUT_N = 500         # 走勢圖保留天數（約 2 年）
-CONTRIB_N = 60      # 指數貢獻走勢天數
+CONTRIB_N = 60      # 指數貢獻走勢天數（期間加總另外回看到今年第一天）
 BANDS = [(20, "平靜"), (40, "正常"), (60, "緊張"), (80, "恐慌"), (101, "極度恐慌")]
 COMPS = [  # key, 名稱, 單位, 高＝恐慌?
     ("vol", "加權指數實際波動（近 20 日，年化）", "%", True),
@@ -87,10 +87,11 @@ def breadth(data_dir):
         if not rows:
             continue
         d = rows[0]["date"]
-        st = dict(n=0, up=0, dn=0, lu=0, ld=0, nh=0, nl=0, a20=0, a60=0, a200=0, b20=0, b60=0, b200=0)
+        st = dict(n=0, up=0, dn=0, lu=0, ld=0, nh=0, nl=0, a20=0, a60=0, a200=0, b20=0, b60=0, b200=0, val=0.0, sret=0.0, fl=0)
         twse = []
         for r in rows:
             code = r["code"]
+            st["val"] += _f(r.get("value")) or 0
             if not STOCK.match(code):
                 continue
             c, ch = _f(r["close"]), _f(r["change"])
@@ -106,6 +107,8 @@ def breadth(data_dir):
             st["n"] += 1
             st["up"] += ret > 0
             st["dn"] += ret < 0
+            st["fl"] += ret == 0
+            st["sret"] += ret
             st["lu"] += ret >= 0.095
             st["ld"] += ret <= -0.095
             while qmax and qmax[0] < k - 250:
@@ -250,33 +253,179 @@ def retail(data_dir, taiex):
 
 
 def contrib(days, taiex, shares):
+    """逐日貢獻點數；再依期間（1／5／20／60 日、今年）加總每檔。"""
     if len(days) < 2 or not shares:
         return None
-    out = []
-    for i in range(max(1, len(days) - CONTRIB_N), len(days)):
+    last_d = max((d for d, _, _ in days if taiex.get(d)), default=None)
+    if not last_d:
+        return None
+    jan = last_d[:4] + "-01-01"
+    start = next((i for i, (d, _, _) in enumerate(days) if d >= jan), len(days) - CONTRIB_N)
+    start = max(1, min(start, len(days) - CONTRIB_N))
+    # 股數只有最新一份；分割／減資（參考價和前一日收盤差 30% 以上）之前的日子要把股數換回當時的
+    last_px, ev = {}, {}   # 停牌換股時中間會缺好幾天，所以用「最後一次收盤」比
+    for i in range(start - 1, len(days)):
+        for c, _, pc, r in days[i][2]:
+            pv = last_px.get(c)
+            if i >= start and pv and pc and not 0.7 <= pc / pv <= 1.3:
+                ev.setdefault(i, []).append((c, pc / pv))
+            last_px[c] = pc * (1 + r)
+    fac, adj = {}, [None] * len(days)
+    for i in range(len(days) - 1, start - 1, -1):
+        adj[i] = dict(fac)
+        for c, x in ev.get(i, []):
+            fac[c] = fac.get(c, 1) * x
+    out, names = [], {}
+    for i in range(start, len(days)):
         d, _, tw = days[i]
         pd_ = days[i - 1][0]
         pi, ci = taiex.get(pd_), taiex.get(d)
         if not pi or not ci:
             continue
-        mc = {c: shares[c] * pc for c, _, pc, _ in tw if shares.get(c)}
+        fa = adj[i]
+        mc = {c: shares[c] * fa.get(c, 1) * pc for c, _, pc, _ in tw if shares.get(c)}
         tot = sum(mc.values())
         if not tot:
             continue
         top = sorted(mc, key=mc.get, reverse=True)[:10]
-        rows = [[c, n, round(r * 100, 2), round(mc[c] / tot * 100, 3), round(pi * mc[c] / tot * r, 2)] for c, n, _, r in tw if c in mc]
-        pts = {r[0]: r[4] for r in rows}
-        out.append({"date": d, "prev": pi, "close": ci, "act": round(ci - pi, 2), "est": round(sum(pts.values()), 2),
-                    "tsmc": round(pts.get("2330", 0), 2), "top10": round(sum(pts.get(c, 0) for c in top if c != "2330"), 2),
-                    "top": top, "rows": rows})
+        pts, w = {}, {}
+        for c, n, _, r in tw:
+            if c in mc and abs(r) <= 0.105:   # 新上市前 5 日沒有漲跌幅限制、參考價失真，不計
+                names[c] = n
+                pts[c] = pi * mc[c] / tot * r
+                w[c] = mc[c] / tot * 100
+        out.append({"date": d, "act": ci - pi, "est": sum(pts.values()), "top": top, "pts": pts, "w": w,
+                    })
     if not out:
         return None
     last = out[-1]
-    last["rows"].sort(key=lambda r: -abs(r[4]))
-    return {"date": last["date"], "prev": last["prev"], "close": last["close"], "act": last["act"], "est": last["est"],
-            "tsmc": last["tsmc"], "top10": last["top10"], "top": last["top"],
-            "cols": ["code", "name", "ret", "w", "pts"], "rows": last["rows"],
-            "series": [[o["date"], o["tsmc"], o["top10"], round(o["est"] - o["tsmc"] - o["top10"], 2), o["act"]] for o in out]}
+    cur_top = last["top"]
+    r2 = lambda v: round(v, 2)  # noqa: E731
+    periods = []
+    for key, lab, n in (("1", last["date"][5:].replace("-", "/"), 1), ("5", "5 日", 5), ("20", "20 日", 20),
+                        ("60", "60 日", 60), ("ytd", "今年", None)):
+        seg = out[-n:] if n else [o for o in out if o["date"] >= jan]
+        if not seg:
+            continue
+        agg = {}
+        for o in seg:
+            for c, v in o["pts"].items():
+                agg[c] = agg.get(c, 0) + v
+        act = sum(o["act"] for o in seg)
+        tsmc = agg.get("2330", 0)
+        top10 = sum(agg.get(c, 0) for c in cur_top if c != "2330")
+        est = sum(agg.values())
+        rows = sorted(([c, names.get(c, ""), r2(last["w"].get(c, 0)), r2(v)] for c, v in agg.items() if abs(v) >= 0.05),
+                      key=lambda r: -abs(r[3]))
+        periods.append({"k": key, "lab": lab, "from": seg[0]["date"], "to": seg[-1]["date"], "act": r2(act), "est": r2(est),
+                        "tsmc": r2(tsmc), "top10": r2(top10), "rest": r2(est - tsmc - top10), "rows": rows})
+    ser = []
+    for o in out[-CONTRIB_N:]:
+        t = o["pts"].get("2330", 0)
+        t10 = sum(o["pts"].get(c, 0) for c in o["top"] if c != "2330")
+        ser.append([o["date"], r2(t), r2(t10), r2(o["est"] - t - t10), r2(o["act"])])
+    return {"date": last["date"], "top": cur_top, "cols": ["code", "name", "w", "pts"], "periods": periods, "series": ser}
+
+
+def _pct_all(vals, v, hi=True):
+    """v 在 vals（全部歷史）中的百分位：hi=True 表示「低於或等於 v 的比例」。"""
+    w = [x for x in vals if x is not None]
+    if v is None or len(w) < PCT_MIN:
+        return None
+    return round(sum(1 for x in w if x <= v) / len(w) * 100)
+
+
+def _chips_flow(data_dir, dates):
+    """三大法人買賣超金額（億，上市＋上櫃全部證券）＝每檔買賣超股數 × 當日收盤，逐日加總。"""
+    out = []
+    for d in dates:
+        y, ymd = d[:4], d.replace("-", "")
+        cp, pp = Path(data_dir) / "chips" / y / f"{ymd}.csv", Path(data_dir) / y / f"{ymd}.csv"
+        if not cp.exists() or not pp.exists():
+            continue
+        close = {r["code"]: _f(r["close"]) for r in _read(pp)}
+        f = t = dl = 0.0
+        for r in _read(cp):
+            c = close.get(r["code"])
+            if not c:
+                continue
+            f += ((_f(r["f_net"]) or 0) + (_f(r["fd_net"]) or 0)) * c
+            t += (_f(r["t_net"]) or 0) * c
+            dl += (_f(r["d_net"]) or 0) * c
+        out.append([d, round(f / 1e8, 1), round(t / 1e8, 1), round(dl / 1e8, 1)])
+    return out
+
+
+def _margin_total(data_dir):
+    p = Path(data_dir) / "margin" / "summary.csv"
+    if not p.exists():
+        return []
+    by = {}
+    for r in _read(p):
+        v = _f(r["fin_amount"])
+        if v:
+            by.setdefault(r["date"], {})[r["market"]] = v
+    return [[d, round(sum(m.values()) / 1e8, 1)] for d, m in sorted(by.items()) if len(m) == 2]
+
+
+def _fut(data_dir):
+    """外資台指淨未平倉（大台約當口：大台＋小台/4＋微台/20）與選擇權 Put/Call 未平倉比。"""
+    fdir = Path(data_dir) / "futures"
+    fx = {}
+    if (fdir / "inst.csv").exists():
+        mul = {"TX": 1, "MTX": 0.25, "TMF": 0.05}
+        for r in _read(fdir / "inst.csv"):
+            if r["who"] == "foreign" and r["product"] in mul and _f(r["oi_net"]) is not None:
+                fx[r["date"]] = fx.get(r["date"], 0) + _f(r["oi_net"]) * mul[r["product"]]
+    pcr = {}
+    if (fdir / "pcr.csv").exists():
+        pcr = {r["date"]: _f(r["pc_oi"]) for r in _read(fdir / "pcr.csv")}
+    ds = sorted(set(fx) | set(pcr))
+    return [[d, None if fx.get(d) is None else round(fx[d]), pcr.get(d)] for d in ds][-OUT_N:]
+
+
+def overview(data_dir, days, taiex):
+    """大盤頁的 KPI、寬度與成交值長序列、法人金額、融資餘額、期貨。"""
+    tdays = [x for x in days if taiex.get(x[0])]
+    if not tdays:
+        return None
+    dates = [d for d, _, _ in tdays]
+    n = len(dates)
+    adl, ew, mk = 0, 100.0, []
+    for d, st, _ in tdays:
+        adl += st["up"] - st["dn"]
+        ew *= 1 + (st["sret"] / st["n"] if st["n"] else 0)
+        pr = lambda k: round(st[f"a{k}"] / st[f"b{k}"] * 100, 1) if st[f"b{k}"] > 500 else None  # noqa: E731
+        mk.append([d, taiex[d], round(st["val"] / 1e8), st["up"], st["dn"], adl, round(ew, 3), st["nh"], st["nl"],
+                   pr(20), pr(60), pr(200), st["lu"], st["ld"], st["fl"]])
+    cols = ["date", "taiex", "val", "up", "dn", "adl", "ew", "nh", "nl", "a20", "a60", "a200", "lu", "ld", "flat"]
+    last = mk[-1]
+    a60s = [r[10] for r in mk if r[10] is not None]
+    srt = sorted(a60s)
+    q = lambda p: srt[min(len(srt) - 1, int(p * len(srt)))] if srt else None  # noqa: E731
+    upr = [r[3] / (r[3] + r[4] + r[14]) * 100 if r[3] + r[4] else None for r in mk]
+    nhnl = [r[7] - r[8] if r[9] is not None else None for r in mk]
+    bt = {"a20": [last[9], _pct_all([r[9] for r in mk], last[9])],
+          "a60": [last[10], _pct_all(a60s, last[10])],
+          "a200": [last[11], _pct_all([r[11] for r in mk], last[11])],
+          "upr": [None if upr[-1] is None else round(upr[-1], 1), _pct_all(upr, upr[-1])],
+          "nhnl": [nhnl[-1], _pct_all(nhnl, nhnl[-1])],
+          "band60": [q(0.1), q(0.9)], "since": next((r[0] for r in mk if r[10] is not None), None)}
+    flow = _chips_flow(data_dir, dates[-250:])
+    mg = _margin_total(data_dir)
+    fut = _fut(data_dir)
+    v20 = sum(r[2] for r in mk[-21:-1]) / 20 if n > 21 else None
+    k = {"date": last[0], "taiex": last[1], "chg": round(last[1] - mk[-2][1], 2) if n > 1 else None,
+         "ath": max(r[1] for r in mk), "val": last[2], "v20": None if v20 is None else round(v20),
+         "up": last[3], "dn": last[4], "lu": last[12], "ld": last[13], "flat": last[14]}
+    if flow and flow[-1][0] == last[0]:
+        k["fnet"] = flow[-1][1]
+        k["fnet5"] = round(sum(r[1] for r in flow[-5:]), 1)
+    if mg:
+        k["mg"] = mg[-1]
+        k["mg_chg"] = round(mg[-1][1] - mg[-2][1], 1) if len(mg) > 1 else None
+    return {"cols": cols, "mk": mk[-750:], "taiex_all": [[r[0], r[1], r[2]] for r in mk], "bt": bt, "kpi": k,
+            "flow": flow, "margin": mg, "fut": fut}
 
 
 def build(data_dir):
@@ -287,7 +436,8 @@ def build(data_dir):
     taiex = _taiex(data_dir)
     return {"fear": fear(days, taiex, _margin_ratio(data_dir)),
             "retail": retail(data_dir, taiex),
-            "contrib": contrib(days, taiex, _shares(data_dir))}
+            "contrib": contrib(days, taiex, _shares(data_dir)),
+            "ov": overview(data_dir, days, taiex)}
 
 
 def write(data_dir, out_path):
@@ -310,4 +460,10 @@ if __name__ == "__main__":
     print("extreme", f["extreme"])
     print("retail", j["retail"] and {k: j["retail"][k] for k in ("date", "now", "p1y")})
     c = j["contrib"]
-    print("contrib", c["date"], c["act"], c["est"], c["tsmc"], c["top10"], c["rows"][:5])
+    for p in c["periods"]:
+        print("contrib", p["k"], p["from"], p["to"], p["act"], p["est"], p["tsmc"], p["top10"], p["rows"][:3])
+    o = j["ov"]
+    print("kpi", o["kpi"])
+    print("bt", o["bt"])
+    print("flow", o["flow"][-2:], "margin", o["margin"][-2:], "fut", o["fut"][-2:])
+    print("size", len(json.dumps(j, ensure_ascii=False, separators=(",", ":"))))
