@@ -326,7 +326,7 @@ function draw(box, rows, S, o = {}) {
   const Y = v => T + H1 - (v - a) / (b - a || 1) * H1;
   const rv = S.filter(s => s.ax === "R").flatMap(s => rows.map(r => s.get(r)));
   const [ra, rb] = extent(rv), YR = v => T + H1 - (v - ra) / (rb - ra || 1) * H1;
-  const bw = Math.max(1, (W - L - R) / n * 0.72);
+  const bw = Math.min(36, Math.max(1, (W - L - R) / n * 0.72));
   let g = ticks(a, b, Y, o.fL || (v => fx(v, 0)), L - 6, "end", L, W, R);
   if (rv.length) g += ticks(ra, rb, YR, o.fR || (v => fx(v, 0)), W - R + 6, "start", L, W, R, false);
   if (a < 0 && b > 0) g += `<line x1="${L}" x2="${W - R}" y1="${Y(0).toFixed(1)}" y2="${Y(0).toFixed(1)}" stroke="var(--line-strong)"/>`;
