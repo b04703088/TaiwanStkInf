@@ -1,0 +1,20 @@
+name: tmp intraday monitor test
+on:
+  push:
+    branches: [claude/project-thread-yvew43]
+    paths: [.github/workflows/tmp-intraday-test.yml, local/intraday/monitor.py]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: run monitor
+        run: |
+          cd local/intraday
+          python monitor.py --test --rounds=12 2>&1 | tee run.log
+          echo ---- ; head -c 3000 logs/*.csv || true
+      - uses: actions/upload-artifact@v4
+        with: {name: intraday-test, path: local/intraday/logs}
