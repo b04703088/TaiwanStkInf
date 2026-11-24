@@ -1,0 +1,52 @@
+name: Backfill market (temporary)
+
+# 一次性回補 data/market：指數 OHLC、VIX、大盤估值（每週）、三大法人金額。資料直接 commit 到 main（只加資料檔）。
+on:
+  push:
+    branches: [claude/project-thread-38gp3t]
+    paths: [.github/workflows/backfill-market.yml]
+
+permissions:
+  contents: write
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {name: idx,   args: "--since 2010-01 --only index,vix"}
+          - {name: v1,    args: "--since 2010-01 --until 2015-12-31 --only index,val --weekly"}
+          - {name: v2,    args: "--since 2016-01 --until 2021-12-31 --only index,val --weekly"}
+          - {name: v3,    args: "--since 2022-01 --only index,val --weekly"}
+          - {name: inst,  args: "--since 2025-06 --only index,inst"}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: fetcher from work branch
+        run: git fetch -q origin claude/project-thread-38gp3t && git show FETCH_HEAD:fetch_market.py > /tmp/fetch_market.py && cp /tmp/fetch_market.py fetch_market.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Backfill ${{ matrix.name }}
+        timeout-minutes: 100
+        run: python -u fetch_market.py ${{ matrix.args }}
+      - name: Commit
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          mkdir -p /tmp/keep && cp data/market/*.csv /tmp/keep/ 2>/dev/null || { echo "No data"; exit 0; }
+          for i in 1 2 3 4 5 6; do
+            git fetch -q origin main && git reset -q --hard origin/main
+            python /tmp/fetch_market.py --merge-from /tmp/keep
+            git add data/market
+            if git diff --cached --quiet; then echo "No new data"; exit 0; fi
+            git commit -q -m "data: 回補大盤資料 ${{ matrix.name }}"
+            git push origin HEAD:main && exit 0
+            sleep $((10 * i))
+          done
+          exit 1
