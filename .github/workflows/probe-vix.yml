@@ -2,17 +2,17 @@ name: Probe VIX sources (temporary)
 on:
   push:
     branches: [claude/project-thread-cvilc7]
-    paths: [.github/workflows/probe-vix.yml, research/vix_chain.py]
+    paths: [.github/workflows/probe-vix.yml]
+permissions: {contents: write, actions: read}
 jobs:
-  chain:
+  pull:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
-    strategy:
-      matrix:
-        span: [[2016, 2018], [2019, 2021], [2022, 2024], [2025, 2026]]
     steps:
       - uses: actions/checkout@v4
         with: {sparse-checkout: research, fetch-depth: 1}
-      - run: python -u research/vix_chain.py ${{ matrix.span[0] }} ${{ matrix.span[1] }} chain_${{ matrix.span[0] }}.csv.gz
-      - uses: actions/upload-artifact@v4
-        with: {name: "chain_${{ matrix.span[0] }}", path: "chain_*.csv.gz", retention-days: 3}
+      - uses: actions/download-artifact@v4
+        with: {run-id: 45644828080, github-token: "${{ github.token }}", path: research/vixchain, merge-multiple: true}
+      - run: |
+          ls -la research/vixchain
+          git config user.name github-actions[bot]; git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add research/vixchain && git commit -m "temp: TXO chains" && git push
