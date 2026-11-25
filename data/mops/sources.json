@@ -1,26 +1,28 @@
 {
- "generated": "2026-11-25 17:05",
+ "generated": "2026-11-25 18:26",
  "fetched_days": 2,
  "left_days": 0,
- "news": 347,
+ "news": 393,
  "cats": {
-  "call": 110,
-  "other": 52,
-  "ma": 44,
-  "fin": 8,
-  "legal": 2,
+  "call": 117,
+  "other": 62,
+  "ma": 52,
+  "fin": 9,
+  "legal": 5,
   "attn": 26,
-  "div": 15,
-  "hr": 27,
-  "capital": 27,
+  "div": 16,
+  "hr": 28,
+  "capital": 34,
   "shm": 7,
-  "board": 8,
+  "board": 10,
   "clarify": 5,
-  "buyback": 16
+  "buyback": 22
  },
  "exright": 281,
- "calls": 1084,
- "events": 90,
+ "calls": 1086,
+ "events": 96,
  "unparsed": [],
- "errors": []
+ "errors": [
+  "法說會一覽表 otc 2026-12：https://mopsov.twse.com.tw/mops/web/ajax_t100sb02_1: URLError(ConnectionRefusedError(111, 'Connection refused'))"
+ ]
 }
