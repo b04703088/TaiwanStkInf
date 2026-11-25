@@ -8,7 +8,9 @@
                   2005-09-02 起；舊格式沒有收盤價，要另外抓 MI_INDEX（type=ALLBUT0999）的個股收盤
   法人買賣金額    上市 https://www.twse.com.tw/rwd/zh/fund/BFI82U?type=day&dayDate=YYYYMMDD&response=json
                   上櫃 https://www.tpex.org.tw/www/zh-tw/insti/summary?type=Daily&date=YYYY/MM/DD&response=json
-  台指 VIX        https://www.taifex.com.tw/file/taifex/Dailydownload/vix/log2data/YYYYMMnew.txt  （每月一檔，日資料）
+  台指 VIX        https://www.taifex.com.tw/file/taifex/Dailydownload/vix/log2data/YYYYMMnew.txt  （每月一檔，日資料；只留近 3 個月）
+  推算 VIX        https://www.taifex.com.tw/cht/3/optDataDown（POST，TXO 選擇權日資料）→ scripts/vix_calc.py
+                  用月選結算價照 CBOE 方法算；2016 起回補，跟官方重疊期平均差 0.1 點
 
 輸出 data/market/
   taiex.csv  date,open,high,low,close
@@ -16,11 +18,13 @@
   val.csv    date,pe,pb,dy,mcap,n          上市普通股市值加權：本益比（只算有獲利的）、股價淨值比、殖利率%、總市值（億）、檔數
              市值＝收盤 × 最新一份集保總股數（近似發行股數；早年股數不同，權重是近似）
   inst.csv   date,market,f,fd,t,d_self,d_hedge   買賣超金額（元）；f＝外資及陸資（不含外資自營商），fd＝外資自營商
-  vix.csv    date,open,high,low,close
+  vix.csv    date,open,high,low,close        期交所官方（目前只有收盤＝13:45 指數值）
+  vix_calc.csv date,vix                      推算值（官方沒有的日子補洞，也用來抓官方收盤異常）
 
 用法：
   python fetch_market.py                       # 例行：近兩個月指數／VIX、近 7 天估值與法人金額
   python fetch_market.py --since 2016-01 --only index,vix
+  python fetch_market.py --since 2026-11-01 --only vixcalc
   python fetch_market.py --since 2010-01 --only val --weekly     # 估值回補：每週最後一個交易日
   python fetch_market.py --since 2025-06 --only inst
 """
@@ -39,7 +43,7 @@ UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.3
 GAP = 3.2           # 證交所每次請求間隔（秒）
 STOCK = re.compile(r"^[1-9]\d{3}$")
 COLS = {"taiex": ["date", "open", "high", "low", "close"], "tpex": ["date", "open", "high", "low", "close"],
-        "vix": ["date", "open", "high", "low", "close"], "val": ["date", "pe", "pb", "dy", "mcap", "n"],
+        "vix": ["date", "open", "high", "low", "close"], "vix_calc": ["date", "vix"], "val": ["date", "pe", "pb", "dy", "mcap", "n"],
         "inst": ["date", "market", "f", "fd", "t", "d_self", "d_hedge"]}
 _last = [0.0]
 
@@ -137,18 +141,46 @@ def fetch_vix(since, until):
         for line in (t or "").splitlines():
             p = line.split()
             if len(p) >= 2 and re.fullmatch(r"\d{8}", p[0]):
-                v = [num(x) for x in p[1:]]
-                v = [x for x in v if x is not None]
-                if not v:
+                # 欄位：日期 時間 指數 收盤前1分鐘平均；收盤取 13:45 的指數值
+                c = num(p[2]) if len(p) >= 3 else None
+                if c is None:
                     continue
                 d = f"{p[0][:4]}-{p[0][4:6]}-{p[0][6:]}"
-                o, h, lo, c = (v + [None] * 4)[:4] if len(v) >= 4 else (None, None, None, v[-1])
-                vx[d] = {"date": d, "open": o, "high": h, "low": lo, "close": c}
+                vx[d] = {"date": d, "open": None, "high": None, "low": None, "close": c}
                 n += 1
         if t and n == 0:
             print("  VIX 檔格式看不懂，前幾行：", t[:300].replace("\n", " | "))
         print(f"VIX {y}-{m:02d}：{n} 天")
     save("vix", vx)
+
+
+def fetch_vixcalc(since, until):
+    """抓 TXO 選擇權日資料、用結算價推算 VIX（一次最多一個月）。"""
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import urllib.parse
+    import vix_calc
+    vc = load("vix_calc")
+    s = since
+    while s <= until:
+        e = min(until, (s.replace(day=28) + timedelta(days=4)).replace(day=1) - timedelta(days=1))
+        body = urllib.parse.urlencode({"down_type": "1", "commodity_id": "TXO", "commodity_id2": "",
+                                       "queryStartDate": s.strftime("%Y/%m/%d"), "queryEndDate": e.strftime("%Y/%m/%d")}).encode()
+        t = None
+        for k in range(3):
+            try:
+                with urllib.request.urlopen(urllib.request.Request("https://www.taifex.com.tw/cht/3/optDataDown", headers=UA, data=body), timeout=180) as r:
+                    t = r.read().decode("big5", "replace")
+                break
+            except Exception as ex:
+                print("  選擇權日資料失敗，重試：", ex)
+                time.sleep(10)
+        data, last = vix_calc.parse_taifex(t or "")
+        res = vix_calc.compute(data, last, max(data) if data else "")
+        for d, v in res.items():
+            vc[d] = {"date": d, "vix": v}
+        print(f"推算 VIX {s}～{e}：{len(res)} 天")
+        s = e + timedelta(days=1)
+    save("vix_calc", vc)
 
 
 def trading_days():
@@ -238,7 +270,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--since", help="YYYY-MM 或 YYYY-MM-DD")
     ap.add_argument("--until", help="YYYY-MM-DD（預設今天）")
-    ap.add_argument("--only", default="index,vix,val,inst")
+    ap.add_argument("--only", default="index,vix,vixcalc,val,inst")
     ap.add_argument("--weekly", action="store_true", help="估值／法人只抓每週最後一個交易日")
     ap.add_argument("--max-minutes", type=float, default=0)
     ap.add_argument("--merge-from", help="把另一個目錄的同名 CSV 併進 data/market（回補平行 job 用）")
@@ -268,6 +300,9 @@ def main():
         fetch_index(msince, until)
     if "vix" in only:
         fetch_vix(msince, until)
+    if "vixcalc" in only:
+        # 例行只算近 10 天；月選到期日由當月資料推（最後交易日），所以起點往前抓到月初
+        fetch_vixcalc(since or (until - timedelta(days=10)).replace(day=1), until)
     td = [d for d in trading_days() if d <= until.isoformat()]
     if since:
         days = [d for d in td if d >= since.isoformat()]
