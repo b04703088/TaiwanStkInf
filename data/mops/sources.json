@@ -1,17 +1,17 @@
 {
- "generated": "2026-11-25 18:26",
+ "generated": "2026-11-25 18:48",
  "fetched_days": 2,
  "left_days": 0,
- "news": 393,
+ "news": 395,
  "cats": {
   "call": 117,
-  "other": 62,
+  "other": 63,
   "ma": 52,
   "fin": 9,
   "legal": 5,
   "attn": 26,
   "div": 16,
-  "hr": 28,
+  "hr": 29,
   "capital": 34,
   "shm": 7,
   "board": 10,
@@ -22,7 +22,5 @@
  "calls": 1086,
  "events": 96,
  "unparsed": [],
- "errors": [
-  "法說會一覽表 otc 2026-12：https://mopsov.twse.com.tw/mops/web/ajax_t100sb02_1: URLError(ConnectionRefusedError(111, 'Connection refused'))"
- ]
+ "errors": []
 }
