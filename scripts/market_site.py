@@ -408,12 +408,27 @@ def _valuation(data_dir, taiex):
 
 
 def _vix(data_dir):
-    rows = [[r["date"], _f(r["close"])] for r in _mkt(data_dir, "vix") if _f(r["close"])]
+    """台指 VIX：官方值優先，官方沒有的日子（2026-08 以前）用 TXO 結算價推算值補。
+    rows = [date, vix, 來源(1 官方／0 推算), 推算值（只在官方跟推算差很多時給，提示官方收盤可能失真）]"""
+    off = {r["date"]: _f(r["close"]) for r in _mkt(data_dir, "vix") if _f(r["close"])}
+    calc = {r["date"]: _f(r["vix"]) for r in _mkt(data_dir, "vix_calc") if _f(r["vix"])}
+    rows = []
+    for d in sorted(set(off) | set(calc)):
+        o, c = off.get(d), calc.get(d)
+        if o is not None:
+            odd = c is not None and abs(o - c) > max(5, 0.2 * c)
+            rows.append([d, o, 1, c if odd else None])
+        else:
+            rows.append([d, c, 0, None])
     if not rows:
         return None
+    now = rows[-1][1]
     y1 = [r[1] for r in rows[-250:]]
-    return {"date": rows[-1][0], "now": rows[-1][1], "prev": rows[-2][1] if len(rows) > 1 else None,
-            "p1y": round(sum(1 for x in y1 if x <= rows[-1][1]) / len(y1) * 100), "rows": rows[-OUT_N:]}
+    al = sorted(r[1] for r in rows)
+    return {"date": rows[-1][0], "now": now, "prev": rows[-2][1] if len(rows) > 1 else None,
+            "p1y": round(sum(1 for x in y1 if x <= now) / len(y1) * 100),
+            "pall": round(sum(1 for x in al if x <= now) / len(al) * 100), "med": al[len(al) // 2],
+            "off_from": min(off) if off else None, "rows": rows}
 
 
 def _big_holders(data_dir):

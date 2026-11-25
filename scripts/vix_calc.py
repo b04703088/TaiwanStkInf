@@ -1,8 +1,10 @@
-"""用 TXO 月選盤後資料推算台指 VIX（CBOE 舊制，近月＋次近月內插 30 天）。
+"""用 TXO 月選盤後結算價推算台指 VIX（CBOE 舊制，近月＋次近月內插 30 天）。
 
-期交所只免費提供近 3 個月的官方 VIX，更早的用這支推算，再跟官方重疊期校準。
-輸入：research/vix_chain.py 產生的 csv.gz（date,exp,strike,cp,bid,ask,settle,close）
-輸出：date,vix
+期交所只免費提供近 3 個月的官方 VIX，更早的用這支推算。
+跟官方重疊期（2026-08～11，77 天）比：平均誤差 0.10 點（0.3%）。
+用結算價比用收盤最佳買賣價中價準很多（中價誤差 3.5 點）。
+
+fetch_market.py --only vixcalc 每天抓期交所選擇權日資料（optDataDown）算一次，寫 data/market/vix_calc.csv。
 """
 import csv, gzip, math, sys
 from collections import defaultdict
@@ -19,15 +21,37 @@ def third_wed(ym):
     return d + timedelta(days=14)
 
 
+def _num(x):
+    try:
+        return float(x)
+    except (TypeError, ValueError):
+        return None
+
+
+def parse_taifex(text, data=None, last=None):
+    """期交所 optDataDown 的 CSV（big5 解碼後）→ data, last。只留 TXO 月選一般盤。"""
+    data = data if data is not None else defaultdict(lambda: defaultdict(dict))
+    last = last if last is not None else {}
+    for p in csv.reader(text.splitlines()[1:]):
+        if len(p) < 18 or p[1].strip() != "TXO" or p[17].strip() != "一般":
+            continue
+        exp = p[2].strip()
+        if not (len(exp) == 6 and exp.isdigit()):
+            continue
+        d = p[0].replace("/", "-")
+        data[d][exp].setdefault(float(p[3]), {})["C" if p[4].strip() == "買權" else "P"] = (_num(p[12]), _num(p[13]), _num(p[10]))
+        last[exp] = max(last.get(exp, ""), d)
+    return data, last
+
+
 def load(paths):
+    """research/vix_chain.py 的精簡 csv.gz（回補時用）。"""
     data = defaultdict(lambda: defaultdict(dict))   # date -> exp -> strike -> {C:(bid,ask,settle), P:...}
     last = {}
     for p in paths:
         with gzip.open(p, "rt") as f:
             for r in csv.DictReader(f):
-                k = float(r["strike"])
-                g = lambda x: float(x) if x not in ("", "None") else None
-                data[r["date"]][r["exp"]].setdefault(k, {})[r["cp"]] = (g(r["bid"]), g(r["ask"]), g(r["settle"]))
+                data[r["date"]][r["exp"]].setdefault(float(r["strike"]), {})[r["cp"]] = (_num(r["bid"]), _num(r["ask"]), _num(r["settle"]))
                 last[r["exp"]] = max(last.get(r["exp"], ""), r["date"])
     return data, last
 
@@ -89,12 +113,12 @@ def sigma2(chain, T, mode):
     return 2 / T * tot - 1 / T * (F / K0 - 1) ** 2
 
 
-def compute(data, last, end_date, mode="mid", roll=7):
+def compute(data, last, end_date, mode="settle", roll=0):
     out = {}
     for d in sorted(data):
         now = datetime.fromisoformat(d).replace(hour=13, minute=45)
         exps = []
-        for e in sorted(data[d]):
+        for e in sorted(data[d])[:3]:
             ed = date.fromisoformat(last[e]) if last[e] < end_date else third_wed(e)
             mins = (datetime.combine(ed, datetime.min.time()).replace(hour=13, minute=30) - now).total_seconds() / 60
             if mins > roll * 1440:
