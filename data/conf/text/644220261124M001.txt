@@ -1,0 +1,236 @@
+[p.1]
+EZconn
+Overview
+Innovating for a sustainable future
+
+[p.3]
+公司簡介
+Established in 1977
+2025 revenue US$ 300+ million;
+2026 revenue expected to continue to grow.
+Listed on Taiwan stock market in 2015
+(Stock symbol: 6442.TW)
+1400+ employees
+Headquarters:  Taiwan
+Oversea presence: USA
+  the Philippines,
+  the Czech Republic,
+  the People Republic of China
+  EZconn Confidential  2  2
+
+[p.4]
+經營績效-營收與獲利
+  單位：新台幣仟元；%
+  營業收入  稅前利益
+  2,378,298
+15,000,000  10,527,227  2,500,000
+  2,000,000  1,422,286
+10,000,000  6,410,405
+  1,500,000
+  2,617,385  1,000,000
+ 5,000,000  247,753
+  500,000
+  -  -
+  112年度  113年度  114年度  112年度  113年度  114年度
+  每股盈餘  新台幣元  毛利率
+  23.46  55.62%  57.74%
+25.00  60.00%
+20.00  14.30  35.55%
+15.00  40.00%
+10.00  2.53  20.00%
+ 5.00
+  -  0.00%
+  112年度  113年度  114年度  112年度  113年度  114年度
+  3
+
+[p.5]
+經營績效-115年前三季營運狀況
+  單位：新台幣仟元；%
+12,000,000  11,306,582  60.00%
+10,000,000  59.42%  59.50%
+ 8,000,000  7,527,529  59.00%
+  營業收入
+ 6,000,000  58.50%
+  稅前利益
+ 4,000,000  3,607,276  58.00%
+  57.81%  毛利率
+ 2,000,000  1,433,870  57.50%
+  -  57.00%
+  114年前三季  115年前三季
+  114年前三季  115年前三季
+營業收入  7,527,529  11,306,582
+稅前淨利  1,433,870  3,607,276
+毛利率(%)  57.81%  59.42%
+營業淨利  1,731,094  3,490,274
+每股盈餘(元)  13.87  34.90
+  4
+
+[p.6]
+經營績效-財務分析
+  項  目  2026.9.30  2025.12.31  2025.9.30
+財務結構  負債占資產比率(%)  30.86  49.04  55.10
+償債能力  流動比率(%)  244.69  268.62  144.93
+獲利能力  權益報酬率(%)  33.22  33.76  35.83
+  每股淨值(元)  188.38  87.90  53.92
+  5
+
+[p.7]
+  Global Sites
+  Trutnov, Czech Republic  New Taipei City, Taiwan  Ningbo, China  Lipa, Philippines
+* Research and Development  * Headquarters  * Research and Development  * Research and Development
+* ISO 9001, ISO-14001  * ISO-9001, ISO-14001  * ISO-9001, ISO-14001  * ISO-9001, ISO-14001
+* Wafer Level Packaging  * Low-volume Production  * High-volume Production  * High-volume Production
+  * Research and Development
+  * ISO-9001, ISO-14001
+  * High-volume Production
+  EZconn Confidential  6
+
+[p.8]
+Product Portfolio
+  EZconn Confidential  7
+
+[p.9]
+  Patents overview
+  Total
+  10  2014
+  Patents
+ 179  9  2015
+  2016  13
+  2017  13
+2018  13
+  2019  10  2022
+  22 2020  2021
+  18  51  2018
+  2022~2024
+  EZconn Confidential  8
+
+[p.10]
+  Core Competency
+  Miniaturization
+  Experienced in
+  miniaturizing
+  modules/components
+  in various applications.
+  Precision Machinery  Quality Production
+  Maintaining micro level  Attained quality
+  precision machining  recognition from 1st tier
+  customers.
+  capabilities in mass
+  production.  Intellectual Property
+Customized Design
+  With over 180+ active
+Customized designs of
+  issued patents and
+optical, mechanical,  thousands of
+and electronic  interconnect designs in
+packaging.  its library.
+  EZconn Confidential  9
+
+[p.11]
+Market Sectors
+ Broadband Networks – Access (Last-Mile)
+ - Optical engines for “Fiber to the Home” (FTTH) for Telcos
+ - RF interconnects for cable service providers
+ AI infrastructure – Hyperscalers (large-scale data centers)
+ - Scale-out: high-density fiber deployment connecting data centers’
+ physical structures
+ - Scale-up: active silicon photonic CPO-ELS* modules to increase speed
+ and reduce power consumption for GPU’s (expected 2026)
+ Biomedical & Scientific
+ - Miniaturized optical units for testing and probing instruments using OCT,
+ PCR, Raman technologies, and for quantum-computing testing
+ Aerospace & Defense
+ -Replacement components for fighter jets
+ -High-frequency RF interconnects
+ * CPO-ELS stands for ”co-packaging optics with external laser source” - essential chip packaging for AI processing at server level in data centers.
+  EZconn Confidential  10
+
+[p.12]
+  Broadband Networks – Access (Last-Mile)
+  FTTH
+  OLT
+Cable Network
+  EZconn Confidential  11
+
+[p.13]
+  Broadband Networks – Access (Last-Mile)
+  SMP  SMPM  1.85mm  2.4mm  2.4mm
+5G mmWave
+40 GHz~
+65 GHz
+  16.25mm
+  12
+
+[p.14]
+AI infrastructure: Scale-out  Overhead cable management
+High density optical fiber  Remote extension
+interconnects linking data
+center structures or rooms  Server rooms
+for AI infrastructure .
+Torpedo cable contains up
+to 6912 fiber cores.
+  Torpedo: 6912 cores of fiber
+  EZconn Confidential  13
+
+[p.15]
+ AI infrastructure: Scale-up
+  Top view
+CPO ELS modules
+ expected 2026
+  Side view
+  EZconn Confidential  14
+
+[p.16]
+Bio Medical & Scientific:
+OCT and PCR
+EZconn also provides optical
+components for PCR (Polymerase
+chain reaction)machines.
+  Used as light source module in  Size: 11x 6 x 4.5 cm
+  OCT (Optical Coherence
+  Tomography) products
+  examining under-skin, eyes,
+  teeth, etc.
+  EZconn Confidential  15
+
+[p.17]
+Bio Medical: Miniaturized Raman Spectrometers
+Application: Currently mainly used by the law enforcement to detect drugs and medicines
+  EZconn Confidential  16
+
+[p.18]
+Biomedical & Scientific:
+Quantum-computing testing
+Superconducting Nanowire Single-Photon Detector
+  Photon counting
+  in detective mode with very
+  low dark count
+  Working Temp: 4°K(-269°C)
+  EZconn Confidential
+  EZconn Confidential
+  17
+
+[p.19]
+Aerospace & Defense:
+Replacement components for fighter jets
+  Item  Photo
+ High frequency jumper
+ for aerospace
+ (BMA SEMI-RIGID)
+ RF relays for aerospace
+ Micro-D to HDMI
+ for aerospace
+  EZconn Confidential  18
+
+[p.20]
+  Aerospace & Defense: High-frequency RF interconnects
+  SMP  SMPM  1.85mm  2.4mm  2.4mm
+5G mmWave
+40 GHz~
+65 GHz
+  16.25mm
+  EZconn Confidential  19
+
+[p.21]
+  Thank you
+April 2025  20
