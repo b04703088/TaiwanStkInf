@@ -3205,10 +3205,10 @@ date,series,value,source
 2026-11-23,us10y,4.918,yahoo:^TNX
 2026-11-23,usdtwd,32.9546,yahoo:TWD=X
 2026-11-23,vix,26.62,yahoo:^VIX
-2026-11-24,dxy,103.977,yahoo:DX-Y.NYB
+2026-11-24,dxy,103.81,yahoo:DX-Y.NYB
 2026-11-24,hyg,76.43,yahoo:HYG
 2026-11-24,ief,91.64,yahoo:IEF
 2026-11-24,us10y,4.904,yahoo:^TNX
 2026-11-24,usdtwd,32.8485,yahoo:TWD=X
 2026-11-24,vix,26.36,yahoo:^VIX
-2026-11-25,usdtwd,32.979,yahoo:TWD=X
+2026-11-25,usdtwd,32.978,yahoo:TWD=X
