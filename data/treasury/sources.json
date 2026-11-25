@@ -1,6 +1,10 @@
 {
- "generated": "2026-11-25 05:07",
+ "generated": "2026-11-25 08:50",
  "since": "2024-01-01",
  "programs": 615,
- "errors": []
+ "errors": [
+  "ajax_t35sb01 sii 2101: URLError(ConnectionRefusedError(111, 'Connection refused'))",
+  "ajax_t35sb01 otc 6913: URLError(ConnectionRefusedError(111, 'Connection refused'))",
+  "達標申報：超過時間上限，剩下的下次再抓"
+ ]
 }

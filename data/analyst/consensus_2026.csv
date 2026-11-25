@@ -1,4 +1,5 @@
 date,time,news_id,code,name,kind,year,analysts,prev,value,chg_pct,high,low,target,bull,neutral,bear,close,url
+2026-11-25,08:10,6671213,6409,旭隼,eps,2026,7,30.79,29.55,-4.03,45.72,27.79,1000,,,,,https://news.cnyes.com/news/id/6671213
 2026-11-24,18:10,6670987,2884,玉山金,tp,,7,47,45.5,-3.19,52,38,45.5,2,5,0,41.2,https://news.cnyes.com/news/id/6670987
 2026-11-23,14:10,6670133,6213,聯茂,eps,2026,10,22.67,23.1,1.9,26.3,17.74,1042.5,,,,,https://news.cnyes.com/news/id/6670133
 2026-11-23,12:10,6670095,2376,技嘉,eps,2026,9,38.44,40.68,5.83,45.7,31.22,440,,,,,https://news.cnyes.com/news/id/6670095

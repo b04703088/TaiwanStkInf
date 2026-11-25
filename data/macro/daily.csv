@@ -3209,5 +3209,6 @@ date,series,value,source
 2026-11-24,hyg,76.43,yahoo:HYG
 2026-11-24,ief,91.64,yahoo:IEF
 2026-11-24,us10y,4.904,yahoo:^TNX
-2026-11-24,usdtwd,32.929,yahoo:TWD=X
+2026-11-24,usdtwd,32.8485,yahoo:TWD=X
 2026-11-24,vix,26.36,yahoo:^VIX
+2026-11-25,usdtwd,32.922,yahoo:TWD=X
