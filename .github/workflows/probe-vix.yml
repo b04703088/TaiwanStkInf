@@ -1,0 +1,12 @@
+name: Probe VIX sources (temporary)
+on:
+  push:
+    branches: [claude/project-thread-cvilc7]
+    paths: [.github/workflows/probe-vix.yml, research/probe_vix.py]
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - run: python -u research/probe_vix.py
