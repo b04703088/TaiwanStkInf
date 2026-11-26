@@ -1,0 +1,596 @@
+[p.1]
+Your Trusted Partner in Semiconductor Testing
+  TWSE:6515
+  2026.11.26
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.
+
+[p.3]
+  公司簡介
+  成立日期
+  西元 2001 年 4 月 10 日
+  實收資本額
+  NTD 364,447,820
+  員工人數
+  美國分公司  高雄總公司  1634人
+  董事長兼總經理
+  王嘉煌
+  服務項目
+  半導體測試介面研發設計及製造銷售
+  登記地址
+蘇州廠  新竹分公司
+  高雄市楠梓區創意南路68號
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  2
+
+[p.4]
+  經營理念
+始終站在客戶的角度思考半導體測試需求，並透過客戶參與、技術創新、製造管理及供應鏈整合，持續堅持品質，
+服務全球，致力於為客戶、員工、供應商及股東創造最大的福利並善盡社會責任。
+  持續創新  堅持品質  全球服務
+  透過技術創新  提供整體解決方案  致力成為全球領先的
+  為客戶打造最佳  並於全球準時交付  專業測試服務供應商
+  測試介面解決方案  超越客戶的品質要求  在 IC 測試各階段提供最佳服務
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  3
+
+[p.5]
+  主講
+  穎崴科技 全球業務營運中心
+  陳紹焜 執行副總經理
+© 2026 WinWay Technology Co., Ltd. All rights reserved.  4
+
+[p.6]
+技術自主 專注本業  立足台灣 服務全球
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  5
+
+[p.7]
+  簡報大綱
+© 2026 WinWay Technology Co., Ltd. All rights reserved.  6
+
+[p.8]
+  全球布局
+© 2026 WinWay Technology Co., Ltd. All rights reserved.  7
+
+[p.9]
+  技術創新 服務全球
+  Europe  North America
+  Asia
+Netherlands  Dresden
+  Vancouver
+  Munich  China  Korea  Japan  Toronto
+  India  Santa Clara
+  Israel
+  Dallas
+  Taiwan
+  Malaysia  Phoenix
+  Penang  Philippines  Austin
+  Singapore
+  高雄KH1  高雄KH2  高雄KH3 & KH4  新竹廠  蘇州廠
+  Coaxial Socket  Socket  Coaxial Socket  MEMS &Cobra  Plastic Socket
+  HyperSocketTM  Spring Probe  HyperSocketTM  Vertical Probe Card  Coaxial Socket
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  8
+
+[p.10]
+  全球客戶營收概況
+  First 10 Months of 2026
+  Top10 Customers
+  North
+American  80  %  ◼ AI  ◼ CPU
+  ◼ HPC  ◼ GPU
+  ◼ ASIC  ◼ AP
+  80%
+ Taiwan
+  14  %
+  14%
+  Active Customers
+  6%
+  ◼ IC Design ◼ ASIC
+  China
+  6  %
+  ◼ CSP
+  ◼ Foundry
+  ◼ OSAT
+  ◼ IDM
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  9
+
+[p.11]
+  North American Market
+  AI 與運算技術創新核心 引領新世代晶片發展
+  IC Design  CSP  Emerging Technology
+• AI ASIC  • Cloud Computing  • Automotive Electronics
+• GPU / CPU  • AI Data Center  • High-Speed Networking
+• Networking Chip  • Hyperscale Computing  • Optical Communication
+• Mobile Processor  • AI ASIC / TPU / LPU
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  10
+
+[p.12]
+Taiwan Market and Manufacturing
+  完整產業鏈布局 全球半導體製造與先進封裝的重要核心
+  IC Design  Foundry & OSAT
+  • SoC Chip  • Wafer Foundry
+  • AI ASIC  • Advanced Packaging
+  • HPC Accelerator  • Wafer Sort & Final Test
+  • Mobile Processor  • SLT Test
+  • Automotive & IoT  • Mass Production BI
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  11
+
+[p.13]
+先進製程產品續增帶動高階測試需求
+  First 10 Months of 2026
+  Advanced Node  Mature Node
+  7nm (or equivalent node) and below
+  Automotive
+ AI  GPU
+  Networking  IoT
+ HPC  CPU
+  NAND Flash  DTV & STB
+  Smart Phone
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  12
+
+[p.14]
+  銷售產品組合
+  First 10 Months of 2026
+  Probe Card  Coaxial Socket
+  22  %  55  %
+  22%  PoP & SbS
+Contact Element  55%  Plastic Socket
+6  %  13  %
+  6%
+  Thermal Product
+  13%  Burn-in Socket
+  2  %  2  %
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  13
+
+[p.15]
+  產品應用多元
+  First 10 Months of 2026
+HPC & AI  Smart Phone
+  73
+  HyperSocketTM
+  Coaxial Socket
+  % Vertical Probe Card  8  %
+  PoP & SbS
+  Plastic Socket
+  73%
+  16%
+Networking / Auto / Consumer  PC & Gaming
+  8%  Plastic Socket
+  16  3
+  Plastic Socket
+  HyperSocketTM
+  Coaxial Socket
+  % Vertical Probe Card  %  Coaxial Socket
+  Vertical Probe Card
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  14
+
+[p.16]
+  AI應用需求驅動營收長期成長
+  GPU
+Automotive  Smart Phone
+  MEMS Probe Card  HyperSocketTM  Functional Burn-in
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  15
+
+[p.17]
+  產業趨勢
+© 2026 WinWay Technology Co., Ltd. All rights reserved.  16
+
+[p.18]
+  半導體產業成長關鍵動能
+ Physical AI  Agentic AI  Data Center
+High Speed Networking  Smart Phone  Collaborative Robots
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  17
+
+[p.19]
+先進製程與封裝驅動測試介面升級
+  CoWoS  CoPoS  CPO
+高頻  高速  大封裝  大功耗
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  18
+
+[p.20]
+  封裝技術再進化突破效能極限
+  HBM
+  SoC / SoIC
+  IO
+  3.3-reticle  5.5-reticle  9.5-reticle  14-reticle  >40-reticle
+Interposer Size  8xHBM3  12xHBM3E/4  12xHBM4E  20xHBM5  64HBM
+  Source : TSMC
+Package Size / mm  75 x 75  100 x 100  120 x 150  150 x 180  ≥ 170 x 200
+Pin Count / pin  5,000  9,000  15,000  24,000  ≥ 29,000
+Total Power / W  1,400  2,300  4,500  10,000  ≥ 15,000
+  2024  2025  2026  2027  2028  2029
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  19
+
+[p.21]
+  先進封裝升級革新測試方案再進化
+  448Gbps Test Speed
+  Si-based Interposer
+  PI
+  Performance
+  Thermal &
+  Electrical
+  Material
+Organic-based Interposer  Glass-based Interposer
+  Consistent  Interface
+  Ref. Level  Contact Stability
+  100%  High Current
+  Co-grounding  Density Risk
+  Source : IDTechEx Research  Mechanical
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  20
+
+[p.22]
+  晶圓測試將成IC測試新挑戰
+  At Speed Test and K.G.D
+  CoWoS  MEMS  Chiplet
+High-end Wafer Sort Demand  Multiple Probe Card Demand
+  ◼ Fine Pitch及高 I/O 密度
+  ◼ 定位精度與尺寸一致性
+  ◼ 低接觸力及低損傷設計
+ Source : IDTechEx Research  Source : IDTechEx Research
+  I/O die  GPU  SENSOR
+HBM  HBM
+  Cobra  7nm  28nm
+HBM  HBM
+  COMOS
+  MEMORY
+  GPU  GPU  28nm
+  CPU  14nm
+HBM  HBM
+  ◼ 成熟 Area Array 接觸  7nm
+  ◼ 針型與材料可客製  PCIe
+HBM
+  I/O die
+  HBM  I/O  22nm
+  Source : Trend Force
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  21
+
+[p.23]
+  手機AP封裝型態革新
+  PoP封裝  SbS封裝
+  ( Package on Package )  ( Side by Side )
+  垂直堆疊  水平並排
+  散熱件
+  DRAM  散熱
+  AP  受阻  AP  DRAM
+  熱阻減少  頻寬增加  厚度降低
+散熱受阻  頻寬受限  厚度侷限
+高效運算受限  AI 運算瓶頸  阻礙輕薄設計
+  Source : Samsung & Apple
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  22
+
+[p.24]
+AI產品持續帶動系統測試SLT高速成長
+  Comprehensive solution for all test requirements
+  Ultra Large Package
+  >150X150mm2 , > 0.6mm Warpage
+  Coaxial Socket
+  High Pin Count
+  >20KPin
+  High-Speed Testing  Functional
+  Burn-in
+  >224 / 336 / 448 Gbps , PAM 4 / 6 / 8
+  HyperSocketTM
+  High Heat Density
+  >10,000W  Thermal System
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  23
+
+[p.25]
+  高速老化測試需求來臨
+Mass Production Burn-in  Functional Burn-in
+  High Power Stress Test
+  系統級高速
+  訊號測試
+  GPU CPU & Automotive  AI & HPC
+  Customized  Customized
+  Probe  Probe
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  24
+
+[p.26]
+  研發創新
+© 2026 WinWay Technology Co., Ltd. All rights reserved.  25
+
+[p.27]
+高頻高速測試最佳方案
+  Coaxial Socket 電性再優化
+  ASIC / GPU封裝測試  AI 晶片高速訊號測試  光通訊模組傳輸效能
+  全金屬屏蔽設計
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  26
+
+[p.28]
+ 高頻高速大封裝高腳數測試最佳方案
+  雙層超導 HyperSocketTM
+  絕佳介面穩定性  AI GPU / ASIC
+  克服超大翹曲  大封裝
+ 全金屬屏蔽  AI 加速器
+高速448 Gbps  伺服器CPU
+  Patent NO.  Patent Pending
+  極高電流通路  • TWI862047  • TWI922268  • USA  網通Switch
+  • TWI884802  • TWI923382
+降低測試熱能產生  • TWI862191  • CN220584352
+  • Malaysia
+  CPO
+  • TWI901161
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  27
+
+[p.29]
+全球首推超導液冷測試方案
+  高電流液冷 Liquid Cooling HyperSocketTM
+  提升封裝錫球面散熱效率
+  ASIC & GPU 精準液冷散熱
+Patent NO.
+• TWI901181
+  SLT & Functional Burn In 應用
+• US12625162
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  28
+
+[p.30]
+自製低阻值高頻最佳測試方案
+  CRS Socket
+  CRS / Conductive Rubber Sheet
+  自製彈性導電膠
+  Elastomer  Rubber
+  AI Server  LPDDR5X/6  GPU / CPU
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  29
+
+[p.31]
+  全球首推超高功率溫控方案
+E-Flux7.0 7000W 液冷溫控系統 For IC Design Lab and NPI Validation
+  微流道散熱技術  智慧溫度監控  整合熱管理技術
+因應ASIC / GPU kW級散熱需求  CoWoS Multiple Chiplet  滿足系統級測試SLT負載需求
+  多點溫控監測及動態調節  提升高功率測試穩定性
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  30
+
+[p.32]
+  矽光子CPO光電同測整合方案
+CPO 全域性電測方案  CPO 光測研發佈局
+  FAU  FAU
+  Module Level  Nanometer
+  精準光纖對位
+  Package Level
+  Die Level
+  上電下光
+  光電雙測
+  Wafer Level  OE  整合方案
+  Precision  Speed
+  Nanometer fiber-to-OE alignment  No standard OE, limited throughput.
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  31
+
+[p.33]
+  經營績效
+© 2026 WinWay Technology Co., Ltd. All rights reserved.  32
+
+[p.34]
+  營收持續成長
+  First 10 months 121.67億
+  2026 MONTHLY REVENUE  QUARTERLY REVENUE
+  ( NTD MILLION )  ( NTD MILLION )
+  4,556
+  1,706  3,523
+  1,600
+  1,460  2,980
+  1,222  1,250
+  1,073  1,107
+  990
+  886  873
+  Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  1Q26  2Q26  3Q26
+YoY  32.62%  -3.83%  69.25%  50.51%  119.79%  287.90%  115.57%  233.37%  87.72%  62.62%  YoY  30%  131%  153%
+MoM  -4.53%  -1.51%  40.01%  -19.01%  8.48%  36.03%  9.6%  6.58%  -26.69%  -11.51%  QoQ  33%  18%  29%
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  33
+
+[p.35]
+  獲利再創新高
+  Up to Q3 EPS 66.85元
+Gross Margin  Operating Margin  Net Margin
+  EPS  19.54  18.7  28.55
+ 43%
+  41%
+  38%
+  NET INCOME (NTD M)
+  28%  1,034
+ 26%
+  24%
+ 24%  24%  699  672
+  20%
+1Q26  2Q26  3Q26  1Q26  2Q26  3Q26
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  34
+
+[p.36]
+  產能擴充
+© 2026 WinWay Technology Co., Ltd. All rights reserved.  35
+
+[p.37]
+  高腳數產品需求占比提升
+2027  40%  17%  30%  5%
+  測試規格升級
+  大封裝需求持續成長
+  2%
+2026  50%  12%  20%
+  1.5%
+  產能積極擴充
+2025  70%  10%  提升高階產品製造能力
+  滿足市場需求
+  0%  20%  40%  60%  80%  100%
+  ≤3K  3K~5K  5K~8K  8K~10K  10K~15K  15K~20K
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  36
+
+[p.38]
+  自製探針產能持續擴充
+  Spring Probe  Annual  成本優化
+  Capacity  Spring Probe Capacity  自製率提升，優化毛利結構
+Pin / Month  Pin  260M
+  技術自主
+  掌握關鍵製程技術，優化探針特性
+  77M
+  品質控管
+  33M  產品品檢嚴謹，卓越客戶體驗
+  29M
+  14M
+  9M
+  2025  2026  2027
+  交期彈性
+  2026 H2 2027 H1 2027 H2
+  物料彈性調度，快速應變需求
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  37
+
+[p.39]
+  高階測試座產能加速擴增
+  Socket Capacity  Annual Socket Capacity  產能擴增
+  持續擴充產能，提升整體供應能力
+  5,000-pin equivalent sockets
+Set / Month  Set  78K
+  交期優化
+  強化生產效率，加速訂單交付
+  38.2K
+  供應穩定
+  21K  提升產能調度，確保穩定供應
+  7.2K  7.4K
+  4.2K
+  2026  2027
+  需求應變
+  2026 H2 2027 H1 2027 H2  2025
+  強化生產彈性，滿足客戶成長需求
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  38
+
+[p.40]
+  MEMS產能加速擴增
+  MEMS植針產能 M pin / 半年  探針卡植針產能  M pin / 半年
+  18
+  自動植針
+  ■ Cobra ■ MEMS
+  15
+  12  12  植針組裝
+  10
+  9
+  12
+  10  8
+  8
+  6  PH 研磨
+  4
+ 4  3  6  6
+  3  3
+  0  針尖成型
+1H'26  2H'26  1H'27  2H'27  1H'26  2H'26  1H'27  2H'27
+ 47%  58%  82%  88%  7.0M  11M  16M  18M
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  39
+
+[p.41]
+  商機挑戰
+© 2026 WinWay Technology Co., Ltd. All rights reserved.  40
+
+[p.42]
+More Advanced Node and Packaging Required
+  CoWoS  CoPoS  CPO
+  Longer and Longer Fab In-process Time
+  More and More Complexity Devices
+  Bigger and Bigger Device Package
+  Higher and Higher Device Power Consumption
+  More Reliability Test Insertion Requirement
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  41
+
+[p.43]
+  More Pins More Demand More ASP
+  Increasing Demand on High Pin Count Product
+100%
+  5%
+  1.5%  2%
+80%
+  10%
+  20%  30%
+60%
+  12%
+  17%
+40%
+  70%
+  50%
+20%  40%
+ 0%
+  2025  2026  2027
+  5K~8K  8K~10K  10K~15K  15K~20K
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  42
+
+[p.44]
+Each Die Must Be KGD Before Packaging
+  Longer Wafer Sort Test Time
+  GPU
+  1000
+  CPU
+  850
+  700
+  min / Wafer
+  550
+  TPU
+  400
+  250
+MEMS and Cobra Probe Card  100
+  2025  2026  2027  2028
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  43
+
+[p.45]
+  More Function Vectors to Test on Chip
+  Longer FT (ATE) Test Time
+  800  GPU
+  700
+  600  TPU
+  sec / Unit
+  500
+  400
+  300  CPU
+  200
+Plastic, Coaxial and HyperSocketTM  100
+  2025  2026  2027  2028
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  44
+
+[p.46]
+AI Chips Must be Testing Under Real Workloads
+  Longer SLT Test Time
+  6  GPU
+  5.5
+  5
+  4.5
+  4  TPU
+  hour / Unit
+  3.5
+  3  CPU
+  2.5
+  2
+  1.5
+  1
+  Coaxial and HyperSocketTM  0.5
+  2025  2026  2027  2028
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  45
+
+[p.47]
+Your Trusted Partner in Semiconductor Testing
+  Wafer Sort (CP - Circuit Probe)
+  • K.G.D
+  CPO (Co-Packaged Optics)
+  • E/PIC Die
+  • Optical Engine
+  FT(Final Test)  • CPO/CPC Substrate
+  • CoWoS/CoPoS
+  • Chiplet/HPC
+  • WMCM/SiP/MoP  SLT (System Level Test) , SFT
+  • 2.5D&3D PKG
+  • ASIC/GPU/TPU
+  (Functional Burn-in)  • WMCM/SiP/MoP
+  (Thermal System)
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  46
+
+[p.48]
+2026
+SEMICON
+JAPAN
+ 12.09 (WED) – 12.11 (FRI)
+ 10:00–17:00
+ Booth No W1260
+ Tokyo Big Sight West Exhibition Hall 1
+ Tokyo International Exhibition Center 3-11-1 Ariake, Koto-ku, Tokyo, 135-0063
+  © 2026 WinWay Technology Co., Ltd. All rights reserved.  47
+
+[p.49]
+  TWSE:6515
+© 2026 WinWay Technology Co., Ltd. All rights reserved.  48
+
+[p.50]
+  You may contact WinWay Technology via
+  ◼ sales@winwayglobal.com
+  ◼ +886 7 361 0999 / +886 3 656 8282
+  ◼ www.winwayglobal.com
+© 2026 WinWay Technology Co., Ltd. All rights reserved.  49
