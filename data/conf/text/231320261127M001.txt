@@ -1,0 +1,229 @@
+[p.1]
+  2313.TW
+COMPEQ MANUFACTURING CO., LTD.
+  2026 年 11 月
+
+[p.3]
+  華通是全球頂尖的 PCB 供應商
+  2025全球PCB  2025年營收  2014-2025 營收
+  供應商 No. 8  新台幣 760 億  年複合成⾧率 7.3%
+  Compeq Thailand
+  Location: AIES亞洲工業園區
+  Samut Prakan 北欖府
+  (30 km away from BKK airport)
+  Land area: 180,000 m2
+  Investment: 300 M USD
+  8 座高科技且具成本競爭力  Mass production: Q1’25~
+  20,000+ 員工人數  的工廠設置於台灣、大陸和泰國  Capa: 500,000 sf/month
+  3
+
+[p.4]
+  華通全球廠區及據點分布
+  Facilities
+  Regional Office
+  Module 2
+  Module 1
+  重慶 II 廠  泰國廠
+  Y2021  Y2024
+  900人  1,500人
+  2
+  92,000 M2  66,000 M
+  重慶 I 廠  蘇州  惠州 SMT  惠州軟板  惠州  大園  蘆竹
+  Y2014  Y2004  Y2012  Y2004  Y1996  Y1998  Y1973
+  2,600 人  700 人  3,500 人  4,700 人  3,300 人  1,200 人  3,300 人
+  2  2  2  2  2  2  2
+  56,000 M  42,000 M  60,000 M  150,000 M  151,000 M  42,000 M  90,000 M
+  4
+
+[p.5]
+  華通競爭優勢
+  在優異的品質管制系統下，提供高品質，高㇐致性，高信賴度、低
+  品質
+  缺點率的產品。
+  領先導入 mSAP 類載板製程，提供 20 / 20 µm 細線路 Anylayer 薄板
+  技術  穩定量產 6+N+6 及以上的 HLC+HDI 厚板
+  提供最多 52 層 6 mm 高信賴度 HLC 厚板，以及軟板和軟硬結合板
+  ESG  符合法令規範，重視環境保護，注重勞工權益，公司治理。
+  提供硬板、軟板、軟硬結合板，和打件的㇐站式電路板服務，並且
+  服務  和客戶共同開發新產品，參與早期設計開發階段，提供到製造、打
+  件、出貨的完整服務。
+  穩定經營與成⾧，擅於研發新技術，掌握客戶需求，提前做好準
+  ⾧久關係
+  備，成為客戶共同發展的合作夥伴。
+  5
+
+[p.6]
+  華通 PCB 未來市場及產品策略
+  1. HLC + HDI
+  AI
+  2. HLC
+  DATA CENTER  3. mSAP
+  運算主板 / 交換機 / 光通模組 / NPO … 等
+  消費性電子產品  低軌衛星
+  1. HDI  1. HLC + HDI
+  2. mSAP  2. HLC
+  3. RF + FPC  衛星 / 地面接收設備 / 軌道資料中心
+  AI 手機 / AI PC /
+  AI Glasses / 先進面板-TCON … 等  Others：人形機器人、車載電子、量子電腦
+  6
+
+[p.7]
+  華通營收規模與毛利趨勢
+  Compeq Revenue and Gross Margin from 2022 to 2026Q1-Q3
+  Bn TWD
+  30%
+  80  76.4  76.0
+  72.5
+  67.1
+  62.1  25%
+  60  Gross Margin
+  20.2%
+  18.6%  26Q3
+  20%  21.3%
+  40
+  16.0%  26Q1-Q3  19.4%
+  15.1%
+  20  15%
+  0  10%
+  2022  2023  2024  2025  26Q1-Q3
+  Revenue  Gross Margin
+  7
+
+[p.8]
+  華通本期營收組成
+  Revenue  Mobile  Consumer
+  PC  Data Center  RF + FPC  SMT  Aerospace  Total
+  Composition  Phone  & Others
+  2025 Q3  18%  13%  5%  28%  16%  17%  4%  100%
+  2025 Q4  22%  10%  6%  26%  15%  17%  4%  100%
+  2026 Q1  16%  14%  7%  24%  14%  21%  4%  100%
+  2026 Q2  17%  10%  10%  24%  13%  22%  4%  100%
+  2026 Q3  18%  13%  10%  25%  8%  22%  4%  100%
+  Total
+  2026 Q3
+  +19%  +13%  +129%  +0%  -40%  +44%  +11%  +13%
+  YoY
+  8
+
+[p.9]
+  HDI PCB 市場主要供應商 / 華通排名
+  2025 Revenue
+  Rank  Country  Supplier
+  (M USD)
+  1  TWN  Compeq  $ 1,381
+  2  CHN  WUS Group  $ 1,179
+  3  TWN  Unimicron  $ 1,144
+  4  CHN  Victory Giant  $ 1,117
+  5  TWN  Zhen Ding  $ 967
+  6  AUT  AT&S  $ 956
+  7  USA  TTM  $ 907
+  8  TWN  Tripod  $ 834
+  9  JPN  Meiko  $ 697
+  10  CHN  AKM Meadville  $ 628
+  Source: Prismark, 2026/04
+  9
+
+[p.10]
+  產業趨勢與展望：低軌衛星
+  2026年11月14日，全球第㇐大低軌衛星營運商完成航太史上首次成功利用發射塔的機械
+  臂在空中夾住並回收上節的飛船本體 (筷子夾火箭頭)。此外，美國聯邦通訊委員會 (FCC)
+  於 2026年10月6日，核准發射與營運15,000 顆手機直連 (D2C) 衛星系統。根據公開資料
+  統計，2026 前第三季，全球前五大低軌衛星營運商合計部署逾 2,600 顆衛星。截至第三
+  季末，單㇐低軌衛星寬頻服務的消費型訂閱用戶數已達 1,360 萬戶。
+  低軌衛星的應用範疇將逐步由「寬頻通訊」延伸至「手機直連」以及「軌道資料中心」
+  等多元領域。受此發展與需求帶動，預期 2030 年全球低軌衛星的單年度部署量將突破㇐
+  萬顆規模。
+  Top 5 LEO Operators: LEO Internet subscribers & Satellite deployed
+  LEO Satellites deployed
+  > 10,000
+  10000  LEO Internet subscribers (M)
+  9000
+  8000
+  7000
+  6000  100
+  5000
+  4000  3,400  > 50
+  3000  2,300  2,613
+  1,830  2,120
+  2000
+  1000  4.4  8.9  13.6
+  2.2
+  0  0
+  2022  2023  2024  2025  26Q1-Q3  ……  2030 F
+Source: Public data from the Top 5 LEO Satellite Operators and Market reports  10
+
+[p.11]
+  產業趨勢與展望：光通模組
+  光通模組因 AI 算力快速成⾧所帶動的高頻寬低延遲傳輸需求，市場正呈現顯著成⾧趨勢。
+  400G以上的高速光通模組需求快速提升，同步帶動高階 HDI PCB 需求。
+  華通深耕高階光通訊模組所需的 mSAP 類載板技術已近十年，⾧期投入高精度線路、細
+  線寬 / 線距、高層數 HDI 與高速材料製程，積極布局次世代高速網通市場。
+  NPO 光引擎 (OE) 的 PCB 技術規格承襲了高階光模塊，大多是 16L 以上的 mSAP 設計。
+  Pluggable & Packaged Optics Equivalent Port Shipment
+450
+400
+  Pluggable Optical Transceivers (M)
+350  NPO + CPO ports (M)
+300
+250
+200
+  Copper Trace by Etch Process  Copper Trace by mSAP Process
+150
+100
+50  96
+  52
+  0
+  2025  2026  2027 F  2028 F  2029 F  2030 F
+Source: Market reports and Compeq internal data  Source: Prismark, 2026/09  11
+
+[p.12]
+  產業趨勢與展望：HLC+HDI
+  相較於輕薄化為主的薄板 HDI，厚板 HDI (HLC+HDI) 在同㇐板件之中兼顧密集佈線、高
+  速傳輸及供電需求，是 AI 運算板、高速網通交換板與衛星通訊板的主流PCB方案。
+  華通穩定量產 6+N+6 及以上的 HLC+HDI ，最高已提供客戶 9+N+9 的開發方案。
+  Key Market Drivers for HLC+HDI  Compeq Advanced PCB Roadmap: HLC+HDI
+  AI server  Switch  Satellite  Current  Future
+  PCB Stack up  9+N+9  10+N+10
+  Computing Board  Mainboard  LEO Satellite
+  Max. Layer Count  44  48
+  NVIDIA, AMD,  Cisco, Arista,
+  LEO Operators  Max. Board Thickness  6 mm  7 mm
+  Google, Amazon  NVIDIA, Huawei
+  •  +5 to +7 HDI stack up  9+N+9  8+N+8
+  •  60 to 75 µm Laser Vias
+  •  Board Thickness > 3 mm
+  •  40 µm L/S
+  Source: Prismark, 2026/04
+  Source: Compeq internal data, 2026/10  12
+
+[p.13]
+  PCB 產業趨勢
+  研究機構 Prismark 指出，整體 PCB 市場得益於AI運算、高速網通、低軌衛星等需求成⾧，2026年產
+  值將達1,134 億美元，年成⾧32.1%。展望未來電子產業將持續成⾧，預估2030年整體PCB產值將達
+  1,623 億美元，2025-2030年複合成⾧率 13.6%。
+  162.3
+  Unit: Bn USD  17.7
+  113.4  34.8
+  14.1
+  81.7  85.8
+  34.0
+  69.5  73.6  21.5
+  YOY  12.9
+  13.8
+  -15%  12.5
+  12.2  14.9  22.6  ……
+  17.4
+  12.5  12.6
+  16.2
+  11.8  12.5  64.2
+  10.5
+  45.5
+  29.8  28.0  33.4
+  26.5
+  8.9  7.8  7.9  8.4  9.6  11.7
+  2022  2023  2024  2025  2026  ……  2030 (F)
+  Commodity  Multilayer  HDI  Package Substrate  Flex
+Source: Prismark, 2026/09  13
+
+[p.14]
+14

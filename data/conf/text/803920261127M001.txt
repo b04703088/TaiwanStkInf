@@ -1,0 +1,98 @@
+[p.1]
+  Security D
+  Unrestricted
+  TAIFLEX
+  2026Q3 營運概況
+1
+
+[p.3]
+  Security D
+  Unrestricted
+營運概況
+◼ 2026 Q3 營運成果
+◼ 營業利益
+◼ 資產
+◼ 現金流量
+  3
+
+[p.4]
+ 2026 Q3 營運成果
+  YoY  YoY
+ 新台幣(百萬元)  2026-Q3  2025-Q3
+  (26Q3/25Q3)  (25Q3/24Q3)
+ 營業收入淨額  2,494  -13%  2,875  +1%
+  營業利益  159  +20%  132  -42%
+  營業外收入  24  -78%  107  --
+  本期淨利  203  -10%  226  +42%
+ 每股盈餘(元)  0.77  0.88
+• 營業利益成長主因產品結構優化、售價調整及生產效率提升
+• 業外收入下滑則主因2025Q3匯兌利益基期較高所致。
+  4
+
+[p.5]
+營業利益
+25.0%  25.3%
+  22.8%
+  21.2%
+  18.5%
+  6.1%
+ 4.4%  4.1%  3.4%  4.0%
+ 22Q3  23Q3  24Q3  25Q3  26Q3
+  營業利益  毛利率  研發費用佔營收比
+  5
+
+[p.6]
+  資產
+  單位：新台幣百萬元
+每股淨值(元)  41.7  40.3  42.3
+  37.7  38.1
+總資產  15,188
+  14,489
+  15,301
+  13,770  13,450
+  12,563  12,279
+其他資產 11,678  11,659  12,636
+現金  2,092  1,791  2,625  1,853  3,022
+  22Q3  23Q2  24Q3  25Q3  26Q3
+  6
+
+[p.7]
+現金流量  單位：新台幣百萬元
+  3,022
+  2,889  2,878
+  2,264
+  1,965
+  1,421
+  1,272
+1,142
+  902
+  707
+  2022  2023  2024-165  2025  2026 Q1-Q3
+  -568
+  -426  -210-519  -480-374
+  -688
+  -985
+  -1,512
+  營業活動  投資活動  籌資活動  期末現金
+  7
+
+[p.8]
+  Security D
+  Unrestricted
+台虹未來發展藍圖
+  8
+
+[p.9]
+  FCCL  CCL
+Application : From 3C to Humanoid Robot & Satellite  Application : AI Server & Optical Module PCB
+Product :  Product :
+✓ High Frequency & Low Loss  ✓ Non-Woven PTFE CCL (M9+, M10, M10+)
+✓Fine Pitch Design  ✓ Hybrid PCB with HC PP (High Feasibility)
+✓ Ultra Thin Materials  ✓ ALL PTFE PCB
+  9
+
+[p.10]
+  Security D
+  Unrestricted
+1  Copyright © Taiflex Scientific Co., Ltd. All rights reserved.
+0
