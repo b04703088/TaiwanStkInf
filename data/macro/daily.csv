@@ -3220,9 +3220,9 @@ date,series,value,source
 2026-11-26,dxy,103.729,yahoo:DX-Y.NYB
 2026-11-26,usdtwd,33.189,yahoo:TWD=X
 2026-11-26,vix,26.8,yahoo:^VIX
-2026-11-27,dxy,104.042,yahoo:DX-Y.NYB
+2026-11-27,dxy,104.014,yahoo:DX-Y.NYB
 2026-11-27,hyg,76.61,yahoo:HYG
 2026-11-27,ief,91.66,yahoo:IEF
 2026-11-27,us10y,4.936,yahoo:^TNX
-2026-11-27,usdtwd,32.969,yahoo:TWD=X
+2026-11-27,usdtwd,32.979,yahoo:TWD=X
 2026-11-27,vix,23.81,yahoo:^VIX
