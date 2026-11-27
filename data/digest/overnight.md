@@ -1,6 +1,6 @@
 # 隔夜美股 2026-11-25
 
-美股交易日 11/25（三）（美東）・產生於台北 2026-11-27 08:41・資料：Yahoo Finance（data/us、data/macro）、原物料頁（data/commod）。
+美股交易日 11/25（三）（美東）・產生於台北 2026-11-27 11:40・資料：Yahoo Finance（data/us、data/macro）、原物料頁（data/commod）。
 
 ## 指數與台積電 ADR
 
