@@ -89316,7 +89316,13 @@ date,key,close,source
 2026-11-26,wti,85.75,yahoo
 2026-11-26,zinc,3508.5,sinag
 2026-11-27,aluminum,2786.0,sinag
+2026-11-27,bci,5023.0,cnyes
+2026-11-27,bcti,2478.0,cnyes
+2026-11-27,bdi,3137.0,cnyes
+2026-11-27,bdti,5109.0,cnyes
+2026-11-27,bpi,2315.0,cnyes
 2026-11-27,brent,90.84,yahoo
+2026-11-27,bsi,1818.0,cnyes
 2026-11-27,ccfi,1906.81,sse
 2026-11-27,ccfi_eu,1835.88,sse
 2026-11-27,ccfi_usw,1744.83,sse
