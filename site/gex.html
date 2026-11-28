@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101419">
+<title>選擇權 Gamma｜潮汐</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#101419; --panel:#171C22; --panel-2:#1E242B;
+    --line:rgba(232,237,242,0.09); --line-strong:rgba(232,237,242,0.16);
+    --text:#E8EDF2; --text-muted:#A9B2BC; --text-faint:#8B95A0;
+    --brass:#C6A15B; --brass-soft:rgba(198,161,91,0.14); --rise:#E1594F; --fall:#3FAE72;
+    --radius-s:3px; --radius-m:6px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--ink); color:var(--text);
+    font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
+  h1,h2{font-family:'Noto Sans TC',sans-serif; margin:0; font-weight:700;}
+  h2{font-size:20px;}
+  .mono{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+  a{color:inherit;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
+  header.site{position:sticky; top:0; z-index:40; background:#101419; border-bottom:1px solid var(--line);}
+  .nav-row{display:flex; align-items:center; justify-content:space-between; padding:16px 28px;}
+  .brand{display:flex; align-items:baseline; gap:10px; text-decoration:none;}
+  .brand-mark{font-family:'Noto Sans TC',sans-serif; font-size:22px; font-weight:700;}
+  .brand-sub{font-size:12px; color:var(--text-faint);}
+  .page-head{padding:56px 0 8px;}
+  .eyebrow{font-size:13px; color:var(--brass); margin-bottom:10px;}
+  h1{font-size:32px;}
+  .desc{color:var(--text-muted); font-size:14.5px; margin:12px 0 0; max-width:52em;}
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden; margin-top:28px;}
+  .stat{background:var(--panel); padding:16px 20px;}
+  .stat .k{font-size:12.5px; color:var(--text-muted);}
+  .stat .v{font-size:26px; margin-top:2px;}
+  .stat .s{font-size:12px; color:var(--text-faint);}
+  section.block{margin-top:48px;}
+  .block-head{display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin-bottom:14px; flex-wrap:wrap;}
+  .hint{font-size:12.5px; color:var(--text-faint);}
+  .up{color:var(--rise);} .down{color:var(--fall);} .flat{color:var(--text-muted);}
+  .faint{color:var(--text-faint);}
+  .muted{color:var(--text-muted);}
+
+  /* 查個股 */
+  .search{position:relative; max-width:460px;}
+  .search input{width:100%; background:var(--panel); border:1px solid var(--line-strong); color:var(--text); padding:11px 14px; border-radius:var(--radius-m); font:inherit; font-size:15px;}
+  .search input:focus{outline:none; border-color:var(--text-faint);}
+  .sugg{position:absolute; left:0; right:0; top:calc(100% + 4px); background:var(--panel-2); border:1px solid var(--line-strong); border-radius:var(--radius-m); z-index:10; overflow:hidden;}
+  .sugg div{padding:8px 14px; cursor:pointer; font-size:14px;}
+  .sugg div:hover, .sugg div.on{background:var(--brass-soft);}
+  .stock{margin-top:16px; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius-m); padding:18px 20px;}
+  .stock .top{display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap;}
+  .stock .nm{font-size:20px; font-weight:700;}
+  .stock .nm .mono{font-size:14px; color:var(--text-muted); margin-left:8px; font-weight:500;}
+  .stock .px{font-size:15px;}
+  .kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-top:16px; padding-top:14px; border-top:1px solid var(--line);}
+  .kpi .k{font-size:12px; color:var(--text-muted);}
+  .kpi .v{font-size:20px; margin-top:2px;}
+  .kpi .s{font-size:12px; color:var(--text-faint); margin-top:2px;}
+  .views{display:flex; height:8px; border-radius:2px; overflow:hidden; margin-top:8px; background:var(--line);}
+  .views i{display:block; height:100%;}
+  .views .b{background:var(--rise);} .views .n{background:var(--text-faint);} .views .r{background:var(--fall);}
+
+  /* 表格 */
+  .tbl-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius-m);}
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  th, td{padding:9px 12px; border-bottom:1px solid var(--line); text-align:left; white-space:nowrap;}
+  th{font-size:12px; color:var(--text-muted); font-weight:500; background:var(--panel); position:sticky; top:0;}
+  td.n, th.n{text-align:right;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr.click{cursor:pointer;}
+  tbody tr.click:hover td{background:var(--panel);}
+  td.wrap-cell{white-space:normal; min-width:18em;}
+  .sname{font-weight:500;}
+  .sname .mono{font-size:11.5px; color:var(--text-faint); margin-left:6px; font-weight:500;}
+  .mini{display:inline-flex; width:72px; height:6px; border-radius:2px; overflow:hidden; background:var(--line); vertical-align:middle; margin-right:6px;}
+  .mini i{display:block; height:100%;}
+  .mini .b{background:var(--rise);} .mini .n{background:var(--text-faint);} .mini .r{background:var(--fall);}
+  .tag{display:inline-block; font-size:11.5px; padding:1px 7px; border-radius:var(--radius-s); border:1px solid var(--line-strong); color:var(--text-muted); margin-right:8px;}
+  .tag.rep{border-color:var(--brass); color:var(--brass);}
+  .ttl{display:block; font-size:12px; color:var(--text-faint); margin-top:2px; text-decoration:none; overflow:hidden; text-overflow:ellipsis; max-width:46em;}
+  .ttl:hover{color:var(--text);}
+
+  .toolbar{display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin-bottom:12px;}
+  .chips{display:flex; flex-wrap:wrap; gap:6px;}
+  .chips button{background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:5px 11px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .chips button[aria-pressed="true"]{border-color:var(--text-faint); color:var(--text);}
+  .more{display:block; margin:14px auto 0; background:none; border:1px solid var(--line-strong); color:var(--text-muted); padding:7px 18px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:13px;}
+  .more:hover{color:var(--text); border-color:var(--text-faint);}
+  .empty{padding:20px 0; color:var(--text-faint); font-size:13.5px;}
+  .note{font-size:12.5px; color:var(--text-faint); margin-top:18px; line-height:1.8;}
+  footer.site{padding:48px 0; margin-top:64px; border-top:1px solid var(--line);}
+  @media (max-width:860px){
+    .nav-row{padding:14px 16px; flex-wrap:wrap; row-gap:10px;}
+    .wrap{padding:0 16px;}
+    .stats, .kpis{grid-template-columns:repeat(2,1fr);} h1{font-size:26px;}
+    .hide-s{display:none;}
+    td.wrap-cell{min-width:14em;}
+  }
+
+  .sub-h{font-size:14px; color:var(--text-muted); margin:22px 0 8px; font-weight:500; display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap;}
+  .tag.mk{font-size:11px; padding:0 5px; margin:0 0 0 6px;}
+  .tag.hi{border-color:var(--rise); color:var(--rise); margin:0;}
+  .chart{position:relative;}
+  .chart svg{display:block; width:100%; height:auto; overflow:visible;}
+  .chart .axis{font-size:10.5px; fill:var(--text-faint); font-family:'IBM Plex Mono',monospace;}
+  .tip{position:absolute; pointer-events:none; background:var(--ink); border:1px solid var(--line-strong); border-radius:var(--radius-s); padding:8px 10px; font-size:12px; min-width:140px; box-shadow:0 4px 16px rgba(0,0,0,.4); display:none; z-index:5;}
+  .tip .d{color:var(--text-muted); margin-bottom:4px;}
+  .tip .r{display:flex; gap:12px; justify-content:space-between; white-space:nowrap;}
+  .tip .r b{font-weight:500; font-family:'IBM Plex Mono',monospace;}
+  .charts{display:grid; grid-template-columns:1fr 1fr; gap:24px;}
+  .note-cell{white-space:normal; min-width:16em; max-width:28em; font-size:12.5px; color:var(--text-muted);}
+  .toggle{background:none; border:none; color:var(--brass); cursor:pointer; font:inherit; font-size:13px; padding:0;}
+  @media (max-width:860px){ .charts{grid-template-columns:1fr;} }
+  .tabs{display:flex; gap:28px; border-bottom:1px solid var(--line-strong); margin-top:36px; overflow-x:auto; scrollbar-width:none;}
+  .tabs a{white-space:nowrap; text-decoration:none; color:var(--text-muted); padding:10px 0; border-bottom:2px solid transparent; margin-bottom:-1px; font-size:15px;}
+  .tabs a:hover{color:var(--text);}
+  .tabs a[aria-selected="true"]{color:var(--text); border-bottom-color:var(--text); font-weight:500;}
+  .grp{display:flex; gap:12px; align-items:flex-start; margin-bottom:10px;}
+  .grp .lbl{flex:none; width:4.5em; font-size:12.5px; color:var(--text-faint); padding-top:6px;}
+  .chips button[disabled]{opacity:.35; cursor:not-allowed;}
+  .filter{background:var(--panel); border:1px solid var(--line-strong); color:var(--text); padding:6px 11px; border-radius:var(--radius-s); font:inherit; font-size:13px; width:12em;}
+  .filter:focus{outline:none; border-color:var(--text-faint);}
+  select.filter{width:auto;}
+  .chk-in{font-size:13px; color:var(--text-muted); display:flex; align-items:center; gap:6px;}
+  th[data-k]{cursor:pointer; user-select:none;} th[data-k]:hover{color:var(--text);} th.sorted{color:var(--text);}
+  .tag.mk{font-size:11px; padding:0 5px; margin:0 0 0 6px;}
+  .tag.hit{border-color:var(--rise); color:var(--rise); margin:0 4px 0 0; font-size:11px; padding:0 5px;}
+  .sname a{text-decoration:none;} .sname a:hover{color:var(--text);}
+  .why{font-size:12.5px; color:var(--text-faint); margin:-4px 0 12px;}
+  @media (max-width:860px){ .grp{flex-direction:column; gap:4px;} .grp .lbl{padding-top:0;} .tabs{gap:20px;} }
+  .chart{border:1px solid var(--line); border-radius:var(--radius-m); background:var(--panel); padding:10px 8px 4px;}
+  .chart text{fill:var(--text-faint); font-size:11px; font-family:'IBM Plex Mono',monospace;}
+  tbody tr.click{cursor:pointer;} tbody tr.click:hover td{background:var(--panel);}
+  tbody tr.settle td{background:var(--brass-soft);}
+
+  .stats.s5{grid-template-columns:repeat(5,1fr);}
+  @media (max-width:860px){ .stats.s5{grid-template-columns:repeat(2,1fr);} }
+  .stats.s5{grid-template-columns:repeat(5,1fr);}
+  @media (max-width:860px){ .stats.s5{grid-template-columns:repeat(2,1fr);} }
+  .legend{display:flex; gap:16px; flex-wrap:wrap; font-size:12.5px; color:var(--text-muted); margin-top:8px;}
+  .legend i{display:inline-block; width:12px; height:8px; margin-right:5px; vertical-align:middle; border-radius:1px;}
+  .stat .v small{font-size:13px; color:var(--text-faint); margin-left:4px; font-family:'Noto Sans TC',sans-serif;}
+  .stat .tagline{font-size:12px; margin-top:4px;}
+  .callout{margin-top:18px; padding:14px 18px; border:1px solid var(--line); border-left:3px solid var(--brass); border-radius:var(--radius-m); background:var(--panel); font-size:14px; color:var(--text-muted); line-height:1.8;}
+  .callout b{color:var(--text); font-weight:500;}
+  .warn{color:var(--brass);}
+</style>
+</head><body>
+<header class="site">
+  <div class="nav-row">
+    <a href="index.html" class="brand"><span class="brand-mark">潮汐</span><span class="brand-sub">籌碼觀測站</span></a>
+    <nav class="gnav"></nav>
+  </div>
+</header>
+<script src="nav.js"></script>
+<main class="wrap">
+  <section class="page-head">
+    <h1>選擇權 Gamma：誰在避險、會壓抑還是放大波動</h1>
+    <p class="desc" id="sub">載入中…</p>
+    <nav class="ptabs"></nav>
+    <div class="stats s5" id="stats"></div>
+    <div class="callout" id="read"></div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>指數移動時的淨 Gamma</h2><span class="hint">單位：指數漲 1% 要賣出幾口大台（負值＝要買進）</span></div>
+    <div class="toolbar"><div class="chips" id="pw"></div></div>
+    <div class="chart" id="pchart"></div>
+    <div class="legend" id="plg"></div>
+    <p class="hint" style="margin-top:6px">把所有到期契約的遠期價一起上下移動，隱含波動率和到期時間不變，重算各身分部位的 gamma。線穿過 0 的地方就是翻轉點。</p>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>各履約價的 Gamma</h2><span class="hint" id="k-hint">所有到期合計・現價 ±10%</span></div>
+    <div class="toolbar"><div class="chips" id="kw"></div>
+      <div class="chips" id="kr"><button data-v="4" aria-pressed="true">±4%</button><button data-v="10" aria-pressed="false">±10%</button></div></div>
+    <div class="chart" id="kchart"></div>
+    <div class="legend"><span><i style="background:#4FA3C7"></i>long gamma（漲賣跌買）</span><span><i style="background:#D9822B"></i>short gamma（追漲殺跌）</span><span><i style="background:var(--brass)"></i>現價</span></div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>每日淨 Gamma 走勢</h2>
+      <div class="chips" id="hrng"><button data-v="22" aria-pressed="false">近 1 個月</button><button data-v="66" aria-pressed="true">近 3 個月</button><button data-v="120" aria-pressed="false">近 6 個月</button></div>
+    </div>
+    <div class="toolbar"><div class="chips" id="hw"></div></div>
+    <div class="chart" id="hchart"></div>
+    <div class="legend"><span><i style="background:#4FA3C7"></i>long gamma</span><span><i style="background:#D9822B"></i>short gamma</span><span><i style="background:var(--brass)"></i>台指期近月收盤（右軸）</span></div>
+    <p class="hint" style="margin-top:6px" id="h-note"></p>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>依到期日拆開</h2><span class="hint">口大台／1%・F＝買賣權平價推的遠期價</span></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>契約</th><th>結算日</th><th class="n">剩餘天數</th><th class="n">遠期價 F</th><th class="n">價平 IV%</th><th class="n">自營商</th><th class="n">外資</th><th class="n">投信</th><th class="n">其他交易人</th></tr></thead>
+      <tbody id="exps"></tbody>
+    </table></div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>部位分配推估</h2><span class="hint" id="a-hint"></span></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>身分</th><th>權別</th><th>方向</th><th class="n">未平倉口數</th><th class="n">平均權利金（點）</th><th class="n">全市場平均（點）</th><th class="n">傾斜 θ</th><th>推估持倉位置</th></tr></thead>
+      <tbody id="alloc"></tbody>
+    </table></div>
+    <p class="hint" style="margin-top:8px">期交所只公布三大法人各權別買方／賣方的未平倉口數與契約金額，沒有分履約價。平均權利金比全市場低，表示部位偏便宜的價外、近到期序列；比較高，表示偏價平、價內或遠月。θ 是把口數分到各序列時的傾斜度，權重 ∝ 未平倉 × 結算價^θ。</p>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>有沒有用：隔日波動</h2><span class="hint">依自營商淨 gamma 分組，加權指數隔日漲跌幅絕對值的平均</span></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>分組</th><th class="n">天數</th><th class="n">自營商 gamma 範圍</th><th class="n">隔日平均漲跌幅 %</th></tr></thead>
+      <tbody id="check"></tbody>
+    </table></div>
+    <p class="hint" style="margin-top:8px">如果自營商（造市商）真的照 gamma 避險，long gamma 的日子隔日波動應該比較小。樣本只有 2026/6 以來，參考就好。</p>
+  </section>
+
+  <p class="note">
+    <b class="muted" style="font-weight:500">怎麼算：</b>全市場所有選擇權部位的淨 gamma 恆等於 0（一口買方就對應一口賣方），有意義的是「誰」站在哪一邊。這頁把臺指選擇權的未平倉分給自營商、外資、投信與其他交易人（散戶等，＝全市場減三大法人），四群加總恆為 0。<br>
+    1. 每個序列用結算價以 Black-76 反推隱含波動率；遠期價用同到期日的買賣權平價推，週選、月選各自計算。<br>
+    2. 三大法人各權別、買賣方的口數，依平均權利金傾斜分到各序列（見「部位分配推估」）；沒有契約金額的日子依各序列未平倉比例分。<br>
+    3. 淨 gamma 換算成「指數漲 1% 時，為了維持 delta 中性要賣出的大台口數」：正值＝long gamma，指數漲就賣、跌就買，會壓抑波動；負值＝short gamma，會追漲殺跌、放大波動。<br>
+    限制：自營商包含造市與自營部位，外資包含結構型商品避險，不一定都會動態避險；分配到履約價是推估，不是實際持倉。資料來源：臺灣期貨交易所（每個交易日下午約 15:00 後公布，網站於傍晚更新）。資料僅供參考，不構成投資建議。
+  </p>
+</main>
+<footer class="site"><div class="wrap"><p class="note" style="margin:0">資料僅供參考。</p></div></footer>
+<script>
+const $ = id => document.getElementById(id);
+const fx = (v, d = 0) => v == null ? "–" : (+v).toLocaleString("zh-TW", {minimumFractionDigits: d, maximumFractionDigits: d});
+const sg = (v, d = 0) => v == null ? "–" : (v > 0 ? "+" : "") + fx(v, d);
+const dTxt = d => d ? `${+d.slice(5, 7)}/${+d.slice(8)}` : "";
+const WHO = {dealer: "自營商", foreign: "外資", trust: "投信", other: "其他交易人"};
+const COL = {dealer: "var(--brass)", foreign: "#5B8DEF", trust: "#A67CD8", other: "var(--text-muted)"};
+const POS = "#4FA3C7", NEG = "#D9822B";
+const gcls = v => v == null ? "faint" : v > 0 ? "gp" : v < 0 ? "gn" : "flat";
+const gsp = (v, d = 0) => `<span style="color:${v > 0 ? POS : v < 0 ? NEG : "var(--text-muted)"}">${sg(v, d)}</span>`;
+let D, H = [];
+const S = {pw: ["dealer", "foreign", "trust", "other"], kw: "dealer", kr: 4, hw: "dealer", hn: 66};
+
+function word(v){ return v > 0 ? "long gamma：漲賣跌買，壓抑波動" : v < 0 ? "short gamma：追漲殺跌，放大波動" : "中性"; }
+
+function head(){
+  const G = Object.fromEntries(D.groups.map(g => [g.who, g]));
+  const fl = D.flip.dealer;
+  const card = (k, v, s) => `<div class="stat"><div class="k">${k}</div><div class="v mono">${v}</div><div class="s">${s}</div></div>`;
+  const gc = w => { const g = G[w]; return card(`${WHO[w]}淨 gamma`, gsp(g.gamma) + `<small>口／1%</small>`,
+    `週選 ${sg(g.gamma_wk)}・買權 ${sg(g.gamma_c)}／賣權 ${sg(g.gamma_p)}`); };
+  $("stats").innerHTML = card("台指期近月", fx(D.tx), `遠期價 ${fx(D.spot)}`) + gc("dealer") + gc("foreign") + gc("trust")
+    + card("自營商翻轉點", fl == null ? `<span class="faint" style="font-size:18px">±8% 內不翻轉</span>` : fx(fl),
+      fl == null ? "" : `距遠期價 ${sg(fl - D.spot)} 點（${sg((fl / D.spot - 1) * 100, 1)}%）`);
+  const g = G.dealer, o = G.other;
+  const pr = D.profile.rows, i0 = pr.findIndex(r => r[0] === 0);
+  const dn = pr[Math.max(0, i0 - 6)], up = pr[Math.min(pr.length - 1, i0 + 6)];
+  $("read").innerHTML = `自營商目前是 <b>${word(g.gamma)}</b>，指數每漲 1% 約需${g.gamma >= 0 ? "賣出" : "買進"} <b>${fx(Math.abs(g.gamma))} 口大台</b>`
+    + `；選擇權部位約當 <b>${sg(g.delta)} 口大台</b> 的 delta。`
+    + `若指數跌 3%，自營商 gamma 變成 ${gsp(dn[2])}；漲 3% 變成 ${gsp(up[2])}。`
+    + `其他交易人（散戶等）是 ${word(o.gamma).split("：")[0]}（${sg(o.gamma)}）。`
+    + (D.method === "equal" ? `<br><span class="warn">這一天沒有法人契約金額，部位依各序列未平倉比例分配，履約價分佈較粗略。</span>` : "");
+}
+
+function chipsWho(id, key, multi, fn){
+  $(id).innerHTML = Object.keys(WHO).map(w => `<button data-v="${w}" aria-pressed="${multi ? S[key].includes(w) : S[key] === w}">${WHO[w]}</button>`).join("");
+  $(id).querySelectorAll("button").forEach(b => b.onclick = () => {
+    if (multi) { const v = b.dataset.v; S[key] = S[key].includes(v) ? S[key].filter(x => x !== v) : [...S[key], v]; if (!S[key].length) S[key] = [v]; }
+    else S[key] = b.dataset.v;
+    $(id).querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", multi ? S[key].includes(x.dataset.v) : x.dataset.v === S[key]));
+    fn(); });
+}
+function chipBind(id, key, parse, fn){
+  $(id).querySelectorAll("button").forEach(b => b.onclick = () => {
+    $(id).querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); S[key] = parse(b.dataset.v); fn(); });
+}
+function tipAt(box, svg, W, html, x){
+  const tip = box.querySelector(".tip"), r = svg.getBoundingClientRect(), lx = x * r.width / W;
+  tip.innerHTML = html; tip.style.display = "block";
+  tip.style.left = (lx > r.width / 2 ? lx - tip.offsetWidth - 12 : lx + 12) + "px"; tip.style.top = "16px";
+}
+function ticks(lo, hi, n){ const st = Math.pow(10, Math.floor(Math.log10((hi - lo) / n || 1))), m = [1, 2, 5, 10].find(m => (hi - lo) / (st * m) <= n) * st; const out = []; for (let v = Math.ceil(lo / m) * m; v <= hi; v += m) out.push(v); return out; }
+
+function profile(){
+  const rows = D.profile.rows, cols = D.profile.cols, ws = S.pw;
+  const W = $("pchart").clientWidth - 16 || 900, Ht = 280, L = 56, R = 14, T = 14, B = 24, pw = W - L - R, ph = Ht - T - B;
+  const vals = rows.flatMap(r => ws.map(w => r[cols.indexOf(w)])).concat([0]);
+  let lo = Math.min(...vals), hi = Math.max(...vals); const pad = (hi - lo) * .08 || 10; lo -= pad; hi += pad;
+  const X = i => L + i / (rows.length - 1) * pw, Y = v => T + (hi - v) / (hi - lo) * ph;
+  let g = "";
+  for (const v of ticks(lo, hi, 5)) g += `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${L - 6}" y="${Y(v) + 4}" text-anchor="end">${fx(v)}</text>`;
+  g += `<line x1="${L}" x2="${W - R}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--text-faint)"/>`;
+  const lstep = W < 600 ? 4 : 2;
+  rows.forEach((r, i) => { if (r[0] % lstep === 0) g += `<text x="${X(i)}" y="${Ht - 6}" text-anchor="middle">${r[0] === 0 ? fx(r[1]) : sg(r[0]) + "%"}</text>`; });
+  const i0 = rows.findIndex(r => r[0] === 0);
+  g += `<line x1="${X(i0)}" x2="${X(i0)}" y1="${T}" y2="${T + ph}" stroke="var(--brass)" stroke-dasharray="4 3"/>`;
+  for (const w of ws) { const j = cols.indexOf(w); g += `<polyline fill="none" stroke="${COL[w]}" stroke-width="${w === "dealer" ? 2.4 : 1.6}" points="${rows.map((r, i) => `${X(i)},${Y(r[j])}`).join(" ")}"/>`; }
+  const fl = D.flip.dealer;
+  if (fl != null && ws.includes("dealer")) { const x = (fl / D.spot - 1) * 100, i = (x - rows[0][0]) / (rows[1][0] - rows[0][0]); g += `<circle cx="${X(i)}" cy="${Y(0)}" r="4" fill="var(--brass)"/><text x="${X(i) + 6}" y="${Y(0) - 6}" style="fill:var(--brass)">翻轉 ${fx(fl)}</text>`; }
+  g += `<line id="pv" y1="${T}" y2="${T + ph}" stroke="var(--text-faint)" style="display:none"/>`;
+  $("pchart").innerHTML = `<svg viewBox="0 0 ${W} ${Ht}">${g}</svg><div class="tip"></div>`;
+  const svg = $("pchart").querySelector("svg");
+  svg.onpointermove = ev => { const r = svg.getBoundingClientRect(), sx = (ev.clientX - r.left) * W / r.width, i = Math.max(0, Math.min(rows.length - 1, Math.round((sx - L) / pw * (rows.length - 1)))), x = rows[i];
+    const v = $("pv"); v.setAttribute("x1", X(i)); v.setAttribute("x2", X(i)); v.style.display = "";
+    tipAt($("pchart"), svg, W, `<div class="d">指數 ${fx(x[1])}（${sg(x[0], 1)}%）</div>` + ws.map(w => `<div class="r"><span style="color:${COL[w]}">${WHO[w]}</span><b>${sg(x[cols.indexOf(w)])}</b></div>`).join(""), X(i)); };
+  svg.onpointerleave = () => { $("pchart").querySelector(".tip").style.display = "none"; $("pv").style.display = "none"; };
+  $("plg").innerHTML = ws.map(w => `<span><i style="background:${COL[w]}"></i>${WHO[w]}</span>`).join("") + `<span><i style="background:var(--brass);height:2px"></i>虛線＝目前遠期價</span>`;
+}
+
+function strikes(){
+  const cols = D.strikes.cols, j = cols.indexOf(S.kw);
+  const rows = D.strikes.rows.filter(r => Math.abs(r[0] / D.spot - 1) * 100 <= S.kr && r[j] !== 0).sort((a, b) => b[0] - a[0]);
+  $("k-hint").textContent = `所有到期合計・現價 ±${S.kr}%・口大台／1%`;
+  if (!rows.length) { $("kchart").innerHTML = `<div class="empty">沒有資料</div>`; return; }
+  const W = $("kchart").clientWidth - 16 || 900, rh = 18, T = 6, L = 64, R = 70, pw = W - L - R, Ht = T * 2 + rows.length * rh;
+  const mx = Math.max(...rows.map(r => Math.abs(r[j]))) || 1, mid = L + pw / 2;
+  let g = `<line x1="${mid}" x2="${mid}" y1="0" y2="${Ht}" stroke="var(--text-faint)"/>`, drew = false;
+  rows.forEach((r, i) => { const y = T + i * rh, v = r[j], w = Math.abs(v) / mx * pw / 2;
+    if (!drew && r[0] < D.spot) { g += `<line x1="0" x2="${W}" y1="${y}" y2="${y}" stroke="var(--brass)" stroke-dasharray="4 3"/><text x="${W - 4}" y="${y - 3}" text-anchor="end" style="fill:var(--brass)">${fx(D.spot)}</text>`; drew = true; }
+    g += `<text x="${L - 8}" y="${y + 13}" text-anchor="end">${fx(r[0])}</text>`
+      + `<rect x="${v >= 0 ? mid : mid - w}" y="${y + 3}" width="${Math.max(w, 1)}" height="${rh - 6}" fill="${v >= 0 ? POS : NEG}" opacity=".85"><title>${fx(r[0])}：${sg(v, 1)} 口／1%</title></rect>`
+      + `<text x="${v >= 0 ? mid + w + 4 : mid - w - 4}" y="${y + 13}" text-anchor="${v >= 0 ? "start" : "end"}">${sg(v, 1)}</text>`; });
+  $("kchart").innerHTML = `<svg viewBox="0 0 ${W} ${Ht}">${g}</svg>`;
+}
+
+function hist(){
+  const w = S.hw, pts = H.slice(-S.hn);
+  const W = $("hchart").clientWidth - 16 || 900, Ht = 260, L = 56, R = 60, T = 14, B = 24, pw = W - L - R, ph = Ht - T - B;
+  const vs = pts.map(p => p[w]).concat([0]); let lo = Math.min(...vs), hi = Math.max(...vs); const pad = (hi - lo) * .08 || 10; lo -= pad; hi += pad;
+  const px = pts.map(p => p.tx).filter(v => v != null); let plo = Math.min(...px), phi = Math.max(...px); const pp = (phi - plo) * .08 || 100; plo -= pp; phi += pp;
+  const bw = pw / pts.length, X = k => L + (k + .5) * bw, Y = v => T + (hi - v) / (hi - lo) * ph, Yp = v => T + (phi - v) / (phi - plo) * ph;
+  let g = "";
+  for (const v of ticks(lo, hi, 5)) g += `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${L - 6}" y="${Y(v) + 4}" text-anchor="end">${fx(v)}</text>`;
+  for (const v of ticks(plo, phi, 4)) g += `<text x="${W - R + 6}" y="${Yp(v) + 4}" style="fill:var(--brass)">${fx(v)}</text>`;
+  pts.forEach((p, k) => { const v = p[w]; if (v == null) return; g += `<rect x="${L + k * bw + bw * .15}" y="${Math.min(Y(v), Y(0))}" width="${bw * .7}" height="${Math.max(1, Math.abs(Y(v) - Y(0)))}" fill="${v >= 0 ? POS : NEG}" opacity="${p.method === "equal" ? .45 : .85}"/>`;
+    if (k % Math.ceil(pts.length / (W < 600 ? 4 : 6)) === 0) g += `<text x="${X(k)}" y="${Ht - 6}" text-anchor="middle">${dTxt(p.date)}</text>`; });
+  g += `<line x1="${L}" x2="${W - R}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--text-faint)"/>`;
+  g += `<polyline fill="none" stroke="var(--brass)" stroke-width="1.8" points="${pts.map((p, k) => p.tx == null ? "" : `${X(k)},${Yp(p.tx)}`).join(" ")}"/>`;
+  g += `<line id="hv" y1="${T}" y2="${T + ph}" stroke="var(--text-faint)" style="display:none"/>`;
+  $("hchart").innerHTML = `<svg viewBox="0 0 ${W} ${Ht}">${g}</svg><div class="tip"></div>`;
+  const svg = $("hchart").querySelector("svg");
+  svg.onpointermove = ev => { const r = svg.getBoundingClientRect(), sx = (ev.clientX - r.left) * W / r.width, k = Math.max(0, Math.min(pts.length - 1, Math.floor((sx - L) / bw))), p = pts[k];
+    const v = $("hv"); v.setAttribute("x1", X(k)); v.setAttribute("x2", X(k)); v.style.display = "";
+    tipAt($("hchart"), svg, W, `<div class="d">${p.date}${p.method === "equal" ? "・依未平倉比例" : ""}</div><div class="r">台指期<b>${fx(p.tx)}</b></div>`
+      + Object.keys(WHO).map(x => `<div class="r"><span style="color:${COL[x]}">${WHO[x]}</span><b>${sg(p[x])}</b></div>`).join("")
+      + `<div class="r">自營商翻轉點<b>${fx(p.flip)}</b></div><div class="r">隔日漲跌<b>${p.next_ret == null ? "–" : sg(p.next_ret, 2) + "%"}</b></div>`, X(k)); };
+  svg.onpointerleave = () => { $("hchart").querySelector(".tip").style.display = "none"; $("hv").style.display = "none"; };
+  const eq = pts.filter(p => p.method === "equal").length;
+  $("h-note").textContent = `履約價資料從 2026/6 起。${eq ? `淡色的 ${eq} 天沒有法人契約金額，部位依未平倉比例分配。` : ""}翻轉點只在現價 ±6% 內找。`;
+}
+
+function tables(){
+  const WK = "日一二三四五六";
+  $("exps").innerHTML = D.exps.map(e => `<tr><td>${e.kind === "月" ? `${+e.exp.slice(4)}月選` : `${e.kind}週選 ${e.exp.slice(6)}`}</td>
+    <td class="mono">${dTxt(e.exp_date)}（${WK[new Date(e.exp_date + "T12:00:00Z").getUTCDay()]}）</td><td class="n mono">${e.days}</td><td class="n mono">${fx(e.F)}</td><td class="n mono">${fx(e.iv, 1)}</td>
+    ${["dealer", "foreign", "trust", "other"].map(w => `<td class="n mono" data-v="${e[w]}">${gsp(e[w])}</td>`).join("")}</tr>`).join("");
+  const A = D.alloc;
+  $("a-hint").textContent = `${D.date.replaceAll("-", "/")}・${D.method === "equal" ? "這天沒有契約金額，依未平倉比例分配" : "依平均權利金傾斜分配"}`;
+  $("alloc").innerHTML = A.rows.map(r => Object.fromEntries(A.cols.map((k, i) => [k, r[i]]))).filter(r => r.n > 0).map(r => {
+    let pos = "–";
+    if (r.theta != null) pos = r.theta < -0.4 ? "偏價外、近到期（便宜）" : r.theta > 0.4 ? "偏價平、價內或遠月（貴）" : "接近全市場分佈";
+    return `<tr><td>${WHO[r.who]}</td><td>${r.cp === "C" ? "買權" : "賣權"}</td><td>${r.side === "long" ? "買方" : "賣方"}</td><td class="n mono">${fx(r.n)}</td>
+      <td class="n mono">${fx(r.avg, 1)}</td><td class="n mono">${fx(r.eq, 1)}</td><td class="n mono">${r.theta == null ? "–" : sg(r.theta, 2)}</td><td style="font-size:12.5px" class="muted">${pos}</td></tr>`; }).join("");
+  $("check").innerHTML = D.check.length ? D.check.map(c => `<tr><td>${c.bucket}</td><td class="n mono">${c.n}</td><td class="n mono" data-v="${c.lo ?? ""}">${c.lo == null ? "–" : `${sg(c.lo)} ～ ${sg(c.hi)}`}</td><td class="n mono">${fx(c.abs_ret, 2)}</td></tr>`).join("")
+    : `<tr><td colspan="4" class="empty">樣本還不夠</td></tr>`;
+}
+
+fetch("data/gex.json", {cache: "no-cache"}).then(r => r.json()).then(d => {
+  D = d; H = d.hist.rows.map(r => Object.fromEntries(d.hist.cols.map((k, i) => [k, r[i]])));
+  $("sub").textContent = `${d.date.replaceAll("-", "/")}・用三大法人選擇權部位推估自營商、外資、投信、散戶各自的淨 gamma，看指數移動時誰要追價、誰要反向避險。每個交易日傍晚更新。`;
+  head(); tables();
+  chipsWho("pw", "pw", true, profile); chipsWho("kw", "kw", false, strikes); chipsWho("hw", "hw", false, hist);
+  chipBind("kr", "kr", Number, strikes); chipBind("hrng", "hn", Number, hist);
+  profile(); strikes(); hist();
+  addEventListener("resize", () => { profile(); strikes(); hist(); });
+}).catch(e => { $("sub").textContent = "資料載入失敗"; console.error(e); });
+</script>
+</body>
+</html>

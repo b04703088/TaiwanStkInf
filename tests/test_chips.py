@@ -61,7 +61,8 @@ class FuturesTest(unittest.TestCase):
                              "12373", "1", "91927", "1", "-79554", "-774905393"],
                             ["2026/10/01", "電子期貨", "外資及陸資"] + ["0"] * 12])
         self.assertEqual(fut, [{"date": "2026-10-01", "product": "TX", "who": "foreign", "net_vol": "-1389", "net_val": "-13378149",
-                                "oi_long": "12373", "oi_short": "91927", "oi_net": "-79554", "oi_net_val": "-774905393"}])
+                                "oi_long": "12373", "oi_short": "91927", "oi_net": "-79554", "oi_net_val": "-774905393",
+                                "oi_long_val": "1", "oi_short_val": "1"}])
         opt = FF.parse_opt([["2026/10/01", "臺指選擇權", "PUT", "外資及陸資", "52596", "1", "52272", "1", "324", "-6977",
                              "7124", "1", "6130", "1", "994", "19835"]])
         self.assertEqual((opt[0]["product"], opt[0]["oi_net_val"]), ("TXO_P", "19835"))
