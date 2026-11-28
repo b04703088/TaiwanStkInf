@@ -45,6 +45,11 @@ class HealthTest(unittest.TestCase):
         lv = self.levels(h)
         self.assertEqual((lv["prices"], lv["A"], lv["B"], lv["C"]), ("ok", "ok", "error", "error"))
 
+    def test_overseas_lag_warn(self):
+        cols = ["code", "name", "shares", "weight"]
+        write(self.d / "etf" / "B" / "20260923.csv", cols, [[f"T{i} US", "n", "1000", "10"] for i in range(10)])
+        self.assertEqual(self.levels(health.check(self.d, self.now))["B"], "warn")   # 海外 ETF 落後 2 天 → 只是留意
+
     def test_missing_price_day(self):
         h = health.check(self.d, datetime(2026, 10, 1, 9, 10, tzinfo=health.TPE))  # 應有 09-30，沒抓到
         lv = self.levels(h)

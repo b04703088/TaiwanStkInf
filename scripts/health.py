@@ -31,6 +31,8 @@ TPE = timezone(timedelta(hours=8))
 # 門檻
 ETF_UNTRACKED_OK = {"00996A"}  # 兆豐官網擋雲端主機，刻意不抓（見 fetch_etf.py）
 ETF_LAG_ERROR = 2     # 持股落後 ≥ 2 個交易日 → error（T+1 公告的投信早上本來就落後 1 天）
+ETF_OVERSEAS_LAG_ERROR = 4  # 海外成分為主的 ETF：遇美國等海外市場休市（感恩節、耶誕），投信那幾天不公布持股，落後 2～3 天只算 warn
+OVERSEAS_SHARE = 0.5        # 成分股代號有市場後綴（'NVDA US'）的比例 ≥ 這個值就當海外 ETF
 AUM_LAG_WARN = 2
 BROKER_LAG_ERROR = 2   # 分點落後 ≥ 2 個交易日 → error
 WEIGHT_LOW_ERROR, WEIGHT_LOW_WARN, WEIGHT_HIGH_ERROR = 70.0, 80.0, 105.0
@@ -213,7 +215,10 @@ def check(data_dir=ROOT / "data", now=None):
         stats = {"n": len(rows), "prev_n": len(prev) if prev else None, "wsum": round(w, 1) if has_w else None,
                  "lag": lg, "files": len(files)}
         errs, warns = [], []
-        if lg is not None and lg >= ETF_LAG_ERROR:
+        overseas = rows and sum(1 for r in rows if " " in (r.get("code") or "").strip()) >= OVERSEAS_SHARE * len(rows)
+        if overseas and lg is not None and ETF_LAG_ERROR <= lg < ETF_OVERSEAS_LAG_ERROR:
+            warns.append(f"落後 {lg} 個交易日（海外成分為主，多半是海外市場休市投信沒更新，來源公布後會自動補上）")
+        elif lg is not None and lg >= ETF_LAG_ERROR:
             errs.append(f"落後 {lg} 個交易日")
         if len(rows) < 5:
             errs.append(f"只有 {len(rows)} 檔成分股")
