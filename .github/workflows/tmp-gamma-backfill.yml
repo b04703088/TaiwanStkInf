@@ -1,0 +1,46 @@
+name: tmp gamma backfill
+on:
+  push:
+    branches: [txo-gamma]
+    paths: [".github/workflows/tmp-gamma-backfill.yml"]
+permissions:
+  contents: write
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with: {ref: txo-gamma}
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: backfill
+        run: python -u fetch_futures.py --start 2026-06-01
+      - name: check
+        run: |
+          python -u - <<'PY'
+          import csv, glob
+          rows=[r for r in csv.DictReader(open("data/futures/inst.csv")) if r["product"].startswith("TXO") and r["date"]>="2026-06"]
+          miss=[r for r in rows if not r["oi_long_val"]]
+          print("txo inst rows", len(rows), "missing val", len(miss))
+          for r in rows[-6:]: print(r)
+          pcr={r["date"]:r for r in csv.DictReader(open("data/futures/pcr.csv"))}
+          for f in sorted(glob.glob("data/futures/txo/2026/*.csv"))[-3:]:
+              d=f[-12:-4]; d=f"{d[:4]}-{d[4:6]}-{d[6:]}"
+              c=p=0
+              for r in csv.DictReader(open(f)):
+                  if r["exp_date"]<=d: continue
+                  if r["cp"]=="C": c+=int(float(r["oi"] or 0))
+                  else: p+=int(float(r["oi"] or 0))
+              ins=[r for r in rows if r["date"]==d]
+              print(d,"txo live oi C",c,"P",p,"pcr",pcr.get(d,{}).get("call_oi"),pcr.get(d,{}).get("put_oi"),
+                    "inst long C",sum(int(r["oi_long"]) for r in ins if r["product"]=="TXO_C"),"short C",sum(int(r["oi_short"]) for r in ins if r["product"]=="TXO_C"))
+          PY
+      - name: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/futures/inst.csv
+          git commit -m "data: TXO 三大法人買賣方未平倉金額回補 2026-06 起" || echo nothing
+          git pull --rebase -q origin txo-gamma || true
+          git push origin HEAD:txo-gamma

@@ -9,7 +9,9 @@
   台指期行情    https://www.taifex.com.tw/cht/3/futDataDown  down_type=1, commodity_id=TX
 
 輸出 data/futures/（口數；金額單位：千元）
-  inst.csv   date, product, who, net_vol, net_val, oi_long, oi_short, oi_net, oi_net_val
+  inst.csv   date, product, who, net_vol, net_val, oi_long, oi_short, oi_net, oi_net_val, oi_long_val, oi_short_val
+             oi_long_val／oi_short_val＝買方／賣方未平倉契約金額（千元；選擇權以結算價計；2026-06 以前是空的，
+             選擇權 gamma 頁用它推估各身分部位集中在哪些履約價）
              product：TX 臺股期貨、MTX 小型臺指、TMF 微型臺指、TXO_C 臺指買權、TXO_P 臺指賣權
              who：dealer 自營商、trust 投信、foreign 外資及陸資
   pcr.csv    date, put_vol, call_vol, pc_vol, put_oi, call_oi, pc_oi（比率 %）
@@ -51,7 +53,8 @@ INTERVAL = 3
 PRODUCTS = {"臺股期貨": "TX", "小型臺指期貨": "MTX", "微型臺指期貨": "TMF"}
 WHO = {"自營商": "dealer", "投信": "trust", "外資及陸資": "foreign", "外資": "foreign"}
 COLS = {
-    "inst": ["date", "product", "who", "net_vol", "net_val", "oi_long", "oi_short", "oi_net", "oi_net_val"],
+    "inst": ["date", "product", "who", "net_vol", "net_val", "oi_long", "oi_short", "oi_net", "oi_net_val",
+             "oi_long_val", "oi_short_val"],
     "pcr": ["date", "put_vol", "call_vol", "pc_vol", "put_oi", "call_oi", "pc_oi"],
     "large": ["date", "month", "kind", "top5_long", "top5_short", "top10_long", "top10_short", "oi"],
     "tx": ["date", "contract", "close", "change", "volume", "settle", "oi", "oi_all"],
@@ -113,7 +116,8 @@ def parse_fut(rows):
         if len(r) < 15 or r[1] not in PRODUCTS or r[2] not in WHO:
             continue
         out.append({"date": _d(r[0]), "product": PRODUCTS[r[1]], "who": WHO[r[2]], "net_vol": _n(r[7]), "net_val": _n(r[8]),
-                    "oi_long": _n(r[9]), "oi_short": _n(r[11]), "oi_net": _n(r[13]), "oi_net_val": _n(r[14])})
+                    "oi_long": _n(r[9]), "oi_short": _n(r[11]), "oi_net": _n(r[13]), "oi_net_val": _n(r[14]),
+                    "oi_long_val": _n(r[10]), "oi_short_val": _n(r[12])})
     return out
 
 
@@ -125,7 +129,8 @@ def parse_opt(rows):
             continue
         cp = "C" if r[2].upper() in ("CALL", "買權") else "P"
         out.append({"date": _d(r[0]), "product": f"TXO_{cp}", "who": WHO[r[3]], "net_vol": _n(r[8]), "net_val": _n(r[9]),
-                    "oi_long": _n(r[10]), "oi_short": _n(r[12]), "oi_net": _n(r[14]), "oi_net_val": _n(r[15])})
+                    "oi_long": _n(r[10]), "oi_short": _n(r[12]), "oi_net": _n(r[14]), "oi_net_val": _n(r[15]),
+                    "oi_long_val": _n(r[11]), "oi_short_val": _n(r[13])})
     return out
 
 
